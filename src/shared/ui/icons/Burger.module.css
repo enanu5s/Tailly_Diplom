@@ -1,0 +1,39 @@
+.burger {
+  background: none;
+  border: none;
+  padding: 0;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.2s ease;
+}
+
+.icon {
+  transition: transform 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.line1,
+.line2,
+.line3 {
+  transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+  transform-origin: center;
+}
+
+.open .line1 {
+  transform: translateY(6px) rotate(45deg);
+}
+
+.open .line2 {
+  opacity: 0;
+  transform: scaleX(0);
+}
+
+.open .line3 {
+  transform: translateY(-6px) rotate(-45deg);
+}
+
+/* hover-эффект (опционально) */
+.burger:hover .icon {
+  opacity: 0.85;
+}

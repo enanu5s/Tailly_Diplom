@@ -1,0 +1,107 @@
+.dropdown {
+  position: relative;
+  display: inline-block;
+}
+
+.trigger {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 10px 12px;
+  background: none;
+  border: none;
+  font-size: 1rem;
+  font-weight: 500;
+  color: var(--text-primary);
+  cursor: pointer;
+  transition: color 0.2s ease;
+}
+
+.trigger:hover,
+.trigger.open,
+.trigger.active {
+  color: var(--color-primary); /* например #6366f1 */
+}
+
+.arrow {
+  width: 0;
+  height: 0;
+  border-left: 5px solid transparent;
+  border-right: 5px solid transparent;
+  border-top: 6px solid currentColor;
+  transition: transform 0.25s ease;
+}
+
+.trigger.open .arrow {
+  transform: rotate(180deg);
+}
+
+/* Десктоп — hover */
+.desktopMode .menu {
+  position: absolute;
+  top: 100%;
+  left: 0;
+  min-width: 180px;
+  background: white;
+  border-radius: 8px;
+  box-shadow: 0 8px 16px rgba(0, 0, 0, 0.15);
+  padding: 8px 0;
+  margin: 4px 0 0;
+  list-style: none;
+  z-index: 1000;
+  opacity: 0;
+  visibility: hidden;
+  transform: translateY(-8px);
+  transition: all 0.2s ease;
+}
+
+.desktopMode:hover .menu,
+.desktopMode .trigger.open + .menu {
+  opacity: 1;
+  visibility: visible;
+  transform: translateY(0);
+}
+
+/* Мобильный режим — всегда клик */
+.mobileMode .menu {
+  position: static;
+  background: #f8f9fa;
+  border-radius: 6px;
+  margin: 8px 0;
+  padding: 0;
+  box-shadow: none;
+}
+
+.mobileMode .item {
+  padding: 0;
+}
+
+.mobileMode .link {
+  display: block;
+  padding: 12px 20px;
+  color: var(--text-primary);
+  text-decoration: none;
+  font-size: 1.05rem;
+}
+
+.mobileMode .link:hover,
+.mobileMode .link:active {
+  background: rgba(99, 102, 241, 0.08);
+}
+
+/* Общее для пунктов */
+.item {
+  padding: 4px 0;
+}
+
+.link {
+  display: block;
+  padding: 8px 16px;
+  color: var(--text-primary);
+  text-decoration: none;
+  white-space: nowrap;
+}
+
+.link:hover {
+  background: rgba(99, 102, 241, 0.08);
+}
