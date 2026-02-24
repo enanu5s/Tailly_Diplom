@@ -1,0 +1,162 @@
+.page {
+  min-height: calc(100vh - 160px); /* отступ под header и footer */
+  background: #f8f9fa;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 40px 20px;
+}
+
+.container {
+  width: 100%;
+  max-width: 420px;
+}
+
+.backButton {
+  background: none;
+  border: none;
+  color: #6366f1;
+  font-size: 1rem;
+  cursor: pointer;
+  margin-bottom: 16px;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.backButton:hover {
+  text-decoration: underline;
+}
+
+.title {
+  font-size: 2.25rem;
+  font-weight: 700;
+  text-align: center;
+  margin-bottom: 32px;
+  color: #1f2937;
+}
+
+.card {
+  background: white;
+  border-radius: 16px;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.08);
+  padding: 40px 32px;
+}
+
+.socialSection {
+  margin-bottom: 24px;
+}
+
+.vkButton {
+  width: 100%;
+  padding: 14px;
+  background: #0077ff;
+  color: white;
+  border: none;
+  border-radius: 10px;
+  font-size: 1.05rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background 0.2s;
+}
+
+.vkButton:hover {
+  background: #0066dd;
+}
+
+.divider {
+  text-align: center;
+  margin: 24px 0;
+  position: relative;
+  color: #9ca3af;
+  font-size: 0.95rem;
+}
+
+.divider::before {
+  content: '';
+  position: absolute;
+  top: 50%;
+  left: 0;
+  right: 0;
+  height: 1px;
+  background: #e5e7eb;
+}
+
+.divider span {
+  background: white;
+  padding: 0 16px;
+}
+
+.form {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.inputGroup {
+  position: relative;
+}
+
+.input {
+  width: 100%;
+  padding: 16px 18px;
+  border: 2px solid #e5e7eb;
+  border-radius: 10px;
+  font-size: 1.05rem;
+  transition: border 0.2s;
+}
+
+.input:focus {
+  outline: none;
+  border-color: #6366f1;
+}
+
+.forgotLink {
+  color: #6366f1;
+  text-decoration: none;
+  font-size: 0.95rem;
+  align-self: flex-end;
+  margin-top: -4px;
+}
+
+.forgotLink:hover {
+  text-decoration: underline;
+}
+
+.submitButton {
+  margin-top: 12px;
+  padding: 16px;
+  background: #6366f1;
+  color: white;
+  border: none;
+  border-radius: 10px;
+  font-size: 1.1rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background 0.2s;
+}
+
+.submitButton:hover {
+  background: #4f46e5;
+}
+
+.registerSection {
+  margin-top: 32px;
+  text-align: center;
+}
+
+.registerText {
+  color: #6b7280;
+  margin-bottom: 8px;
+}
+
+.registerLink {
+  color: #6366f1;
+  font-weight: 600;
+  text-decoration: none;
+  font-size: 1.05rem;
+}
+
+.registerLink:hover {
+  text-decoration: underline;
+}

@@ -2,6 +2,7 @@
 import type { RouteObject } from 'react-router-dom'
 import { Layout } from '@/app/Layout'           // ← новый импорт
 import { HomePage } from '@/pages/home'
+import { LoginPage } from '@/pages/login';
 
 export const routes: RouteObject[] = [
   {
@@ -11,11 +12,10 @@ export const routes: RouteObject[] = [
         path: '/',
         element: <HomePage />,
       },
-      // сюда потом добавите остальные страницы
-      // {
-      //   path: '/services',
-      //   element: <ServicesPage />,
-      // },
+      { 
+        path: '/login',
+        element: <LoginPage />
+      },
     ],
   },
 ]
