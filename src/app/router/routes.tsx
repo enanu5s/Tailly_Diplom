@@ -6,7 +6,10 @@ import { LoginPage } from '@/pages/login'
 import { RegisterPage } from '@/pages/register'
 import { RegisterClientStep1Page } from '@/pages/register-client/step1'
 import { RegisterClientVerifyPage } from '@/pages/register-client/verify'
-import { RegisterClientProfilePage } from '@/pages/register-client/profile';
+import { RegisterClientProfilePage } from '@/pages/register-client/profile'
+import { ForgotPasswordEmailPage } from '@/pages/forgot-password/email'
+import { ForgotPasswordVerifyPage } from '@/pages/forgot-password/verify'
+import { ForgotPasswordResetPage } from '@/pages/forgot-password/reset';
 
 export const routes: RouteObject[] = [
   {
@@ -32,6 +35,15 @@ export const routes: RouteObject[] = [
       },
       { path: '/register/client/profile',
         element: <RegisterClientProfilePage />
+      },
+      { path: '/forgot-password',
+        element: <ForgotPasswordEmailPage />
+      },
+      { path: '/forgot-password/verify',
+        element: <ForgotPasswordVerifyPage />
+      },
+      { path: '/forgot-password/reset',
+        element: <ForgotPasswordResetPage />
       },
     ],
   },
