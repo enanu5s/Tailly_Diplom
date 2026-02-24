@@ -1,6 +1,6 @@
 // src/features/auth/model/useAuth.ts
 import { useSyncExternalStore } from 'react';
-import { authStore } from './store';
+import { authStore } from './authStore';
 
 export function useAuth() {
   const state = useSyncExternalStore(authStore.subscribe, authStore.getState);

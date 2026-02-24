@@ -1,7 +1,7 @@
 // src/features/auth/model/authService.ts
 import { authApi } from '../api/authApi';
 import type { LoginRequest } from '../api/authApi';
-import { authStore } from './store';
+import { authStore } from './authStore';
 
 export const authService = {
   async login(dto: LoginRequest) {
