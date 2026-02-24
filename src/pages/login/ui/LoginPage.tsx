@@ -1,92 +1,100 @@
 // src/pages/login/ui/LoginPage.tsx
-import { useNavigate, Link } from 'react-router-dom';
+import { useNavigate, Link, useLocation } from 'react-router-dom';
 import { useState } from 'react';
 import styles from './LoginPage.module.css';
+import { authService } from '@/features/auth/model/authService';
 
 const LoginPage = () => {
   const navigate = useNavigate();
+  const location = useLocation();
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
+  const [error, setError] = useState<string | null>(null);
+  const [loading, setLoading] = useState(false);
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    // Здесь будет логика авторизации (пока заглушка)
-    console.log('Вход:', { email, password });
-    // navigate('/profile'); // потом раскомментируете
+    setError(null);
+    setLoading(true);
+
+    try {
+      await authService.login({ email, password });
+      const from = (location.state as any)?.from ?? '/';
+      navigate(from, { replace: true });
+    } catch (e: any) {
+      setError(e?.message ?? 'Ошибка входа');
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (
-    <>
+    <div className={styles.page}>
+      <div className={styles.container}>
+        <button onClick={() => navigate(-1)} className={styles.backButton}>
+          ← Вернуться назад
+        </button>
 
-      <div className={styles.page}>
-        <div className={styles.container}>
-          {/* Кнопка назад */}
-          <button onClick={() => navigate(-1)} className={styles.backButton}>
-            ← Вернуться назад
-          </button>
+        <h1 className={styles.title}>Войти</h1>
 
-          <h1 className={styles.title}>Войти</h1>
+        <div className={styles.card}>
+          <div className={styles.socialSection}>
+            <button className={styles.vkButton} type="button">
+              Продолжить через ВК
+            </button>
+          </div>
 
-          {/* Основная карточка */}
-          <div className={styles.card}>
-            {/* Часть 1 — Социальная авторизация */}
-            <div className={styles.socialSection}>
-              <button className={styles.vkButton}>
-                Продолжить через ВК
-              </button>
+          <div className={styles.divider}>
+            <span>или</span>
+          </div>
+
+          <form onSubmit={handleSubmit} className={styles.form}>
+            <div className={styles.inputGroup}>
+              <input
+                type="email"
+                placeholder="Email"
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
+                className={styles.input}
+                required
+              />
             </div>
 
-            <div className={styles.divider}>
-              <span>или</span>
+            <div className={styles.inputGroup}>
+              <input
+                type="password"
+                placeholder="Пароль"
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
+                className={styles.input}
+                required
+              />
             </div>
 
-            {/* Часть 2 — Форма */}
-            <form onSubmit={handleSubmit} className={styles.form}>
-              <div className={styles.inputGroup}>
-                <input
-                  type="email"
-                  placeholder="Email"
-                  value={email}
-                  onChange={(e) => setEmail(e.target.value)}
-                  className={styles.input}
-                  required
-                />
+            <Link to="/forgot-password" className={styles.forgotLink}>
+              Забыли пароль?
+            </Link>
+
+            {error && (
+              <div style={{ color: '#dc2626', fontSize: '0.95rem' }}>
+                {error}
               </div>
+            )}
 
-              <div className={styles.inputGroup}>
-                <input
-                  type="password"
-                  placeholder="Пароль"
-                  value={password}
-                  onChange={(e) => setPassword(e.target.value)}
-                  className={styles.input}
-                  required
-                />
-              </div>
+            <button type="submit" className={styles.submitButton} disabled={loading}>
+              {loading ? 'Входим...' : 'Продолжить'}
+            </button>
+          </form>
 
-              <Link to="/forgot-password" className={styles.forgotLink}>
-                Забыли пароль?
-              </Link>
-
-              <button type="submit" className={styles.submitButton}>
-                Продолжить
-              </button>
-            </form>
-
-            {/* Часть 3 — Регистрация */}
-            <div className={styles.registerSection}>
-              <p className={styles.registerText}>
-                У вас еще нет аккаунта?
-              </p>
-              <Link to="/register" className={styles.registerLink}>
-                Зарегистрироваться
-              </Link>
-            </div>
+          <div className={styles.registerSection}>
+            <p className={styles.registerText}>У вас еще нет аккаунта?</p>
+            <Link to="/register" className={styles.registerLink}>
+              Зарегистрироваться
+            </Link>
           </div>
         </div>
       </div>
-
-    </>
+    </div>
   );
 };
 

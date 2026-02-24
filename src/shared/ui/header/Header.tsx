@@ -7,10 +7,18 @@ import { Burger } from '../icons/Burger.tsx';     // иконки лучше в 
 import { DropdownMenu } from '../dropdown/DropdownMenu.tsx';
 import styles from './Header.module.css';     // CSS-модули
 import clsx from 'clsx';
+import { useAuth } from '@/features/auth/model/useAuth';
+import { authService } from '@/features/auth/model/authService';
 
 export const Header = () => {
   const [isMobileOpen, setIsMobileOpen] = useState(false);
   const location = useLocation();
+
+  const { isAuth, user } = useAuth();
+
+  const navItems = mainNav
+    .filter((item) => (isAuth ? true : item.to !== '/messages'))
+    .filter((item) => item.to !== '/login');
 
   const toggleMobile = () => setIsMobileOpen(!isMobileOpen);
 
@@ -25,7 +33,7 @@ export const Header = () => {
         {/* Десктопное меню */}
         <nav className={styles.navDesktop}>
           <ul className={styles.navList}>
-            {mainNav.map((item) => (
+            {navItems.map((item) => (
               <li key={item.to} className={styles.navItem}>
                 {item.children ? (
                   <DropdownMenu 
@@ -49,6 +57,29 @@ export const Header = () => {
           </ul>
         </nav>
 
+        {/* Правая часть (десктоп) */}
+        <div className={styles.rightDesktop}>
+          {isAuth ? (
+            <div className={styles.userBox}>
+              <Link to="/profile" className={styles.userName}>
+                {user?.name ?? user?.email ?? 'Профиль'}
+              </Link>
+
+              <button
+                type="button"
+                className={styles.logoutBtn}
+                onClick={() => authService.logout()}
+              >
+                Выйти
+              </button>
+            </div>
+          ) : (
+            <Link to="/login" className={styles.loginBtn}>
+              Войти
+            </Link>
+          )}
+        </div>
+        
         {/* Кнопка бургер (только мобильные) */}
         <button 
           className={styles.burger} 
@@ -62,7 +93,7 @@ export const Header = () => {
         {isMobileOpen && (
           <div className={styles.mobileMenu}>
             <ul className={styles.mobileNavList}>
-              {mainNav.map((item) => (
+              {navItems.map((item) => (
                 <li key={item.to}>
                   {item.children ? (
                     // В мобильном — тоже дропдаун или просто список подуслуг
