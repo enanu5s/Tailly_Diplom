@@ -1,0 +1,29 @@
+.page {
+  min-height: calc(100vh - 160px);
+  background: #f9fafb;
+  padding: 40px 20px 80px;
+}
+
+.container {
+  max-width: 1280px;
+  margin: 0 auto;
+}
+
+.h1 {
+  margin: 0 0 16px;
+  font-size: 34px;
+  line-height: 1.1;
+  color: #111827;
+}
+
+.back {
+  background: transparent;
+  border: none;
+  padding: 0;
+  cursor: pointer;
+  color: rgba(17, 24, 39, 0.8);
+}
+
+.back:hover {
+  color: #111827;
+}

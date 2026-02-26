@@ -11,7 +11,10 @@ import { ForgotPasswordEmailPage } from '@/pages/forgot-password/email'
 import { ForgotPasswordVerifyPage } from '@/pages/forgot-password/verify'
 import { ForgotPasswordResetPage } from '@/pages/forgot-password/reset'
 import { BecomeSpecialistPage } from '@/pages/become-specialist'
-import { BecomeSpecialistFormPage } from '@/pages/become-specialist-form';
+import { BecomeSpecialistFormPage } from '@/pages/become-specialist-form'
+import { AboutPage } from '@/pages/about'
+import { PostsPage } from '@/pages/posts'
+import { PostPage } from '@/pages/post';
 
 export const routes: RouteObject[] = [
   {
@@ -60,6 +63,18 @@ export const routes: RouteObject[] = [
       {
         path: '/become-specialist/form',
         element: <BecomeSpecialistFormPage />
+      },
+      {
+        path: '/about',
+        element: <AboutPage />,
+      },
+      {
+        path: '/posts',
+        element: <PostsPage />,
+      },
+      {
+        path: '/posts/:postId',
+        element: <PostPage />,
       },
     ],
   },
