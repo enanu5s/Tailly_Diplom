@@ -9,7 +9,9 @@ import { RegisterClientVerifyPage } from '@/pages/register-client/verify'
 import { RegisterClientProfilePage } from '@/pages/register-client/profile'
 import { ForgotPasswordEmailPage } from '@/pages/forgot-password/email'
 import { ForgotPasswordVerifyPage } from '@/pages/forgot-password/verify'
-import { ForgotPasswordResetPage } from '@/pages/forgot-password/reset';
+import { ForgotPasswordResetPage } from '@/pages/forgot-password/reset'
+import { BecomeSpecialistPage } from '@/pages/become-specialist'
+import { BecomeSpecialistFormPage } from '@/pages/become-specialist-form';
 
 export const routes: RouteObject[] = [
   {
@@ -27,23 +29,37 @@ export const routes: RouteObject[] = [
         path: '/register',
         element: <RegisterPage />
       },
-      { path: '/register/client',
+      {
+        path: '/register/client',
         element: <RegisterClientStep1Page />
       },
-      { path: '/register/client/verify',
+      {
+        path: '/register/client/verify',
         element: <RegisterClientVerifyPage />
       },
-      { path: '/register/client/profile',
+      {
+        path: '/register/client/profile',
         element: <RegisterClientProfilePage />
       },
-      { path: '/forgot-password',
+      {
+        path: '/forgot-password',
         element: <ForgotPasswordEmailPage />
       },
-      { path: '/forgot-password/verify',
+      {
+        path: '/forgot-password/verify',
         element: <ForgotPasswordVerifyPage />
       },
-      { path: '/forgot-password/reset',
+      {
+        path: '/forgot-password/reset',
         element: <ForgotPasswordResetPage />
+      },
+      {
+        path: '/become-specialist',
+        element: <BecomeSpecialistPage />
+      },
+      {
+        path: '/become-specialist/form',
+        element: <BecomeSpecialistFormPage />
       },
     ],
   },
