@@ -1,0 +1,47 @@
+.page {
+  min-height: calc(100vh - 160px);
+  background: #f9fafb;
+  padding: 40px 20px 80px;
+}
+
+.container {
+  max-width: 1280px;
+  margin: 0 auto;
+}
+
+.h1 {
+  margin: 0 0 16px;
+  font-size: 34px;
+  line-height: 1.1;
+  color: #111827;
+}
+
+.grid {
+  display: grid;
+  grid-template-columns: 1.05fr 0.95fr;
+  gap: 16px;
+  align-items: start;
+}
+
+.leftCol,
+.rightCol {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.placeholderCard {
+  background: #fff;
+  border-radius: 18px;
+  border: 1px solid rgba(17, 24, 39, 0.08);
+  box-shadow: 0 10px 30px rgba(17, 24, 39, 0.08);
+  padding: 16px;
+  color: rgba(17, 24, 39, 0.7);
+  line-height: 1.6;
+}
+
+@media (max-width: 980px) {
+  .grid {
+    grid-template-columns: 1fr;
+  }
+}

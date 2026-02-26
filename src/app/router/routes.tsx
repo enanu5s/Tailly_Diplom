@@ -14,7 +14,10 @@ import { BecomeSpecialistPage } from '@/pages/become-specialist'
 import { BecomeSpecialistFormPage } from '@/pages/become-specialist-form'
 import { AboutPage } from '@/pages/about'
 import { PostsPage } from '@/pages/posts'
-import { PostPage } from '@/pages/post';
+import { PostPage } from '@/pages/post'
+import { ProfilePage } from '@/pages/profile'
+import { ChangeEmailPage } from '@/pages/profile-security-email'
+import { ChangePasswordPage} from '@/pages/profile-security-password';
 
 export const routes: RouteObject[] = [
   {
@@ -75,6 +78,18 @@ export const routes: RouteObject[] = [
       {
         path: '/posts/:postId',
         element: <PostPage />,
+      },
+      {
+        path: '/profile',
+        element: <ProfilePage />,
+      },
+      {
+        path: '/profile/security/email',
+        element: <ChangeEmailPage />,
+      },
+      {
+        path: '/profile/security/password',
+        element: <ChangePasswordPage />,
       },
     ],
   },
