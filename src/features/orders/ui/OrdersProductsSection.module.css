@@ -20,6 +20,17 @@
   display: flex;
   flex-direction: column;
   gap: 12px;
+
+  margin-top: 14px;
+
+  /* прокрутка внутри блока */
+  overflow-y: auto;
+
+  /* высота = примерно 4 карточки (подгони под свой дизайн) */
+  max-height: 520px;
+
+  /* чтобы скролл не упирался в края */
+  padding-right: 6px;
 }
 
 .order {

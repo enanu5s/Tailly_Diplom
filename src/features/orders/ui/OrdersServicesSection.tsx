@@ -5,6 +5,7 @@ import { ordersStore } from '../model/ordersStore';
 import type { ServicesFilter, ServiceOrder } from '../model/types';
 import { petsStore } from '@/features/pets/model/petsStore';
 import styles from './OrdersServicesSection.module.css';
+import { useLocation, useNavigate } from 'react-router-dom';
 
 const FILTERS: Array<{ key: ServicesFilter; label: string }> = [
   { key: 'all', label: 'Все' },
@@ -62,6 +63,11 @@ export const OrdersServicesSection = observer(() => {
 
 const ServiceOrderCard = observer(({ order }: { order: ServiceOrder }) => {
   const date = formatDateTime(order.dateFrom, order.dateTo);
+
+  const isCanceled = order.status === 'canceled';
+
+  const navigate = useNavigate();
+  const location = useLocation();
 
   return (
     <div className={styles.order}>
@@ -125,14 +131,16 @@ const ServiceOrderCard = observer(({ order }: { order: ServiceOrder }) => {
         <button
           className={order.hasReview ? styles.thanksBtn : styles.primaryBtn}
           type="button"
-          disabled={order.hasReview || ordersStore.actionLoadingId === order.id}
+          disabled={isCanceled || order.hasReview || ordersStore.actionLoadingId === order.id}
           onClick={() => {
-            // пока простой вариант: ставим 5 звёзд одной кнопкой
-            // позже сделаем модалку/форму отзыва
-            void ordersStore.leaveReview(order.id, 5);
+            if (isCanceled) return;
+
+            navigate(`/profile/review/${order.id}`, {
+              state: { from: location.pathname + location.search },
+            });
           }}
         >
-          {order.hasReview ? 'Спасибо за отзыв!' : 'Оставить отзыв'}
+          {isCanceled ? 'Недоступно для отменённых' : order.hasReview ? 'Спасибо за отзыв!' : 'Оставить отзыв'}
         </button>
       </div>
     </div>
