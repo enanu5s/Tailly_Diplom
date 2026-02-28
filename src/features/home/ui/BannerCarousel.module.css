@@ -1,0 +1,83 @@
+.root {
+  position: relative;
+  display: grid;
+  grid-template-columns: 44px 1fr 44px;
+  gap: 12px;
+  align-items: center;
+}
+
+.bannerBtn {
+  border: none;
+  background: transparent;
+  padding: 0;
+  cursor: pointer;
+  width: 100%;
+}
+
+.banner {
+  height: 280px;
+  border-radius: 18px;
+  background-size: cover;
+  background-position: center;
+  box-shadow: 0 12px 34px rgba(17, 24, 39, 0.10);
+  overflow: hidden;
+}
+
+.overlay {
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-end;
+  gap: 8px;
+  padding: 18px;
+  background: linear-gradient(180deg, rgba(17,24,39,0.0) 20%, rgba(17,24,39,0.65) 100%);
+}
+
+.title {
+  color: #fff;
+  font-size: 20px;
+  line-height: 1.2;
+}
+
+.subtitle {
+  color: rgba(255,255,255,0.9);
+  font-size: 14px;
+}
+
+.arrow {
+  border: 1px solid rgba(17, 24, 39, 0.12);
+  background: #fff;
+  border-radius: 14px;
+  height: 44px;
+  width: 44px;
+  cursor: pointer;
+  box-shadow: 0 10px 26px rgba(17, 24, 39, 0.06);
+}
+
+.arrow:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.dots {
+  grid-column: 1 / -1;
+  display: flex;
+  justify-content: center;
+  gap: 8px;
+  margin-top: 10px;
+}
+
+.dot,
+.dotActive {
+  border: none;
+  cursor: pointer;
+  width: 8px;
+  height: 8px;
+  border-radius: 999px;
+  background: rgba(99, 102, 241, 0.35);
+}
+
+.dotActive {
+  background: #6366f1;
+  width: 18px;
+}

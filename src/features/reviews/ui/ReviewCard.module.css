@@ -12,6 +12,9 @@
   display: flex;
   flex-direction: column;
   gap: 12px;
+
+  /* важно для фикс высоты */
+  min-height: 0;
 }
 
 .textColFull {
@@ -59,7 +62,6 @@
 }
 
 .arrows {
-  margin-top: 10px;
   display: flex;
   gap: 10px;
 }
@@ -81,6 +83,7 @@
   display: flex;
   flex-direction: column;
   gap: 6px;
+  overflow: hidden;
 }
 
 .titleRow {
@@ -106,6 +109,8 @@
   display: flex;
   flex-direction: column;
   gap: 4px;
+
+  overflow: hidden;
 }
 
 .link {
@@ -120,6 +125,13 @@
 .text {
   color: #111827;
   line-height: 1.45;
+
+  /* важно для фиксированной карточки */
+  overflow: hidden;
+  display: -webkit-box;
+  line-clamp: 4;
+  -webkit-line-clamp: 4; /* подгони: 4-6 */
+  -webkit-box-orient: vertical;
 }
 
 .actions {
@@ -133,4 +145,54 @@
   padding: 10px 14px;
   border-radius: 14px;
   text-decoration: none;
+}
+
+.thanksBottom {
+  margin-top: 16px;
+  padding: 10px 14px;
+  border-radius: 14px;
+  background: #ecfdf5;
+  color: #065f46;
+  font-size: 13px;
+  text-align: center;
+}
+
+.cardFixed {
+  display: grid;
+  grid-template-columns: 220px 1fr;
+  gap: 16px;
+
+  border-radius: 16px;
+  padding: 16px;
+  background: #fff;
+  box-shadow: 0 10px 30px rgba(17, 24, 39, 0.06);
+
+  /* фиксируем высоту, чтобы не прыгало */
+  height: 240px;
+
+  /* важно: чтобы внутренние блоки могли ужиматься */
+  overflow: hidden;
+}
+
+.textColFixedFull {
+  grid-column: 1 / -1;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+
+  /* чтобы текст не раздувал карточку */
+  min-height: 0;
+}
+
+.photoPlaceholder {
+  width: 220px;
+  height: 160px;
+  border-radius: 14px;
+  background: rgba(17, 24, 39, 0.04);
+  border: 1px dashed rgba(17, 24, 39, 0.16);
+}
+
+.arrowsReserve {
+  height: 40px; /* ровно под твои стрелки + margin */
+  margin-top: 10px;
 }

@@ -1,0 +1,38 @@
+.page {
+  min-height: calc(100vh - 160px);
+  background: #f9fafb;
+  padding: 28px 20px 80px;
+  display: flex;
+  justify-content: center;
+}
+
+.container {
+  width: 100%;
+  max-width: 1280px;
+  display: flex;
+  flex-direction: column;
+  gap: 26px;
+}
+
+.block {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+.h2 {
+  font-size: 18px;
+  color: #111827;
+}
+
+.card {
+  background: #fff;
+  border-radius: 18px;
+  padding: 16px;
+  box-shadow: 0 10px 26px rgba(17, 24, 39, 0.06);
+  border: 1px solid rgba(17, 24, 39, 0.08);
+}
+
+.error {
+  color: #b91c1c;
+}

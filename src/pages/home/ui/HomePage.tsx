@@ -1,16 +1,42 @@
-// src/pages/home/ui/HomePage.tsx
-import type { FC } from 'react';
+//src/pages/home/ui/HomePage.tsx
 
-export const HomePage: FC = () => {
+import { useEffect } from 'react';
+import { observer } from 'mobx-react-lite';
+import { homeStore, BannerCarousel, ServicesMenu, ReviewsCarousel, Faq } from '@/features/home';
+import styles from './HomePage.module.css';
+import { FeedbackSection } from '@/shared/ui/feedback';
+
+export const HomePage = observer(() => {
+  useEffect(() => {
+    window.scrollTo({ top: 0, left: 0, behavior: 'auto' });
+    if (!homeStore.loading && homeStore.banners.length === 0 && !homeStore.error) {
+      void homeStore.load();
+    }
+  }, []);
+
   return (
-    <div>
-      <h1 style={{ fontSize: '3rem', marginBottom: '1rem', color: '#4f46e5' }}>
-        Добро пожаловать в Tailly 🐾
-      </h1>
-      
-      <p style={{ fontSize: '1.4rem', maxWidth: '600px', margin: '0 auto 2rem' }}>
-        Уход за питомцами рядом с вами — груминг, выгул, передержка и многое другое
-      </p>
+    <div className={styles.page}>
+      <div className={styles.container}>
+        {homeStore.error && <div className={styles.error}>{homeStore.error}</div>}
+
+        <div className={styles.block}>
+          <BannerCarousel items={homeStore.banners} />
+        </div>
+
+        <div className={styles.block}>
+          <div className={styles.h2}>Услуги</div>
+          <ServicesMenu items={homeStore.services} />
+        </div>
+
+        <div className={styles.block}>
+          <ReviewsCarousel items={homeStore.reviews} />
+        </div>
+
+        <div className={styles.block}>
+          <Faq />
+        </div>
+        <FeedbackSection />
+      </div>
     </div>
   );
-};
+});

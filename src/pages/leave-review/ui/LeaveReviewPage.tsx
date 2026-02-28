@@ -46,11 +46,7 @@ export const LeaveReviewPage = observer(() => {
 
         {ctx && (
           <>
-            {created ? (
-              <>
-                <div className={styles.stateSuccess}>Спасибо за отзыв!</div>
-                <ReviewCard review={created} />
-              </>
+            {created ? (<ReviewCard review={created} showThanks />
             ) : (
               <div className={styles.card}>
                 <div className={styles.top}>

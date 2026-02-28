@@ -1,0 +1,53 @@
+.root {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.title {
+  font-size: 18px;
+  color: #111827;
+}
+
+.list {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.item {
+  background: #fff;
+  border-radius: 18px;
+  border: 1px solid rgba(17, 24, 39, 0.08);
+  box-shadow: 0 10px 26px rgba(17, 24, 39, 0.06);
+  overflow: hidden;
+}
+
+.qRow {
+  width: 100%;
+  border: none;
+  background: transparent;
+  cursor: pointer;
+  padding: 14px 16px;
+  display: flex;
+  justify-content: space-between;
+  gap: 12px;
+  align-items: center;
+  text-align: left;
+}
+
+.q {
+  color: #111827;
+  font-size: 14px;
+}
+
+.chev {
+  color: #6b7280;
+}
+
+.a {
+  padding: 0 16px 14px;
+  color: #6b7280;
+  font-size: 13px;
+  line-height: 1.45;
+}

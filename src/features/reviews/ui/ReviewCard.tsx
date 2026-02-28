@@ -6,9 +6,20 @@ import type { Review } from '../model/types';
 import styles from './ReviewCard.module.css';
 import { ReviewPhotoModal } from './ReviewPhotoModal.tsx';
 
-export function ReviewCard({ review }: { review: Review }) {
+export function ReviewCard({
+  review,
+  showThanks,
+  fixedLayout,
+}: {
+  review: Review;
+  showThanks?: boolean;
+  fixedLayout?: boolean;
+}) {
   const photos = review.photoUrls ?? [];
   const hasPhotos = photos.length > 0;
+
+  const showPhotoCol = fixedLayout || hasPhotos;
+  const showArrows = hasPhotos && photos.length > 1;
 
   const [idx, setIdx] = useState(0);
   const [modalOpen, setModalOpen] = useState(false);
@@ -19,30 +30,54 @@ export function ReviewCard({ review }: { review: Review }) {
   const canNext = idx < photos.length - 1;
 
   return (
-    <div className={styles.card}>
-      {hasPhotos ? (
+    <div className={fixedLayout ? styles.cardFixed : styles.card}>
+      {showPhotoCol ? (
         <div className={styles.photoCol}>
           <div className={styles.photoWrap}>
-            <button type="button" className={styles.photoBtn} onClick={() => setModalOpen(true)} aria-label="Открыть фото">
-              <img className={styles.photo} src={mainPhoto} alt="Фото отзыва" />
-              {photos.length > 1 && <div className={styles.moreBadge}>+{photos.length - 1}</div>}
-            </button>
-
-            {photos.length > 1 && (
-              <div className={styles.arrows}>
-                <button type="button" className={styles.arrowBtn} disabled={!canPrev} onClick={() => setIdx((v) => Math.max(0, v - 1))}>
-                  ←
+            {hasPhotos ? (
+              <>
+                <button
+                  type="button"
+                  className={styles.photoBtn}
+                  onClick={() => setModalOpen(true)}
+                  aria-label="Открыть фото"
+                >
+                  <img className={styles.photo} src={mainPhoto} alt="Фото отзыва" />
+                  {photos.length > 1 && <div className={styles.moreBadge}>+{photos.length - 1}</div>}
                 </button>
-                <button type="button" className={styles.arrowBtn} disabled={!canNext} onClick={() => setIdx((v) => Math.min(photos.length - 1, v + 1))}>
-                  →
-                </button>
-              </div>
+              </>
+            ) : (
+              <div className={styles.photoPlaceholder} aria-hidden="true" />
             )}
+
+            {/* ВАЖНО: в fixedLayout всегда резервируем место под стрелки */}
+            <div className={styles.arrowsReserve}>
+              {showArrows ? (
+                <div className={styles.arrows}>
+                  <button
+                    type="button"
+                    className={styles.arrowBtn}
+                    disabled={!canPrev}
+                    onClick={() => setIdx((v) => Math.max(0, v - 1))}
+                  >
+                    ←
+                  </button>
+                  <button
+                    type="button"
+                    className={styles.arrowBtn}
+                    disabled={!canNext}
+                    onClick={() => setIdx((v) => Math.min(photos.length - 1, v + 1))}
+                  >
+                    →
+                  </button>
+                </div>
+              ) : null}
+            </div>
           </div>
         </div>
       ) : null}
 
-      <div className={hasPhotos ? styles.textCol : styles.textColFull}>
+      <div className={showPhotoCol ? styles.textCol : fixedLayout ? styles.textColFixedFull : styles.textColFull}>
         <div className={styles.header}>
           <div className={styles.titleRow}>
             <div className={styles.serviceTitle}>{review.serviceTitle}</div>
@@ -68,12 +103,20 @@ export function ReviewCard({ review }: { review: Review }) {
             Перейти в профиль петситтера
           </Link>
         </div>
+
+        {showThanks && (
+          <div className={styles.thanksBottom}>
+            Спасибо за отзыв!
+          </div>
+        )}
       </div>
 
-      {hasPhotos && modalOpen ? (
-        <ReviewPhotoModal photos={photos} startIndex={idx} onClose={() => setModalOpen(false)} />
-      ) : null}
-    </div>
+      {
+        hasPhotos && modalOpen ? (
+          <ReviewPhotoModal photos={photos} startIndex={idx} onClose={() => setModalOpen(false)} />
+        ) : null
+      }
+    </div >
   );
 }
 
