@@ -36,21 +36,23 @@ export const Header = () => {
             {navItems.map((item) => (
               <li key={item.to} className={styles.navItem}>
                 {item.children ? (
-                  <DropdownMenu 
-                    label={item.label} 
-                    items={item.children} 
-                    isActive={location.pathname.startsWith(item.to)}
+                  <DropdownMenu
+                    label={item.label}
+                    items={item.children}
+                    isActive={
+                      location.pathname === '/services'
+                    }
                   />
                 ) : (
-                    <Link
-                        to={item.to}
-                        className={clsx(
-                            styles.navLink,
-                            location.pathname === item.to && styles.active
-                        )}
-                        >
-                        {item.label}
-                    </Link>
+                  <Link
+                    to={item.to}
+                    className={clsx(
+                      styles.navLink,
+                      location.pathname === item.to && styles.active
+                    )}
+                  >
+                    {item.label}
+                  </Link>
                 )}
               </li>
             ))}
@@ -79,10 +81,10 @@ export const Header = () => {
             </Link>
           )}
         </div>
-        
+
         {/* Кнопка бургер (только мобильные) */}
-        <button 
-          className={styles.burger} 
+        <button
+          className={styles.burger}
           onClick={toggleMobile}
           aria-label="Открыть меню"
         >
@@ -97,15 +99,15 @@ export const Header = () => {
                 <li key={item.to}>
                   {item.children ? (
                     // В мобильном — тоже дропдаун или просто список подуслуг
-                    <DropdownMenu 
-                      label={item.label} 
-                      items={item.children} 
-                      isMobile 
+                    <DropdownMenu
+                      label={item.label}
+                      items={item.children}
+                      isMobile
                       onClose={() => setIsMobileOpen(false)}
                     />
                   ) : (
-                    <Link 
-                      to={item.to} 
+                    <Link
+                      to={item.to}
                       onClick={() => setIsMobileOpen(false)}
                       className={styles.mobileLink}
                     >

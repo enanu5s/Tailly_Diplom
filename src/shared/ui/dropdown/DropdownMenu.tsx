@@ -1,6 +1,6 @@
 // src/shared/ui/dropdown/DropdownMenu.tsx
-import { useRef, useState, useEffect } from 'react';           // значения + типы
-import type { HTMLAttributes, FC } from 'react';
+import { useEffect, useRef, useState } from 'react';
+import type { FC } from 'react';
 import { Link } from 'react-router-dom';
 import clsx from 'clsx';
 import styles from './DropdownMenu.module.css';
@@ -13,11 +13,13 @@ export interface NavItem {
 interface DropdownMenuProps {
   label: string;
   items: NavItem[];
-  isActive?: boolean;          // подсветка, если текущий путь начинается с этого раздела
-  isMobile?: boolean;          // режим мобильного меню (всегда клик, без hover)
-  onClose?: () => void;        // для мобильного — закрыть бургер после выбора
+  isActive?: boolean;
+  isMobile?: boolean;
+  onClose?: () => void;
   className?: string;
 }
+
+const CLOSE_DELAY_MS = 150;
 
 export const DropdownMenu: FC<DropdownMenuProps> = ({
   label,
@@ -29,8 +31,24 @@ export const DropdownMenu: FC<DropdownMenuProps> = ({
 }) => {
   const [isOpen, setIsOpen] = useState(false);
   const ref = useRef<HTMLDivElement>(null);
+  const closeTimerRef = useRef<number | null>(null);
 
-  // Закрытие при клике вне компонента (важно для десктопа)
+  const clearCloseTimer = () => {
+    if (closeTimerRef.current != null) {
+      window.clearTimeout(closeTimerRef.current);
+      closeTimerRef.current = null;
+    }
+  };
+
+  const scheduleClose = () => {
+    clearCloseTimer();
+    closeTimerRef.current = window.setTimeout(() => {
+      setIsOpen(false);
+      closeTimerRef.current = null;
+    }, CLOSE_DELAY_MS);
+  };
+
+  // Закрытие при клике вне компонента
   useEffect(() => {
     if (!isOpen) return;
 
@@ -44,19 +62,29 @@ export const DropdownMenu: FC<DropdownMenuProps> = ({
     return () => document.removeEventListener('mousedown', handleClickOutside);
   }, [isOpen]);
 
-  // Для десктопа — hover, для мобильного — только клик
-  const handleToggle = () => {
-    if (isMobile) {
-      setIsOpen(prev => !prev);
-    }
+  // уборка таймера при размонтировании
+  useEffect(() => {
+    return () => {
+      clearCloseTimer();
+    };
+  }, []);
+
+  // Мобильный режим — только клик
+  const handleTriggerClick = () => {
+    if (!isMobile) return;
+    setIsOpen((prev) => !prev);
   };
 
+  // Десктоп: hover на одном wrapper + задержка закрытия
   const handleMouseEnter = () => {
-    if (!isMobile) setIsOpen(true);
+    if (isMobile) return;
+    clearCloseTimer();
+    setIsOpen(true);
   };
 
   const handleMouseLeave = () => {
-    if (!isMobile) setIsOpen(false);
+    if (isMobile) return;
+    scheduleClose();
   };
 
   const handleItemClick = () => {
@@ -70,19 +98,15 @@ export const DropdownMenu: FC<DropdownMenuProps> = ({
       className={clsx(
         styles.dropdown,
         isMobile ? styles.mobileMode : styles.desktopMode,
-        className
+        className,
       )}
       onMouseEnter={handleMouseEnter}
       onMouseLeave={handleMouseLeave}
     >
       <button
         type="button"
-        className={clsx(
-          styles.trigger,
-          isActive && styles.active,
-          isOpen && styles.open
-        )}
-        onClick={handleToggle}
+        className={clsx(styles.trigger, isActive && styles.active, isOpen && styles.open)}
+        onClick={handleTriggerClick}
         aria-expanded={isOpen}
         aria-haspopup="true"
       >
@@ -91,14 +115,19 @@ export const DropdownMenu: FC<DropdownMenuProps> = ({
       </button>
 
       {isOpen && (
-        <ul className={styles.menu}>
-          {items.map(item => (
+        <ul
+          className={styles.menu}
+          // на всякий случай: если курсор попал на меню после ухода с кнопки — не закрываем
+          onMouseEnter={() => {
+            if (!isMobile) clearCloseTimer();
+          }}
+          onMouseLeave={() => {
+            if (!isMobile) scheduleClose();
+          }}
+        >
+          {items.map((item) => (
             <li key={item.to} className={styles.item}>
-              <Link
-                to={item.to}
-                className={styles.link}
-                onClick={handleItemClick}
-              >
+              <Link to={item.to} className={styles.link} onClick={handleItemClick}>
                 {item.label}
               </Link>
             </li>

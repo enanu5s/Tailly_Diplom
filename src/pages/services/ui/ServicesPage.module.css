@@ -1,0 +1,5 @@
+.page {
+  min-height: calc(100vh - 160px);
+  background: #f9fafb;
+  padding: 20px 0 60px;
+}

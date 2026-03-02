@@ -9,13 +9,6 @@ export type HomeBanner = {
   newsId: string; // на какую новость ведём
 };
 
-export type HomeService = {
-  id: string;
-  title: string;
-  subtitle: string;
-  iconUrl: string; // /public/images/...
-};
-
 export type HomeReview = {
   id: string;
   createdAtIso: string;

@@ -1,6 +1,6 @@
 // src/app/router/routes.tsx
 import type { RouteObject } from 'react-router-dom'
-import { Layout } from '@/app/Layout'           // ← новый импорт
+import { Layout } from '@/app/Layout'
 import { HomePage } from '@/pages/home'
 import { LoginPage } from '@/pages/login'
 import { RegisterPage } from '@/pages/register'
@@ -17,8 +17,9 @@ import { PostsPage } from '@/pages/posts'
 import { PostPage } from '@/pages/post'
 import { ProfilePage } from '@/pages/profile'
 import { ChangeEmailPage } from '@/pages/profile-security-email'
-import { ChangePasswordPage} from '@/pages/profile-security-password'
+import { ChangePasswordPage } from '@/pages/profile-security-password'
 import { LeaveReviewPage } from '@/pages/leave-review';
+import { ServicesPage } from '@/pages/services';
 
 export const routes: RouteObject[] = [
   {
@@ -28,7 +29,7 @@ export const routes: RouteObject[] = [
         path: '/',
         element: <HomePage />,
       },
-      { 
+      {
         path: '/login',
         element: <LoginPage />
       },
@@ -95,6 +96,10 @@ export const routes: RouteObject[] = [
       {
         path: '/profile/review/:orderId',
         element: <LeaveReviewPage />,
+      },
+      {
+        path: '/services',
+        element: <ServicesPage />,
       },
     ],
   },

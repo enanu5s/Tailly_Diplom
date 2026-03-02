@@ -1,4 +1,7 @@
 // src/shared/config/navigation.ts
+
+import { SERVICES } from './services';
+
 export interface NavItem {
   label: string;
   to: string;
@@ -9,13 +12,12 @@ export const mainNav: NavItem[] = [
   {
     label: 'Услуги',
     to: '/services',
-    children: [
-      { label: 'Груминг', to: '/services/grooming' },
-      { label: 'Выгул', to: '/services/walking' },
-      { label: 'Передержка', to: '/services/boarding' },
-      // добавляйте новые услуги сюда — они автоматически появятся в дропдауне
-    ],
+    children: SERVICES.map((s) => ({
+      label: s.title,
+      to: `/services?service=${s.id}`,
+    })),
   },
+
   { label: 'Стать специалистом', to: '/become-specialist' },
   { label: 'Магазин', to: '/shop' },
   { label: 'О нас', to: '/about' },

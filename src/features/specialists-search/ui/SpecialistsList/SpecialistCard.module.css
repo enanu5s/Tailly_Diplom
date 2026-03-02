@@ -1,0 +1,91 @@
+.card {
+  text-align: left;
+  position: relative;
+  background: #ffffff;
+  border: 1px solid #eef2ff;
+  border-radius: 16px;
+  box-shadow: 0 8px 24px rgba(17, 24, 39, 0.08);
+  padding: 14px;
+  cursor: pointer;
+}
+
+.card:hover {
+  border-color: #c7d2fe;
+}
+
+.price {
+  position: absolute;
+  top: 12px;
+  right: 12px;
+  background: #eef2ff;
+  color: #3730a3;
+  border-radius: 12px;
+  padding: 6px 10px;
+  font-size: 13px;
+}
+
+.top {
+  display: flex;
+  gap: 12px;
+}
+
+.avatarWrap {
+  width: 56px;
+  height: 56px;
+  flex: 0 0 auto;
+}
+
+.avatar,
+.avatarPlaceholder {
+  width: 56px;
+  height: 56px;
+  border-radius: 14px;
+  object-fit: cover;
+}
+
+.avatarPlaceholder {
+  background: #f3f4f6;
+}
+
+.meta {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.name {
+  font-size: 16px;
+  color: #111827;
+}
+
+.place {
+  font-size: 13px;
+  color: #6b7280;
+}
+
+.rating {
+  display: flex;
+  align-items: baseline;
+  gap: 8px;
+}
+
+.ratingValue {
+  color: #111827;
+  font-size: 14px;
+}
+
+.reviews {
+  color: #6b7280;
+  font-size: 13px;
+}
+
+.desc {
+  margin-top: 10px;
+  font-size: 13px;
+  color: #374151;
+  line-height: 1.35;
+  display: -webkit-box;
+  -webkit-line-clamp: 3;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
