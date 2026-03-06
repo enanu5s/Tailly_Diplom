@@ -1,66 +1,151 @@
-//src/pages/post/ui/PostPage.tsx
-
-import { useEffect } from 'react';
 import { observer } from 'mobx-react-lite';
-import { useParams, Link } from 'react-router-dom';
+import { useEffect } from 'react';
+import { useLocation, useNavigate, useParams } from 'react-router-dom';
+
 import { postsStore } from '@/features/posts/model/postsStore';
+
 import styles from './PostPage.module.css';
 
+type PostPageLocationState = {
+  from?: 'home' | 'posts';
+};
+
+const FALLBACK_HERO_BACKGROUND =
+  'linear-gradient(135deg, #6366f1 0%, #8b5cf6 55%, #0f172a 100%)';
+
 export const PostPage = observer(() => {
-  const { postId } = useParams();
+  const { postId } = useParams<{ postId: string }>();
+  const navigate = useNavigate();
+  const location = useLocation();
+
+  const state = (location.state ?? null) as PostPageLocationState | null;
+  const from = state?.from;
 
   useEffect(() => {
-    if (postId) void postsStore.loadPostById(postId);
-    return () => postsStore.resetDetails();
+    if (!postId) {
+      return;
+    }
+
+    void postsStore.loadPostById(postId);
+
+    return () => {
+      postsStore.resetDetails();
+    };
   }, [postId]);
 
-  const { post, loading, error } = postsStore.details;
+  const handleGoBack = (): void => {
+    navigate(-1);
+  };
+
+  const handleGoToPosts = (): void => {
+    navigate('/posts');
+  };
+
+  const { loading, error, post } = postsStore.details;
+
+  if (loading) {
+    return (
+      <section className={styles.page}>
+        <div className={styles.container}>
+          <div className={styles.stateBlock}>Загрузка поста...</div>
+        </div>
+      </section>
+    );
+  }
+
+  if (error || !post) {
+    return (
+      <section className={styles.page}>
+        <div className={styles.container}>
+          <div className={styles.stateBlock}>
+            <p className={styles.stateText}>{error ?? 'Пост не найден'}</p>
+
+            <button
+              type="button"
+              className={styles.secondaryButton}
+              onClick={handleGoToPosts}
+            >
+              Назад к постам
+            </button>
+          </div>
+        </div>
+      </section>
+    );
+  }
+
+  const heroStyle = post.imageUrl
+    ? {
+        backgroundImage: `url(${post.imageUrl})`,
+      }
+    : {
+        backgroundImage: FALLBACK_HERO_BACKGROUND,
+      };
+
+  const isFromHome = from === 'home';
 
   return (
-    <div className={styles.page}>
+    <section className={styles.page}>
       <div className={styles.container}>
-        <div className={styles.topRow}>
-          <Link className={styles.back} to="/posts">
-            ← Назад к постам
-          </Link>
+        <div className={styles.actions}>
+          {isFromHome ? (
+            <>
+              <button
+                type="button"
+                className={styles.secondaryButton}
+                onClick={handleGoBack}
+              >
+                Назад
+              </button>
+
+              <button
+                type="button"
+                className={styles.primaryButton}
+                onClick={handleGoToPosts}
+              >
+                К другим постам
+              </button>
+            </>
+          ) : (
+            <button
+              type="button"
+              className={styles.secondaryButton}
+              onClick={handleGoToPosts}
+            >
+              Назад к постам
+            </button>
+          )}
         </div>
 
-        {loading && <div className={styles.state}>Загружаем пост...</div>}
-        {error && <div className={styles.error}>{error}</div>}
-
-        {post && (
-          <div className={styles.card}>
-            <div className={styles.header}>
-              <h1 className={styles.h1}>{post.title}</h1>
-              <div className={styles.date}>
-                {new Date(post.publishedAt).toLocaleDateString('ru-RU', {
-                  year: 'numeric',
-                  month: 'long',
-                  day: '2-digit',
-                })}
-              </div>
-            </div>
-
-            <div className={styles.contentGrid}>
-              <div className={styles.text}>
-                {post.content.split('\n').map((line, idx) => (
-                  <p key={idx} className={styles.p}>
-                    {line}
-                  </p>
-                ))}
+        <article className={styles.article}>
+          <div className={styles.hero} style={heroStyle}>
+            <div className={styles.heroOverlay}>
+              <div className={styles.meta}>
+                <span className={styles.date}>
+                  {new Date(post.publishedAt).toLocaleDateString('ru-RU')}
+                </span>
               </div>
 
-              <div className={styles.imageWrap}>
-                {post.imageUrl ? (
-                  <img className={styles.image} src={post.imageUrl} alt={post.title} />
-                ) : (
-                  <div className={styles.noImage}>Изображение отсутствует</div>
-                )}
-              </div>
+              <h1 className={styles.title}>{post.title}</h1>
             </div>
           </div>
-        )}
+
+          <div className={styles.content}>
+            {post.content.split('\n').map((paragraph, index) => {
+              const normalized = paragraph.trim();
+
+              if (!normalized) {
+                return <div key={`space-${index}`} className={styles.spacer} />;
+              }
+
+              return (
+                <p key={`paragraph-${index}`} className={styles.paragraph}>
+                  {normalized}
+                </p>
+              );
+            })}
+          </div>
+        </article>
       </div>
-    </div>
+    </section>
   );
 });

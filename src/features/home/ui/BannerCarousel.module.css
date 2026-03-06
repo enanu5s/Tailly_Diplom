@@ -1,7 +1,7 @@
 .root {
   position: relative;
   display: grid;
-  grid-template-columns: 44px 1fr 44px;
+  grid-template-columns: 44px minmax(0, 1fr) 44px;
   gap: 12px;
   align-items: center;
 }
@@ -12,36 +12,64 @@
   padding: 0;
   cursor: pointer;
   width: 100%;
+  min-width: 0;
+  text-align: left;
 }
 
 .banner {
-  height: 280px;
+  position: relative;
+  min-height: 280px;
   border-radius: 18px;
+  background-repeat: no-repeat;
   background-size: cover;
   background-position: center;
-  box-shadow: 0 12px 34px rgba(17, 24, 39, 0.10);
+  box-shadow: 0 12px 34px rgba(17, 24, 39, 0.1);
   overflow: hidden;
+  transition:
+    transform 0.2s ease,
+    box-shadow 0.2s ease;
+}
+
+.bannerBtn:hover .banner,
+.bannerBtn:focus-visible .banner {
+  transform: translateY(-2px);
+  box-shadow: 0 16px 36px rgba(17, 24, 39, 0.14);
+}
+
+.bannerBtn:focus-visible {
+  outline: none;
 }
 
 .overlay {
   height: 100%;
+  min-height: 280px;
   display: flex;
   flex-direction: column;
   justify-content: flex-end;
   gap: 8px;
-  padding: 18px;
-  background: linear-gradient(180deg, rgba(17,24,39,0.0) 20%, rgba(17,24,39,0.65) 100%);
+  padding: 20px;
+  background: linear-gradient(
+    180deg,
+    rgba(17, 24, 39, 0) 18%,
+    rgba(17, 24, 39, 0.72) 100%
+  );
 }
 
 .title {
+  margin: 0;
   color: #fff;
-  font-size: 20px;
+  font-size: 24px;
   line-height: 1.2;
+  font-weight: 700;
+  max-width: 680px;
 }
 
 .subtitle {
-  color: rgba(255,255,255,0.9);
+  margin: 0;
+  color: rgba(255, 255, 255, 0.92);
   font-size: 14px;
+  line-height: 1.45;
+  max-width: 720px;
 }
 
 .arrow {
@@ -52,6 +80,15 @@
   width: 44px;
   cursor: pointer;
   box-shadow: 0 10px 26px rgba(17, 24, 39, 0.06);
+  transition:
+    transform 0.2s ease,
+    box-shadow 0.2s ease,
+    opacity 0.2s ease;
+}
+
+.arrow:hover:not(:disabled) {
+  transform: translateY(-1px);
+  box-shadow: 0 12px 28px rgba(17, 24, 39, 0.1);
 }
 
 .arrow:disabled {
@@ -75,9 +112,40 @@
   height: 8px;
   border-radius: 999px;
   background: rgba(99, 102, 241, 0.35);
+  transition:
+    width 0.2s ease,
+    background-color 0.2s ease;
 }
 
 .dotActive {
   background: #6366f1;
   width: 18px;
+}
+
+@media (max-width: 768px) {
+  .root {
+    grid-template-columns: 1fr;
+    gap: 10px;
+  }
+
+  .arrow {
+    display: none;
+  }
+
+  .banner {
+    min-height: 220px;
+  }
+
+  .overlay {
+    min-height: 220px;
+    padding: 16px;
+  }
+
+  .title {
+    font-size: 20px;
+  }
+
+  .subtitle {
+    font-size: 13px;
+  }
 }

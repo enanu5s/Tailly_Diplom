@@ -1,32 +1,73 @@
-//src/features/home/ui/BannerCarousel.tsx
+// src/features/home/ui/BannerCarousel.tsx
+
 import { useEffect, useMemo, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
+
 import type { HomeBanner } from '../model/types';
 import styles from './BannerCarousel.module.css';
 
-export function BannerCarousel(props: { items: HomeBanner[] }) {
+type Props = {
+  items: HomeBanner[];
+};
+
+const FALLBACK_BANNER_BACKGROUND =
+  'linear-gradient(135deg, #6366f1 0%, #8b5cf6 55%, #0f172a 100%)';
+
+export function BannerCarousel({ items: rawItems }: Props) {
   const navigate = useNavigate();
-  const items = useMemo(() => props.items.slice(0, 6), [props.items]);
+
+  const items = useMemo(() => rawItems.slice(0, 5), [rawItems]);
   const [idx, setIdx] = useState(0);
 
   useEffect(() => {
-    if (idx > items.length - 1) setIdx(0);
+    if (items.length === 0) {
+      setIdx(0);
+      return;
+    }
+
+    if (idx > items.length - 1) {
+      setIdx(0);
+    }
   }, [items.length, idx]);
 
-  if (items.length === 0) return null;
-
-  const canPrev = items.length > 1;
-  const canNext = items.length > 1;
+  if (items.length === 0) {
+    return null;
+  }
 
   const current = items[idx];
+  const canSlide = items.length > 1;
+
+  const backgroundStyle = current.imageUrl
+    ? {
+        backgroundImage: `url(${current.imageUrl})`,
+      }
+    : {
+        backgroundImage: FALLBACK_BANNER_BACKGROUND,
+      };
+
+  const handlePrev = (): void => {
+    setIdx((value) => (value === 0 ? items.length - 1 : value - 1));
+  };
+
+  const handleNext = (): void => {
+    setIdx((value) => (value === items.length - 1 ? 0 : value + 1));
+  };
+
+  const handleOpenPost = (): void => {
+    navigate(`/posts/${encodeURIComponent(current.postId)}`, {
+      state: {
+        from: 'home',
+      },
+    });
+  };
 
   return (
     <div className={styles.root}>
       <button
         type="button"
         className={styles.arrow}
-        disabled={!canPrev}
-        onClick={() => setIdx((v) => (v === 0 ? items.length - 1 : v - 1))}
+        onClick={handlePrev}
+        disabled={!canSlide}
         aria-label="Предыдущий баннер"
       >
         ←
@@ -35,13 +76,16 @@ export function BannerCarousel(props: { items: HomeBanner[] }) {
       <button
         type="button"
         className={styles.bannerBtn}
-        onClick={() => navigate(`/about/news/${encodeURIComponent(current.newsId)}`)}
-        aria-label="Открыть новость"
+        onClick={handleOpenPost}
+        aria-label="Открыть пост"
       >
-        <div className={styles.banner} style={{ backgroundImage: `url(${current.imageUrl})` }}>
+        <div className={styles.banner} style={backgroundStyle}>
           <div className={styles.overlay}>
-            <div className={styles.title}>{current.title}</div>
-            <div className={styles.subtitle}>{current.subtitle}</div>
+            <h3 className={styles.title}>{current.title}</h3>
+
+            {current.subtitle ? (
+              <p className={styles.subtitle}>{current.subtitle}</p>
+            ) : null}
           </div>
         </div>
       </button>
@@ -49,26 +93,26 @@ export function BannerCarousel(props: { items: HomeBanner[] }) {
       <button
         type="button"
         className={styles.arrow}
-        disabled={!canNext}
-        onClick={() => setIdx((v) => (v === items.length - 1 ? 0 : v + 1))}
+        onClick={handleNext}
+        disabled={!canSlide}
         aria-label="Следующий баннер"
       >
         →
       </button>
 
-      {items.length > 1 && (
-        <div className={styles.dots} aria-label="Навигация по баннерам">
-          {items.map((b, i) => (
+      {items.length > 1 ? (
+        <div className={styles.dots}>
+          {items.map((item, index) => (
             <button
-              key={b.id}
+              key={item.id}
               type="button"
-              className={i === idx ? styles.dotActive : styles.dot}
-              onClick={() => setIdx(i)}
-              aria-label={`Баннер ${i + 1}`}
+              className={index === idx ? styles.dotActive : styles.dot}
+              onClick={() => setIdx(index)}
+              aria-label={`Баннер ${index + 1}`}
             />
           ))}
         </div>
-      )}
+      ) : null}
     </div>
   );
 }
