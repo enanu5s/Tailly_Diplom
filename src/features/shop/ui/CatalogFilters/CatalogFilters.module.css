@@ -1,0 +1,72 @@
+/* src/features/shop/ui/CatalogFilters/CatalogFilters.module.css */
+.sidebar {
+    display: flex;
+    flex-direction: column;
+    gap: 18px;
+    padding: 20px;
+    border: 1px solid #e5e7eb;
+    border-radius: 18px;
+    background: #ffffff;
+    box-shadow: 0 10px 30px rgba(15, 23, 42, 0.06);
+}
+
+.section {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+.label {
+    color: #0f172a;
+    font-size: 14px;
+    font-weight: 700;
+}
+
+.input,
+.select {
+    min-height: 46px;
+    padding: 0 14px;
+    border: 1px solid #dbe3ee;
+    border-radius: 14px;
+    background: #ffffff;
+    color: #0f172a;
+    font-size: 14px;
+    outline: none;
+    transition: border-color 0.2s ease;
+}
+
+.input:focus,
+.select:focus {
+    border-color: #6366f1;
+}
+
+.checkboxList {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+.checkboxItem {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    color: #334155;
+    font-size: 14px;
+}
+
+.priceGrid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 10px;
+}
+
+.resetButton {
+    min-height: 46px;
+    border: 1px solid #c7d2fe;
+    border-radius: 14px;
+    background: #eef2ff;
+    color: #4338ca;
+    font-size: 14px;
+    font-weight: 700;
+    cursor: pointer;
+}

@@ -1,0 +1,20 @@
+// src/features/shop/service/shopService.ts
+
+import { shopApi } from '../api/shopApi';
+import type {
+    CatalogFilterState,
+    CatalogProductsResponse,
+    Product,
+} from '../model/types';
+
+export const shopService = {
+    async getCatalogProducts(
+        filters: CatalogFilterState,
+    ): Promise<CatalogProductsResponse> {
+        return shopApi.getCatalogProducts(filters);
+    },
+
+    async getProductBySlug(slug: string): Promise<Product | null> {
+        return shopApi.getProductBySlug(slug);
+    },
+};
