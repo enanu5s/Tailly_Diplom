@@ -49,3 +49,49 @@
 .moreBtn:hover {
   border-color: #c7d2fe;
 }
+
+.autocomplete {
+  position: relative;
+}
+
+.loading {
+  margin-top: 6px;
+  font-size: 13px;
+  color: #6b7280;
+}
+
+.suggestions {
+  position: absolute;
+  top: calc(100% + 6px);
+  left: 0;
+  right: 0;
+  z-index: 20;
+  margin: 0;
+  padding: 6px 0;
+  list-style: none;
+  border: 1px solid #e5e7eb;
+  border-radius: 14px;
+  background: #ffffff;
+  box-shadow: 0 16px 40px rgba(17, 24, 39, 0.12);
+  max-height: 240px;
+  overflow-y: auto;
+}
+
+.suggestionItem {
+  padding: 10px 14px;
+  cursor: pointer;
+  font-size: 14px;
+  line-height: 1.35;
+}
+
+.suggestionItem:hover {
+  background: #f5f7ff;
+}
+
+.suggestionPrimary {
+  color: #111827;
+}
+
+.suggestionSecondary {
+  color: #6b7280;
+}

@@ -3,7 +3,7 @@
 import { observer } from 'mobx-react-lite';
 import type { SpecialistsSearchStore } from '../../model/specialistsSearchStore';
 import { SpecialistCard } from '../SpecialistsList/SpecialistCard';
-import { YandexMap } from './YandexMap';
+import { GisMap } from './2gisMap';
 import styles from './MapView.module.css';
 
 type Props = {
@@ -37,7 +37,7 @@ export const MapView = observer(({ store, onOpenSpecialist }: Props) => {
       </div>
 
       <div className={styles.mapPane}>
-        <YandexMap store={store} onOpenSpecialist={onOpenSpecialist} />
+        <GisMap store={store} onOpenSpecialist={onOpenSpecialist} />
       </div>
     </div>
   );
