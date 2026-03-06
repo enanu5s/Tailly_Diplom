@@ -56,7 +56,7 @@ const MOCK_REVIEWS: HomeReview[] = [
     sitterId: 's-1',
     sitterName: 'Анна',
     serviceTitle: 'Выгул',
-    photoUrls: ['/images/reviews/r-1.png'],
+    photoUrls: ['/images/reviews/r-1.png', '/images/reviews/r-2.png'],
   },
   {
     id: 'rv-2',

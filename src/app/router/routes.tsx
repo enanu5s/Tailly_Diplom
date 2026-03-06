@@ -18,8 +18,9 @@ import { PostPage } from '@/pages/post'
 import { ProfilePage } from '@/pages/profile'
 import { ChangeEmailPage } from '@/pages/profile-security-email'
 import { ChangePasswordPage } from '@/pages/profile-security-password'
-import { LeaveReviewPage } from '@/pages/leave-review';
-import { ServicesPage } from '@/pages/services';
+import { LeaveReviewPage } from '@/pages/leave-review'
+import { ServicesPage } from '@/pages/services'
+import { NotFoundPage } from '@/pages/not-found';
 
 export const routes: RouteObject[] = [
   {
@@ -100,6 +101,10 @@ export const routes: RouteObject[] = [
       {
         path: '/services',
         element: <ServicesPage />,
+      },
+      {
+        path: '*',
+        element: <NotFoundPage />,
       },
     ],
   },
