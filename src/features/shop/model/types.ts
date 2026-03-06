@@ -1,12 +1,9 @@
 // src/features/shop/model/types.ts
-
-export type ProductCategory =
-    | 'food'
-    | 'toys'
-    | 'care'
-    | 'accessories'
-    | 'medicine'
-    | 'other';
+export type ProductCategory = {
+    id: string;
+    slug: string;
+    title: string;
+};
 
 export type ProductSort =
     | 'popular'
@@ -46,7 +43,8 @@ export type Product = {
     id: string;
     slug: string;
     title: string;
-    category: ProductCategory;
+    categoryId: string;
+    categoryTitle: string;
     shortDescription: string;
     description: string;
     price: number;
@@ -63,7 +61,7 @@ export type Product = {
 
 export type CatalogFilterState = {
     search: string;
-    categories: ProductCategory[];
+    categoryIds: string[];
     minPrice: number | null;
     maxPrice: number | null;
     onlyAvailable: boolean;
@@ -77,6 +75,13 @@ export type CatalogProductsResponse = {
     total: number;
     page: number;
     limit: number;
+};
+
+export type CatalogMetaResponse = {
+    categories: ProductCategory[];
+    minPrice: number;
+    maxPrice: number;
+    availableSorts: ProductSort[];
 };
 
 export type CartItem = {
@@ -146,7 +151,7 @@ export type Order = {
 
 export const DEFAULT_CATALOG_FILTERS: CatalogFilterState = {
     search: '',
-    categories: [],
+    categoryIds: [],
     minPrice: null,
     maxPrice: null,
     onlyAvailable: false,

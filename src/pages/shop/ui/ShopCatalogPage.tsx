@@ -24,9 +24,28 @@ export const ShopCatalogPage = observer(() => {
         isInitialized,
     } = shopCatalogStore;
 
-    const categoriesKey = filters.categories.join('|');
+    const categoryIdsKey = filters.categoryIds.join('|');
 
     useEffect(() => {
+        console.log('[ShopCatalogPage] mounted');
+
+        if (!shopCatalogStore.isMetaInitialized && !shopCatalogStore.isMetaLoading) {
+            void shopCatalogStore.loadMeta();
+        }
+    }, []);
+
+    useEffect(() => {
+        console.log('[ShopCatalogPage] load effect triggered with:', {
+            search: filters.search,
+            categoryIds: filters.categoryIds,
+            minPrice: filters.minPrice,
+            maxPrice: filters.maxPrice,
+            onlyAvailable: filters.onlyAvailable,
+            sort: filters.sort,
+            page: filters.page,
+            limit: filters.limit,
+        });
+
         void shopCatalogStore.load();
     }, [
         filters.search,
@@ -36,8 +55,23 @@ export const ShopCatalogPage = observer(() => {
         filters.sort,
         filters.page,
         filters.limit,
-        categoriesKey,
+        categoryIdsKey,
     ]);
+
+    useEffect(() => {
+        console.log('[ShopCatalogPage] render state:', {
+            filters,
+            total,
+            products: products.map((product) => ({
+                id: product.id,
+                title: product.title,
+                categoryId: product.categoryId,
+            })),
+            error,
+            isLoading,
+            isInitialized,
+        });
+    });
 
     return (
         <div className={styles.page}>
@@ -87,6 +121,11 @@ export const ShopCatalogPage = observer(() => {
                             </div>
                         </div>
 
+                        {shopCatalogStore.metaError ? (
+                            <div className={styles.metaWarning}>
+                                Не удалось загрузить метаданные каталога: {shopCatalogStore.metaError}
+                            </div>
+                        ) : null}
                         {error ? (
                             <div className={styles.stateCard}>
                                 <h2 className={styles.stateTitle}>Не удалось загрузить каталог</h2>
@@ -95,6 +134,7 @@ export const ShopCatalogPage = observer(() => {
                                     className={styles.retryButton}
                                     type="button"
                                     onClick={() => {
+                                        console.log('[ShopCatalogPage] retry load clicked');
                                         void shopCatalogStore.load();
                                     }}
                                 >
@@ -111,16 +151,20 @@ export const ShopCatalogPage = observer(() => {
                                 </p>
                             </div>
                         ) : null}
+
                         {!error && isInitialized && products.length === 0 ? (
                             <div className={styles.stateCard}>
                                 <h2 className={styles.stateTitle}>Ничего не найдено</h2>
                                 <p className={styles.stateText}>
-                                    Попробуй изменить фильтры, диапазон цены или строку поиска.
+                                    Попробуй изменить запрос, фильтры или диапазон цены.
                                 </p>
                                 <button
                                     className={styles.retryButton}
                                     type="button"
-                                    onClick={() => shopCatalogStore.resetFilters()}
+                                    onClick={() => {
+                                        console.log('[ShopCatalogPage] reset filters from empty state');
+                                        shopCatalogStore.resetFilters();
+                                    }}
                                 >
                                     Сбросить фильтры
                                 </button>

@@ -1,16 +1,44 @@
 // src/features/shop/api/mockData.ts
+import type { Product, ProductCategory } from '../model/types';
 
-import type { Product } from '../model/types';
+export const SHOP_CATEGORIES_MOCK: ProductCategory[] = [
+    {
+        id: '1',
+        slug: 'food',
+        title: 'Корм',
+    },
+    {
+        id: '2',
+        slug: 'toys',
+        title: 'Игрушки',
+    },
+    {
+        id: '3',
+        slug: 'care',
+        title: 'Уход',
+    },
+    {
+        id: '4',
+        slug: 'accessories',
+        title: 'Аксессуары',
+    },
+    {
+        id: '5',
+        slug: 'medicine',
+        title: 'Здоровье',
+    },
+];
 
 export const SHOP_PRODUCTS_MOCK: Product[] = [
     {
         id: 'product-1',
         slug: 'cat-food-premium-salmon',
         title: 'Премиум-корм для кошек с лососем',
-        category: 'food',
+        categoryId: '1',
+        categoryTitle: 'Корм',
         shortDescription: 'Сухой корм для взрослых кошек, 1.5 кг.',
         description:
-            'Сбалансированный корм для ежедневного питания взрослых кошек. Содержит белок, омега-3 и витамины.',
+            'Сбалансированный корм для ежедневного питания взрослых кошек. Содержит белок, омега-3, витамины и полезные микроэлементы.',
         price: 1890,
         oldPrice: 2190,
         rating: 4.8,
@@ -37,13 +65,6 @@ export const SHOP_PRODUCTS_MOCK: Product[] = [
                 text: 'Кошке очень понравился корм, ест с удовольствием.',
                 createdAt: '2026-03-01T10:00:00.000Z',
             },
-            {
-                id: 'review-2',
-                authorName: 'Ирина',
-                rating: 4,
-                text: 'Хороший состав, но упаковка могла бы быть удобнее.',
-                createdAt: '2026-02-25T14:30:00.000Z',
-            },
         ],
         createdAt: '2026-02-10T12:00:00.000Z',
         updatedAt: '2026-03-01T10:00:00.000Z',
@@ -52,10 +73,11 @@ export const SHOP_PRODUCTS_MOCK: Product[] = [
         id: 'product-2',
         slug: 'dog-toy-rope-ball',
         title: 'Игрушка для собак: канат с мячом',
-        category: 'toys',
+        categoryId: '2',
+        categoryTitle: 'Игрушки',
         shortDescription: 'Прочная игрушка для активных игр.',
         description:
-            'Подходит для игр дома и на улице. Помогает снизить тревожность и поддерживать активность питомца.',
+            'Подходит для игр дома и на улице. Помогает снизить тревожность, поддерживать активность и отвлекать питомца.',
         price: 790,
         oldPrice: null,
         rating: 4.6,
@@ -69,15 +91,7 @@ export const SHOP_PRODUCTS_MOCK: Product[] = [
                 alt: 'Игрушка для собак: канат с мячом',
             },
         ],
-        reviews: [
-            {
-                id: 'review-3',
-                authorName: 'Сергей',
-                rating: 5,
-                text: 'Пёс в восторге, игрушка крепкая.',
-                createdAt: '2026-02-26T09:15:00.000Z',
-            },
-        ],
+        reviews: [],
         createdAt: '2026-02-15T09:00:00.000Z',
         updatedAt: '2026-02-28T11:00:00.000Z',
     },
@@ -85,10 +99,11 @@ export const SHOP_PRODUCTS_MOCK: Product[] = [
         id: 'product-3',
         slug: 'pet-bowl-ceramic',
         title: 'Керамическая миска для питомца',
-        category: 'accessories',
+        categoryId: '3',
+        categoryTitle: 'Аксессуары',
         shortDescription: 'Устойчивая миска для воды и корма.',
         description:
-            'Керамическая миска с нескользящим основанием. Легко моется и подходит для ежедневного использования.',
+            'Керамическая миска с нескользящим основанием. Подходит для воды, влажного и сухого корма.',
         price: 990,
         oldPrice: 1190,
         rating: 4.7,
@@ -110,7 +125,8 @@ export const SHOP_PRODUCTS_MOCK: Product[] = [
         id: 'product-4',
         slug: 'pet-shampoo-sensitive',
         title: 'Шампунь для чувствительной кожи',
-        category: 'care',
+        categoryId: '5',
+        categoryTitle: 'Уход',
         shortDescription: 'Мягкий шампунь для собак и кошек.',
         description:
             'Подходит для деликатного ухода за шерстью и кожей питомца. Без агрессивных ПАВ и сильной отдушки.',

@@ -3,11 +3,16 @@
 import { shopApi } from '../api/shopApi';
 import type {
     CatalogFilterState,
+    CatalogMetaResponse,
     CatalogProductsResponse,
     Product,
 } from '../model/types';
 
 export const shopService = {
+    async getCatalogMeta(): Promise<CatalogMetaResponse> {
+        return shopApi.getCatalogMeta();
+    },
+
     async getCatalogProducts(
         filters: CatalogFilterState,
     ): Promise<CatalogProductsResponse> {

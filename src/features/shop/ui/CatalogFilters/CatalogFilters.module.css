@@ -60,6 +60,13 @@
     gap: 10px;
 }
 
+.priceHint,
+.metaHint {
+    color: #64748b;
+    font-size: 13px;
+    line-height: 1.5;
+}
+
 .resetButton {
     min-height: 46px;
     border: 1px solid #c7d2fe;

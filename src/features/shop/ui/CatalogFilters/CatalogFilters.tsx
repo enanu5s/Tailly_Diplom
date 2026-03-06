@@ -3,29 +3,28 @@ import { observer } from 'mobx-react-lite';
 import { useMemo } from 'react';
 
 import { shopCatalogStore } from '../../model/shopCatalogStore';
-import type { ProductCategory, ProductSort } from '../../model/types';
+import type { ProductSort } from '../../model/types';
 
 import styles from './CatalogFilters.module.css';
 
-const CATEGORY_OPTIONS: Array<{ value: ProductCategory; label: string }> = [
-    { value: 'food', label: 'Корм' },
-    { value: 'toys', label: 'Игрушки' },
-    { value: 'care', label: 'Уход' },
-    { value: 'accessories', label: 'Аксессуары' },
-    { value: 'medicine', label: 'Здоровье' },
-    { value: 'other', label: 'Другое' },
-];
-
-const SORT_OPTIONS: Array<{ value: ProductSort; label: string }> = [
-    { value: 'popular', label: 'Сначала популярные' },
-    { value: 'newest', label: 'Сначала новые' },
-    { value: 'rating-desc', label: 'По рейтингу' },
-    { value: 'price-asc', label: 'Сначала дешевле' },
-    { value: 'price-desc', label: 'Сначала дороже' },
-];
+const SORT_LABELS: Record<ProductSort, string> = {
+    popular: 'Сначала популярные',
+    newest: 'Сначала новые',
+    'rating-desc': 'По рейтингу',
+    'price-asc': 'Сначала дешевле',
+    'price-desc': 'Сначала дороже',
+};
 
 export const CatalogFilters = observer(() => {
-    const { filters } = shopCatalogStore;
+    const {
+        filters,
+        categories,
+        availableSorts,
+        minCatalogPrice,
+        maxCatalogPrice,
+        isMetaLoading,
+        isMetaInitialized,
+    } = shopCatalogStore;
 
     const minPriceValue = useMemo(
         () => (filters.minPrice === null ? '' : String(filters.minPrice)),
@@ -49,36 +48,55 @@ export const CatalogFilters = observer(() => {
                     className={styles.input}
                     type="text"
                     value={filters.search}
-                    onChange={(event) => shopCatalogStore.setSearch(event.target.value)}
-                    placeholder="Название или описание товара"
+                    onChange={(event) => {
+                        console.log('[CatalogFilters] search changed:', event.target.value);
+                        shopCatalogStore.setSearch(event.target.value);
+                    }}
+                    placeholder="Например: корм, миска, шампунь"
                 />
             </div>
 
             <div className={styles.section}>
                 <div className={styles.label}>Категории</div>
 
-                <div className={styles.checkboxList}>
-                    {CATEGORY_OPTIONS.map((option) => {
-                        const checked = filters.categories.includes(option.value);
+                {isMetaLoading && !isMetaInitialized ? (
+                    <div className={styles.metaHint}>Загружаем категории...</div>
+                ) : (
+                    <div className={styles.checkboxList}>
+                        {categories.map((category) => {
+                            const checked = filters.categoryIds.includes(category.id);
 
-                        return (
-                            <label key={option.value} className={styles.checkboxItem}>
-                                <input
-                                    type="checkbox"
-                                    checked={checked}
-                                    onChange={(event) =>
-                                        shopCatalogStore.setCategory(option.value, event.target.checked)
-                                    }
-                                />
-                                <span>{option.label}</span>
-                            </label>
-                        );
-                    })}
-                </div>
+                            return (
+                                <label key={category.id} className={styles.checkboxItem}>
+                                    <input
+                                        type="checkbox"
+                                        checked={checked}
+                                        onChange={(event) => {
+                                            console.log('[CatalogFilters] category toggle:', {
+                                                categoryId: category.id,
+                                                categoryTitle: category.title,
+                                                checked: event.target.checked,
+                                                before: filters.categoryIds,
+                                            });
+
+                                            shopCatalogStore.setCategory(category.id, event.target.checked);
+
+                                            console.log('[CatalogFilters] categoryIds after toggle call:', shopCatalogStore.filters.categoryIds);
+                                        }}
+                                    />
+                                    <span>{category.title}</span>
+                                </label>
+                            );
+                        })}
+                    </div>
+                )}
             </div>
 
             <div className={styles.section}>
                 <div className={styles.label}>Цена</div>
+                <div className={styles.priceHint}>
+                    Диапазон каталога: от {minCatalogPrice} до {maxCatalogPrice} ₽
+                </div>
 
                 <div className={styles.priceGrid}>
                     <input
@@ -89,7 +107,10 @@ export const CatalogFilters = observer(() => {
                         value={minPriceValue}
                         onChange={(event) => {
                             const value = event.target.value.trim();
-                            shopCatalogStore.setMinPrice(value === '' ? null : Number(value));
+                            const nextValue = value === '' ? null : Number(value);
+
+                            console.log('[CatalogFilters] minPrice changed:', nextValue);
+                            shopCatalogStore.setMinPrice(nextValue);
                         }}
                         placeholder="От"
                     />
@@ -102,7 +123,9 @@ export const CatalogFilters = observer(() => {
                         value={maxPriceValue}
                         onChange={(event) => {
                             const value = event.target.value.trim();
-                            shopCatalogStore.setMaxPrice(value === '' ? null : Number(value));
+                            const nextValue = value === '' ? null : Number(value);
+                            console.log('[CatalogFilters] maxPrice changed:', nextValue);
+                            shopCatalogStore.setMaxPrice(nextValue);
                         }}
                         placeholder="До"
                     />
@@ -114,7 +137,10 @@ export const CatalogFilters = observer(() => {
                     <input
                         type="checkbox"
                         checked={filters.onlyAvailable}
-                        onChange={(event) => shopCatalogStore.setOnlyAvailable(event.target.checked)}
+                        onChange={(event) => {
+                            console.log('[CatalogFilters] onlyAvailable changed:', event.target.checked);
+                            shopCatalogStore.setOnlyAvailable(event.target.checked);
+                        }}
                     />
                     <span>Только в наличии</span>
                 </label>
@@ -124,17 +150,19 @@ export const CatalogFilters = observer(() => {
                 <label className={styles.label} htmlFor="shop-sort">
                     Сортировка
                 </label>
+
                 <select
                     id="shop-sort"
                     className={styles.select}
                     value={filters.sort}
-                    onChange={(event) =>
-                        shopCatalogStore.setSort(event.target.value as ProductSort)
-                    }
+                    onChange={(event) => {
+                        console.log('[CatalogFilters] sort changed:', event.target.value);
+                        shopCatalogStore.setSort(event.target.value as ProductSort);
+                    }}
                 >
-                    {SORT_OPTIONS.map((option) => (
-                        <option key={option.value} value={option.value}>
-                            {option.label}
+                    {availableSorts.map((sort) => (
+                        <option key={sort} value={sort}>
+                            {SORT_LABELS[sort]}
                         </option>
                     ))}
                 </select>
@@ -143,7 +171,10 @@ export const CatalogFilters = observer(() => {
             <button
                 className={styles.resetButton}
                 type="button"
-                onClick={() => shopCatalogStore.resetFilters()}
+                onClick={() => {
+                    console.log('[CatalogFilters] reset filters');
+                    shopCatalogStore.resetFilters();
+                }}
             >
                 Сбросить фильтры
             </button>

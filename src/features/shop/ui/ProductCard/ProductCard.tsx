@@ -56,22 +56,23 @@ export const ProductCard = observer(({ product }: Props) => {
                 {isFavorite ? '♥️' : '♡'}
             </button>
 
-            <Link to={`/shop/${product.slug}`} className={styles.imageLink}>
-                {mainImage ? (
-                    <img
-                        className={styles.image}
-                        src={mainImage.url}
-                        alt={mainImage.alt}
-                        loading="lazy"
-                    />
-                ) : (
-                    <div className={styles.imagePlaceholder}>Нет изображения</div>
-                )}
-            </Link>
+            <Link to={`/shop/${product.slug}`} className={styles.imageLink} >
+                {
+                    mainImage ? (
+                        <img
+                            className={styles.image}
+                            src={mainImage.url}
+                            alt={mainImage.alt}
+                            loading="lazy"
+                        />
+                    ) : (
+                        <div className={styles.imagePlaceholder} > Нет изображения</div >
+                    )}
+            </Link >
 
             <div className={styles.content}>
                 <div className={styles.meta}>
-                    <span className={styles.category}>{getCategoryLabel(product.category)}</span>
+                    <span className={styles.category}>{product.categoryTitle}</span>
                     <span className={styles.rating}>★ {product.rating.toFixed(1)}</span>
                 </div>
 
@@ -131,8 +132,8 @@ export const ProductCard = observer(({ product }: Props) => {
                         </button>
                     )}
                 </div>
-            </div>
-        </article>
+            </div >
+        </article >
     );
 });
 function formatPrice(value: number): string {
@@ -141,22 +142,4 @@ function formatPrice(value: number): string {
         currency: 'RUB',
         maximumFractionDigits: 0,
     }).format(value);
-}
-
-function getCategoryLabel(category: Product['category']): string {
-    switch (category) {
-        case 'food':
-            return 'Корм';
-        case 'toys':
-            return 'Игрушки';
-        case 'care':
-            return 'Уход';
-        case 'accessories':
-            return 'Аксессуары';
-        case 'medicine':
-            return 'Здоровье';
-        case 'other':
-        default:
-            return 'Другое';
-    }
 }
