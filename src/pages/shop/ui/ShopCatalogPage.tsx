@@ -1,7 +1,7 @@
 // src/pages/shop/ui/ShopCatalogPage.tsx
 import { observer } from 'mobx-react-lite';
-import { useEffect } from 'react';
-import { Link } from 'react-router-dom';
+import { useEffect, useRef } from 'react';
+import { Link, useLocation, useNavigate } from 'react-router-dom';
 
 import { shopCartStore } from '@/features/shop/model/shopCartStore';
 import { shopCatalogStore } from '@/features/shop/model/shopCatalogStore';
@@ -14,7 +14,16 @@ import {
 
 import styles from './ShopCatalogPage.module.css';
 
+type ShopCatalogPageLocationState = {
+    restoreScrollY?: number;
+    restoreProductId?: string;
+};
+
 export const ShopCatalogPage = observer(() => {
+    const location = useLocation();
+    const navigate = useNavigate();
+    const restoredRef = useRef(false);
+
     const {
         filters,
         products,
@@ -27,25 +36,12 @@ export const ShopCatalogPage = observer(() => {
     const categoryIdsKey = filters.categoryIds.join('|');
 
     useEffect(() => {
-        console.log('[ShopCatalogPage] mounted');
-
         if (!shopCatalogStore.isMetaInitialized && !shopCatalogStore.isMetaLoading) {
             void shopCatalogStore.loadMeta();
         }
     }, []);
 
     useEffect(() => {
-        console.log('[ShopCatalogPage] load effect triggered with:', {
-            search: filters.search,
-            categoryIds: filters.categoryIds,
-            minPrice: filters.minPrice,
-            maxPrice: filters.maxPrice,
-            onlyAvailable: filters.onlyAvailable,
-            sort: filters.sort,
-            page: filters.page,
-            limit: filters.limit,
-        });
-
         void shopCatalogStore.load();
     }, [
         filters.search,
@@ -59,19 +55,81 @@ export const ShopCatalogPage = observer(() => {
     ]);
 
     useEffect(() => {
-        console.log('[ShopCatalogPage] render state:', {
-            filters,
-            total,
-            products: products.map((product) => ({
-                id: product.id,
-                title: product.title,
-                categoryId: product.categoryId,
-            })),
-            error,
-            isLoading,
-            isInitialized,
-        });
-    });
+        const state = (location.state ?? null) as ShopCatalogPageLocationState | null;
+
+        if (!state || restoredRef.current) {
+            return;
+        }
+
+        if (!isInitialized || isLoading) {
+            return;
+        }
+
+        const restoreToProduct = (): boolean => {
+            if (!state.restoreProductId) {
+                return false;
+            }
+
+            const element = document.querySelector<HTMLElement>(
+                `[data-shop-product-id="${state.restoreProductId}"]`,
+            );
+
+            if (!element) {
+                return false;
+            }
+
+            element.scrollIntoView({
+                block: 'center',
+                behavior: 'auto',
+            });
+
+            return true;
+        };
+
+        const timerId = window.setTimeout(() => {
+            const restoredByProduct = restoreToProduct();
+
+            if (!restoredByProduct && typeof state.restoreScrollY === 'number') {
+                window.scrollTo({
+                    top: state.restoreScrollY,
+                    behavior: 'auto',
+                });
+            }
+
+            restoredRef.current = true;
+
+            navigate(location.pathname + location.search + location.hash, {
+                replace: true,
+                state: null,
+            });
+        }, 0);
+
+        return () => {
+            window.clearTimeout(timerId);
+        };
+    }, [
+        isInitialized,
+        isLoading,
+        location.hash,
+        location.pathname,
+        location.search,
+        location.state,
+        navigate,
+        products,
+    ]);
+
+    useEffect(() => {
+        restoredRef.current = false;
+    }, [
+        filters.search,
+        filters.minPrice,
+        filters.maxPrice,
+        filters.onlyAvailable,
+        filters.sort,
+        filters.page,
+        filters.limit,
+        categoryIdsKey,
+    ]);
 
     return (
         <div className={styles.page}>
@@ -97,7 +155,6 @@ export const ShopCatalogPage = observer(() => {
                             <span className={styles.quickCardValue}>{shopFavoritesStore.total}</span>
                             <span className={styles.quickCardLabel}>В избранном</span>
                         </Link>
-
                         <Link to="/shop/cart" className={styles.quickCard}>
                             <span className={styles.quickCardValue}>{shopCartStore.totalItems}</span>
                             <span className={styles.quickCardLabel}>В корзине</span>
@@ -126,6 +183,7 @@ export const ShopCatalogPage = observer(() => {
                                 Не удалось загрузить метаданные каталога: {shopCatalogStore.metaError}
                             </div>
                         ) : null}
+
                         {error ? (
                             <div className={styles.stateCard}>
                                 <h2 className={styles.stateTitle}>Не удалось загрузить каталог</h2>
@@ -134,7 +192,6 @@ export const ShopCatalogPage = observer(() => {
                                     className={styles.retryButton}
                                     type="button"
                                     onClick={() => {
-                                        console.log('[ShopCatalogPage] retry load clicked');
                                         void shopCatalogStore.load();
                                     }}
                                 >
@@ -161,10 +218,7 @@ export const ShopCatalogPage = observer(() => {
                                 <button
                                     className={styles.retryButton}
                                     type="button"
-                                    onClick={() => {
-                                        console.log('[ShopCatalogPage] reset filters from empty state');
-                                        shopCatalogStore.resetFilters();
-                                    }}
+                                    onClick={() => shopCatalogStore.resetFilters()}
                                 >
                                     Сбросить фильтры
                                 </button>

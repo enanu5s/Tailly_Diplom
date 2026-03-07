@@ -1,6 +1,6 @@
 // src/features/shop/ui/ProductCard/ProductCard.tsx
 import { observer } from 'mobx-react-lite';
-import { Link } from 'react-router-dom';
+import { Link, useLocation } from 'react-router-dom';
 
 import { shopCartStore } from '../../model/shopCartStore';
 import { shopFavoritesStore } from '../../model/shopFavoritesStore';
@@ -12,7 +12,19 @@ type Props = {
     product: Product;
 };
 
+type ProductPageNavigationState = {
+    from?: {
+        pathname: string;
+        search: string;
+        hash: string;
+        scrollY: number;
+        productId: string;
+    };
+};
+
 export const ProductCard = observer(({ product }: Props) => {
+    const location = useLocation();
+
     const isFavorite = shopFavoritesStore.has(product.id);
     const quantity = shopCartStore.getQuantity(product.id);
     const mainImage = product.images[0];
@@ -45,8 +57,22 @@ export const ProductCard = observer(({ product }: Props) => {
         shopCartStore.decrement(product.id);
     };
 
+    const productLinkState: ProductPageNavigationState = {
+        from: {
+            pathname: location.pathname,
+            search: location.search,
+            hash: location.hash,
+            scrollY: window.scrollY,
+            productId: product.id,
+        },
+    };
+
     return (
-        <article className={styles.card}>
+        <article
+            className={styles.card}
+            data-shop-product-id={product.id}
+            id={`shop-product-card-${product.id}`}
+        >
             <button
                 className={`${styles.favoriteButton} ${isFavorite ? styles.favoriteButtonActive : ''}`}
                 type="button"
@@ -56,19 +82,22 @@ export const ProductCard = observer(({ product }: Props) => {
                 {isFavorite ? '♥️' : '♡'}
             </button>
 
-            <Link to={`/shop/${product.slug}`} className={styles.imageLink} >
-                {
-                    mainImage ? (
-                        <img
-                            className={styles.image}
-                            src={mainImage.url}
-                            alt={mainImage.alt}
-                            loading="lazy"
-                        />
-                    ) : (
-                        <div className={styles.imagePlaceholder} > Нет изображения</div >
-                    )}
-            </Link >
+            <Link
+                to={`/shop/${product.slug}`}
+                state={productLinkState}
+                className={styles.imageLink}
+            >
+                {mainImage ? (
+                    <img
+                        className={styles.image}
+                        src={mainImage.url}
+                        alt={mainImage.alt}
+                        loading="lazy"
+                    />
+                ) : (
+                    <div className={styles.imagePlaceholder}>Нет изображения</div>
+                )}
+            </Link>
 
             <div className={styles.content}>
                 <div className={styles.meta}>
@@ -76,7 +105,11 @@ export const ProductCard = observer(({ product }: Props) => {
                     <span className={styles.rating}>★ {product.rating.toFixed(1)}</span>
                 </div>
 
-                <Link to={`/shop/${product.slug}`} className={styles.titleLink}>
+                <Link
+                    to={`/shop/${product.slug}`}
+                    state={productLinkState}
+                    className={styles.titleLink}
+                >
                     <h3 className={styles.title}>{product.title}</h3>
                 </Link>
 
@@ -110,7 +143,6 @@ export const ProductCard = observer(({ product }: Props) => {
                             </button>
 
                             <span className={styles.quantityValue}>{quantity}</span>
-
                             <button
                                 className={styles.quantityButton}
                                 type="button"
@@ -132,10 +164,11 @@ export const ProductCard = observer(({ product }: Props) => {
                         </button>
                     )}
                 </div>
-            </div >
-        </article >
+            </div>
+        </article>
     );
 });
+
 function formatPrice(value: number): string {
     return new Intl.NumberFormat('ru-RU', {
         style: 'currency',

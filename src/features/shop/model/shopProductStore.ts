@@ -1,5 +1,4 @@
 // src/features/shop/model/shopProductStore.ts
-
 import { makeAutoObservable, runInAction } from 'mobx';
 
 import { shopService } from '../service/shopService';
@@ -17,6 +16,7 @@ export class ShopProductStore {
     async loadBySlug(slug: string): Promise<void> {
         this.isLoading = true;
         this.error = null;
+        this.product = null;
 
         try {
             const product = await shopService.getProductBySlug(slug);
@@ -42,8 +42,8 @@ export class ShopProductStore {
 
     reset(): void {
         this.product = null;
-        this.error = null;
         this.isLoading = false;
+        this.error = null;
     }
 }
 
