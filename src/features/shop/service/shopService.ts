@@ -1,5 +1,4 @@
 // src/features/shop/service/shopService.ts
-
 import { shopApi } from '../api/shopApi';
 import type {
     CatalogFilterState,
@@ -17,6 +16,10 @@ export const shopService = {
         filters: CatalogFilterState,
     ): Promise<CatalogProductsResponse> {
         return shopApi.getCatalogProducts(filters);
+    },
+
+    async getProductsByIds(productIds: string[]): Promise<Product[]> {
+        return shopApi.getProductsByIds(productIds);
     },
 
     async getProductBySlug(slug: string): Promise<Product | null> {

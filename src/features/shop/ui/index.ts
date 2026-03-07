@@ -7,3 +7,5 @@ export * from './ProductPurchasePanel/ProductPurchasePanel';
 export * from './ProductReviews/ProductReviews';
 export * from './ProductDescription/ProductDescription';
 export * from './ProductBackButton/ProductBackButton';
+export * from './CartItemCard/CartItemCard';
+export * from './CartSummary/CartSummary';

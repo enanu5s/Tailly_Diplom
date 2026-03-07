@@ -131,6 +131,16 @@ export const ShopCatalogPage = observer(() => {
         categoryIdsKey,
     ]);
 
+    const cartLinkState = {
+        from: {
+            pathname: location.pathname,
+            search: location.search,
+            hash: location.hash,
+            scrollY: window.scrollY,
+            productId: '',
+        },
+    };
+
     return (
         <div className={styles.page}>
             <div className={styles.container}>
@@ -155,7 +165,7 @@ export const ShopCatalogPage = observer(() => {
                             <span className={styles.quickCardValue}>{shopFavoritesStore.total}</span>
                             <span className={styles.quickCardLabel}>В избранном</span>
                         </Link>
-                        <Link to="/shop/cart" className={styles.quickCard}>
+                        <Link to="/shop/cart" state={cartLinkState} className={styles.quickCard}>
                             <span className={styles.quickCardValue}>{shopCartStore.totalItems}</span>
                             <span className={styles.quickCardLabel}>В корзине</span>
                         </Link>

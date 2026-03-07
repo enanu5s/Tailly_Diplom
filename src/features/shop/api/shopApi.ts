@@ -30,10 +30,6 @@ function tokenize(value: string): string[] {
         .filter(Boolean);
 }
 
-function getPlainCategoryIds(categoryIds: CatalogFilterState['categoryIds']): string[] {
-    return JSON.parse(JSON.stringify(categoryIds)) as string[];
-}
-
 function getSearchFields(product: Product): string[] {
     return [
         product.title,
@@ -41,32 +37,6 @@ function getSearchFields(product: Product): string[] {
         product.description,
         product.categoryTitle,
     ];
-}
-
-function matchesSearch(product: Product, search: string): boolean {
-    const queryTokens = tokenize(search);
-
-    if (queryTokens.length === 0) {
-        return true;
-    }
-
-    const normalizedFields = getSearchFields(product).map(normalizeText);
-    const fullText = normalizedFields.join(' ');
-    const fieldTokens = tokenize(fullText);
-
-    return queryTokens.every((queryToken) => {
-        if (fullText.includes(queryToken)) {
-            return true;
-        }
-
-        return fieldTokens.some((fieldToken) => {
-            return (
-                fieldToken.includes(queryToken) ||
-                queryToken.includes(fieldToken) ||
-                levenshteinDistance(fieldToken, queryToken) <= 1
-            );
-        });
-    });
 }
 
 function levenshteinDistance(a: string, b: string): number {
@@ -111,6 +81,32 @@ function levenshteinDistance(a: string, b: string): number {
     return matrix[a.length][b.length];
 }
 
+function matchesSearch(product: Product, search: string): boolean {
+    const queryTokens = tokenize(search);
+
+    if (queryTokens.length === 0) {
+        return true;
+    }
+
+    const normalizedFields = getSearchFields(product).map(normalizeText);
+    const fullText = normalizedFields.join(' ');
+    const fieldTokens = tokenize(fullText);
+
+    return queryTokens.every((queryToken) => {
+        if (fullText.includes(queryToken)) {
+            return true;
+        }
+
+        return fieldTokens.some((fieldToken) => {
+            return (
+                fieldToken.includes(queryToken) ||
+                queryToken.includes(fieldToken) ||
+                levenshteinDistance(fieldToken, queryToken) <= 1
+            );
+        });
+    });
+}
+
 function applySort(items: Product[], sort: ProductSort): Product[] {
     const copy = [...items];
 
@@ -132,28 +128,12 @@ function applySort(items: Product[], sort: ProductSort): Product[] {
 }
 
 function applyFilters(items: Product[], filters: CatalogFilterState): Product[] {
-    const selectedCategoryIds = getPlainCategoryIds(filters.categoryIds);
-
-    console.log('[shopApi] applyFilters input:', {
-        filters: {
-            ...filters,
-            categoryIds: selectedCategoryIds,
-        },
-        allProducts: items.map((item) => ({
-            id: item.id,
-            title: item.title,
-            categoryId: item.categoryId,
-            categoryTitle: item.categoryTitle,
-            price: item.price,
-            isAvailable: item.isAvailable,
-        })),
-    });
-
-    const result = items.filter((product) => {
+    return items.filter((product) => {
         const isMatchedBySearch = matchesSearch(product, filters.search);
+
         const isMatchedByCategory =
-            selectedCategoryIds.length === 0 ||
-            selectedCategoryIds.includes(product.categoryId);
+            filters.categoryIds.length === 0 ||
+            filters.categoryIds.includes(product.categoryId);
 
         const isMatchedByMinPrice =
             filters.minPrice === null || product.price >= filters.minPrice;
@@ -164,83 +144,66 @@ function applyFilters(items: Product[], filters: CatalogFilterState): Product[] 
         const isMatchedByAvailability =
             !filters.onlyAvailable || product.isAvailable;
 
-        const matches =
+        return (
             isMatchedBySearch &&
             isMatchedByCategory &&
             isMatchedByMinPrice &&
             isMatchedByMaxPrice &&
-            isMatchedByAvailability;
-
-        console.log('[shopApi] product filter result:', {
-            productId: product.id,
-            productTitle: product.title,
-            productCategoryId: product.categoryId,
-            selectedCategoryIds,
-            isMatchedBySearch,
-            isMatchedByCategory,
-            isMatchedByMinPrice,
-            isMatchedByMaxPrice,
-            isMatchedByAvailability,
-            matches,
-        });
-
-        return matches;
+            isMatchedByAvailability
+        );
     });
-
-    console.log('[shopApi] applyFilters output:', {
-        resultCount: result.length,
-        resultIds: result.map((item) => item.id),
-        resultTitles: result.map((item) => item.title),
-    });
-
-    return result;
 }
 
 async function getCatalogMetaMock(): Promise<CatalogMetaResponse> {
     const prices = SHOP_PRODUCTS_MOCK.map((product) => product.price);
-
-    const result = {
+    return {
         categories: SHOP_CATEGORIES_MOCK,
         minPrice: prices.length > 0 ? Math.min(...prices) : 0,
         maxPrice: prices.length > 0 ? Math.max(...prices) : 0,
-        availableSorts: ['popular', 'newest', 'rating-desc', 'price-asc', 'price-desc'] as ProductSort[],
+        availableSorts: ['popular', 'newest', 'rating-desc', 'price-asc', 'price-desc'],
     };
-
-    console.log('[shopApi] getCatalogMetaMock result:', result);
-
-    return result;
 }
 
 async function getCatalogProductsMock(
     filters: CatalogFilterState,
 ): Promise<CatalogProductsResponse> {
-    console.log('[shopApi] getCatalogProductsMock called with filters:', {
-        ...filters,
-        categoryIds: getPlainCategoryIds(filters.categoryIds),
-    });
-
     const filtered = applyFilters(SHOP_PRODUCTS_MOCK, filters);
     const sorted = applySort(filtered, filters.sort);
 
     const startIndex = (filters.page - 1) * filters.limit;
     const paginated = sorted.slice(startIndex, startIndex + filters.limit);
 
-    const result = {
+    return {
         items: paginated,
         total: sorted.length,
         page: filters.page,
         limit: filters.limit,
     };
+}
 
-    console.log('[shopApi] getCatalogProductsMock result:', {
-        total: result.total,
-        page: result.page,
-        limit: result.limit,
-        itemIds: result.items.map((item) => item.id),
-        itemTitles: result.items.map((item) => item.title),
+async function getProductsByIdsMock(productIds: string[]): Promise<Product[]> {
+    if (productIds.length === 0) {
+        return [];
+    }
+
+    const productIdsSet = new Set(productIds);
+    const orderedProducts = productIds
+        .map((productId) => SHOP_PRODUCTS_MOCK.find((product) => product.id === productId) ?? null)
+        .filter((product): product is Product => product !== null);
+
+    const uniqueOrderedProducts: Product[] = [];
+    const seenIds = new Set<string>();
+
+    orderedProducts.forEach((product) => {
+        if (!productIdsSet.has(product.id) || seenIds.has(product.id)) {
+            return;
+        }
+
+        seenIds.add(product.id);
+        uniqueOrderedProducts.push(product);
     });
 
-    return result;
+    return uniqueOrderedProducts;
 }
 
 async function getCatalogMetaReal(): Promise<CatalogMetaResponse> {
@@ -250,36 +213,46 @@ async function getCatalogMetaReal(): Promise<CatalogMetaResponse> {
 async function getCatalogProductsReal(
     filters: CatalogFilterState,
 ): Promise<CatalogProductsResponse> {
-    const plainFilters: CatalogFilterState = JSON.parse(JSON.stringify(filters));
     const params = new URLSearchParams();
 
-    if (plainFilters.search.trim()) {
-        params.set('search', plainFilters.search.trim());
+    if (filters.search.trim()) {
+        params.set('search', filters.search.trim());
     }
 
-    if (plainFilters.categoryIds.length > 0) {
-        params.set('categoryIds', plainFilters.categoryIds.join(','));
+    if (filters.categoryIds.length > 0) {
+        params.set('categoryIds', filters.categoryIds.join(','));
     }
 
-    if (plainFilters.minPrice !== null) {
-        params.set('minPrice', String(plainFilters.minPrice));
+    if (filters.minPrice !== null) {
+        params.set('minPrice', String(filters.minPrice));
     }
 
-    if (plainFilters.maxPrice !== null) {
-        params.set('maxPrice', String(plainFilters.maxPrice));
+    if (filters.maxPrice !== null) {
+        params.set('maxPrice', String(filters.maxPrice));
     }
 
-    if (plainFilters.onlyAvailable) {
+    if (filters.onlyAvailable) {
         params.set('onlyAvailable', 'true');
     }
 
-    params.set('sort', plainFilters.sort);
-    params.set('page', String(plainFilters.page));
-    params.set('limit', String(plainFilters.limit));
+    params.set('sort', filters.sort);
+    params.set('page', String(filters.page));
+    params.set('limit', String(filters.limit));
 
     return fetchJson<CatalogProductsResponse>(
         `${API_BASE_URL} / shop / products ? ${params.toString()}`,
     );
+}
+
+async function getProductsByIdsReal(productIds: string[]): Promise<Product[]> {
+    if (productIds.length === 0) {
+        return [];
+    }
+
+    const params = new URLSearchParams();
+    params.set('ids', productIds.join(','));
+
+    return fetchJson<Product[]>(`${API_BASE_URL} / shop / products / by - ids ? ${params.toString()}`);
 }
 
 async function getProductBySlugMock(slug: string): Promise<Product | null> {
@@ -289,6 +262,7 @@ async function getProductBySlugMock(slug: string): Promise<Product | null> {
 async function getProductBySlugReal(slug: string): Promise<Product | null> {
     return fetchJson<Product | null>(`${API_BASE_URL} / shop / products / ${slug}`);
 }
+
 export const shopApi = {
     async getCatalogMeta(): Promise<CatalogMetaResponse> {
         if (USE_MOCK) {
@@ -306,6 +280,14 @@ export const shopApi = {
         }
 
         return getCatalogProductsReal(filters);
+    },
+
+    async getProductsByIds(productIds: string[]): Promise<Product[]> {
+        if (USE_MOCK) {
+            return getProductsByIdsMock(productIds);
+        }
+
+        return getProductsByIdsReal(productIds);
     },
 
     async getProductBySlug(slug: string): Promise<Product | null> {
