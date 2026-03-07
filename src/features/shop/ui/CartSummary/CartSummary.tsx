@@ -6,9 +6,18 @@ import styles from './CartSummary.module.css';
 type Props = {
     itemsCount: number;
     totalPrice: number;
+    checkoutLinkState?: {
+        from?: {
+            pathname: string;
+            search: string;
+            hash: string;
+            scrollY: number;
+            productId: string;
+        };
+    };
 };
 
-export const CartSummary = ({ itemsCount, totalPrice }: Props) => {
+export const CartSummary = ({ itemsCount, totalPrice, checkoutLinkState }: Props) => {
     return (
         <aside className={styles.card}>
             <h2 className={styles.title}>Ваш заказ</h2>
@@ -25,11 +34,7 @@ export const CartSummary = ({ itemsCount, totalPrice }: Props) => {
                 </div>
             </div>
 
-            <div className={styles.hint}>
-                Оформление заказа добавим следующим этапом: адрес, доставка, ПВЗ, оплата.
-            </div>
-
-            <Link to="/shop/checkout" className={styles.checkoutButton}>
+            <Link to="/shop/checkout" state={checkoutLinkState} className={styles.checkoutButton}>
                 Перейти к оформлению
             </Link>
         </aside>

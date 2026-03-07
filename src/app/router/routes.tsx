@@ -21,7 +21,14 @@ import { ChangePasswordPage } from '@/pages/profile-security-password'
 import { LeaveReviewPage } from '@/pages/leave-review'
 import { ServicesPage } from '@/pages/services'
 import { NotFoundPage } from '@/pages/not-found'
-import { ShopCatalogPage, ShopProductPage, ShopFavoritesPage, ShopCartPage } from '@/pages/shop';
+import {
+  ShopCartPage,
+  ShopCatalogPage,
+  ShopCheckoutPage,
+  ShopFavoritesPage,
+  ShopOrderResultPage,
+  ShopProductPage,
+} from '@/pages/shop';
 
 export const routes: RouteObject[] = [
   {
@@ -114,6 +121,14 @@ export const routes: RouteObject[] = [
       {
         path: '/shop/cart',
         element: <ShopCartPage />,
+      },
+      {
+        path: '/shop/checkout',
+        element: <ShopCheckoutPage />,
+      },
+      {
+        path: '/shop/order/:orderId',
+        element: <ShopOrderResultPage />,
       },
       {
         path: '/shop/:slug',

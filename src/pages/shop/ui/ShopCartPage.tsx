@@ -38,6 +38,16 @@ export const ShopCartPage = observer(() => {
         },
     };
 
+    const checkoutLinkState = {
+        from: {
+            pathname: location.pathname,
+            search: location.search,
+            hash: location.hash,
+            scrollY: window.scrollY,
+            productId: '',
+        },
+    };
+
     useEffect(() => {
         window.scrollTo({
             top: 0,
@@ -130,7 +140,6 @@ export const ShopCartPage = observer(() => {
                         <p className={styles.stateText}>Подготавливаем товары и итоговую сумму.</p>
                     </div>
                 ) : null}
-
                 {!error && isInitialized && isEmpty ? (
                     <div className={styles.stateCard}>
                         <h2 className={styles.stateTitle}>Корзина пуста</h2>
@@ -155,8 +164,13 @@ export const ShopCartPage = observer(() => {
                                 />
                             ))}
                         </section>
+
                         <div className={styles.summary}>
-                            <CartSummary itemsCount={itemsCount} totalPrice={totalPrice} />
+                            <CartSummary
+                                itemsCount={itemsCount}
+                                totalPrice={totalPrice}
+                                checkoutLinkState={checkoutLinkState}
+                            />
                         </div>
                     </div>
                 ) : null}
