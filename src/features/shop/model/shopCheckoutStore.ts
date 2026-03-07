@@ -1,15 +1,15 @@
 // src/features/shop/model/shopCheckoutStore.ts
+
 import { makeAutoObservable, runInAction } from 'mobx';
+
+import { authStore } from '@/features/auth/model/authStore';
+import { profileService } from '@/features/profile/service/profileService';
 
 import { shopService } from '../service/shopService';
 import { shopOrderService } from '../service/shopOrderService';
+
 import { shopCartStore } from './shopCartStore';
-import type {
-    CheckoutForm,
-    PickupPoint,
-    Product,
-    Order,
-} from './types';
+import type { CheckoutForm, PickupPoint, Product, Order } from './types';
 
 type CheckoutValidationErrors = Partial<
     Record<
@@ -47,10 +47,34 @@ function createDefaultForm(): CheckoutForm {
     };
 }
 
+function isBlank(value: string | null | undefined): boolean {
+    return !value?.trim();
+}
+
+function splitDisplayName(name?: string): { firstName?: string; lastName?: string } {
+    if (!name?.trim()) {
+        return {};
+    }
+
+    const parts = name.trim().split(/\s+/);
+
+    if (parts.length === 1) {
+        return {
+            firstName: parts[0],
+        };
+    }
+
+    return {
+        firstName: parts[0],
+        lastName: parts.slice(1).join(' '),
+    };
+}
+
 export class ShopCheckoutStore {
     form: CheckoutForm = JSON.parse(JSON.stringify(createDefaultForm()));
     products: Product[] = [];
     pickupPoints: PickupPoint[] = [];
+
     isLoading = false;
     isPickupPointsLoading = false;
     isSubmitting = false;
@@ -63,7 +87,79 @@ export class ShopCheckoutStore {
         makeAutoObservable(this, {}, { autoBind: true });
     }
 
+    private prefillRecipientFromAuth(): void {
+        const authState = authStore.getState();
+        const user = authState.user;
+
+        if (!authState.token || !user) {
+            return;
+        }
+
+        const fallbackName = splitDisplayName(user.name);
+
+        if (isBlank(this.form.recipient.firstName) && !isBlank(user.firstName)) {
+            this.form.recipient.firstName = user.firstName!.trim();
+        } else if (isBlank(this.form.recipient.firstName) && !isBlank(fallbackName.firstName)) {
+            this.form.recipient.firstName = fallbackName.firstName!.trim();
+        }
+
+        if (isBlank(this.form.recipient.lastName) && !isBlank(user.lastName)) {
+            this.form.recipient.lastName = user.lastName!.trim();
+        } else if (isBlank(this.form.recipient.lastName) && !isBlank(fallbackName.lastName)) {
+            this.form.recipient.lastName = fallbackName.lastName!.trim();
+        }
+
+        if (isBlank(this.form.recipient.email) && !isBlank(user.email)) {
+            this.form.recipient.email = user.email.trim();
+        }
+
+        if (isBlank(this.form.recipient.phone) && !isBlank(user.phone)) {
+            this.form.recipient.phone = user.phone!.trim();
+        }
+    }
+
+    private async prefillRecipientFromProfile(): Promise<void> {
+        const authState = authStore.getState();
+
+        if (!authState.token || !authState.user) {
+            return;
+        }
+
+        try {
+            const profile = await profileService.getProfile();
+
+            runInAction(() => {
+                if (isBlank(this.form.recipient.firstName) && !isBlank(profile.firstName)) {
+                    this.form.recipient.firstName = profile.firstName.trim();
+                }
+
+                if (isBlank(this.form.recipient.lastName) && !isBlank(profile.lastName)) {
+                    this.form.recipient.lastName = profile.lastName.trim();
+                }
+
+                if (isBlank(this.form.recipient.email) && !isBlank(profile.email)) {
+                    this.form.recipient.email = profile.email.trim();
+                }
+
+                if (isBlank(this.form.recipient.phone) && !isBlank(profile.phone)) {
+                    this.form.recipient.phone = profile.phone.trim();
+                }
+                authStore.updateUser({
+                    email: profile.email,
+                    firstName: profile.firstName,
+                    lastName: profile.lastName,
+                    phone: profile.phone,
+                });
+            });
+        } catch {
+            // checkout не должен падать, если профиль не загрузился
+        }
+    }
+
     async load(): Promise<void> {
+        this.prefillRecipientFromAuth();
+        await this.prefillRecipientFromProfile();
+
         const productIds = shopCartStore.items.map((item) => item.productId);
 
         if (productIds.length === 0) {
@@ -115,17 +211,20 @@ export class ShopCheckoutStore {
 
                 if (points.length === 0) {
                     this.form.pickupPointId = null;
+
                     return;
                 }
 
-                if (!this.form.pickupPointId || !points.some((point) => point.id === this.form.pickupPointId)) {
+                if (
+                    !this.form.pickupPointId ||
+                    !points.some((point) => point.id === this.form.pickupPointId)
+                ) {
                     this.form.pickupPointId = points[0].id;
                 }
             });
         } catch (error) {
             runInAction(() => {
-                this.pickupPointsError =
-                    error instanceof Error ? error.message : 'Не удалось загрузить ПВЗ.';
+                this.pickupPointsError = error instanceof Error ? error.message : 'Не удалось загрузить ПВЗ.';
             });
         } finally {
             runInAction(() => {
@@ -134,10 +233,7 @@ export class ShopCheckoutStore {
         }
     }
 
-    setRecipientField(
-        field: keyof CheckoutForm['recipient'],
-        value: string,
-    ): void {
+    setRecipientField(field: keyof CheckoutForm['recipient'], value: string): void {
         this.form.recipient[field] = value;
         delete this.validationErrors[field as keyof CheckoutValidationErrors];
     }
@@ -169,6 +265,7 @@ export class ShopCheckoutStore {
             if (this.form.paymentMethod === 'cash') {
                 this.form.paymentMethod = 'card';
             }
+
             await this.loadPickupPoints();
         }
     }
@@ -182,11 +279,7 @@ export class ShopCheckoutStore {
         delete this.validationErrors.pickupPointId;
     }
 
-    get detailedItems(): Array<{
-        product: Product;
-        quantity: number;
-        lineTotal: number;
-    }> {
+    get detailedItems(): Array<{ product: Product; quantity: number; lineTotal: number }> {
         return this.products
             .map((product) => {
                 const quantity = shopCartStore.getQuantity(product.id);
@@ -215,7 +308,6 @@ export class ShopCheckoutStore {
     get totalItems(): number {
         return this.detailedItems.reduce((sum, item) => sum + item.quantity, 0);
     }
-
     get totalPrice(): number {
         return this.detailedItems.reduce((sum, item) => sum + item.lineTotal, 0);
     }
@@ -230,6 +322,7 @@ export class ShopCheckoutStore {
 
     private validatePhone(value: string): boolean {
         const normalized = value.replace(/[^\d+]/g, '');
+
         return normalized.length >= 11;
     }
 
@@ -303,8 +396,7 @@ export class ShopCheckoutStore {
             return order;
         } catch (error) {
             runInAction(() => {
-                this.error =
-                    error instanceof Error ? error.message : 'Не удалось оформить заказ.';
+                this.error = error instanceof Error ? error.message : 'Не удалось оформить заказ.';
             });
 
             return null;
