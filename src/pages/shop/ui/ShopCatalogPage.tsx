@@ -131,6 +131,16 @@ export const ShopCatalogPage = observer(() => {
         categoryIdsKey,
     ]);
 
+    const favoritesLinkState = {
+        from: {
+            pathname: location.pathname,
+            search: location.search,
+            hash: location.hash,
+            scrollY: window.scrollY,
+            productId: '',
+        },
+    };
+
     const cartLinkState = {
         from: {
             pathname: location.pathname,
@@ -161,7 +171,7 @@ export const ShopCatalogPage = observer(() => {
                     </div>
 
                     <div className={styles.quickStats}>
-                        <Link to="/shop/favorites" className={styles.quickCard}>
+                        <Link to="/shop/favorites" state={favoritesLinkState} className={styles.quickCard}>
                             <span className={styles.quickCardValue}>{shopFavoritesStore.total}</span>
                             <span className={styles.quickCardLabel}>В избранном</span>
                         </Link>

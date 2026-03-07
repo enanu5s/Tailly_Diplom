@@ -1,4 +1,4 @@
-/* src/pages/shop/ui/ShopCartPage.module.css */
+/* src/pages/shop/ui/ShopFavoritesPage.module.css */
 .page {
     min-height: calc(100vh - 160px);
     padding: 32px 20px 80px;
@@ -64,31 +64,19 @@
 .clearButton {
     min-height: 46px;
     padding: 0 16px;
-    border: 1px solid #fecaca;
+    border: 1px solid #c7d2fe;
     border-radius: 14px;
-    background: #fff1f2;
-    color: #be123c;
+    background: #eef2ff;
+    color: #4338ca;
     font-size: 14px;
     font-weight: 700;
     cursor: pointer;
-}
-
-.layout {
-    display: grid;
-    grid-template-columns: minmax(0, 1fr) 340px;
-    gap: 24px;
-    align-items: start;
 }
 
 .items {
     display: flex;
     flex-direction: column;
     gap: 18px;
-}
-
-.summary {
-    position: sticky;
-    top: 88px;
 }
 
 .stateCard {
@@ -128,38 +116,6 @@
     font-weight: 700;
     text-decoration: none;
     cursor: pointer;
-}
-
-.headerActions {
-    display: flex;
-    align-items: center;
-    gap: 12px;
-    flex-wrap: wrap;
-}
-
-.secondaryLink {
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    min-height: 46px;
-    padding: 0 16px;
-    border: 1px solid #c7d2fe;
-    border-radius: 14px;
-    background: #eef2ff;
-    color: #4338ca;
-    font-size: 14px;
-    font-weight: 700;
-    text-decoration: none;
-}
-
-@media (max-width: 1024px) {
-    .layout {
-        grid-template-columns: 1fr;
-    }
-
-    .summary {
-        position: static;
-    }
 }
 
 @media (max-width: 720px) {

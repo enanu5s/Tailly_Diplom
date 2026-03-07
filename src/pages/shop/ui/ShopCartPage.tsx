@@ -28,6 +28,16 @@ export const ShopCartPage = observer(() => {
     const state = (location.state ?? null) as ShopCartPageLocationState | null;
     const from = state?.from;
 
+    const favoritesLinkState = {
+        from: {
+            pathname: location.pathname,
+            search: location.search,
+            hash: location.hash,
+            scrollY: window.scrollY,
+            productId: '',
+        },
+    };
+
     useEffect(() => {
         window.scrollTo({
             top: 0,
@@ -79,17 +89,23 @@ export const ShopCartPage = observer(() => {
                         </p>
                     </div>
 
-                    {!isEmpty ? (
-                        <button
-                            className={styles.clearButton}
-                            type="button"
-                            onClick={() => {
-                                shopCartStore.clear();
-                            }}
-                        >
-                            Очистить корзину
-                        </button>
-                    ) : null}
+                    <div className={styles.headerActions}>
+                        <Link to="/shop/favorites" state={favoritesLinkState} className={styles.secondaryLink}>
+                            Перейти в избранное
+                        </Link>
+
+                        {!isEmpty ? (
+                            <button
+                                className={styles.clearButton}
+                                type="button"
+                                onClick={() => {
+                                    shopCartStore.clear();
+                                }}
+                            >
+                                Очистить корзину
+                            </button>
+                        ) : null}
+                    </div>
                 </header>
 
                 {error ? (

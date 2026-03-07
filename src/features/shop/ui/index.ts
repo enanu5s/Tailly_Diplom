@@ -9,3 +9,4 @@ export * from './ProductDescription/ProductDescription';
 export * from './ProductBackButton/ProductBackButton';
 export * from './CartItemCard/CartItemCard';
 export * from './CartSummary/CartSummary';
+export * from './FavoriteItemCard/FavoriteItemCard';
