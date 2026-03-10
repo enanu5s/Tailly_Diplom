@@ -13,8 +13,12 @@ export const ProfileMainCard = observer(() => {
 
   const p = profileStore.profile;
 
-  const avatarSrc = profileStore.editing ? profileStore.draftAvatarUrl : p?.avatarUrl ?? '';
-  const fullName = p ? `${p.firstName} ${p.lastName}`.trim() : 'Профиль';
+  const avatarSrc = profileStore.editing
+    ? profileStore.draftAvatarUrl
+    : (p?.avatarUrl ?? '');
+  const fullName = profileStore.editing
+    ? `${profileStore.draftFirstName} ${profileStore.draftLastName}`.trim() || 'Профиль'
+    : (p ? `${p.firstName} ${p.lastName}`.trim() : 'Профиль');
 
   return (
     <section className={styles.card}>
@@ -89,7 +93,11 @@ export const ProfileMainCard = observer(() => {
                   required
                 />
               ) : (
-                <div className={styles.value}>{p.city || '—'}</div>
+                <div className={styles.value}>
+                  {profileStore.editing
+                    ? (profileStore.draftCity || '—')
+                    : (p.city || '—')}
+                </div>
               )}
             </div>
 
@@ -104,7 +112,9 @@ export const ProfileMainCard = observer(() => {
                   required
                 />
               ) : (
-                <div className={styles.value}>{p.phone || '—'}</div>
+                <div className={styles.value}>{profileStore.editing
+                  ? (profileStore.draftPhone || '—')
+                  : (p.phone || '—')}</div>
               )}
             </div>
             <div className={styles.field}>

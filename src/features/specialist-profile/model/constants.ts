@@ -2,6 +2,7 @@
 
 import type {
     SpecialistChildrenPolicy,
+    SpecialistExperienceUnit,
     SpecialistHousingType,
     SpecialistPetAge,
     SpecialistPetSize,
@@ -54,3 +55,23 @@ export const SPECIALIST_SERVICE_PRICE_UNIT_LABELS: Record<SpecialistServicePrice
     walk: 'за прогулку',
     visit: 'за визит',
 };
+
+export const SPECIALIST_EXPERIENCE_UNIT_LABELS: Record<SpecialistExperienceUnit, string> = {
+    years: 'лет',
+    months: 'месяцев',
+};
+
+export const SPECIALIST_ADVANTAGE_OPTIONS = [
+    'Беру только одного клиента одновременно',
+    'Ежедневный фото- и видеоотчёт',
+    'Опыт с тревожными питомцами',
+    'Опыт с пожилыми питомцами',
+    'Умею давать лекарства',
+    'Есть базовые знания по уходу после операций',
+    'Готова к длительным прогулкам',
+    'Работаю с кошками и собаками',
+    'Есть опыт передержки на дому',
+    'Спокойная домашняя обстановка',
+] as const;
+
+export type SpecialistAdvantageOption = (typeof SPECIALIST_ADVANTAGE_OPTIONS)[number];

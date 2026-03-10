@@ -40,6 +40,8 @@ export type SpecialistServicePriceUnit =
     | 'walk'
     | 'visit';
 
+export type SpecialistExperienceUnit = 'years' | 'months';
+
 export type SpecialistMainInfo = {
     avatarUrl?: string;
     firstName: string;
@@ -98,6 +100,8 @@ export type SpecialistReview = {
 
 export type SpecialistDetails = {
     experienceLabel: string;
+    experienceDurationValue?: number;
+    experienceDurationUnit?: SpecialistExperienceUnit;
     housingType: SpecialistHousingType;
     petSizes: SpecialistPetSize[];
     petAges: SpecialistPetAge[];
@@ -114,10 +118,43 @@ export type SpecialistProfile = {
     main: SpecialistMainInfo;
     stats: SpecialistStats;
     calendar: SpecialistCalendar;
+    specialistGallery?: SpecialistGalleryItem[];
     petGallery: SpecialistGalleryItem[];
     details: SpecialistDetails;
     services: SpecialistService[];
     reviews: SpecialistReview[];
 };
 
-export type SpecialistProfileResponse = SpecialistProfile;
+export type SpecialistProfileResponse = Omit<SpecialistProfile, 'isOwner'>;
+
+export type SpecialistMainInfoUpdatePayload = {
+    avatarUrl?: string;
+    firstName: string;
+    lastName: string;
+    city: string;
+    district: string;
+    phone: string;
+};
+
+export type SpecialistServiceUpdateItem = {
+    id: string;
+    name: string;
+    locationLabel: string;
+    price: number;
+    priceUnit: SpecialistServicePriceUnit;
+};
+
+export type SpecialistDetailsUpdatePayload = {
+    experienceLabel: string;
+    experienceDurationValue?: number;
+    experienceDurationUnit?: SpecialistExperienceUnit;
+    housingType: SpecialistHousingType;
+    petSizes: SpecialistPetSize[];
+    petAges: SpecialistPetAge[];
+    hasChildrenUnderTen: SpecialistChildrenPolicy;
+    petTypes: SpecialistPetType[];
+    advantages: string[];
+    about: string;
+    services: SpecialistServiceUpdateItem[];
+    specialistGallery?: SpecialistGalleryItem[];
+};

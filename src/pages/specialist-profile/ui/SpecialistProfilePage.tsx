@@ -1,61 +1,83 @@
 // src/pages/specialist-profile/ui/SpecialistProfilePage.tsx
 
-import { observer } from 'mobx-react-lite';
 import { useEffect } from 'react';
+import { observer } from 'mobx-react-lite';
 import { useParams } from 'react-router-dom';
 
-import {
-    SpecialistProfileView,
-    specialistProfileStore,
-} from '@/features/specialist-profile';
-
-import styles from './SpecialistProfilePage.module.css';
+import { specialistProfileStore } from '@/features/specialist-profile/model/specialistProfileStore';
+import { SpecialistProfileView } from '@/features/specialist-profile/ui/SpecialistProfileView';
 
 export const SpecialistProfilePage = observer(() => {
     const { specialistSlug } = useParams<{ specialistSlug: string }>();
+    const store = specialistProfileStore;
 
     useEffect(() => {
-        window.scrollTo({ top: 0, left: 0, behavior: 'auto' });
-
         if (!specialistSlug) {
-            specialistProfileStore.reset();
-
             return;
         }
 
-        void specialistProfileStore.load(specialistSlug);
+        void store.load(specialistSlug);
+    }, [specialistSlug, store]);
 
+    useEffect(() => {
         return () => {
-            specialistProfileStore.reset();
+            store.reset();
         };
-    }, [specialistSlug]);
+    }, [store]);
 
     const handleRetry = (): void => {
         if (!specialistSlug) {
             return;
         }
 
-        void specialistProfileStore.load(specialistSlug);
+        void store.load(specialistSlug);
     };
 
     return (
-        <div className={styles.page}>
-            <div className={styles.container}>
-                <header className={styles.header}>
-                    <span className={styles.eyebrow}>Профиль специалиста</span>
-                    <h1 className={styles.title}>Специалист Tailly</h1>
-                </header>
-
-                <SpecialistProfileView
-                    profile={specialistProfileStore.profile}
-                    isLoading={specialistProfileStore.isLoading}
-                    error={specialistProfileStore.error}
-                    visibleReviews={specialistProfileStore.visibleReviews}
-                    canLoadMoreReviews={specialistProfileStore.canLoadMoreReviews}
-                    onRetry={handleRetry}
-                    onLoadMoreReviews={specialistProfileStore.loadMoreReviews}
-                />
-            </div>
-        </div>
+        <SpecialistProfileView
+            profile={store.profile}
+            isLoading={store.isLoading}
+            error={store.error}
+            visibleReviews={store.visibleReviews}
+            canLoadMoreReviews={store.canLoadMoreReviews}
+            onRetry={handleRetry}
+            onLoadMoreReviews={store.loadMoreReviews}
+            isEditingMain={store.isEditingMain}
+            isSavingMain={store.isSavingMain}
+            mainSaveError={store.mainSaveError}
+            mainForm={store.mainForm}
+            mainFormErrors={store.mainFormErrors}
+            onStartMainEditing={store.startMainEditing}
+            onCancelMainEditing={store.cancelMainEditing}
+            onSetMainField={store.setMainField}
+            onSetMainAvatarFile={store.setMainAvatarFile}
+            onSaveMain={() => {
+                void store.saveMain();
+            }}
+            isEditingDetails={store.isEditingDetails}
+            isSavingDetails={store.isSavingDetails}
+            detailsSaveError={store.detailsSaveError}
+            detailsForm={store.detailsForm}
+            detailsFormErrors={store.detailsFormErrors}
+            onStartDetailsEditing={store.startDetailsEditing}
+            onCancelDetailsEditing={store.cancelDetailsEditing}
+            onSetDetailsField={store.setDetailsField}
+            onTogglePetSize={store.togglePetSize}
+            onToggleAllPetSizes={store.toggleAllPetSizes}
+            onTogglePetAge={store.togglePetAge}
+            onToggleAllPetAges={store.toggleAllPetAges}
+            onTogglePetType={store.togglePetType}
+            onToggleAdvantage={store.toggleAdvantage}
+            onAddService={store.addService}
+            onRemoveService={store.removeService}
+            onSetServiceField={store.setServiceField}
+            onSetSpecialistGalleryUrlInput={store.setSpecialistGalleryUrlInput}
+            onAddSpecialistGalleryImageByUrl={store.addSpecialistGalleryImageByUrl}
+            onAddSpecialistGalleryFiles={store.addSpecialistGalleryFiles}
+            onRemoveSpecialistGalleryImage={store.removeSpecialistGalleryImage}
+            onSaveDetails={() => {
+                void store.saveDetails();
+            }}
+        />
     );
 });
