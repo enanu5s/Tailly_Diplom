@@ -2,7 +2,10 @@
 
 import { request } from '@/shared/api/http';
 
+import type { AuthUser } from '../model/authStore';
+
 const USE_MOCK = (import.meta.env.VITE_USE_MOCK_API ?? 'true') === 'true';
+const API_BASE_URL = import.meta.env.VITE_API_BASE_URL ?? '';
 
 export type StartRegisterRequest = {
   email: string;
@@ -36,13 +39,7 @@ export type CompleteProfileRequest = {
 
 export type CompleteProfileResponse = {
   accessToken: string;
-  user: {
-    id: string;
-    email: string;
-    name?: string;
-    firstName?: string;
-    lastName?: string;
-    phone?: string;
+  user: AuthUser & {
     cityId: string;
   };
 };
@@ -67,12 +64,14 @@ const mockDb: {
 };
 
 function delay(ms: number): Promise<void> {
-  return new Promise((resolve) => setTimeout(resolve, ms));
+  return new Promise((resolve) => {
+    window.setTimeout(resolve, ms);
+  });
 }
 
 async function mockStartRegister(dto: StartRegisterRequest): Promise<StartRegisterResponse> {
   await delay(500);
-  mockDb.email = dto.email;
+  mockDb.email = dto.email.trim().toLowerCase();
 
   return {
     registrationId: mockDb.registrationId,
@@ -94,69 +93,89 @@ async function mockVerifyCode(dto: VerifyCodeRequest): Promise<VerifyCodeRespons
 async function mockGetCities(): Promise<City[]> {
   await delay(300);
 
-  return mockDb.cities;
+  return JSON.parse(JSON.stringify(mockDb.cities)) as City[];
 }
 
-async function mockCompleteProfile(dto: CompleteProfileRequest): Promise<CompleteProfileResponse> {
+async function mockCompleteProfile(
+  dto: CompleteProfileRequest,
+): Promise<CompleteProfileResponse> {
   await delay(500);
 
   const firstName = dto.firstName.trim();
   const lastName = dto.lastName.trim();
-  const fullName = `${firstName} ${lastName}.trim()`;
+  const fullName = `${firstName} ${lastName}`.trim();
 
   return {
-    accessToken: 'mock-access-token',
+    accessToken: 'mock-access-token-client',
     user: {
-      id: 'u1',
-      email: mockDb.email || 'mock@tailly.ru',
-      name: fullName || 'Mock User',
+      id: 'user-client-registered',
+      email: mockDb.email || 'client@tailly.ru',
+      role: 'client',
+      name: fullName || 'Новый пользователь',
       firstName: firstName || undefined,
       lastName: lastName || undefined,
-      phone: undefined,
       cityId: dto.cityId,
     },
   };
 }
 
+async function realStartRegister(dto: StartRegisterRequest): Promise<StartRegisterResponse> {
+  return request<StartRegisterResponse>(`${API_BASE_URL} / auth / register / start`, {
+    method: 'POST',
+    body: dto,
+  });
+}
+
+async function realVerifyCode(dto: VerifyCodeRequest): Promise<VerifyCodeResponse> {
+  return request<VerifyCodeResponse>(`${API_BASE_URL} / auth / register / verify`, {
+    method: 'POST',
+    body: dto,
+  });
+}
+
+async function realGetCities(): Promise<City[]> {
+  return request<City[]>(`${API_BASE_URL} / geo / cities`);
+}
+
+async function realCompleteProfile(
+  dto: CompleteProfileRequest,
+): Promise<CompleteProfileResponse> {
+  return request<CompleteProfileResponse>(`${API_BASE_URL} / auth / register / complete`, {
+    method: 'POST',
+    body: dto,
+  });
+}
+
 export const registerApi = {
-  startRegister: (dto: StartRegisterRequest) => {
+  startRegister(dto: StartRegisterRequest): Promise<StartRegisterResponse> {
     if (USE_MOCK) {
       return mockStartRegister(dto);
     }
 
-    return request('/auth/register/start', {
-      method: 'POST',
-      body: dto,
-    });
+    return realStartRegister(dto);
   },
 
-  verifyCode: (dto: VerifyCodeRequest) => {
+  verifyCode(dto: VerifyCodeRequest): Promise<VerifyCodeResponse> {
     if (USE_MOCK) {
       return mockVerifyCode(dto);
     }
 
-    return request('/auth/register/verify', {
-      method: 'POST',
-      body: dto,
-    });
+    return realVerifyCode(dto);
   },
 
-  getCities: () => {
+  getCities(): Promise<City[]> {
     if (USE_MOCK) {
       return mockGetCities();
     }
 
-    return request('/geo/cities');
+    return realGetCities();
   },
 
-  completeProfile: (dto: CompleteProfileRequest) => {
+  completeProfile(dto: CompleteProfileRequest): Promise<CompleteProfileResponse> {
     if (USE_MOCK) {
       return mockCompleteProfile(dto);
     }
 
-    return request('/auth/register/complete', {
-      method: 'POST',
-      body: dto,
-    });
+    return realCompleteProfile(dto);
   },
 };

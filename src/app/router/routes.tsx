@@ -29,6 +29,7 @@ import {
   ShopOrderResultPage,
   ShopProductPage,
 } from '@/pages/shop';
+import { SpecialistProfilePage } from '@/pages/specialist-profile';
 
 export const routes: RouteObject[] = [
   {
@@ -109,6 +110,10 @@ export const routes: RouteObject[] = [
       {
         path: '/services',
         element: <ServicesPage />,
+      },
+      {
+        path: '/specialists/:specialistSlug',
+        element: <SpecialistProfilePage />,
       },
       {
         path: '/shop',

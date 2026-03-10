@@ -1,12 +1,24 @@
 // src/features/auth/model/authStore.ts
 
+export type AuthRole =
+  | 'guest'
+  | 'client'
+  | 'specialist'
+  | 'admin'
+  | 'super_admin';
+
+export type AuthenticatedAuthRole = Exclude<AuthRole, 'guest'>;
+
 export type AuthUser = {
   id: string;
   email: string;
+  role: AuthenticatedAuthRole;
   name?: string;
   firstName?: string;
   lastName?: string;
   phone?: string;
+  specialistId?: string;
+  specialistSlug?: string;
 };
 
 type AuthState = {
@@ -17,36 +29,62 @@ type AuthState = {
 const TOKEN_KEY = 'tailly_token';
 const USER_KEY = 'tailly_user';
 
-function buildDisplayName(user: Pick<AuthUser, 'name' | 'firstName' | 'lastName'>): string | undefined {
-  if (user.name?.trim()) {
-    return user.name.trim();
+function normalizeOptionalString(value: unknown): string | undefined {
+  if (typeof value !== 'string') {
+    return undefined;
   }
 
-  const fullName = [user.firstName?.trim(), user.lastName?.trim()].filter(Boolean).join(' ').trim();
+  const trimmed = value.trim();
 
-  return fullName || undefined;
+  return trimmed.length > 0 ? trimmed : undefined;
+}
+
+function isStoredRole(value: unknown): value is AuthenticatedAuthRole {
+  return (
+    value === 'client' ||
+    value === 'specialist' ||
+    value === 'admin' ||
+    value === 'super_admin'
+  );
+}
+
+function buildDisplayName(
+  user: Pick<AuthUser, 'name' | 'firstName' | 'lastName'>,
+): string | undefined {
+  const explicitName = normalizeOptionalString(user.name);
+
+  if (explicitName) {
+    return explicitName;
+  }
+
+  const firstName = normalizeOptionalString(user.firstName);
+  const lastName = normalizeOptionalString(user.lastName);
+  const fullName = [firstName, lastName].filter(Boolean).join(' ').trim();
+
+  return fullName.length > 0 ? fullName : undefined;
 }
 
 function normalizeUser(user: AuthUser): AuthUser {
   return {
     id: user.id,
-    email: user.email,
+    email: user.email.trim().toLowerCase(),
+    role: user.role,
     name: buildDisplayName(user),
-    firstName: user.firstName?.trim() || undefined,
-    lastName: user.lastName?.trim() || undefined,
-    phone: user.phone?.trim() || undefined,
+    firstName: normalizeOptionalString(user.firstName),
+    lastName: normalizeOptionalString(user.lastName),
+    phone: normalizeOptionalString(user.phone),
+    specialistId: normalizeOptionalString(user.specialistId),
+    specialistSlug: normalizeOptionalString(user.specialistSlug),
   };
 }
 
-function readUser(): AuthUser | null {
-  const userRaw = localStorage.getItem(USER_KEY);
-
-  if (!userRaw) {
+function parseStoredUser(raw: string | null): AuthUser | null {
+  if (!raw) {
     return null;
   }
 
   try {
-    const parsed = JSON.parse(userRaw) as Partial<AuthUser>;
+    const parsed = JSON.parse(raw) as Partial<AuthUser>;
 
     if (!parsed || typeof parsed !== 'object') {
       return null;
@@ -56,13 +94,20 @@ function readUser(): AuthUser | null {
       return null;
     }
 
+    const role: AuthenticatedAuthRole = isStoredRole(parsed.role)
+      ? parsed.role
+      : 'client';
+
     return normalizeUser({
       id: parsed.id,
       email: parsed.email,
-      name: typeof parsed.name === 'string' ? parsed.name : undefined,
-      firstName: typeof parsed.firstName === 'string' ? parsed.firstName : undefined,
-      lastName: typeof parsed.lastName === 'string' ? parsed.lastName : undefined,
-      phone: typeof parsed.phone === 'string' ? parsed.phone : undefined,
+      role,
+      name: parsed.name,
+      firstName: parsed.firstName,
+      lastName: parsed.lastName,
+      phone: parsed.phone,
+      specialistId: parsed.specialistId,
+      specialistSlug: parsed.specialistSlug,
     });
   } catch {
     localStorage.removeItem(USER_KEY);
@@ -73,10 +118,18 @@ function readUser(): AuthUser | null {
 
 function readInitial(): AuthState {
   const token = localStorage.getItem(TOKEN_KEY);
+  const user = parseStoredUser(localStorage.getItem(USER_KEY));
+
+  if (!token || !user) {
+    return {
+      token: null,
+      user: null,
+    };
+  }
 
   return {
     token,
-    user: readUser(),
+    user,
   };
 }
 
@@ -88,15 +141,17 @@ function emit(): void {
 }
 
 export const authStore = {
-  getState: (): AuthState => state,
+  getState(): AuthState {
+    return state;
+  },
 
-  subscribe: (fn: () => void) => {
+  subscribe(fn: () => void): () => void {
     listeners.add(fn);
 
     return () => listeners.delete(fn);
   },
 
-  setAuth: (token: string, user: AuthUser) => {
+  setAuth(token: string, user: AuthUser): void {
     const normalizedUser = normalizeUser(user);
 
     state = {
@@ -110,7 +165,7 @@ export const authStore = {
     emit();
   },
 
-  updateUser: (patch: Partial<AuthUser>) => {
+  updateUser(patch: Partial<AuthUser>): void {
     if (!state.user) {
       return;
     }
@@ -120,6 +175,7 @@ export const authStore = {
       ...patch,
       id: patch.id ?? state.user.id,
       email: patch.email ?? state.user.email,
+      role: patch.role ?? state.user.role,
     });
 
     state = {
@@ -131,8 +187,7 @@ export const authStore = {
 
     emit();
   },
-
-  logout: () => {
+  logout(): void {
     state = {
       token: null,
       user: null,
@@ -142,5 +197,25 @@ export const authStore = {
     localStorage.removeItem(USER_KEY);
 
     emit();
+  },
+
+  getRole(): AuthRole {
+    if (!state.token || !state.user) {
+      return 'guest';
+    }
+
+    return state.user.role;
+  },
+
+  isAuthenticated(): boolean {
+    return Boolean(state.token && state.user);
+  },
+
+  hasRole(role: AuthRole): boolean {
+    return this.getRole() === role;
+  },
+
+  hasAnyRole(roles: AuthRole[]): boolean {
+    return roles.includes(this.getRole());
   },
 };
