@@ -2,8 +2,9 @@
 
 import { useEffect, useMemo } from 'react';
 import { observer } from 'mobx-react-lite';
-import { Link, useParams } from 'react-router-dom';
+import { Link, Navigate, useParams } from 'react-router-dom';
 
+import { useAuth } from '@/features/auth/model/useAuth';
 import { SpecialistCalendarEditStore } from '@/features/specialist-profile/model/specialistCalendarEditStore';
 import {
     buildCalendarMonthDays,
@@ -16,6 +17,7 @@ import styles from './SpecialistCalendarEditPage.module.css';
 
 export const SpecialistCalendarEditPage = observer(() => {
     const { specialistSlug } = useParams<{ specialistSlug: string }>();
+    const { isAuth, user } = useAuth();
 
     const store = useMemo(() => new SpecialistCalendarEditStore(), []);
 
@@ -25,13 +27,37 @@ export const SpecialistCalendarEditPage = observer(() => {
         }
 
         void store.load(specialistSlug);
-    }, [specialistSlug, store]);
+    }, [specialistSlug, store, isAuth, user?.id, user?.role, user?.specialistSlug, user?.specialistId]);
 
     useEffect(() => {
         return () => {
             store.reset();
         };
     }, [store]);
+
+    if (!specialistSlug) {
+        return <Navigate to="/" replace />;
+    }
+
+    if (!isAuth || !user) {
+        return <Navigate to="/login" replace />;
+    }
+
+    if (user.role !== 'specialist') {
+        return <Navigate to={`/specialists/${specialistSlug}`} replace />;
+    }
+
+    if (
+        user.specialistSlug &&
+        user.specialistSlug !== specialistSlug &&
+        store.profile?.id !== user.specialistId
+    ) {
+        return <Navigate to={`/specialists/${specialistSlug}`} replace />;
+    }
+
+    if (store.profile && !store.profile.isOwner) {
+        return <Navigate to={`/specialists/${specialistSlug}`} replace />;
+    }
 
     if (store.isLoading) {
         return (
@@ -62,22 +88,18 @@ export const SpecialistCalendarEditPage = observer(() => {
                                 type="button"
                                 className={styles.primaryButton}
                                 onClick={() => {
-                                    if (specialistSlug) {
-                                        void store.load(specialistSlug);
-                                    }
+                                    void store.load(specialistSlug);
                                 }}
                             >
                                 Попробовать снова
                             </button>
 
-                            {specialistSlug ? (
-                                <Link
-                                    to={`/specialists/${specialistSlug}`}
-                                    className={styles.secondaryLink}
-                                >
-                                    Вернуться в профиль
-                                </Link>
-                            ) : null}
+                            <Link
+                                to={`/specialists/${specialistSlug}`}
+                                className={styles.secondaryLink}
+                            >
+                                Вернуться в профиль
+                            </Link>
                         </div>
                     </div>
                 </div>
@@ -111,6 +133,7 @@ export const SpecialistCalendarEditPage = observer(() => {
                             Назад в профиль
                         </Link>
 
+
                         <button
                             type="button"
                             className={styles.primaryButton}
@@ -130,7 +153,6 @@ export const SpecialistCalendarEditPage = observer(() => {
                         кнопки «Сохранить календарь».
                     </div>
                 ) : null}
-
 
                 {store.saveError ? (
                     <div className={styles.errorBanner}>{store.saveError}</div>
@@ -201,6 +223,7 @@ export const SpecialistCalendarEditPage = observer(() => {
                                     const isSelected =
                                         day.isoDate ? store.isDateSelected(day.isoDate) : false;
 
+
                                     return (
                                         <button
                                             key={day.isoDate ?? `empty-${index}`}
@@ -233,7 +256,6 @@ export const SpecialistCalendarEditPage = observer(() => {
                                     );
                                 })}
                             </div>
-
 
                             <div className={styles.legend}>
                                 <div className={styles.legendItem}>
@@ -294,6 +316,7 @@ export const SpecialistCalendarEditPage = observer(() => {
                                 />
                             </label>
 
+
                             <div className={styles.statusCards}>
                                 <button
                                     type="button"
@@ -326,7 +349,6 @@ export const SpecialistCalendarEditPage = observer(() => {
                                         Новые записи на этот день невозможны.
                                     </span>
                                 </button>
-
 
                                 <button
                                     type="button"
@@ -385,6 +407,7 @@ export const SpecialistCalendarEditPage = observer(() => {
                                 Настраиваемая дата: <strong>{store.selectedDate}</strong>
                             </div>
 
+
                             <div className={styles.fieldRow}>
                                 <label className={styles.field}>
                                     <span className={styles.fieldLabel}>С</span>
@@ -423,7 +446,6 @@ export const SpecialistCalendarEditPage = observer(() => {
                                     placeholder="Например: только вечерние выгулы"
                                 />
                             </label>
-
 
                             <div className={styles.field}>
                                 <span className={styles.fieldLabel}>Какие услуги доступны</span>
@@ -485,6 +507,7 @@ export const SpecialistCalendarEditPage = observer(() => {
                                                 <div className={styles.windowServices}>
                                                     {serviceLabels.join(', ')}
                                                 </div>
+
 
                                                 {item.comment ? (
                                                     <div className={styles.windowComment}>{item.comment}</div>

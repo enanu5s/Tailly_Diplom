@@ -17,7 +17,6 @@ import {
 import type {
     SpecialistChildrenPolicy,
     SpecialistExperienceUnit,
-    SpecialistGalleryItem,
     SpecialistHousingType,
     SpecialistPetAge,
     SpecialistPetSize,
@@ -187,14 +186,6 @@ function formatPrice(price: number): string {
 function getRatingStars(rating: number): string {
     const rounded = Math.max(0, Math.min(5, Math.round(rating)));
     return '★'.repeat(rounded) + '☆'.repeat(5 - rounded);
-}
-
-function renderGalleryItem(item: SpecialistGalleryItem) {
-    return (
-        <div key={item.id} className={styles.galleryItem}>
-            <img className={styles.galleryImage} src={item.imageUrl} alt={item.alt} />
-        </div>
-    );
 }
 
 export const SpecialistProfileView = observer(({
@@ -566,20 +557,6 @@ export const SpecialistProfileView = observer(({
                             </div>
                         </div>
                     </div>
-                </section>
-
-                <section className={styles.card}>
-                    <div className={styles.cardHeader}>
-                        <h2 className={styles.cardTitle}>Фотографии питомцев клиентов</h2>
-                    </div>
-
-                    {profile.petGallery.length > 0 ? (
-                        <div className={styles.galleryGrid}>
-                            {profile.petGallery.map(renderGalleryItem)}
-                        </div>
-                    ) : (
-                        <p className={styles.emptyText}>Пока фотографий нет.</p>
-                    )}
                 </section>
             </div >
 

@@ -189,8 +189,15 @@ export type SpecialistDetailsUpdatePayload = {
     services: SpecialistServiceUpdateItem[];
     specialistGallery?: SpecialistGalleryItem[];
 };
+
+
 export type SpecialistCalendarUpdatePayload = {
     timezone: string;
     dayOverrides: SpecialistCalendarDayOverride[];
     availabilityWindows: SpecialistCalendarAvailabilityWindow[];
+};
+
+export type SpecialistReviewReplyUpsertPayload = {
+    reviewId: string;
+    text: string;
 };

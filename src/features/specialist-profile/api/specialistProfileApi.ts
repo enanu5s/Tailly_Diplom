@@ -3,10 +3,11 @@
 import { fetchJson } from '@/shared/api/fetchJson';
 
 import type {
+    SpecialistCalendarUpdatePayload,
     SpecialistDetailsUpdatePayload,
     SpecialistMainInfoUpdatePayload,
     SpecialistProfileResponse,
-    SpecialistCalendarUpdatePayload,
+    SpecialistReviewReplyUpsertPayload,
 } from '../model/types';
 
 const USE_MOCK = (import.meta.env.VITE_USE_MOCK_API ?? 'true') === 'true';
@@ -123,14 +124,18 @@ const MOCK_SPECIALIST_PROFILES: SpecialistProfileResponse[] = [
                 { id: 'adv-2', title: 'Соблюдает рекомендации по режиму и питанию' },
                 { id: 'adv-3', title: 'Есть опыт с тревожными питомцами' },
             ],
-            about: `Меня зовут Мария, и вот уже 5 лет я с радостью забочусь о домашних питомцах. В моей квартире созданы все условия для комфортного проживания кошек, грызунов и кроликов — просторные клетки, уютные уголки для отдыха и много игрушек.
+            about: `Меня зовут Мария, и вот уже 5 лет я с радостью забочусь о домашних питомцах.
+В моей квартире созданы все условия для комфортного проживания кошек, грызунов и кроликов — просторные клетки, уютные уголки для отдыха и много игрушек.
 
 Я прекрасно понимаю, как важно для хозяев знать, что их любимец в безопасности. Поэтому отправляю ежедневные фото- и видеоотчёты, а также строго соблюдаю все ваши рекомендации по питанию и режиму.
+
+
 Почему мне можно доверять?
 Опыт работы с разными животными, включая пугливых и тревожных
 Умение распознавать потребности питомцев
 Чистота и порядок в доме
 Готовность к экстренным ситуациям (знаю основы первой помощи)
+
 Для меня важно, чтобы каждый подопечный чувствовал себя как дома. Буду рада познакомиться с вашим питомцем!`,
         },
         services: [
@@ -227,11 +232,11 @@ function cloneProfile(profile: SpecialistProfileResponse): SpecialistProfileResp
 }
 
 function normalizeProfileKey(value: string): string {
-    return value.trim().toLowerCase();
+    return decodeURIComponent(value).trim().toLowerCase();
 }
 
 function findProfileIndexBySlug(slug: string): number {
-    const normalizedSlug = normalizeProfileKey(decodeURIComponent(slug));
+    const normalizedSlug = normalizeProfileKey(slug);
 
     const bySlug = MOCK_SPECIALIST_PROFILES.findIndex(
         (item) => normalizeProfileKey(item.slug) === normalizedSlug,
@@ -269,6 +274,7 @@ async function mockGetSpecialistProfileBySlug(
 
     return cloneProfile(MOCK_SPECIALIST_PROFILES[profileIndex]);
 }
+
 
 async function mockUpdateMainInfo(
     slug: string,
@@ -350,80 +356,6 @@ async function mockUpdateDetails(
     return cloneProfile(MOCK_SPECIALIST_PROFILES[profileIndex]);
 }
 
-async function realGetSpecialistProfileBySlug(
-    slug: string,
-): Promise<SpecialistProfileResponse> {
-    return fetchJson<SpecialistProfileResponse>(
-        `${API_BASE_URL}/specialists/${encodeURIComponent(slug)}`,
-    );
-}
-
-async function realUpdateMainInfo(
-    slug: string,
-    payload: SpecialistMainInfoUpdatePayload,
-): Promise<SpecialistProfileResponse> {
-    return fetchJson<SpecialistProfileResponse>(
-        `${API_BASE_URL}/specialists/${encodeURIComponent(slug)}/main`,
-        {
-            method: 'PATCH',
-            body: JSON.stringify(payload),
-        },
-    );
-}
-
-async function realUpdateDetails(
-    slug: string,
-    payload: SpecialistDetailsUpdatePayload,
-): Promise<SpecialistProfileResponse> {
-    return fetchJson<SpecialistProfileResponse>(
-        `${API_BASE_URL}/specialists/${encodeURIComponent(slug)}/details`,
-        {
-            method: 'PATCH',
-            body: JSON.stringify(payload),
-        },
-    );
-}
-
-export const specialistProfileApi = {
-    getBySlug(slug: string): Promise<SpecialistProfileResponse> {
-        if (USE_MOCK) {
-            return mockGetSpecialistProfileBySlug(slug);
-        }
-        return realGetSpecialistProfileBySlug(slug);
-    },
-
-    updateMainInfo(
-        slug: string,
-        payload: SpecialistMainInfoUpdatePayload,
-    ): Promise<SpecialistProfileResponse> {
-        if (USE_MOCK) {
-            return mockUpdateMainInfo(slug, payload);
-        }
-
-        return realUpdateMainInfo(slug, payload);
-    },
-
-    updateDetails(
-        slug: string,
-        payload: SpecialistDetailsUpdatePayload,
-    ): Promise<SpecialistProfileResponse> {
-        if (USE_MOCK) {
-            return mockUpdateDetails(slug, payload);
-        }
-
-        return realUpdateDetails(slug, payload);
-    },
-    updateCalendar(
-        slug: string,
-        payload: SpecialistCalendarUpdatePayload,
-    ): Promise<SpecialistProfileResponse> {
-        if (USE_MOCK) {
-            return mockUpdateCalendar(slug, payload);
-        }
-
-        return realUpdateCalendar(slug, payload);
-    },
-};
 async function mockUpdateCalendar(
     slug: string,
     payload: SpecialistCalendarUpdatePayload,
@@ -460,15 +392,170 @@ async function mockUpdateCalendar(
 
     return cloneProfile(MOCK_SPECIALIST_PROFILES[profileIndex]);
 }
-async function realUpdateCalendar(
+
+async function mockUpsertReviewReply(
     slug: string,
-    payload: SpecialistCalendarUpdatePayload,
+    payload: SpecialistReviewReplyUpsertPayload,
+): Promise<SpecialistProfileResponse> {
+    await delay(400);
+
+    const profileIndex = findProfileIndexBySlug(slug);
+
+    if (profileIndex === -1) {
+        throw new Error('Профиль специалиста не найден.');
+    }
+
+    const currentProfile = MOCK_SPECIALIST_PROFILES[profileIndex];
+    const reviewIndex = currentProfile.reviews.findIndex(
+        (review) => review.id === payload.reviewId,
+    );
+
+
+    if (reviewIndex === -1) {
+        throw new Error('Отзыв не найден.');
+    }
+
+    const now = new Date();
+    const createdAt = [
+        now.getFullYear(),
+        String(now.getMonth() + 1).padStart(2, '0'),
+        String(now.getDate()).padStart(2, '0'),
+    ].join('-');
+
+    const nextReviews = currentProfile.reviews.map((review, index) => {
+        if (index !== reviewIndex) {
+            return review;
+        }
+
+        return {
+            ...review,
+            specialistReply: {
+                text: payload.text.trim(),
+                createdAt,
+            },
+        };
+    });
+
+    MOCK_SPECIALIST_PROFILES[profileIndex] = {
+        ...currentProfile,
+        reviews: nextReviews,
+    };
+
+    return cloneProfile(MOCK_SPECIALIST_PROFILES[profileIndex]);
+}
+
+async function realGetSpecialistProfileBySlug(
+    slug: string,
 ): Promise<SpecialistProfileResponse> {
     return fetchJson<SpecialistProfileResponse>(
-        `${API_BASE_URL} / specialists / ${encodeURIComponent(slug)} / calendar`,
+        `${API_BASE_URL}/specialists/${encodeURIComponent(slug)}`,
+    );
+}
+
+async function realUpdateMainInfo(
+    slug: string,
+    payload: SpecialistMainInfoUpdatePayload,
+): Promise<SpecialistProfileResponse> {
+    return fetchJson<SpecialistProfileResponse>(
+        `${API_BASE_URL}/specialists/${encodeURIComponent(slug)}/main`,
         {
             method: 'PATCH',
             body: JSON.stringify(payload),
         },
     );
 }
+
+async function realUpdateDetails(
+    slug: string,
+    payload: SpecialistDetailsUpdatePayload,
+): Promise<SpecialistProfileResponse> {
+    return fetchJson<SpecialistProfileResponse>(
+        `${API_BASE_URL}/specialists/${encodeURIComponent(slug)}/details`,
+        {
+            method: 'PATCH',
+            body: JSON.stringify(payload),
+        },
+    );
+}
+
+async function realUpdateCalendar(
+    slug: string,
+    payload: SpecialistCalendarUpdatePayload,
+): Promise<SpecialistProfileResponse> {
+    return fetchJson<SpecialistProfileResponse>(
+        `${API_BASE_URL}/specialists/${encodeURIComponent(slug)}/calendar`,
+        {
+            method: 'PATCH',
+            body: JSON.stringify(payload),
+        },
+    );
+}
+
+async function realUpsertReviewReply(
+    slug: string,
+    payload: SpecialistReviewReplyUpsertPayload,
+): Promise<SpecialistProfileResponse> {
+    return fetchJson<SpecialistProfileResponse>(
+        `${API_BASE_URL}/specialists/${encodeURIComponent(slug)}/reviews/${encodeURIComponent(
+            payload.reviewId,
+        )}/reply`,
+        {
+            method: 'PUT',
+            body: JSON.stringify({ text: payload.text }),
+        },
+    );
+}
+
+export const specialistProfileApi = {
+    getBySlug(slug: string): Promise<SpecialistProfileResponse> {
+        if (USE_MOCK) {
+            return mockGetSpecialistProfileBySlug(slug);
+        }
+
+        return realGetSpecialistProfileBySlug(slug);
+    },
+
+    updateMainInfo(
+        slug: string,
+        payload: SpecialistMainInfoUpdatePayload,
+    ): Promise<SpecialistProfileResponse> {
+        if (USE_MOCK) {
+            return mockUpdateMainInfo(slug, payload);
+        }
+
+        return realUpdateMainInfo(slug, payload);
+    },
+
+    updateDetails(
+        slug: string,
+        payload: SpecialistDetailsUpdatePayload,
+    ): Promise<SpecialistProfileResponse> {
+        if (USE_MOCK) {
+            return mockUpdateDetails(slug, payload);
+        }
+
+        return realUpdateDetails(slug, payload);
+    },
+
+    updateCalendar(
+        slug: string,
+        payload: SpecialistCalendarUpdatePayload,
+    ): Promise<SpecialistProfileResponse> {
+        if (USE_MOCK) {
+            return mockUpdateCalendar(slug, payload);
+        }
+
+        return realUpdateCalendar(slug, payload);
+    },
+
+    upsertReviewReply(
+        slug: string,
+        payload: SpecialistReviewReplyUpsertPayload,
+    ): Promise<SpecialistProfileResponse> {
+        if (USE_MOCK) {
+            return mockUpsertReviewReply(slug, payload);
+        }
+
+        return realUpsertReviewReply(slug, payload);
+    },
+};

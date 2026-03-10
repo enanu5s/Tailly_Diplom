@@ -1,20 +1,30 @@
 // src/features/specialist-profile/service/specialistProfileService.ts
 
+import { authStore } from '@/features/auth/model/authStore';
+
 import { specialistProfileApi } from '../api/specialistProfileApi';
 import type {
     SpecialistCalendarUpdatePayload,
     SpecialistDetailsUpdatePayload,
+    SpecialistMainInfoUpdatePayload,
     SpecialistProfile,
     SpecialistProfileResponse,
-    SpecialistMainInfoUpdatePayload,
+    SpecialistReviewReplyUpsertPayload,
 } from '../model/types';
 
 function mapProfileResponseToProfile(
     response: SpecialistProfileResponse,
 ): SpecialistProfile {
+    const { user, token } = authStore.getState();
+
+    const isOwner =
+        Boolean(token) &&
+        user?.role === 'specialist' &&
+        (user.specialistSlug === response.slug || user.specialistId === response.id);
+
     return {
         ...response,
-        isOwner: true,
+        isOwner,
     };
 }
 
@@ -45,6 +55,14 @@ export const specialistProfileService = {
         payload: SpecialistCalendarUpdatePayload,
     ): Promise<SpecialistProfile> {
         const response = await specialistProfileApi.updateCalendar(slug, payload);
+        return mapProfileResponseToProfile(response);
+    },
+
+    async upsertReviewReply(
+        slug: string,
+        payload: SpecialistReviewReplyUpsertPayload,
+    ): Promise<SpecialistProfile> {
+        const response = await specialistProfileApi.upsertReviewReply(slug, payload);
         return mapProfileResponseToProfile(response);
     },
 };
