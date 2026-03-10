@@ -60,8 +60,39 @@ export type SpecialistStats = {
     repeatOrdersCount: number;
 };
 
+export type SpecialistCalendarDayStatus =
+    | 'available'
+    | 'partially_booked'
+    | 'fully_booked'
+    | 'day_off';
+
+export type SpecialistCalendarDayOverride = {
+    date: string;
+    status: Exclude<SpecialistCalendarDayStatus, 'partially_booked'>;
+};
+
+export type SpecialistCalendarBookedSlot = {
+    id: string;
+    date: string;
+    startTime: string;
+    endTime: string;
+    serviceIds: string[];
+};
+
+export type SpecialistCalendarAvailabilityWindow = {
+    id: string;
+    date: string;
+    startTime: string;
+    endTime: string;
+    serviceIds: string[];
+    comment?: string;
+};
+
 export type SpecialistCalendar = {
-    bookedDates: string[];
+    timezone: string;
+    dayOverrides: SpecialistCalendarDayOverride[];
+    bookedSlots: SpecialistCalendarBookedSlot[];
+    availabilityWindows: SpecialistCalendarAvailabilityWindow[];
 };
 
 export type SpecialistGalleryItem = {
@@ -157,4 +188,9 @@ export type SpecialistDetailsUpdatePayload = {
     about: string;
     services: SpecialistServiceUpdateItem[];
     specialistGallery?: SpecialistGalleryItem[];
+};
+export type SpecialistCalendarUpdatePayload = {
+    timezone: string;
+    dayOverrides: SpecialistCalendarDayOverride[];
+    availabilityWindows: SpecialistCalendarAvailabilityWindow[];
 };

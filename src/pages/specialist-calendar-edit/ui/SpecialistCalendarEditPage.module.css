@@ -1,0 +1,564 @@
+/* src/pages/specialist-calendar-edit/ui/SpecialistCalendarEditPage.module.css */
+
+.page {
+    min-height: calc(100vh - 160px);
+    background:
+        radial-gradient(circle at top left, rgba(99, 102, 241, 0.12), transparent 26%),
+        #f8fafc;
+    padding: 40px 20px 80px;
+}
+
+.container {
+    width: 100%;
+    max-width: 1280px;
+    margin: 0 auto;
+}
+
+.header {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 24px;
+    margin-bottom: 24px;
+}
+
+.eyebrow {
+    display: inline-flex;
+    align-items: center;
+    min-height: 32px;
+    padding: 0 12px;
+    border-radius: 999px;
+    background: #eef2ff;
+    color: #4338ca;
+    font-size: 13px;
+    font-weight: 700;
+    letter-spacing: 0.02em;
+    text-transform: uppercase;
+}
+
+.title {
+    margin: 14px 0 0;
+    font-size: 40px;
+    line-height: 1.05;
+    color: #111827;
+}
+
+.description {
+    max-width: 760px;
+    margin: 14px 0 0;
+    font-size: 16px;
+    line-height: 1.7;
+    color: #4b5563;
+}
+
+.headerActions {
+    display: flex;
+    gap: 12px;
+    flex-wrap: wrap;
+}
+
+.layout {
+    display: grid;
+    grid-template-columns: minmax(0, 1.05fr) minmax(360px, 420px);
+    gap: 24px;
+}
+
+.leftColumn,
+.rightColumn {
+    display: flex;
+    flex-direction: column;
+    gap: 24px;
+}
+
+.panel,
+.stateCard,
+.selectedDateCard {
+    padding: 24px;
+    border-radius: 20px;
+    background: #ffffff;
+    box-shadow: 0 18px 40px rgba(15, 23, 42, 0.08);
+}
+
+.selectedDateCard {
+    background: linear-gradient(135deg, rgba(99, 102, 241, 0.08), #ffffff);
+}
+
+.selectedDateCaption {
+    display: block;
+    font-size: 13px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+    color: #6366f1;
+}
+
+.selectedDateValue {
+    margin-top: 10px;
+    font-size: 28px;
+    font-weight: 700;
+    color: #111827;
+}
+
+.selectedDateMeta {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+    margin-top: 14px;
+}
+
+.metaChip {
+    display: inline-flex;
+    align-items: center;
+    min-height: 34px;
+    padding: 0 12px;
+    border-radius: 999px;
+    background: #f3f4f6;
+    color: #374151;
+    font-size: 13px;
+}
+
+.stateTitle {
+    margin: 0;
+    font-size: 28px;
+    color: #111827;
+}
+
+.stateText {
+    margin: 12px 0 0;
+    color: #4b5563;
+    line-height: 1.6;
+}
+
+.stateActions {
+    display: flex;
+    gap: 12px;
+    flex-wrap: wrap;
+    margin-top: 20px;
+}
+
+.panelTitle {
+    margin: 0;
+    font-size: 22px;
+    color: #111827;
+}
+
+.panelDescription {
+    margin: 10px 0 0;
+    color: #4b5563;
+    line-height: 1.6;
+    font-size: 14px;
+}
+
+.monthHeader {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 16px;
+    margin-bottom: 18px;
+}
+
+.monthTitle {
+    font-size: 20px;
+    font-weight: 700;
+    color: #111827;
+}
+
+.iconButton,
+.primaryButton,
+.secondaryButton,
+.removeButton,
+.statusCard {
+    border: none;
+    font: inherit;
+    cursor: pointer;
+}
+
+.iconButton {
+    width: 42px;
+    height: 42px;
+    border-radius: 12px;
+    background: rgba(99, 102, 241, 0.12);
+    color: #4338ca;
+}
+
+.primaryButton,
+.secondaryButton,
+.secondaryLink {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-height: 44px;
+    padding: 0 16px;
+    border-radius: 12px;
+    text-decoration: none;
+    font-weight: 600;
+}
+
+.primaryButton {
+    background: #6366f1;
+    color: #ffffff;
+}
+
+.primaryButton:disabled {
+    opacity: 0.6;
+    cursor: default;
+}
+
+.secondaryButton,
+.secondaryLink {
+    background: rgba(99, 102, 241, 0.12);
+    color: #4338ca;
+}
+
+.warningBanner,
+.errorBanner,
+.successBanner {
+    margin-bottom: 18px;
+    padding: 14px 16px;
+    border-radius: 14px;
+    font-size: 14px;
+}
+
+.warningBanner {
+    background: rgba(245, 158, 11, 0.12);
+    color: #b45309;
+}
+
+.errorBanner {
+    background: rgba(239, 68, 68, 0.12);
+    color: #b91c1c;
+}
+
+.successBanner {
+    background: rgba(34, 197, 94, 0.12);
+    color: #15803d;
+}
+
+.weekdays,
+.daysGrid {
+    display: grid;
+    grid-template-columns: repeat(7, minmax(0, 1fr));
+    gap: 8px;
+}
+
+.weekdays {
+    margin-bottom: 10px;
+}
+
+.weekday {
+    text-align: center;
+    font-size: 13px;
+    color: #6b7280;
+}
+
+.dayButton {
+    position: relative;
+    min-height: 64px;
+    border-radius: 14px;
+    border: 1px solid #e5e7eb;
+    background: #ffffff;
+    transition:
+        transform 0.2s ease,
+        border-color 0.2s ease,
+        box-shadow 0.2s ease;
+}
+
+.dayButtonActive:hover {
+    transform: translateY(-1px);
+    border-color: rgba(99, 102, 241, 0.4);
+    box-shadow: 0 8px 18px rgba(99, 102, 241, 0.12);
+}
+
+.dayButtonEmpty {
+    background: transparent;
+    border-color: transparent;
+    cursor: default;
+}
+
+.dayButtonSelected {
+    outline: 2px solid #6366f1;
+    outline-offset: 2px;
+}
+
+.dayNumber {
+    font-size: 14px;
+    font-weight: 700;
+    color: #111827;
+}
+
+.dayDot {
+    position: absolute;
+    left: 50%;
+    bottom: 10px;
+    width: 8px;
+    height: 8px;
+    border-radius: 999px;
+    transform: translateX(-50%);
+    background: currentColor;
+}
+
+.dayOff {
+    background: #f3f4f6;
+    color: #9ca3af;
+}
+
+.fullyBooked {
+    color: #ef4444;
+}
+
+.partiallyBooked {
+    color: #f59e0b;
+}
+
+.legend {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 12px;
+    margin-top: 20px;
+}
+
+.legendItem {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    color: #4b5563;
+    font-size: 14px;
+}
+
+.legendMark,
+.statusPreview {
+    width: 12px;
+    height: 12px;
+    border-radius: 999px;
+    flex-shrink: 0;
+}
+
+.legendFree {
+    border: 1px solid #d1d5db;
+    background: #ffffff;
+}
+
+.legendPartial {
+    background: #f59e0b;
+}
+
+.legendFull {
+    background: #ef4444;
+}
+
+.legendDayOff {
+    background: #d1d5db;
+}
+
+.field {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+.fieldRow {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 12px;
+}
+
+.fieldLabel {
+    font-size: 14px;
+    font-weight: 600;
+    color: #374151;
+}
+
+.input,
+.select {
+    min-height: 46px;
+    border: 1px solid #d1d5db;
+    border-radius: 12px;
+    padding: 0 14px;
+    font: inherit;
+    background: #ffffff;
+    color: #111827;
+}
+
+.statusCards {
+    display: grid;
+    gap: 12px;
+    margin-top: 16px;
+}
+
+.statusCard {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 8px;
+    padding: 16px;
+    border-radius: 16px;
+    background: #f8fafc;
+    border: 1px solid transparent;
+    text-align: left;
+    transition:
+        transform 0.2s ease,
+        border-color 0.2s ease,
+        box-shadow 0.2s ease;
+}
+
+.statusCard:hover {
+    transform: translateY(-1px);
+    border-color: rgba(99, 102, 241, 0.22);
+}
+
+.statusCardActive {
+    border-color: #6366f1;
+    box-shadow: 0 10px 24px rgba(99, 102, 241, 0.12);
+    background: rgba(99, 102, 241, 0.06);
+}
+
+.statusTitle {
+    font-weight: 700;
+    color: #111827;
+}
+
+.statusText {
+    color: #4b5563;
+    font-size: 14px;
+    line-height: 1.5;
+}
+
+.inlineActions {
+    display: flex;
+    gap: 12px;
+    flex-wrap: wrap;
+    margin-top: 18px;
+}
+
+.note {
+    margin-top: 14px;
+    padding: 12px 14px;
+    border-radius: 14px;
+    background: #f8fafc;
+    color: #4b5563;
+    font-size: 14px;
+    line-height: 1.6;
+}
+
+.selectedDateInline {
+    margin: 14px 0 0;
+    padding: 12px 14px;
+    border-radius: 14px;
+    background: #f8fafc;
+    color: #374151;
+    font-size: 14px;
+}
+
+.servicesList {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+.checkboxCard {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    min-height: 44px;
+    padding: 0 14px;
+    border-radius: 12px;
+    background: #f8fafc;
+    color: #374151;
+}
+
+.fieldError {
+    margin-top: 12px;
+    color: #b91c1c;
+    font-size: 14px;
+}
+
+.windowsList,
+.bookedList {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    margin-top: 18px;
+}
+
+.windowCard,
+.bookedCard {
+    padding: 14px;
+    border-radius: 14px;
+    background: #f8fafc;
+}
+
+.windowHeader {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+}
+
+.removeButton {
+    padding: 8px 12px;
+    border-radius: 10px;
+    background: rgba(239, 68, 68, 0.12);
+    color: #b91c1c;
+}
+
+.windowServices,
+.windowComment,
+.bookedMeta,
+.emptyState {
+    margin-top: 8px;
+    color: #4b5563;
+    line-height: 1.5;
+}
+
+@media (max-width: 1080px) {
+    .layout {
+        grid-template-columns: 1fr;
+    }
+}
+
+@media (max-width: 768px) {
+    .page {
+        padding: 28px 16px 64px;
+    }
+
+    .header {
+        flex-direction: column;
+    }
+
+    .title {
+        font-size: 32px;
+    }
+
+    .fieldRow,
+    .legend {
+        grid-template-columns: 1fr;
+    }
+
+    .selectedDateValue {
+        font-size: 24px;
+    }
+}
+
+.selectionToolbar {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    margin-bottom: 18px;
+    flex-wrap: wrap;
+}
+
+.multiSelectToggle {
+    display: inline-flex;
+    align-items: center;
+    gap: 10px;
+    min-height: 40px;
+    padding: 0 14px;
+    border-radius: 12px;
+    background: #f8fafc;
+    color: #374151;
+}
+
+.multiSelectToggle input {
+    margin: 0;
+}

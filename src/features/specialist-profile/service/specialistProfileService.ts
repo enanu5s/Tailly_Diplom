@@ -1,35 +1,27 @@
 // src/features/specialist-profile/service/specialistProfileService.ts
 
-import { authStore } from '@/features/auth/model/authStore';
-
 import { specialistProfileApi } from '../api/specialistProfileApi';
 import type {
+    SpecialistCalendarUpdatePayload,
     SpecialistDetailsUpdatePayload,
-    SpecialistMainInfoUpdatePayload,
     SpecialistProfile,
     SpecialistProfileResponse,
+    SpecialistMainInfoUpdatePayload,
 } from '../model/types';
 
-function mapProfile(response: SpecialistProfileResponse): SpecialistProfile {
-    const authState = authStore.getState();
-    const user = authState.user;
-
-    const isOwner =
-        Boolean(authState.token) &&
-        user?.role === 'specialist' &&
-        user.specialistSlug === response.slug;
-
+function mapProfileResponseToProfile(
+    response: SpecialistProfileResponse,
+): SpecialistProfile {
     return {
         ...response,
-        isOwner,
+        isOwner: true,
     };
 }
 
 export const specialistProfileService = {
     async getBySlug(slug: string): Promise<SpecialistProfile> {
         const response = await specialistProfileApi.getBySlug(slug);
-
-        return mapProfile(response);
+        return mapProfileResponseToProfile(response);
     },
 
     async updateMainInfo(
@@ -37,8 +29,7 @@ export const specialistProfileService = {
         payload: SpecialistMainInfoUpdatePayload,
     ): Promise<SpecialistProfile> {
         const response = await specialistProfileApi.updateMainInfo(slug, payload);
-
-        return mapProfile(response);
+        return mapProfileResponseToProfile(response);
     },
 
     async updateDetails(
@@ -46,7 +37,14 @@ export const specialistProfileService = {
         payload: SpecialistDetailsUpdatePayload,
     ): Promise<SpecialistProfile> {
         const response = await specialistProfileApi.updateDetails(slug, payload);
+        return mapProfileResponseToProfile(response);
+    },
 
-        return mapProfile(response);
+    async updateCalendar(
+        slug: string,
+        payload: SpecialistCalendarUpdatePayload,
+    ): Promise<SpecialistProfile> {
+        const response = await specialistProfileApi.updateCalendar(slug, payload);
+        return mapProfileResponseToProfile(response);
     },
 };

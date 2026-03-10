@@ -859,3 +859,60 @@
         flex-wrap: wrap;
     }
 }
+
+.specialistGalleryGrid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+    gap: 16px;
+}
+
+.specialistGalleryCard {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+.specialistGalleryImage {
+    display: block;
+    width: 100%;
+    height: 220px;
+    object-fit: cover;
+    border-radius: 18px;
+    box-shadow: 0 12px 32px rgba(15, 23, 42, 0.12);
+}
+
+.removeGalleryButton {
+    align-self: flex-start;
+    border: none;
+    border-radius: 12px;
+    background: rgba(239, 68, 68, 0.12);
+    color: #b91c1c;
+    padding: 10px 14px;
+    font: inherit;
+    cursor: pointer;
+}
+
+.galleryActions {
+    display: flex;
+    flex-direction: column;
+    gap: 14px;
+    margin-top: 16px;
+}
+
+.galleryUrlRow {
+    display: flex;
+    gap: 12px;
+    align-items: center;
+}
+
+.emptyState {
+    margin: 0;
+    color: #6b7280;
+}
+
+@media (max-width: 640px) {
+    .galleryUrlRow {
+        flex-direction: column;
+        align-items: stretch;
+    }
+}

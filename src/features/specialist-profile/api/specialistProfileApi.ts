@@ -6,6 +6,7 @@ import type {
     SpecialistDetailsUpdatePayload,
     SpecialistMainInfoUpdatePayload,
     SpecialistProfileResponse,
+    SpecialistCalendarUpdatePayload,
 } from '../model/types';
 
 const USE_MOCK = (import.meta.env.VITE_USE_MOCK_API ?? 'true') === 'true';
@@ -32,16 +33,50 @@ const MOCK_SPECIALIST_PROFILES: SpecialistProfileResponse[] = [
             repeatOrdersCount: 14,
         },
         calendar: {
-            bookedDates: [
-                '2026-03-11',
-                '2026-03-12',
-                '2026-03-14',
-                '2026-03-18',
-                '2026-03-19',
-                '2026-03-21',
-                '2026-03-25',
+            timezone: 'Europe/Moscow',
+            dayOverrides: [
+                { date: '2026-03-15', status: 'day_off' },
+                { date: '2026-03-18', status: 'fully_booked' },
+            ],
+            bookedSlots: [
+                {
+                    id: 'booked-1',
+                    date: '2026-03-12',
+                    startTime: '10:00',
+                    endTime: '11:00',
+                    serviceIds: ['service-1'],
+                },
+                {
+                    id: 'booked-2',
+                    date: '2026-03-12',
+                    startTime: '17:00',
+                    endTime: '18:00',
+                    serviceIds: ['service-3'],
+                },
+            ],
+            availabilityWindows: [
+                {
+                    id: 'window-1',
+                    date: '2026-03-12',
+                    startTime: '19:00',
+                    endTime: '21:00',
+                    serviceIds: ['service-1', 'service-2'],
+                    comment: 'Только вечерние записи',
+                },
             ],
         },
+        specialistGallery: [
+            {
+                id: 'specialist-gallery-1',
+                imageUrl: '/images/specialists/maria-ivanova.jpg',
+                alt: 'Мария Иванова дома с питомцем',
+            },
+            {
+                id: 'specialist-gallery-2',
+                imageUrl: '/images/specialists/pets/pet-4.jpg',
+                alt: 'Мария Иванова на прогулке с собакой',
+            },
+        ],
         petGallery: [
             {
                 id: 'gallery-1',
@@ -76,6 +111,8 @@ const MOCK_SPECIALIST_PROFILES: SpecialistProfileResponse[] = [
         ],
         details: {
             experienceLabel: '5 лет',
+            experienceDurationValue: 5,
+            experienceDurationUnit: 'years',
             housingType: 'apartment',
             petSizes: ['small', 'medium'],
             petAges: ['baby', 'young', 'adult', 'senior'],
@@ -89,7 +126,6 @@ const MOCK_SPECIALIST_PROFILES: SpecialistProfileResponse[] = [
             about: `Меня зовут Мария, и вот уже 5 лет я с радостью забочусь о домашних питомцах. В моей квартире созданы все условия для комфортного проживания кошек, грызунов и кроликов — просторные клетки, уютные уголки для отдыха и много игрушек.
 
 Я прекрасно понимаю, как важно для хозяев знать, что их любимец в безопасности. Поэтому отправляю ежедневные фото- и видеоотчёты, а также строго соблюдаю все ваши рекомендации по питанию и режиму.
-
 Почему мне можно доверять?
 Опыт работы с разными животными, включая пугливых и тревожных
 Умение распознавать потребности питомцев
@@ -190,8 +226,34 @@ function cloneProfile(profile: SpecialistProfileResponse): SpecialistProfileResp
     return JSON.parse(JSON.stringify(profile)) as SpecialistProfileResponse;
 }
 
+function normalizeProfileKey(value: string): string {
+    return value.trim().toLowerCase();
+}
+
 function findProfileIndexBySlug(slug: string): number {
-    return MOCK_SPECIALIST_PROFILES.findIndex((item) => item.slug === slug);
+    const normalizedSlug = normalizeProfileKey(decodeURIComponent(slug));
+
+    const bySlug = MOCK_SPECIALIST_PROFILES.findIndex(
+        (item) => normalizeProfileKey(item.slug) === normalizedSlug,
+    );
+
+    if (bySlug !== -1) {
+        return bySlug;
+    }
+
+    const byId = MOCK_SPECIALIST_PROFILES.findIndex(
+        (item) => normalizeProfileKey(item.id) === normalizedSlug,
+    );
+
+    if (byId !== -1) {
+        return byId;
+    }
+
+    if (MOCK_SPECIALIST_PROFILES.length === 1) {
+        return 0;
+    }
+
+    return -1;
 }
 
 async function mockGetSpecialistProfileBySlug(
@@ -199,13 +261,13 @@ async function mockGetSpecialistProfileBySlug(
 ): Promise<SpecialistProfileResponse> {
     await delay(350);
 
-    const profile = MOCK_SPECIALIST_PROFILES.find((item) => item.slug === slug);
+    const profileIndex = findProfileIndexBySlug(slug);
 
-    if (!profile) {
+    if (profileIndex === -1) {
         throw new Error('Профиль специалиста не найден.');
     }
 
-    return cloneProfile(profile);
+    return cloneProfile(MOCK_SPECIALIST_PROFILES[profileIndex]);
 }
 
 async function mockUpdateMainInfo(
@@ -221,6 +283,7 @@ async function mockUpdateMainInfo(
     }
 
     const currentProfile = MOCK_SPECIALIST_PROFILES[profileIndex];
+
     MOCK_SPECIALIST_PROFILES[profileIndex] = {
         ...currentProfile,
         main: {
@@ -253,8 +316,15 @@ async function mockUpdateDetails(
 
     MOCK_SPECIALIST_PROFILES[profileIndex] = {
         ...currentProfile,
+        specialistGallery: (payload.specialistGallery ?? []).map((item, index) => ({
+            id: item.id || `specialist-gallery-${Date.now()}-${index}`,
+            imageUrl: item.imageUrl.trim(),
+            alt: item.alt.trim() || `Фото специалиста ${index + 1}`,
+        })),
         details: {
             experienceLabel: payload.experienceLabel.trim(),
+            experienceDurationValue: payload.experienceDurationValue,
+            experienceDurationUnit: payload.experienceDurationUnit,
             housingType: payload.housingType,
             petSizes: [...payload.petSizes],
             petAges: [...payload.petAges],
@@ -319,7 +389,6 @@ export const specialistProfileApi = {
         if (USE_MOCK) {
             return mockGetSpecialistProfileBySlug(slug);
         }
-
         return realGetSpecialistProfileBySlug(slug);
     },
 
@@ -344,4 +413,62 @@ export const specialistProfileApi = {
 
         return realUpdateDetails(slug, payload);
     },
+    updateCalendar(
+        slug: string,
+        payload: SpecialistCalendarUpdatePayload,
+    ): Promise<SpecialistProfileResponse> {
+        if (USE_MOCK) {
+            return mockUpdateCalendar(slug, payload);
+        }
+
+        return realUpdateCalendar(slug, payload);
+    },
 };
+async function mockUpdateCalendar(
+    slug: string,
+    payload: SpecialistCalendarUpdatePayload,
+): Promise<SpecialistProfileResponse> {
+    await delay(450);
+
+    const profileIndex = findProfileIndexBySlug(slug);
+
+    if (profileIndex === -1) {
+        throw new Error('Профиль специалиста не найден.');
+    }
+
+    const currentProfile = MOCK_SPECIALIST_PROFILES[profileIndex];
+
+    MOCK_SPECIALIST_PROFILES[profileIndex] = {
+        ...currentProfile,
+        calendar: {
+            ...currentProfile.calendar,
+            timezone: payload.timezone.trim(),
+            dayOverrides: payload.dayOverrides.map((item) => ({
+                date: item.date,
+                status: item.status,
+            })),
+            availabilityWindows: payload.availabilityWindows.map((item, index) => ({
+                id: item.id || `window-${Date.now()}-${index}`,
+                date: item.date,
+                startTime: item.startTime,
+                endTime: item.endTime,
+                serviceIds: [...item.serviceIds],
+                comment: item.comment?.trim() || undefined,
+            })),
+        },
+    };
+
+    return cloneProfile(MOCK_SPECIALIST_PROFILES[profileIndex]);
+}
+async function realUpdateCalendar(
+    slug: string,
+    payload: SpecialistCalendarUpdatePayload,
+): Promise<SpecialistProfileResponse> {
+    return fetchJson<SpecialistProfileResponse>(
+        `${API_BASE_URL} / specialists / ${encodeURIComponent(slug)} / calendar`,
+        {
+            method: 'PATCH',
+            body: JSON.stringify(payload),
+        },
+    );
+}

@@ -29,7 +29,8 @@ import {
   ShopOrderResultPage,
   ShopProductPage,
 } from '@/pages/shop';
-import { SpecialistProfilePage } from '@/pages/specialist-profile';
+import { SpecialistProfilePage } from '@/pages/specialist-profile'
+import { SpecialistCalendarEditPage } from '@/pages/specialist-calendar-edit';
 
 export const routes: RouteObject[] = [
   {
@@ -114,6 +115,10 @@ export const routes: RouteObject[] = [
       {
         path: '/specialists/:specialistSlug',
         element: <SpecialistProfilePage />,
+      },
+      {
+        path: '/specialists/:specialistSlug/calendar/edit',
+        element: <SpecialistCalendarEditPage />,
       },
       {
         path: '/shop',

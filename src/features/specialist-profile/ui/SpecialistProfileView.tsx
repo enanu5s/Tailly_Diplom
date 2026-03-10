@@ -1,7 +1,8 @@
 // src/features/specialist-profile/ui/SpecialistProfileView.tsx
 
-import { useMemo } from 'react';
 import { observer } from 'mobx-react-lite';
+import { SpecialistPhotoGallery } from './SpecialistPhotoGallery';
+import { SpecialistMiniCalendar } from './SpecialistMiniCalendar';
 
 import {
     SPECIALIST_ADVANTAGE_OPTIONS,
@@ -133,14 +134,6 @@ type Props = {
     onSaveDetails: () => void;
 };
 
-type CalendarDay = {
-    isoDate: string | null;
-    dayNumber: number | null;
-    isBooked: boolean;
-    isCurrentMonth: boolean;
-};
-
-const WEEKDAY_LABELS = ['Пн', 'Вт', 'Ср', 'Чт', 'Пт', 'Сб', 'Вс'];
 const PET_SIZE_OPTIONS: SpecialistPetSize[] = ['small', 'medium', 'large', 'giant'];
 const PET_AGE_OPTIONS: SpecialistPetAge[] = ['baby', 'young', 'adult', 'senior'];
 const PET_TYPE_OPTIONS: SpecialistPetType[] = [
@@ -196,66 +189,6 @@ function getRatingStars(rating: number): string {
     return '★'.repeat(rounded) + '☆'.repeat(5 - rounded);
 }
 
-function buildCalendarDays(bookedDates: string[]): {
-    monthLabel: string;
-    days: CalendarDay[];
-} {
-    const now = new Date();
-    const year = now.getFullYear();
-    const monthIndex = now.getMonth();
-
-    const firstDayOfMonth = new Date(year, monthIndex, 1);
-    const lastDayOfMonth = new Date(year, monthIndex + 1, 0);
-    const daysInMonth = lastDayOfMonth.getDate();
-
-    const jsWeekday = firstDayOfMonth.getDay();
-    const mondayFirstOffset = jsWeekday === 0 ? 6 : jsWeekday - 1;
-
-    const bookedSet = new Set(bookedDates);
-    const days: CalendarDay[] = [];
-
-    for (let index = 0; index < mondayFirstOffset; index += 1) {
-        days.push({
-            isoDate: null,
-            dayNumber: null,
-            isBooked: false,
-            isCurrentMonth: false,
-        });
-    }
-
-    for (let dayNumber = 1; dayNumber <= daysInMonth; dayNumber += 1) {
-        const localDate = new Date(year, monthIndex, dayNumber);
-        const isoDate = `${localDate.getFullYear()
-            } -${String(localDate.getMonth() + 1).padStart(2, '0')} -${String(localDate.getDate()).padStart(2, '0')}`;
-
-        days.push({
-            isoDate,
-            dayNumber,
-            isBooked: bookedSet.has(isoDate),
-            isCurrentMonth: true,
-        });
-    }
-
-    while (days.length % 7 !== 0) {
-        days.push({
-            isoDate: null,
-            dayNumber: null,
-            isBooked: false,
-            isCurrentMonth: false,
-        });
-    }
-
-    const monthLabel = new Intl.DateTimeFormat('ru-RU', {
-        month: 'long',
-        year: 'numeric',
-    }).format(new Date(year, monthIndex, 1));
-
-    return {
-        monthLabel: monthLabel.charAt(0).toUpperCase() + monthLabel.slice(1),
-        days,
-    };
-}
-
 function renderGalleryItem(item: SpecialistGalleryItem) {
     return (
         <div key={item.id} className={styles.galleryItem}>
@@ -307,15 +240,6 @@ export const SpecialistProfileView = observer(({
     onRemoveSpecialistGalleryImage,
     onSaveDetails,
 }: Props) => {
-    const calendar = useMemo(() => {
-        if (!profile) {
-            return {
-                monthLabel: '',
-                days: [] as CalendarDay[],
-            };
-        }
-        return buildCalendarDays(profile.calendar.bookedDates);
-    }, [profile]);
 
     if (isLoading) {
         return (
@@ -596,51 +520,16 @@ export const SpecialistProfileView = observer(({
                 </section>
 
                 <section className={styles.card}>
-                    <div className={styles.cardHeader}>
-                        <h2 className={styles.cardTitle}>Календарь и рейтинг</h2>
-
-                        {profile.isOwner ? (
-                            <button type="button" className={styles.secondaryButton}>
-                                Редактировать календарь
-                            </button>
-                        ) : null}
-                    </div>
 
                     <div className={styles.calendarSection}>
-                        <div className={styles.calendarHead}>
-                            <div className={styles.calendarMonth}>{calendar.monthLabel}</div>
-                            <div className={styles.calendarLegend}>
-                                <span className={styles.legendDot} />
-                                <span>Есть заказы</span>
-                            </div>
-                        </div>
-
-                        <div className={styles.calendarGrid}>
-                            {WEEKDAY_LABELS.map((weekday) => (
-                                <div key={weekday} className={styles.calendarWeekday}>
-                                    {weekday}
-                                </div>
-                            ))}
-                            {calendar.days.map((day, index) => (
-                                <div
-                                    key={day.isoDate ?? `empty-${index}`}
-                                    className={[
-                                        styles.calendarCell,
-                                        !day.isCurrentMonth ? styles.calendarCellEmpty : '',
-                                        day.isBooked ? styles.calendarCellBooked : '',
-                                    ]
-                                        .filter(Boolean)
-                                        .join(' ')}
-                                >
-                                    {day.dayNumber ? (
-                                        <>
-                                            <span className={styles.calendarCellNumber}>{day.dayNumber}</span>
-                                            {day.isBooked ? <span className={styles.calendarCellMarker} /> : null}
-                                        </>
-                                    ) : null}
-                                </div>
-                            ))}
-                        </div>
+                        <SpecialistMiniCalendar
+                            calendar={profile.calendar}
+                            editHref={
+                                profile.isOwner
+                                    ? `/specialists/${profile.slug} /calendar/edit`
+                                    : undefined
+                            }
+                        />
                     </div>
 
                     <div className={styles.badgesColumn}>
@@ -734,69 +623,80 @@ export const SpecialistProfileView = observer(({
                     {detailsSaveError ? <div className={styles.formError}>{detailsSaveError}</div> : null}
 
                     <div className={styles.subsection}>
-                        <h3 className={styles.subsectionTitle}>Фотографии специалиста</h3>
+                        <h3>Фотографии специалиста</h3>
 
-                        {currentSpecialistGallery.length > 0 ? (
-                            <div className={styles.galleryGrid}>
-                                {currentSpecialistGallery.map((item, index) => (
-                                    <div key={item.id} className={styles.galleryEditorItem}>
-                                        <img className={styles.galleryImage} src={item.imageUrl} alt={item.alt} />
-                                        {isEditingDetails ? (
-                                            <button
-                                                type="button"
-                                                className={styles.removeButton}
-                                                onClick={() => onRemoveSpecialistGalleryImage(index)}
-                                            >
-                                                Удалить
-                                            </button>
-                                        ) : null}
+                        {isEditingDetails ? (
+                            <>
+                                {currentSpecialistGallery.length > 0 ? (
+                                    <div className={styles.specialistGalleryGrid}>
+                                        {currentSpecialistGallery.map((item, index) => (
+                                            <div key={item.id} className={styles.specialistGalleryCard}>
+                                                <img
+                                                    className={styles.specialistGalleryImage}
+                                                    src={item.imageUrl}
+                                                    alt={item.alt}
+                                                />
+
+                                                <button
+                                                    type="button"
+                                                    className={styles.removeGalleryButton}
+                                                    onClick={() => onRemoveSpecialistGalleryImage(index)}
+                                                >
+                                                    Удалить
+                                                </button>
+                                            </div>
+                                        ))}
                                     </div>
-                                ))}
-                            </div>
-                        ) : (
-                            <p className={styles.emptyText}>Пока специалист не добавил свои фотографии.</p>
-                        )}
+                                ) : (
+                                    <p className={styles.emptyState}>Пока фотографий нет.</p>
+                                )}
 
-                        {isEditingDetails && detailsForm ? (
-                            <div className={styles.inlineGalleryEditor}>
-                                <div className={styles.inlineGalleryRow}>
-                                    <input
-                                        className={styles.input}
-                                        value={detailsForm.specialistGalleryUrlInput}
-                                        onChange={(event) =>
-                                            onSetSpecialistGalleryUrlInput(event.target.value)
-                                        }
-                                        placeholder="Ссылка на фотографию"
-                                    />
-                                    <button
-                                        type="button"
-                                        className={styles.secondaryButton}
-                                        onClick={onAddSpecialistGalleryImageByUrl}
-                                    >
-                                        Добавить по ссылке
-                                    </button>
+                                <div className={styles.galleryActions}>
+                                    <label className={styles.fileUpload}>
+                                        <span>Загрузить с компьютера</span>
+                                        <input
+                                            type="file"
+                                            accept="image/*"
+                                            multiple
+                                            onChange={(event) => {
+                                                void onAddSpecialistGalleryFiles(event.currentTarget.files);
+                                                event.currentTarget.value = '';
+                                            }}
+                                        />
+                                    </label>
+
+                                    <div className={styles.galleryUrlRow}>
+                                        <input
+                                            className={styles.input}
+                                            type="text"
+                                            value={detailsForm?.specialistGalleryUrlInput ?? ''}
+                                            onChange={(event) =>
+                                                onSetSpecialistGalleryUrlInput(event.target.value)
+                                            }
+                                            placeholder="Ссылка на фото"
+                                        />
+
+                                        <button
+                                            type="button"
+                                            className={styles.secondaryButton}
+                                            onClick={onAddSpecialistGalleryImageByUrl}
+                                        >
+                                            Добавить
+                                        </button>
+                                    </div>
                                 </div>
-                                <label className={styles.uploadButton}>
-                                    <span>Загрузить фотографии с компьютера</span>
-                                    <input
-                                        className={styles.hiddenFileInput}
-                                        type="file"
-                                        accept="image/*"
-                                        multiple
-                                        onChange={(event) => {
-                                            void onAddSpecialistGalleryFiles(event.target.files);
-                                            event.currentTarget.value = '';
-                                        }}
-                                    />
-                                </label>
 
                                 {detailsFormErrors.specialistGallery ? (
-                                    <span className={styles.fieldError}>
-                                        {detailsFormErrors.specialistGallery}
-                                    </span>
+                                    <p className={styles.fieldError}>{detailsFormErrors.specialistGallery}</p>
                                 ) : null}
-                            </div>
-                        ) : null}
+                            </>
+                        ) : (
+                            <SpecialistPhotoGallery
+                                items={currentSpecialistGallery}
+                                title="Фотографии специалиста"
+                                emptyText="Пока фотографий нет."
+                            />
+                        )}
                     </div>
 
                     <div className={styles.detailsSection}>
