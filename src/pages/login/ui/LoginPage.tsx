@@ -1,101 +1,160 @@
 // src/pages/login/ui/LoginPage.tsx
-import { useNavigate, Link, useLocation } from 'react-router-dom';
-import { useState } from 'react';
-import styles from './LoginPage.module.css';
-import { authService } from '@/features/auth/model/authService';
 
-const LoginPage = () => {
+import { observer } from 'mobx-react-lite';
+import { useEffect, useSyncExternalStore } from 'react';
+import type { FormEvent, ReactElement } from 'react';
+import { useLocation, useNavigate } from 'react-router-dom';
+
+import { loginStore, authStore } from '@/features/auth';
+import { getDefaultAuthorizedRoute } from '@/shared/lib/auth';
+
+import styles from './LoginPage.module.css';
+
+type LocationState = {
+  from?: string;
+};
+
+export const LoginPage = observer((): ReactElement => {
   const navigate = useNavigate();
   const location = useLocation();
-  const [email, setEmail] = useState('');
-  const [password, setPassword] = useState('');
-  const [error, setError] = useState<string | null>(null);
-  const [loading, setLoading] = useState(false);
+  const authState = useSyncExternalStore(
+    authStore.subscribe,
+    authStore.getState,
+  );
 
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    setError(null);
-    setLoading(true);
+  const state = (location.state ?? null) as LocationState | null;
 
-    try {
-      await authService.login({ email, password });
-      const from = (location.state as any)?.from ?? '/';
-      navigate(from, { replace: true });
-    } catch (e: any) {
-      setError(e?.message ?? 'Ошибка входа');
-    } finally {
-      setLoading(false);
+  useEffect(() => {
+    if (authState.user) {
+      navigate(getDefaultAuthorizedRoute(authState.user), {
+        replace: true,
+      });
     }
+  }, [authState.user, navigate]);
+
+  const handleSubmit = async (
+    event: FormEvent<HTMLFormElement>,
+  ): Promise<void> => {
+    event.preventDefault();
+
+    const success = await loginStore.submit();
+
+    if (!success) {
+      return;
+    }
+
+    const nextUser = authStore.getState().user;
+    const redirectPath =
+      state?.from ?? getDefaultAuthorizedRoute(nextUser);
+
+    navigate(redirectPath, { replace: true });
   };
 
   return (
-    <div className={styles.page}>
-      <div className={styles.container}>
-        <button onClick={() => navigate(-1)} className={styles.backButton}>
-          ← Вернуться назад
-        </button>
+    <section className={styles.page}>
+      <div className={styles.card}>
+        <div className={styles.header}>
+          <span className={styles.badge}>Tailly</span>
 
-        <h1 className={styles.title}>Войти</h1>
+          <h1 className={styles.title}>Вход в аккаунт</h1>
 
-        <div className={styles.card}>
-          <div className={styles.socialSection}>
-            <button className={styles.vkButton} type="button">
-              Продолжить через ВК
+          <p className={styles.subtitle}>
+            Клиенты, специалисты и администраторы входят через
+            единую форму авторизации.
+          </p>
+        </div>
+
+        <form className={styles.form} onSubmit={handleSubmit}>
+          <label className={styles.field}>
+            <span className={styles.label}>Email</span>
+
+            <input
+              className={styles.input}
+              type="email"
+              value={loginStore.email}
+              onChange={(event) =>
+                loginStore.setEmail(event.target.value)
+              }
+              placeholder="name@example.com"
+              autoComplete="username"
+              required
+            />
+          </label>
+
+          <label className={styles.field}>
+            <span className={styles.label}>Пароль</span>
+
+            <input
+              className={styles.input}
+              type="password"
+              value={loginStore.password}
+              onChange={(event) =>
+                loginStore.setPassword(event.target.value)
+              }
+              placeholder="Введите пароль"
+              autoComplete="current-password"
+              required
+            />
+          </label>
+
+          {loginStore.failedAttemptsLeft !== null &&
+            loginStore.failedAttemptsLeft > 0 ? (
+            <div className={styles.attempts}>
+              Осталось попыток для администратора:{' '}
+              {loginStore.failedAttemptsLeft}
+            </div>
+          ) : null}
+
+          {loginStore.submitError ? (
+            <div className={styles.error}>
+              {loginStore.submitError}
+            </div>
+          ) : null}
+
+
+          <button
+            className={styles.submitButton}
+            type="submit"
+            disabled={!loginStore.canSubmit}
+          >
+            {loginStore.isSubmitting
+              ? 'Выполняется вход...'
+              : 'Войти'}
+          </button>
+
+          <div className={styles.links}>
+            <button
+              className={styles.linkButton}
+              type="button"
+              onClick={() => navigate('/forgot-password')}
+            >
+              Восстановить пароль
             </button>
           </div>
+        </form>
 
-          <div className={styles.divider}>
-            <span>или</span>
-          </div>
+        <div className={styles.demoBlock}>
+          <div className={styles.demoTitle}>Тестовые аккаунты</div>
 
-          <form onSubmit={handleSubmit} className={styles.form}>
-            <div className={styles.inputGroup}>
-              <input
-                type="email"
-                placeholder="Email"
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
-                className={styles.input}
-                required
-              />
+          <div className={styles.demoList}>
+            <div className={styles.demoItem}>
+              client@tailly.local / 123456
             </div>
 
-            <div className={styles.inputGroup}>
-              <input
-                type="password"
-                placeholder="Пароль"
-                value={password}
-                onChange={(e) => setPassword(e.target.value)}
-                className={styles.input}
-                required
-              />
+            <div className={styles.demoItem}>
+              specialist@tailly.local / 123456
             </div>
 
-            <Link to="/forgot-password" className={styles.forgotLink}>
-              Забыли пароль?
-            </Link>
+            <div className={styles.demoItem}>
+              admin@tailly.local / 123456
+            </div>
 
-            {error && (
-              <div style={{ color: '#dc2626', fontSize: '0.95rem' }}>
-                {error}
-              </div>
-            )}
-
-            <button type="submit" className={styles.submitButton} disabled={loading}>
-              {loading ? 'Входим...' : 'Продолжить'}
-            </button>
-          </form>
-
-          <div className={styles.registerSection}>
-            <p className={styles.registerText}>У вас еще нет аккаунта?</p>
-            <Link to="/register" className={styles.registerLink}>
-              Зарегистрироваться
-            </Link>
+            <div className={styles.demoItem}>
+              superadmin@tailly.local / 123456
+            </div>
           </div>
         </div>
       </div>
-    </div>
+    </section>
   );
-};
-
-export default LoginPage;
+});

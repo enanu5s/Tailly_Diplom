@@ -1,0 +1,139 @@
+/* src/pages/admin-login/ui/AdminLoginPage.module.css */
+
+.page {
+    min-height: calc(100vh - 160px);
+    padding: 40px 20px 80px;
+    background: #f8fafc;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.card {
+    width: 100%;
+    max-width: 520px;
+    background: #ffffff;
+    border-radius: 18px;
+    box-shadow: 0 20px 60px rgba(15, 23, 42, 0.08);
+    padding: 32px;
+}
+
+.header {
+    display: grid;
+    gap: 12px;
+    margin-bottom: 24px;
+}
+
+.badge {
+    display: inline-flex;
+    width: fit-content;
+    align-items: center;
+    justify-content: center;
+    min-height: 32px;
+    padding: 0 12px;
+    border-radius: 999px;
+    background: rgba(99, 102, 241, 0.12);
+    color: #4f46e5;
+    font-size: 14px;
+    font-weight: 700;
+}
+
+.title {
+    margin: 0;
+    font-size: 32px;
+    line-height: 1.15;
+    color: #0f172a;
+}
+
+.subtitle {
+    margin: 0;
+    color: #475569;
+    line-height: 1.5;
+}
+
+.form {
+    display: grid;
+    gap: 16px;
+}
+
+.field {
+    display: grid;
+    gap: 8px;
+}
+
+.label {
+    font-size: 14px;
+    font-weight: 600;
+    color: #334155;
+}
+
+.input {
+    min-height: 48px;
+    border: 1px solid #cbd5e1;
+    border-radius: 14px;
+    padding: 0 14px;
+    font-size: 16px;
+    color: #0f172a;
+    outline: none;
+    transition:
+        border-color 0.2s ease,
+        box-shadow 0.2s ease;
+}
+
+.input:focus {
+    border-color: #6366f1;
+    box-shadow: 0 0 0 4px rgba(99, 102, 241, 0.12);
+}
+
+.attempts {
+    border-radius: 12px;
+    background: #fff7ed;
+    color: #9a3412;
+    padding: 12px 14px;
+    font-size: 14px;
+}
+
+.error {
+    border-radius: 12px;
+    background: #fef2f2;
+    color: #b91c1c;
+    padding: 12px 14px;
+    font-size: 14px;
+}
+
+.submitButton {
+    min-height: 48px;
+    border: none;
+    border-radius: 14px;
+    background: #6366f1;
+    color: #ffffff;
+    font-size: 16px;
+    font-weight: 700;
+    cursor: pointer;
+    transition:
+        transform 0.2s ease,
+        opacity 0.2s ease,
+        box-shadow 0.2s ease;
+    box-shadow: 0 16px 32px rgba(99, 102, 241, 0.22);
+}
+
+.submitButton:hover:not(:disabled) {
+    transform: translateY(-1px);
+}
+
+.submitButton:disabled {
+    opacity: 0.7;
+    cursor: not-allowed;
+    box-shadow: none;
+}
+
+.linkButton {
+    border: none;
+    background: transparent;
+    color: #6366f1;
+    font-size: 14px;
+    font-weight: 600;
+    padding: 0;
+    cursor: pointer;
+    justify-self: start;
+}

@@ -1,0 +1,112 @@
+/* src/pages/admin-profile/ui/AdminProfilePage.module.css */
+
+.page {
+    min-height: calc(100vh - 160px);
+    padding: 40px 20px 80px;
+    background: #f8fafc;
+}
+
+.container {
+    width: 100%;
+    max-width: 1280px;
+    margin: 0 auto;
+    display: grid;
+    gap: 20px;
+}
+
+.backButton {
+    width: fit-content;
+    min-height: 42px;
+    border: 1px solid #cbd5e1;
+    border-radius: 14px;
+    background: #ffffff;
+    color: #0f172a;
+    padding: 0 16px;
+    font-weight: 700;
+    cursor: pointer;
+}
+
+.card {
+    background: #ffffff;
+    border-radius: 18px;
+    box-shadow: 0 18px 50px rgba(15, 23, 42, 0.08);
+    padding: 28px;
+    display: grid;
+    gap: 24px;
+}
+
+.header {
+    display: grid;
+    gap: 12px;
+}
+
+.badge {
+    display: inline-flex;
+    width: fit-content;
+    min-height: 32px;
+    align-items: center;
+    padding: 0 12px;
+    border-radius: 999px;
+    background: rgba(99, 102, 241, 0.12);
+    color: #4f46e5;
+    font-size: 14px;
+    font-weight: 700;
+}
+
+.title {
+    margin: 0;
+    font-size: 32px;
+    color: #0f172a;
+}
+
+.subtitle {
+    margin: 0;
+    color: #475569;
+    line-height: 1.55;
+}
+
+.infoGrid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+    gap: 16px;
+}
+
+.infoItem {
+    display: grid;
+    gap: 8px;
+    padding: 18px;
+    border-radius: 16px;
+    background: #f8fafc;
+}
+
+.label {
+    font-size: 13px;
+    font-weight: 700;
+    color: #64748b;
+    text-transform: uppercase;
+    letter-spacing: 0.03em;
+}
+
+.value {
+    font-size: 16px;
+    color: #0f172a;
+    line-height: 1.5;
+}
+
+.actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 12px;
+}
+
+.primaryButton {
+    min-height: 46px;
+    border: none;
+    border-radius: 14px;
+    background: #6366f1;
+    color: #ffffff;
+    padding: 0 18px;
+    font-weight: 700;
+    cursor: pointer;
+    box-shadow: 0 14px 28px rgba(99, 102, 241, 0.22);
+}

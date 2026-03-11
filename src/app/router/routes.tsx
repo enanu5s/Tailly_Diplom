@@ -30,7 +30,35 @@ import {
   ShopProductPage,
 } from '@/pages/shop';
 import { SpecialistProfilePage } from '@/pages/specialist-profile'
-import { SpecialistCalendarEditPage } from '@/pages/specialist-calendar-edit';
+import { SpecialistCalendarEditPage } from '@/pages/specialist-calendar-edit'
+import { AdminDashboardPage } from '@/pages/admin-dashboard/ui/AdminDashboardPage';
+import { AdminLoginPage } from '@/pages/admin-login/ui/AdminLoginPage';
+import { AdminProfilePage } from '@/pages/admin-profile/ui/AdminProfilePage';
+import { AdminRouteGuard } from '@/shared/ui/route-guards/ui/AdminRouteGuard';
+import { SuperAdminAdminsPage } from '@/pages/super-admin-admins';
+
+function PlaceholderAdminPage({ title }: { title: string }) {
+  return (
+    <section style={{ padding: '40px 20px' }}>
+      <div
+        style={{
+          maxWidth: 1280,
+          margin: '0 auto',
+          background: '#fff',
+          borderRadius: 18,
+          padding: 24,
+          boxShadow: '0 18px 50px rgba(15, 23, 42, 0.08)',
+        }}
+      >
+        <h1 style={{ marginTop: 0 }}>{title}</h1>
+        <p style={{ marginBottom: 0 }}>
+          Раздел будет реализован следующим этапом.
+        </p>
+      </div>
+    </section>
+  );
+}
+
 
 export const routes: RouteObject[] = [
   {
@@ -143,6 +171,62 @@ export const routes: RouteObject[] = [
       {
         path: '/shop/:slug',
         element: <ShopProductPage />,
+      },
+      {
+        path: '/admin/login',
+        element: <AdminLoginPage />,
+      },
+      {
+        path: '/admin/forgot-password',
+        element: <PlaceholderAdminPage title="Восстановление пароля администратора" />,
+      },
+      {
+        path: '/admin',
+        element: (
+          <AdminRouteGuard>
+            <AdminDashboardPage />
+          </AdminRouteGuard>
+        ),
+      },
+      {
+        path: '/admin/profile',
+        element: (
+          <AdminRouteGuard>
+            <AdminProfilePage />
+          </AdminRouteGuard>
+        ),
+      },
+      {
+        path: '/admin/moderation/specialists',
+        element: (
+          <AdminRouteGuard>
+            <PlaceholderAdminPage title="Модерация анкет специалистов" />
+          </AdminRouteGuard>
+        ),
+      },
+      {
+        path: '/admin/users',
+        element: (
+          <AdminRouteGuard>
+            <PlaceholderAdminPage title="Управление пользователями" />
+          </AdminRouteGuard>
+        ),
+      },
+      {
+        path: '/admin/posts',
+        element: (
+          <AdminRouteGuard>
+            <PlaceholderAdminPage title="Посты и баннеры" />
+          </AdminRouteGuard>
+        ),
+      },
+      {
+        path: '/super-admin/admins',
+        element: (
+          <AdminRouteGuard requireSuperAdmin>
+            <SuperAdminAdminsPage />
+          </AdminRouteGuard>
+        ),
       },
       {
         path: '*',
