@@ -36,6 +36,7 @@ import { AdminLoginPage } from '@/pages/admin-login/ui/AdminLoginPage';
 import { AdminProfilePage } from '@/pages/admin-profile/ui/AdminProfilePage';
 import { AdminRouteGuard } from '@/shared/ui/route-guards/ui/AdminRouteGuard';
 import { SuperAdminAdminsPage } from '@/pages/super-admin-admins';
+import { AdminSpecialistApplicationsPage } from '@/pages/admin-specialist-applications';
 
 function PlaceholderAdminPage({ title }: { title: string }) {
   return (
@@ -200,7 +201,7 @@ export const routes: RouteObject[] = [
         path: '/admin/moderation/specialists',
         element: (
           <AdminRouteGuard>
-            <PlaceholderAdminPage title="Модерация анкет специалистов" />
+            <AdminSpecialistApplicationsPage />
           </AdminRouteGuard>
         ),
       },

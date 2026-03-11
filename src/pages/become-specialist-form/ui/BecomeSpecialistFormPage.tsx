@@ -1,11 +1,14 @@
-//src/pages/become-specialist-form/ui/BecomeSpecialistFormPage.tsx
+// src/pages/become-specialist-form/ui/BecomeSpecialistFormPage.tsx
 
 import { useState } from 'react';
+import type { FormEvent, ReactElement } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import styles from './BecomeSpecialistFormPage.module.css';
-import { specialistApplicationApi } from '@/shared/api/specialistApplicationApi';
 
-export const BecomeSpecialistFormPage = () => {
+import { specialistApplicationsService } from '@/features/specialist-applications';
+
+import styles from './BecomeSpecialistFormPage.module.css';
+
+export const BecomeSpecialistFormPage = (): ReactElement => {
   const navigate = useNavigate();
 
   const [name, setName] = useState('');
@@ -16,118 +19,193 @@ export const BecomeSpecialistFormPage = () => {
   const [consent, setConsent] = useState(false);
 
   const [loading, setLoading] = useState(false);
-  const [error, setError] = useState<string | null>(null);
+  const [error, setError] = useState('');
   const [success, setSuccess] = useState(false);
 
-  const onSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    setError(null);
+  const handleSubmit = async (
+    event: FormEvent<HTMLFormElement>,
+  ): Promise<void> => {
+    event.preventDefault();
+
+    setError('');
     setSuccess(false);
 
     if (!consent) {
-      setError('Нужно согласие на обработку персональных данных');
+      setError('Нужно согласие на обработку персональных данных.');
       return;
     }
 
     setLoading(true);
+
     try {
-      await specialistApplicationApi.send({ name, email, phone, city, about });
+      await specialistApplicationsService.createApplication({
+        fullName: name.trim(),
+        email: email.trim(),
+        phone: phone.trim(),
+        city: city.trim(),
+        about: about.trim(),
+      });
+
       setSuccess(true);
-      // можно оставить успех и кнопку "Вернуться", либо сделать редирект:
-      // navigate('/become-specialist', { replace: true });
-    } catch (e: any) {
-      setError(e?.message ?? 'Не удалось отправить заявку');
+      setName('');
+      setEmail('');
+      setPhone('');
+      setCity('');
+      setAbout('');
+      setConsent(false);
+    } catch (submitError) {
+      setError(
+        submitError instanceof Error
+          ? submitError.message
+          : 'Не удалось отправить заявку.',
+      );
     } finally {
       setLoading(false);
     }
   };
 
   return (
-    <div className={styles.page}>
+    <section className={styles.page}>
       <div className={styles.container}>
-        <button onClick={() => navigate(-1)} className={styles.backButton}>
+        <button
+          className={styles.backButton}
+          type="button"
+          onClick={() => navigate(-1)}
+        >
           ← Назад
         </button>
 
-        <h1 className={styles.title}>Анкета специалиста</h1>
-        <p className={styles.subtitle}>Заполните данные — мы свяжемся с вами</p>
-
         <div className={styles.card}>
-          <form className={styles.form} onSubmit={onSubmit}>
-            <input
-              className={styles.input}
-              placeholder="Имя и фамилия"
-              value={name}
-              onChange={(e) => setName(e.target.value)}
-              required
-            />
+          <div className={styles.header}>
+            <span className={styles.badge}>Tailly</span>
+            <h1 className={styles.title}>Анкета специалиста</h1>
+            <p className={styles.subtitle}>
+              Заполните данные — после отправки анкета попадёт на
+              модерацию администраторам Tailly.
+            </p>
+          </div>
 
-            <input
-              className={styles.input}
-              type="email"
-              placeholder="Email"
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
-              required
-            />
+          <form className={styles.form} onSubmit={handleSubmit}>
+            <label className={styles.field}>
+              <span className={styles.label}>ФИО</span>
+              <input
+                className={styles.input}
+                value={name}
+                onChange={(event) =>
+                  setName(event.target.value)
+                }
+                placeholder="Иванова Анна Сергеевна"
+                required
+              />
+            </label>
 
-            <input
-              className={styles.input}
-              placeholder="Телефон"
-              value={phone}
-              onChange={(e) => setPhone(e.target.value)}
-              required
-            />
+            <label className={styles.field}>
+              <span className={styles.label}>Email</span>
+              <input
+                className={styles.input}
+                type="email"
+                value={email}
+                onChange={(event) =>
+                  setEmail(event.target.value)
+                }
+                placeholder="name@example.com"
+                required
+              />
+            </label>
 
-            <input
-              className={styles.input}
-              placeholder="Город"
-              value={city}
-              onChange={(e) => setCity(e.target.value)}
-              required
-            />
 
-            <textarea
-              className={styles.textarea}
-              placeholder="Расскажите о себе и опыте (какие услуги готовы оказывать)"
-              value={about}
-              onChange={(e) => setAbout(e.target.value)}
-              rows={5}
-              required
-            />
+            <label className={styles.field}>
+              <span className={styles.label}>Телефон</span>
+              <input
+                className={styles.input}
+                value={phone}
+                onChange={(event) =>
+                  setPhone(event.target.value)
+                }
+                placeholder="+7 (900) 000-00-00"
+                required
+              />
+            </label>
+
+            <label className={styles.field}>
+              <span className={styles.label}>Город</span>
+              <input
+                className={styles.input}
+                value={city}
+                onChange={(event) =>
+                  setCity(event.target.value)
+                }
+                placeholder="Москва"
+                required
+              />
+            </label>
+
+            <label className={styles.field}>
+              <span className={styles.label}>О себе</span>
+              <textarea
+                className={styles.textarea}
+                rows={6}
+                value={about}
+                onChange={(event) =>
+                  setAbout(event.target.value)
+                }
+                placeholder="Расскажите о своём опыте ухода за животными, условиях работы и сильных сторонах."
+                required
+              />
+            </label>
 
             <label className={styles.consentRow}>
               <input
                 className={styles.checkbox}
                 type="checkbox"
                 checked={consent}
-                onChange={(e) => setConsent(e.target.checked)}
+                onChange={(event) =>
+                  setConsent(event.target.checked)
+                }
               />
+
               <span className={styles.consentText}>
                 Я согласен на обработку персональных данных.{' '}
-                <a href="/docs/personal-data-agreement.pdf" download>
+                <a
+                  href="/docs/personal-data-agreement.pdf"
+                  download
+                >
                   Скачать документ
                 </a>
               </span>
             </label>
 
-            {error && <div className={styles.error}>{error}</div>}
-            {success && (
+            {error ? (
+              <div className={styles.error}>{error}</div>
+            ) : null}
+
+            {success ? (
               <div className={styles.success}>
-                Заявка отправлена! Мы свяжемся с вами в ближайшее время.
-                <div style={{ marginTop: 8 }}>
-                  <Link to="/become-specialist" className={styles.link}>
-                    Вернуться на страницу “Стать специалистом”
+                Заявка отправлена и передана администраторам на
+                проверку.
+                <div className={styles.successLinkWrap}>
+                  <Link
+                    to="/become-specialist"
+                    className={styles.link}
+                  >
+                    Вернуться на страницу “Стать
+                    специалистом”
                   </Link>
                 </div>
               </div>
-            )}
-            <button className={styles.submitButton} type="submit" disabled={loading}>
+            ) : null}
+
+
+            <button
+              className={styles.submitButton}
+              type="submit"
+              disabled={loading}
+            >
               {loading ? 'Отправляем...' : 'Отправить заявку'}
             </button>
           </form>
         </div>
       </div>
-    </div>
+    </section>
   );
 };

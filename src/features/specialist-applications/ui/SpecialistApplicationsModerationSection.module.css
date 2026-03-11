@@ -1,0 +1,391 @@
+/* src/features/specialist-applications/ui/SpecialistApplicationsModerationSection.module.css */
+
+.root {
+    display: grid;
+    gap: 24px;
+}
+
+.hero {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 20px;
+    background: #ffffff;
+    border-radius: 18px;
+    box-shadow: 0 18px 50px rgba(15, 23, 42, 0.08);
+    padding: 28px;
+}
+
+.heroContent {
+    display: grid;
+    gap: 12px;
+}
+
+.badge {
+    display: inline-flex;
+    width: fit-content;
+    min-height: 32px;
+    align-items: center;
+    padding: 0 12px;
+    border-radius: 999px;
+    background: rgba(99, 102, 241, 0.12);
+    color: #4f46e5;
+    font-size: 14px;
+    font-weight: 700;
+}
+
+.title {
+    margin: 0;
+    font-size: 36px;
+    line-height: 1.1;
+    color: #0f172a;
+}
+
+.subtitle {
+    margin: 0;
+    max-width: 720px;
+    color: #475569;
+    line-height: 1.6;
+}
+
+.heroStats {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(120px, 1fr));
+    gap: 12px;
+}
+
+.statCard {
+    display: grid;
+    gap: 8px;
+    min-width: 130px;
+    background: #f8fafc;
+    border-radius: 16px;
+    padding: 16px;
+}
+
+.statLabel {
+    color: #64748b;
+    font-size: 13px;
+    font-weight: 700;
+}
+
+.statValue {
+    color: #0f172a;
+    font-size: 28px;
+    font-weight: 800;
+}
+
+.layout {
+    display: grid;
+    grid-template-columns: 380px minmax(0, 1fr);
+    gap: 20px;
+}
+
+.sidebar,
+.detailsCard,
+.stateCard,
+.emptyCard {
+    background: #ffffff;
+    border-radius: 18px;
+    box-shadow: 0 18px 50px rgba(15, 23, 42, 0.08);
+}
+
+.sidebar {
+    padding: 20px;
+    display: grid;
+    gap: 16px;
+    align-self: start;
+}
+
+.sidebarHeader {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+}
+
+.sectionTitle {
+    margin: 0;
+    font-size: 24px;
+    color: #0f172a;
+}
+
+.applicationList {
+    display: grid;
+    gap: 12px;
+}
+
+.applicationListItem {
+    border: 1px solid #e2e8f0;
+    background: #ffffff;
+    border-radius: 16px;
+    padding: 16px;
+    text-align: left;
+    cursor: pointer;
+    transition:
+        border-color 0.2s ease,
+        box-shadow 0.2s ease,
+        transform 0.2s ease;
+}
+
+.applicationListItem:hover {
+    border-color: #c7d2fe;
+    transform: translateY(-1px);
+}
+
+.applicationListItemActive {
+    border-color: #6366f1;
+    box-shadow: 0 0 0 4px rgba(99, 102, 241, 0.1);
+}
+
+.applicationTop {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 12px;
+}
+
+.applicationName {
+    color: #0f172a;
+    font-weight: 700;
+    line-height: 1.4;
+}
+
+.applicationMeta {
+    margin-top: 8px;
+    color: #64748b;
+    font-size: 14px;
+    line-height: 1.5;
+}
+
+.statusPending,
+.statusInterview,
+.statusApproved,
+.statusRejected {
+    display: inline-flex;
+    min-height: 28px;
+    align-items: center;
+    border-radius: 999px;
+    padding: 0 10px;
+    font-size: 12px;
+    font-weight: 700;
+    white-space: nowrap;
+}
+
+.statusPending {
+    background: rgba(234, 179, 8, 0.12);
+    color: #a16207;
+}
+
+.statusInterview {
+    background: rgba(14, 165, 233, 0.12);
+    color: #0369a1;
+}
+
+.statusApproved {
+    background: rgba(34, 197, 94, 0.12);
+    color: #166534;
+}
+
+.statusRejected {
+    background: rgba(239, 68, 68, 0.12);
+    color: #b91c1c;
+}
+
+.detailsCard {
+    padding: 24px;
+    display: grid;
+    gap: 24px;
+}
+
+.detailsHeader {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 16px;
+}
+
+.detailsTitle {
+    margin: 0 0 8px;
+    font-size: 30px;
+    color: #0f172a;
+}
+
+.detailsSubtitle {
+    margin: 0;
+    color: #475569;
+    line-height: 1.55;
+}
+
+.infoGrid {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 16px;
+}
+
+.infoItem {
+    display: grid;
+    gap: 8px;
+    background: #f8fafc;
+    border-radius: 16px;
+    padding: 16px;
+}
+
+.infoLabel {
+    color: #64748b;
+    font-size: 12px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.03em;
+}
+
+.infoValue {
+    color: #0f172a;
+    line-height: 1.5;
+}
+
+.aboutBlock,
+.formBlock {
+    display: grid;
+    gap: 14px;
+}
+
+
+.blockTitle {
+    margin: 0;
+    font-size: 20px;
+    color: #0f172a;
+}
+
+.aboutText {
+    margin: 0;
+    color: #334155;
+    line-height: 1.7;
+    white-space: pre-wrap;
+}
+
+.formGrid {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 16px;
+}
+
+.field,
+.fieldWide {
+    display: grid;
+    gap: 8px;
+}
+
+.fieldWide {
+    grid-column: 1 / -1;
+}
+
+.fieldLabel {
+    color: #334155;
+    font-size: 14px;
+    font-weight: 700;
+}
+
+.input,
+.textarea {
+    width: 100%;
+    border: 1px solid #cbd5e1;
+    border-radius: 14px;
+    padding: 12px 14px;
+    font-size: 15px;
+    color: #0f172a;
+    outline: none;
+    transition:
+        border-color 0.2s ease,
+        box-shadow 0.2s ease;
+    box-sizing: border-box;
+}
+
+.input {
+    min-height: 46px;
+}
+
+.textarea {
+    resize: vertical;
+    min-height: 120px;
+    font-family: inherit;
+}
+
+.input:focus,
+.textarea:focus {
+    border-color: #6366f1;
+    box-shadow: 0 0 0 4px rgba(99, 102, 241, 0.12);
+}
+
+.actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 12px;
+}
+
+.primaryButton,
+.secondaryButton,
+.dangerButton {
+    min-height: 46px;
+    border-radius: 14px;
+    padding: 0 18px;
+    font-weight: 700;
+    cursor: pointer;
+}
+
+.primaryButton {
+    border: none;
+    background: #6366f1;
+    color: #ffffff;
+    box-shadow: 0 14px 28px rgba(99, 102, 241, 0.22);
+}
+
+.secondaryButton {
+    border: 1px solid #cbd5e1;
+    background: #ffffff;
+    color: #0f172a;
+}
+
+.dangerButton {
+    border: none;
+    background: #dc2626;
+    color: #ffffff;
+}
+
+.primaryButton:disabled,
+.secondaryButton:disabled,
+.dangerButton:disabled {
+    opacity: 0.7;
+    cursor: not-allowed;
+}
+
+.errorBanner {
+    border-radius: 14px;
+    background: #fef2f2;
+    color: #b91c1c;
+    padding: 14px 16px;
+    line-height: 1.55;
+}
+
+.stateCard,
+.emptyCard {
+    padding: 24px;
+    color: #475569;
+    line-height: 1.6;
+}
+
+@media (max-width: 1024px) {
+    .layout {
+        grid-template-columns: 1fr;
+    }
+
+    .hero {
+        flex-direction: column;
+    }
+
+    .heroStats,
+    .infoGrid,
+    .formGrid {
+        grid-template-columns: 1fr;
+    }
+}
