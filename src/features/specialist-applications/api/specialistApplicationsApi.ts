@@ -5,6 +5,7 @@ import { request } from '@/shared/api/http';
 import type {
     ApproveSpecialistApplicationPayload,
     AssignInterviewPayload,
+    AttachCreatedSpecialistAccountPayload,
     CreateSpecialistApplicationPayload,
     RejectSpecialistApplicationPayload,
     SpecialistApplication,
@@ -30,6 +31,9 @@ const INITIAL_APPLICATIONS: SpecialistApplication[] = [
         interviewDate: null,
         reviewComment: null,
         reviewedBy: null,
+        createdSpecialistId: null,
+        createdSpecialistSlug: null,
+        specialistAccountCreatedAt: null,
     },
     {
         id: 'specialist-application-2',
@@ -44,6 +48,9 @@ const INITIAL_APPLICATIONS: SpecialistApplication[] = [
         interviewDate: '2026-03-14T15:00',
         reviewComment: 'Назначить онлайн-собеседование и уточнить опыт с крупными породами.',
         reviewedBy: 'superadmin@tailly.local',
+        createdSpecialistId: null,
+        createdSpecialistSlug: null,
+        specialistAccountCreatedAt: null,
     },
 ];
 
@@ -109,6 +116,7 @@ async function mockCreateApplication(
 
     const nowIso = new Date().toISOString();
 
+
     const createdApplication: SpecialistApplication = {
         id: generateId(),
         fullName: payload.fullName.trim(),
@@ -122,8 +130,10 @@ async function mockCreateApplication(
         interviewDate: null,
         reviewComment: null,
         reviewedBy: null,
+        createdSpecialistId: null,
+        createdSpecialistSlug: null,
+        specialistAccountCreatedAt: null,
     };
-
 
     applications.unshift(createdApplication);
     writeMockApplications(applications);
@@ -234,6 +244,40 @@ async function mockApproveApplication(
     return JSON.parse(JSON.stringify(updated)) as SpecialistApplication;
 }
 
+async function mockAttachCreatedSpecialistAccount(
+    payload: AttachCreatedSpecialistAccountPayload,
+): Promise<SpecialistApplication> {
+    await delay();
+    ensureMockSeed();
+
+    const applications = readMockApplications();
+    const index = applications.findIndex(
+        (item) => item.id === payload.applicationId,
+    );
+
+    if (index === -1) {
+        throw new SpecialistApplicationsError('Заявка не найдена.');
+    }
+
+
+    const current = applications[index];
+
+    const updated: SpecialistApplication = {
+        ...current,
+        status: 'approved',
+        reviewedBy: payload.reviewedBy,
+        createdSpecialistId: payload.specialistId,
+        createdSpecialistSlug: payload.specialistSlug ?? null,
+        specialistAccountCreatedAt: new Date().toISOString(),
+        updatedAt: new Date().toISOString(),
+    };
+
+    applications[index] = updated;
+    writeMockApplications(applications);
+
+    return JSON.parse(JSON.stringify(updated)) as SpecialistApplication;
+}
+
 async function realCreateApplication(
     payload: CreateSpecialistApplicationPayload,
 ): Promise<{ ok: true; application: SpecialistApplication }> {
@@ -261,7 +305,6 @@ async function realAssignInterview(
     ) as Promise<SpecialistApplication>;
 }
 
-
 async function realRejectApplication(
     payload: RejectSpecialistApplicationPayload,
 ): Promise<SpecialistApplication> {
@@ -279,6 +322,18 @@ async function realApproveApplication(
 ): Promise<SpecialistApplication> {
     return request(
         `${API_BASE_URL}/admin/specialist-applications/${payload.applicationId}/approve`,
+        {
+            method: 'POST',
+            body: payload,
+        },
+    ) as Promise<SpecialistApplication>;
+}
+
+async function realAttachCreatedSpecialistAccount(
+    payload: AttachCreatedSpecialistAccountPayload,
+): Promise<SpecialistApplication> {
+    return request(
+        `${API_BASE_URL}/admin/specialist-applications/${payload.applicationId}/attach-specialist-account`,
         {
             method: 'POST',
             body: payload,
@@ -333,5 +388,16 @@ export const specialistApplicationsApi = {
         }
 
         return realApproveApplication(payload);
+    },
+
+    async attachCreatedSpecialistAccount(
+        payload: AttachCreatedSpecialistAccountPayload,
+    ): Promise<SpecialistApplication> {
+        if (USE_MOCK) {
+            return mockAttachCreatedSpecialistAccount(payload);
+        }
+
+
+        return realAttachCreatedSpecialistAccount(payload);
     },
 };

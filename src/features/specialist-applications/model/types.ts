@@ -19,6 +19,9 @@ export type SpecialistApplication = {
     interviewDate?: string | null;
     reviewComment?: string | null;
     reviewedBy?: string | null;
+    createdSpecialistId?: string | null;
+    createdSpecialistSlug?: string | null;
+    specialistAccountCreatedAt?: string | null;
 };
 
 export type CreateSpecialistApplicationPayload = {
@@ -45,6 +48,13 @@ export type RejectSpecialistApplicationPayload = {
 export type ApproveSpecialistApplicationPayload = {
     applicationId: string;
     reviewComment?: string;
+    reviewedBy: string;
+};
+
+export type AttachCreatedSpecialistAccountPayload = {
+    applicationId: string;
+    specialistId: string;
+    specialistSlug?: string;
     reviewedBy: string;
 };
 

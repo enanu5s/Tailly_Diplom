@@ -4,8 +4,9 @@ import { observer } from 'mobx-react-lite';
 import { useEffect, useSyncExternalStore } from 'react';
 import type { ReactElement } from 'react';
 
+import { CreateSpecialistAccountModal } from '@/features/admin-specialists-management';
 import { authStore } from '@/features/auth';
-import { specialistApplicationsModerationStore } from '../model/specialistApplicationsModerationStore.ts';
+import { specialistApplicationsModerationStore } from '../model/specialistApplicationsModerationStore';
 import type { SpecialistApplication } from '../model/types';
 import styles from './SpecialistApplicationsModerationSection.module.css';
 
@@ -80,6 +81,11 @@ export const SpecialistApplicationsModerationSection = observer(
         }, [store]);
 
         const selected = store.selectedApplication;
+        const canCreateAccount = Boolean(
+            selected &&
+            selected.status === 'approved' &&
+            !selected.specialistAccountCreatedAt,
+        );
 
         return (
             <div className={styles.root}>
@@ -90,8 +96,8 @@ export const SpecialistApplicationsModerationSection = observer(
                         <p className={styles.subtitle}>
                             Здесь отображаются заявки, отправленные с публичной
                             страницы “Стать специалистом”. Администратор
-                            проверяет анкету, назначает собеседование или
-                            отклоняет заявку.
+                            проверяет анкету, назначает собеседование,
+                            одобряет или отклоняет заявку.
                         </p>
                     </div>
 
@@ -112,6 +118,7 @@ export const SpecialistApplicationsModerationSection = observer(
                     </div>
                 </div>
 
+
                 {store.isLoading ? (
                     <div className={styles.stateCard}>Загрузка заявок...</div>
                 ) : null}
@@ -119,7 +126,6 @@ export const SpecialistApplicationsModerationSection = observer(
                 {!store.isLoading && store.loadError ? (
                     <div className={styles.errorBanner}>{store.loadError}</div>
                 ) : null}
-
 
                 {!store.isLoading && !store.loadError ? (
                     <div className={styles.layout}>
@@ -172,6 +178,7 @@ export const SpecialistApplicationsModerationSection = observer(
                             )}
                         </aside>
 
+
                         <section className={styles.details}>
                             {!selected ? (
                                 <div className={styles.emptyCard}>
@@ -188,7 +195,6 @@ export const SpecialistApplicationsModerationSection = observer(
                                                 {selected.email} · {selected.phone}
                                             </p>
                                         </div>
-
 
                                         <span
                                             className={getStatusClassName(
@@ -236,6 +242,29 @@ export const SpecialistApplicationsModerationSection = observer(
                                                 {selected.reviewedBy || '—'}
                                             </span>
                                         </div>
+
+
+                                        <div className={styles.infoItem}>
+                                            <span className={styles.infoLabel}>
+                                                Кабинет специалиста
+                                            </span>
+                                            <span className={styles.infoValue}>
+                                                {selected.specialistAccountCreatedAt
+                                                    ? `Создан ${formatDate(
+                                                        selected.specialistAccountCreatedAt,
+                                                    )}`
+                                                    : 'Ещё не создан'}
+                                            </span>
+                                        </div>
+
+                                        <div className={styles.infoItem}>
+                                            <span className={styles.infoLabel}>
+                                                Specialist ID
+                                            </span>
+                                            <span className={styles.infoValue}>
+                                                {selected.createdSpecialistId || '—'}
+                                            </span>
+                                        </div>
                                     </div>
 
                                     <div className={styles.aboutBlock}>
@@ -247,7 +276,6 @@ export const SpecialistApplicationsModerationSection = observer(
                                         <h3 className={styles.blockTitle}>
                                             Решение по заявке
                                         </h3>
-
 
                                         <div className={styles.formGrid}>
                                             <label className={styles.field}>
@@ -266,6 +294,7 @@ export const SpecialistApplicationsModerationSection = observer(
                                                     }
                                                 />
                                             </label>
+
 
                                             <label className={styles.fieldWide}>
                                                 <span className={styles.fieldLabel}>
@@ -306,7 +335,6 @@ export const SpecialistApplicationsModerationSection = observer(
                                                     : 'Назначить собеседование'}
                                             </button>
 
-
                                             <button
                                                 className={styles.primaryButton}
                                                 type="button"
@@ -332,6 +360,31 @@ export const SpecialistApplicationsModerationSection = observer(
                                                     ? 'Отклоняем...'
                                                     : 'Отклонить'}
                                             </button>
+
+
+                                            {canCreateAccount ? (
+                                                <button
+                                                    className={styles.createAccountButton}
+                                                    type="button"
+                                                    onClick={() => {
+                                                        if (selected) {
+                                                            import(
+                                                                '@/features/admin-specialists-management'
+                                                            ).then(
+                                                                ({
+                                                                    adminSpecialistsManagementStore,
+                                                                }) => {
+                                                                    adminSpecialistsManagementStore.openForApplication(
+                                                                        selected,
+                                                                    );
+                                                                },
+                                                            );
+                                                        }
+                                                    }}
+                                                >
+                                                    Создать кабинет специалиста
+                                                </button>
+                                            ) : null}
                                         </div>
                                     </div>
                                 </div>
@@ -339,6 +392,19 @@ export const SpecialistApplicationsModerationSection = observer(
                         </section>
                     </div>
                 ) : null}
+
+                <CreateSpecialistAccountModal
+                    reviewedBy={reviewedBy}
+                    onCreated={(result) => {
+                        if (selected) {
+                            store.patchCreatedSpecialistAccount({
+                                applicationId: selected.id,
+                                specialistId: result.specialistId,
+                                specialistSlug: result.specialistSlug,
+                            });
+                        }
+                    }}
+                />
             </div>
         );
     },

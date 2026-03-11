@@ -98,6 +98,28 @@ class SpecialistApplicationsModerationStore {
         this.selectApplication(updated.id);
     }
 
+    patchCreatedSpecialistAccount(params: {
+        applicationId: string;
+        specialistId: string;
+        specialistSlug?: string;
+    }): void {
+        this.applications = this.applications.map((item) => {
+            if (item.id !== params.applicationId) {
+                return item;
+            }
+
+            return {
+                ...item,
+                createdSpecialistId: params.specialistId,
+                createdSpecialistSlug: params.specialistSlug ?? null,
+                specialistAccountCreatedAt: new Date().toISOString(),
+                updatedAt: new Date().toISOString(),
+            };
+        });
+
+        this.selectApplication(params.applicationId);
+    }
+
     async load(): Promise<void> {
         runInAction(() => {
             this.isLoading = true;
@@ -110,6 +132,7 @@ class SpecialistApplicationsModerationStore {
 
             runInAction(() => {
                 this.applications = applications;
+
 
                 if (applications.length > 0) {
                     const nextSelectedId =
@@ -126,7 +149,6 @@ class SpecialistApplicationsModerationStore {
                         applications.find(
                             (item) => item.id === nextSelectedId,
                         ) ?? null;
-
 
                     this.draft = {
                         interviewDate: selected?.interviewDate ?? '',
@@ -243,6 +265,7 @@ class SpecialistApplicationsModerationStore {
             return;
         }
 
+
         runInAction(() => {
             this.isApproving = true;
             this.actionError = '';
@@ -255,7 +278,6 @@ class SpecialistApplicationsModerationStore {
                     reviewComment: this.draft.reviewComment.trim() || undefined,
                     reviewedBy,
                 });
-
 
             runInAction(() => {
                 this.updateApplication(updated);

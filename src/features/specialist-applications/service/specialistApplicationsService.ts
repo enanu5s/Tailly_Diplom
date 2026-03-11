@@ -4,6 +4,7 @@ import { specialistApplicationsApi } from '../api/specialistApplicationsApi';
 import type {
     ApproveSpecialistApplicationPayload,
     AssignInterviewPayload,
+    AttachCreatedSpecialistAccountPayload,
     CreateSpecialistApplicationPayload,
     RejectSpecialistApplicationPayload,
     SpecialistApplication,
@@ -36,5 +37,13 @@ export const specialistApplicationsService = {
         payload: ApproveSpecialistApplicationPayload,
     ): Promise<SpecialistApplication> {
         return specialistApplicationsApi.approveApplication(payload);
+    },
+
+    attachCreatedSpecialistAccount(
+        payload: AttachCreatedSpecialistAccountPayload,
+    ): Promise<SpecialistApplication> {
+        return specialistApplicationsApi.attachCreatedSpecialistAccount(
+            payload,
+        );
     },
 };

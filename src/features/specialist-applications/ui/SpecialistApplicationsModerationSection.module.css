@@ -325,7 +325,8 @@
 
 .primaryButton,
 .secondaryButton,
-.dangerButton {
+.dangerButton,
+.createAccountButton {
     min-height: 46px;
     border-radius: 14px;
     padding: 0 18px;
@@ -352,9 +353,17 @@
     color: #ffffff;
 }
 
+.createAccountButton {
+    border: none;
+    background: #0f766e;
+    color: #ffffff;
+    box-shadow: 0 14px 28px rgba(15, 118, 110, 0.2);
+}
+
 .primaryButton:disabled,
 .secondaryButton:disabled,
-.dangerButton:disabled {
+.dangerButton:disabled,
+.createAccountButton:disabled {
     opacity: 0.7;
     cursor: not-allowed;
 }

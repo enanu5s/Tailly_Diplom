@@ -1,14 +1,17 @@
 // src/features/auth/api/authApi.ts
 
+import { fetchJson } from '@/shared/api/fetchJson';
+import {
+  readManagedSpecialistAccounts,
+  type ManagedSpecialistMockAccount,
+} from '@/shared/lib/mock/specialistAccountsStorage';
+
 import type { UserRole } from '../model/authStore';
 import {
   LoginError,
   type LoginPayload,
   type LoginSuccessResponse,
 } from '../model/types';
-
-// Если путь у fetchJson в проекте другой — поменяй только этот import.
-import { fetchJson } from '@/shared/api/fetchJson';
 
 const USE_MOCK = (import.meta.env.VITE_USE_MOCK_API ?? 'true') === 'true';
 const API_BASE_URL = import.meta.env.VITE_API_BASE_URL ?? '';
@@ -36,7 +39,7 @@ type MockAttemptState = {
   lockUntil: string | null;
 };
 
-const MOCK_AUTH_ACCOUNTS: MockAuthAccount[] = [
+const BASE_AUTH_ACCOUNTS: MockAuthAccount[] = [
   {
     id: 'client-1',
     email: 'client@tailly.local',
@@ -45,18 +48,6 @@ const MOCK_AUTH_ACCOUNTS: MockAuthAccount[] = [
     firstName: 'Елена',
     lastName: 'Смирнова',
     phone: '+7 (900) 000-00-10',
-    isBlocked: false,
-  },
-  {
-    id: 'specialist-1',
-    email: 'specialist@tailly.local',
-    password: '123456',
-    role: 'specialist',
-    firstName: 'Ольга',
-    lastName: 'Кузнецова',
-    phone: '+7 (900) 000-00-20',
-    specialistId: 'specialist-1',
-    specialistSlug: 'olga-kuznetsova',
     isBlocked: false,
   },
   {
@@ -128,6 +119,32 @@ function buildAdminLockUntilIso(): string {
   ).toISOString();
 }
 
+function mapManagedSpecialistAccountToAuthAccount(
+  account: ManagedSpecialistMockAccount,
+): MockAuthAccount {
+  return {
+    id: account.id,
+    email: account.email,
+    password: account.password,
+    role: account.role,
+    firstName: account.firstName,
+    lastName: account.lastName,
+    middleName: account.middleName,
+    phone: account.phone,
+    specialistId: account.specialistId,
+    specialistSlug: account.specialistSlug,
+    isBlocked: account.isBlocked,
+  };
+}
+
+function getMockAuthAccounts(): MockAuthAccount[] {
+  const specialistAccounts = readManagedSpecialistAccounts().map(
+    mapManagedSpecialistAccountToAuthAccount,
+  );
+
+  return [...BASE_AUTH_ACCOUNTS, ...specialistAccounts];
+}
+
 async function mockLogin(
   payload: LoginPayload,
 ): Promise<LoginSuccessResponse> {
@@ -137,15 +154,15 @@ async function mockLogin(
   const password = payload.password;
 
   const account =
-    MOCK_AUTH_ACCOUNTS.find(
+    getMockAuthAccounts().find(
       (item) => item.email.toLowerCase() === email,
     ) ?? null;
+
 
   const isAdminAccount = Boolean(account && isAdminRole(account.role));
 
   if (isAdminAccount) {
     const attemptState = getAdminAttemptState(email);
-
 
     if (
       attemptState.lockUntil &&
