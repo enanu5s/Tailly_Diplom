@@ -1,6 +1,7 @@
 // src/features/specialist-profile/ui/SpecialistMiniCalendar.tsx
 
-import { Link } from 'react-router-dom';
+import type { ReactElement } from 'react';
+import { useNavigate } from 'react-router-dom';
 
 import {
     buildCalendarMonthDays,
@@ -38,9 +39,23 @@ export function SpecialistMiniCalendar({
     calendar,
     monthDate = new Date(),
     editHref,
-}: Props) {
+}: Props): ReactElement {
+    const navigate = useNavigate();
     const { monthLabel, days } = buildCalendarMonthDays(monthDate, calendar);
     const todayIsoDate = toIsoDate(new Date());
+
+    const handleEditCalendarClick = (): void => {
+        console.log('MINI CALENDAR EDIT CLICK');
+        console.log('EDIT_HREF:', editHref);
+        console.log('CURRENT_PATH:', window.location.pathname);
+
+        if (!editHref) {
+            console.error('EDIT_HREF IS EMPTY');
+            return;
+        }
+
+        navigate(editHref);
+    };
 
     return (
         <section className={styles.card} aria-label="Календарь специалиста">
@@ -51,9 +66,13 @@ export function SpecialistMiniCalendar({
                 </div>
 
                 {editHref ? (
-                    <Link to={editHref} className={styles.editLink}>
+                    <button
+                        type="button"
+                        className={styles.editLinkButton}
+                        onClick={handleEditCalendarClick}
+                    >
                         Редактировать календарь
-                    </Link>
+                    </button>
                 ) : null}
             </div>
 
@@ -78,17 +97,26 @@ export function SpecialistMiniCalendar({
                     return (
                         <div
                             key={day.isoDate ?? `empty-${index}`}
-                            className={`${styles.dayCell} ${day.isCurrentMonth ? styles.dayCellCurrent : styles.dayCellEmpty
+                            className={`${styles.dayCell} ${day.isCurrentMonth
+                                    ? styles.dayCellCurrent
+                                    : styles.dayCellEmpty
                                 } ${day.status ? STATUS_CLASS_NAMES[day.status] : ''} ${isToday ? styles.today : ''
                                 } ${isPast ? styles.pastDay : ''}`}
                         >
                             {day.dayNumber ? (
                                 <>
-                                    <span className={styles.dayNumber}>{day.dayNumber}</span>
+                                    <span className={styles.dayNumber}>
+                                        {day.dayNumber}
+                                    </span>
+
+
                                     {day.status &&
                                         day.status !== 'available' &&
                                         day.status !== 'day_off' ? (
-                                        <span className={styles.dot} aria-hidden="true" />
+                                        <span
+                                            className={styles.dot}
+                                            aria-hidden="true"
+                                        />
                                     ) : null}
                                 </>
                             ) : null}

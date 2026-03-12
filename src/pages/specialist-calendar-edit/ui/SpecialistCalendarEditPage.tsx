@@ -306,17 +306,6 @@ export const SpecialistCalendarEditPage = observer(() => {
                                 выбранным датам.
                             </p>
 
-                            <label className={styles.field}>
-                                <span className={styles.fieldLabel}>Активная дата</span>
-                                <input
-                                    className={styles.input}
-                                    type="date"
-                                    value={store.selectedDate}
-                                    onChange={(event) => store.selectDate(event.target.value)}
-                                />
-                            </label>
-
-
                             <div className={styles.statusCards}>
                                 <button
                                     type="button"
@@ -336,8 +325,8 @@ export const SpecialistCalendarEditPage = observer(() => {
                                 <button
                                     type="button"
                                     className={`${styles.statusCard} ${store.selectedStatus === 'fully_booked'
-                                            ? styles.statusCardActive
-                                            : ''
+                                        ? styles.statusCardActive
+                                        : ''
                                         }`}
                                     onClick={() => store.setSelectedStatus('fully_booked')}
                                 >

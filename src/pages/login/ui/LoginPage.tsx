@@ -3,9 +3,9 @@
 import { observer } from 'mobx-react-lite';
 import { useEffect, useSyncExternalStore } from 'react';
 import type { FormEvent, ReactElement } from 'react';
-import { useLocation, useNavigate } from 'react-router-dom';
+import { Link, useLocation, useNavigate } from 'react-router-dom';
 
-import { loginStore, authStore } from '@/features/auth';
+import { authStore, loginStore } from '@/features/auth';
 import { getDefaultAuthorizedRoute } from '@/shared/lib/auth';
 
 import styles from './LoginPage.module.css';
@@ -52,105 +52,124 @@ export const LoginPage = observer((): ReactElement => {
 
   return (
     <section className={styles.page}>
-      <div className={styles.card}>
-        <div className={styles.header}>
-          <span className={styles.badge}>Tailly</span>
+      <div className={styles.container}>
+        <button
+          className={styles.backButton}
+          type="button"
+          onClick={() => navigate(-1)}
+        >
+          ← Назад
+        </button>
 
-          <h1 className={styles.title}>Вход в аккаунт</h1>
+        <div className={styles.card}>
+          <div className={styles.header}>
+            <span className={styles.badge}>Tailly</span>
 
-          <p className={styles.subtitle}>
-            Клиенты, специалисты и администраторы входят через
-            единую форму авторизации.
-          </p>
-        </div>
+            <h1 className={styles.title}>Вход в аккаунт</h1>
 
-        <form className={styles.form} onSubmit={handleSubmit}>
-          <label className={styles.field}>
-            <span className={styles.label}>Email</span>
-
-            <input
-              className={styles.input}
-              type="email"
-              value={loginStore.email}
-              onChange={(event) =>
-                loginStore.setEmail(event.target.value)
-              }
-              placeholder="name@example.com"
-              autoComplete="username"
-              required
-            />
-          </label>
-
-          <label className={styles.field}>
-            <span className={styles.label}>Пароль</span>
-
-            <input
-              className={styles.input}
-              type="password"
-              value={loginStore.password}
-              onChange={(event) =>
-                loginStore.setPassword(event.target.value)
-              }
-              placeholder="Введите пароль"
-              autoComplete="current-password"
-              required
-            />
-          </label>
-
-          {loginStore.failedAttemptsLeft !== null &&
-            loginStore.failedAttemptsLeft > 0 ? (
-            <div className={styles.attempts}>
-              Осталось попыток для администратора:{' '}
-              {loginStore.failedAttemptsLeft}
-            </div>
-          ) : null}
-
-          {loginStore.submitError ? (
-            <div className={styles.error}>
-              {loginStore.submitError}
-            </div>
-          ) : null}
-
-
-          <button
-            className={styles.submitButton}
-            type="submit"
-            disabled={!loginStore.canSubmit}
-          >
-            {loginStore.isSubmitting
-              ? 'Выполняется вход...'
-              : 'Войти'}
-          </button>
-
-          <div className={styles.links}>
-            <button
-              className={styles.linkButton}
-              type="button"
-              onClick={() => navigate('/forgot-password')}
-            >
-              Восстановить пароль
-            </button>
+            <p className={styles.subtitle}>
+              Клиенты, специалисты и администраторы входят через
+              единую форму авторизации.
+            </p>
           </div>
-        </form>
 
-        <div className={styles.demoBlock}>
-          <div className={styles.demoTitle}>Тестовые аккаунты</div>
+          <form className={styles.form} onSubmit={handleSubmit}>
+            <label className={styles.field}>
+              <span className={styles.label}>Email</span>
 
-          <div className={styles.demoList}>
-            <div className={styles.demoItem}>
-              client@tailly.local / 123456
+              <input
+                className={styles.input}
+                type="email"
+                value={loginStore.email}
+                onChange={(event) =>
+                  loginStore.setEmail(event.target.value)
+                }
+                placeholder="name@example.com"
+                autoComplete="username"
+                required
+              />
+            </label>
+
+            <label className={styles.field}>
+              <span className={styles.label}>Пароль</span>
+
+              <input
+                className={styles.input}
+                type="password"
+                value={loginStore.password}
+                onChange={(event) =>
+                  loginStore.setPassword(event.target.value)
+                }
+                placeholder="Введите пароль"
+                autoComplete="current-password"
+                required
+              />
+            </label>
+
+
+            {loginStore.failedAttemptsLeft !== null &&
+              loginStore.failedAttemptsLeft > 0 ? (
+              <div className={styles.attempts}>
+                Осталось попыток для администратора:{' '}
+                {loginStore.failedAttemptsLeft}
+              </div>
+            ) : null}
+
+            {loginStore.submitError ? (
+              <div className={styles.error}>
+                {loginStore.submitError}
+              </div>
+            ) : null}
+
+            <button
+              className={styles.submitButton}
+              type="submit"
+              disabled={!loginStore.canSubmit}
+            >
+              {loginStore.isSubmitting
+                ? 'Выполняется вход...'
+                : 'Войти'}
+            </button>
+
+            <div className={styles.links}>
+              <button
+                className={styles.linkButton}
+                type="button"
+                onClick={() => navigate('/forgot-password')}
+              >
+                Восстановить пароль
+              </button>
+
+              <Link
+                className={styles.linkButton}
+                to="/register"
+              >
+                Регистрация
+              </Link>
+            </div>
+          </form>
+
+          <div className={styles.demoBlock}>
+            <div className={styles.demoTitle}>
+              Тестовые аккаунты
             </div>
 
-            <div className={styles.demoItem}>
-              specialist@tailly.local / 123456
-            </div>
+            <div className={styles.demoList}>
+              <div className={styles.demoItem}>
+                client@tailly.local / 123456
+              </div>
 
-            <div className={styles.demoItem}>
-              admin@tailly.local / 123456
-            </div>
+              <div className={styles.demoItem}>
+                specialist@tailly.local / 123456
+              </div>
 
-            <div className={styles.demoItem}>
-              superadmin@tailly.local / 123456
+              <div className={styles.demoItem}>
+                admin@tailly.local / 123456
+              </div>
+
+              <div className={styles.demoItem}>
+                superadmin@tailly.local / 123456
+              </div>
             </div>
           </div>
         </div>

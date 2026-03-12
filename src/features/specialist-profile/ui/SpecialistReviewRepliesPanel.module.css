@@ -1,188 +1,187 @@
 /* src/features/specialist-profile/ui/SpecialistReviewRepliesPanel.module.css */
 
 .section {
-    width: 100%;
-    max-width: 1280px;
-    margin: 32px auto 0;
-    padding: 0 20px 80px;
+    display: grid;
+    gap: 20px;
 }
 
 .header {
-    margin-bottom: 20px;
+    display: grid;
+    gap: 8px;
 }
 
 .title {
     margin: 0;
     font-size: 28px;
-    line-height: 1.15;
-    color: #111827;
+    color: #0f172a;
 }
 
-.description {
-    margin: 10px 0 0;
-    color: #4b5563;
+.subtitle {
+    margin: 0;
+    color: #475569;
+    line-height: 1.6;
+}
+
+.emptyState {
+    background: #ffffff;
+    border-radius: 18px;
+    box-shadow: 0 18px 50px rgba(15, 23, 42, 0.08);
+    padding: 24px;
+    color: #475569;
     line-height: 1.6;
 }
 
 .list {
-    display: flex;
-    flex-direction: column;
+    display: grid;
     gap: 16px;
 }
 
 .card {
-    padding: 20px;
-    border-radius: 20px;
     background: #ffffff;
-    box-shadow: 0 18px 40px rgba(15, 23, 42, 0.08);
+    border-radius: 18px;
+    box-shadow: 0 18px 50px rgba(15, 23, 42, 0.08);
+    padding: 22px;
+    display: grid;
+    gap: 16px;
 }
 
 .reviewHeader {
     display: flex;
     align-items: flex-start;
     justify-content: space-between;
-    gap: 16px;
+    gap: 12px;
+}
+
+.reviewMeta {
+    display: grid;
+    gap: 6px;
 }
 
 .authorRow {
     display: flex;
-    flex-wrap: wrap;
-    gap: 10px;
     align-items: center;
+    gap: 10px;
+    flex-wrap: wrap;
 }
 
 .author {
     font-size: 18px;
     font-weight: 700;
-    color: #111827;
+    color: #0f172a;
 }
 
-.petName {
-    color: #6b7280;
-    font-size: 14px;
+.rating {
+    display: inline-flex;
+    min-height: 28px;
+    align-items: center;
+    padding: 0 10px;
+    border-radius: 999px;
+    background: rgba(234, 179, 8, 0.14);
+    color: #a16207;
+    font-size: 13px;
+    font-weight: 700;
 }
 
-.meta {
-    display: flex;
-    gap: 12px;
-    margin-top: 8px;
-    color: #6b7280;
+.date {
+    color: #64748b;
     font-size: 14px;
 }
 
 .reviewText {
-    margin: 16px 0 0;
-    color: #374151;
+    margin: 0;
+    color: #334155;
     line-height: 1.7;
+    white-space: pre-wrap;
 }
 
-.replyCard,
-.editorCard {
-    margin-top: 16px;
-    padding: 16px;
-    border-radius: 16px;
+.replyPreview {
+    display: grid;
+    gap: 8px;
     background: #f8fafc;
+    border-radius: 16px;
+    padding: 16px;
 }
 
-.replyTitle {
-    font-size: 14px;
-    font-weight: 700;
-    color: #4338ca;
-}
-
-.replyDate {
-    margin-top: 6px;
+.replyPreviewLabel {
     font-size: 13px;
-    color: #6b7280;
+    font-weight: 700;
+    color: #64748b;
+    text-transform: uppercase;
+    letter-spacing: 0.03em;
 }
 
-.replyText {
-    margin: 10px 0 0;
-    color: #374151;
-    line-height: 1.6;
+.replyPreviewText {
+    margin: 0;
+    color: #0f172a;
+    line-height: 1.65;
+    white-space: pre-wrap;
 }
 
-.label {
-    display: flex;
-    flex-direction: column;
+.formBlock {
+    display: grid;
+    gap: 12px;
+}
+
+.field {
+    display: grid;
     gap: 8px;
 }
 
-.labelText {
+.fieldLabel {
     font-size: 14px;
-    font-weight: 600;
-    color: #374151;
+    font-weight: 700;
+    color: #334155;
 }
 
 .textarea {
-    min-height: 140px;
-    resize: vertical;
-    border: 1px solid #d1d5db;
+    width: 100%;
+    min-height: 110px;
+    box-sizing: border-box;
+    border: 1px solid #cbd5e1;
     border-radius: 14px;
-    padding: 14px 16px;
+    padding: 12px 14px;
+    resize: vertical;
     font: inherit;
-    background: #ffffff;
-    color: #111827;
+    color: #0f172a;
+    outline: none;
+    transition:
+        border-color 0.2s ease,
+        box-shadow 0.2s ease;
 }
 
 .textarea:focus {
-    outline: 2px solid rgba(99, 102, 241, 0.2);
     border-color: #6366f1;
+    box-shadow: 0 0 0 4px rgba(99, 102, 241, 0.12);
+}
+
+.error {
+    border-radius: 12px;
+    background: #fef2f2;
+    color: #b91c1c;
+    padding: 12px 14px;
+    font-size: 14px;
+    line-height: 1.5;
 }
 
 .actions {
     display: flex;
-    gap: 12px;
-    flex-wrap: wrap;
-    margin-top: 16px;
+    justify-content: flex-end;
 }
 
-.primaryButton,
-.secondaryButton {
+.saveButton {
     min-height: 44px;
-    padding: 0 16px;
     border: none;
-    border-radius: 12px;
-    font: inherit;
-    font-weight: 600;
-    cursor: pointer;
-}
-
-.primaryButton {
+    border-radius: 14px;
     background: #6366f1;
     color: #ffffff;
+    padding: 0 18px;
+    font-weight: 700;
+    cursor: pointer;
+    box-shadow: 0 14px 28px rgba(99, 102, 241, 0.22);
 }
 
-.primaryButton:disabled,
-.secondaryButton:disabled {
+.saveButton:disabled {
     opacity: 0.7;
-    cursor: default;
-}
-
-.secondaryButton {
-    background: rgba(99, 102, 241, 0.12);
-    color: #4338ca;
-}
-
-.error {
-    margin-top: 12px;
-    color: #b91c1c;
-    font-size: 14px;
-}
-
-.success {
-    margin-top: 12px;
-    color: #15803d;
-    font-size: 14px;
-}
-
-@media (max-width: 768px) {
-    .section {
-        padding: 0 16px 64px;
-    }
-
-    .reviewHeader {
-        flex-direction: column;
-        align-items: stretch;
-    }
+    cursor: not-allowed;
+    box-shadow: none;
 }

@@ -51,6 +51,19 @@ const BASE_AUTH_ACCOUNTS: MockAuthAccount[] = [
     isBlocked: false,
   },
   {
+    id: 'specialist-1',
+    email: 'specialist@tailly.local',
+    password: '123456',
+    role: 'specialist',
+    firstName: 'Мария',
+    lastName: 'Иванова',
+    middleName: '',
+    phone: '+7 (900) 000-00-20',
+    specialistId: 'specialist-1',
+    specialistSlug: 'maria-ivanova',
+    isBlocked: false,
+  },
+  {
     id: 'admin-1',
     email: 'admin@tailly.local',
     password: '123456',
@@ -145,6 +158,7 @@ function getMockAuthAccounts(): MockAuthAccount[] {
   return [...BASE_AUTH_ACCOUNTS, ...specialistAccounts];
 }
 
+
 async function mockLogin(
   payload: LoginPayload,
 ): Promise<LoginSuccessResponse> {
@@ -157,7 +171,6 @@ async function mockLogin(
     getMockAuthAccounts().find(
       (item) => item.email.toLowerCase() === email,
     ) ?? null;
-
 
   const isAdminAccount = Boolean(account && isAdminRole(account.role));
 

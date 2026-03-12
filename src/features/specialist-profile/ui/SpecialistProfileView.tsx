@@ -517,10 +517,11 @@ export const SpecialistProfileView = observer(({
                             calendar={profile.calendar}
                             editHref={
                                 profile.isOwner
-                                    ? `/specialists/${profile.slug} /calendar/edit`
+                                    ? `/specialists/${profile.slug.trim()}/calendar/edit`
                                     : undefined
                             }
                         />
+
                     </div>
 
                     <div className={styles.badgesColumn}>
