@@ -6,8 +6,8 @@ import { Navigate } from 'react-router-dom';
 import { authStore } from '@/features/auth/model/authStore';
 import { OrdersProductsSection, OrdersServicesSection } from '@/features/orders';
 import { PetsSection } from '@/features/pets';
-import { ProfileMainCard } from '@/features/profile';
 import { profileStore } from '@/features/profile/model/profileStore';
+import { ProfileMainCard } from '@/features/profile/ui/ProfileMainCard';
 
 import styles from './ProfilePage.module.css';
 

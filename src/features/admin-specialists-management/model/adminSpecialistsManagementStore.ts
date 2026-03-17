@@ -2,7 +2,7 @@
 
 import { makeAutoObservable, runInAction } from 'mobx';
 
-import type { SpecialistApplication } from '@/features/specialist-applications';
+import type { SpecialistApplication } from '@/features/specialist-applications/model/types';
 
 import { adminSpecialistsManagementService } from '../service/adminSpecialistsManagementService';
 

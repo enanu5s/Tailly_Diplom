@@ -1,6 +1,5 @@
-// src/shared/api/specialistApplicationApi.ts
-
-import { specialistApplicationsService } from '@/features/specialist-applications';
+// /src/shared/api/specialistApplicationApi.ts
+import { specialistApplicationsService } from '@/features/specialist-applications/service/specialistApplicationsService';
 
 export type SpecialistApplicationRequest = {
   name: string;
