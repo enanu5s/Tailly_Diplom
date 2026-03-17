@@ -1,22 +1,22 @@
 //src/pages/forgot-password/reset/ui/ForgotPasswordResetPage.tsx
 
-import { useEffect, useState } from 'react';
-import { Link, useNavigate } from 'react-router-dom';
-import styles from '../../ForgotPassword.module.css';
-import { usePasswordRecoveryFlow } from '@/features/auth/model/usePasswordRecoveryFlow';
-import { passwordRecoveryService } from '@/features/auth/model/passwordRecoveryService';
+import { useEffect, useState } from "react";
+import { Link, useNavigate } from "react-router-dom";
+import styles from "../../ForgotPassword.module.css";
+import { usePasswordRecoveryFlow } from "@/features/auth/model/usePasswordRecoveryFlow";
+import { passwordRecoveryService } from "@/features/auth/model/passwordRecoveryService";
 
 export const ForgotPasswordResetPage = () => {
   const navigate = useNavigate();
   const flow = usePasswordRecoveryFlow();
 
-  const [p1, setP1] = useState('');
-  const [p2, setP2] = useState('');
+  const [p1, setP1] = useState("");
+  const [p2, setP2] = useState("");
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
 
   useEffect(() => {
-    if (!flow.resetToken) navigate('/forgot-password', { replace: true });
+    if (!flow.resetToken) navigate("/forgot-password", { replace: true });
   }, [flow.resetToken, navigate]);
 
   const onSubmit = async (e: React.FormEvent) => {
@@ -26,11 +26,11 @@ export const ForgotPasswordResetPage = () => {
     if (!flow.resetToken) return;
 
     if (p1.length < 6) {
-      setError('Пароль должен быть минимум 6 символов');
+      setError("Пароль должен быть минимум 6 символов");
       return;
     }
     if (p1 !== p2) {
-      setError('Пароли не совпадают');
+      setError("Пароли не совпадают");
       return;
     }
 
@@ -38,9 +38,12 @@ export const ForgotPasswordResetPage = () => {
     try {
       await passwordRecoveryService.reset(flow.resetToken, p1);
       // после смены пароля обычно кидают на логин
-      navigate('/login', { replace: true });
-    } catch (e: any) {
-      setError(e?.message ?? 'Не удалось обновить пароль');
+      navigate("/login", { replace: true });
+    } catch (error: unknown) {
+      const message =
+        error instanceof Error ? error.message : "Не удалось обновить пароль";
+
+      setError(message);
     } finally {
       setLoading(false);
     }
@@ -78,8 +81,12 @@ export const ForgotPasswordResetPage = () => {
 
             {error && <div className={styles.error}>{error}</div>}
 
-            <button className={styles.submitButton} disabled={loading} type="submit">
-              {loading ? 'Сохраняем...' : 'Сохранить пароль'}
+            <button
+              className={styles.submitButton}
+              disabled={loading}
+              type="submit"
+            >
+              {loading ? "Сохраняем..." : "Сохранить пароль"}
             </button>
 
             <div className={styles.hint}>

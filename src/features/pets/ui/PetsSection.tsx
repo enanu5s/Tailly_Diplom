@@ -1,8 +1,10 @@
 //src/features/pets/ui/PetsSection.tsx
-import { useEffect, useRef } from 'react';
-import { observer } from 'mobx-react-lite';
-import { petsStore } from '../model/petsStore';
-import styles from './PetsSection.module.css';
+import { useEffect, useRef } from "react";
+import { observer } from "mobx-react-lite";
+import { petsStore } from "../model/petsStore";
+import styles from "./PetsSection.module.css";
+
+import type { Pet, PetType } from "../model/types";
 
 export const PetsSection = observer(() => {
   const rootRef = useRef<HTMLDivElement | null>(null);
@@ -15,19 +17,27 @@ export const PetsSection = observer(() => {
     <section id="pets-section" className={styles.section} ref={rootRef}>
       <div className={styles.headRow}>
         <h2 className={styles.title}>Питомцы клиента</h2>
-        <button className={styles.addBtn} type="button" onClick={() => petsStore.startAdd()}>
+        <button
+          className={styles.addBtn}
+          type="button"
+          onClick={() => petsStore.startAdd()}
+        >
           Добавить питомца
         </button>
       </div>
 
       {petsStore.error && <div className={styles.error}>{petsStore.error}</div>}
-      {petsStore.loading && petsStore.pets.length === 0 && <div className={styles.state}>Загружаем питомцев...</div>}
+      {petsStore.loading && petsStore.pets.length === 0 && (
+        <div className={styles.state}>Загружаем питомцев...</div>
+      )}
 
       <div className={styles.list}>
         {/* если сейчас редактируем добавление — показываем draft как карточку */}
-        {petsStore.editingId && petsStore.draft && !petsStore.pets.some((p) => p.id === petsStore.editingId) && (
-          <PetCard id={petsStore.editingId} />
-        )}
+        {petsStore.editingId &&
+          petsStore.draft &&
+          !petsStore.pets.some((p) => p.id === petsStore.editingId) && (
+            <PetCard id={petsStore.editingId} />
+          )}
 
         {petsStore.pets.map((p) => (
           <PetCard key={p.id} id={p.id} />
@@ -42,17 +52,18 @@ const PetCard = observer(({ id }: { id: string }) => {
   const isEditing = petsStore.editingId === id;
   const isExpanded = petsStore.expanded.has(id);
   const draft = isEditing ? petsStore.draft : null;
-  
 
   const view = pet ?? draft;
   if (!view) return null;
 
-  const breeds = petsStore.getBreedsForType(isEditing ? draft?.type ?? null : view.type);
+  const breeds = petsStore.getBreedsForType(
+    isEditing ? (draft?.type ?? null) : view.type,
+  );
 
-  const breedTitle =
-    view.breedId
-      ? petsStore.breeds.find((b) => String(b.id) === String(view.breedId))?.title ?? '—'
-      : '—';
+  const breedTitle = view.breedId
+    ? (petsStore.breeds.find((b) => String(b.id) === String(view.breedId))
+        ?.title ?? "—")
+    : "—";
 
   return (
     <div className={styles.card}>
@@ -60,7 +71,11 @@ const PetCard = observer(({ id }: { id: string }) => {
         <div className={styles.photoCol}>
           <div className={styles.photoWrap}>
             {view.photoUrl ? (
-              <img className={styles.photo} src={view.photoUrl} alt={view.name || 'Питомец'} />
+              <img
+                className={styles.photo}
+                src={view.photoUrl}
+                alt={view.name || "Питомец"}
+              />
             ) : (
               <div className={styles.photoPlaceholder}>Фото</div>
             )}
@@ -86,9 +101,9 @@ const PetCard = observer(({ id }: { id: string }) => {
           <div className={styles.row2}>
             <Field
               label="Кличка"
-              value={isEditing ? draft?.name ?? '' : view.name}
+              value={isEditing ? (draft?.name ?? "") : view.name}
               editable={isEditing}
-              onChange={(v) => petsStore.setDraft('name', v)}
+              onChange={(v) => petsStore.setDraft("name", v)}
             />
 
             <div className={styles.field}>
@@ -96,8 +111,13 @@ const PetCard = observer(({ id }: { id: string }) => {
               {isEditing ? (
                 <select
                   className={styles.select}
-                  value={draft?.type ?? ''}
-                  onChange={(e) => petsStore.setDraft('type', (e.target.value || null) as any)}
+                  value={draft?.type ?? ""}
+                  onChange={(e) =>
+                    petsStore.setDraft(
+                      "type",
+                      (e.target.value || null) as PetType | null,
+                    )
+                  }
                 >
                   <option value="">Не выбран</option>
                   <option value="dog">Собака</option>
@@ -105,12 +125,14 @@ const PetCard = observer(({ id }: { id: string }) => {
                   <option value="other">Другое</option>
                 </select>
               ) : (
-                <div className={styles.value}>{view.type ? mapType(view.type) : '—'}</div>
+                <div className={styles.value}>
+                  {view.type ? mapType(view.type) : "—"}
+                </div>
               )}
             </div>
           </div>
 
-<div className={styles.row3}>
+          <div className={styles.row3}>
             <div className={styles.field}>
               <div className={styles.label}>Возраст</div>
               {isEditing ? (
@@ -120,7 +142,9 @@ const PetCard = observer(({ id }: { id: string }) => {
                     type="number"
                     min={0}
                     value={draft?.ageYears ?? 0}
-                    onChange={(e) => petsStore.setDraft('ageYears', Number(e.target.value))}
+                    onChange={(e) =>
+                      petsStore.setDraft("ageYears", Number(e.target.value))
+                    }
                     placeholder="годы"
                   />
                   <input
@@ -129,7 +153,9 @@ const PetCard = observer(({ id }: { id: string }) => {
                     min={0}
                     max={11}
                     value={draft?.ageMonths ?? 0}
-                    onChange={(e) => petsStore.setDraft('ageMonths', Number(e.target.value))}
+                    onChange={(e) =>
+                      petsStore.setDraft("ageMonths", Number(e.target.value))
+                    }
                     placeholder="мес"
                   />
                 </div>
@@ -145,7 +171,7 @@ const PetCard = observer(({ id }: { id: string }) => {
               {isEditing ? (
                 <select
                   className={styles.select}
-                  value={draft?.breedId ?? ''}
+                  value={draft?.breedId ?? ""}
                   onChange={(e) => petsStore.setBreed(e.target.value || null)}
                 >
                   <option value="">Не выбрано</option>
@@ -165,8 +191,13 @@ const PetCard = observer(({ id }: { id: string }) => {
               {isEditing ? (
                 <select
                   className={styles.select}
-                  value={draft?.size ?? ''}
-                  onChange={(e) => petsStore.setDraft('size', (e.target.value || null) as any)}
+                  value={draft?.size ?? ""}
+                  onChange={(e) =>
+                    petsStore.setDraft(
+                      "size",
+                      (e.target.value || null) as Pet["size"],
+                    )
+                  }
                 >
                   <option value="">Не выбран</option>
                   <option value="xs">XS</option>
@@ -176,80 +207,123 @@ const PetCard = observer(({ id }: { id: string }) => {
                   <option value="xl">XL</option>
                 </select>
               ) : (
-                <div className={styles.value}>{view.size ? view.size.toUpperCase() : '—'}</div>
+                <div className={styles.value}>
+                  {view.size ? view.size.toUpperCase() : "—"}
+                </div>
               )}
             </div>
           </div>
         </div>
 
-        <button className={styles.expandBtn} type="button" onClick={() => petsStore.toggleExpand(id)} aria-label="Раскрыть">
-          {isExpanded ? '▾' : '▸'}
+        <button
+          className={styles.expandBtn}
+          type="button"
+          onClick={() => petsStore.toggleExpand(id)}
+          aria-label="Раскрыть"
+        >
+          {isExpanded ? "▾" : "▸"}
         </button>
       </div>
 
-{isExpanded && (
+      {isExpanded && (
         <div className={styles.extra}>
           <div className={styles.extraGrid}>
             <SelectField
               label="Пол"
-              value={isEditing ? draft?.gender ?? '' : view.gender ?? ''}
+              value={isEditing ? (draft?.gender ?? "") : (view.gender ?? "")}
               editable={isEditing}
               options={[
-                ['', '—'],
-                ['male', 'Самец'],
-                ['female', 'Самка'],
+                ["", "—"],
+                ["male", "Самец"],
+                ["female", "Самка"],
               ]}
-              onChange={(v) => petsStore.setDraft('gender', (v || null) as any)}
+              onChange={(v) =>
+                petsStore.setDraft("gender", (v || null) as Pet["gender"])
+              }
             />
             <SelectField
               label="Отношение к другим питомцам"
-              value={isEditing ? draft?.toOtherPets ?? '' : view.toOtherPets ?? ''}
+              value={
+                isEditing
+                  ? (draft?.toOtherPets ?? "")
+                  : (view.toOtherPets ?? "")
+              }
               editable={isEditing}
               options={[
-                ['', '—'],
-                ['friendly', 'Дружелюбное'],
-                ['neutral', 'Нейтральное'],
-                ['aggressive', 'Агрессивное'],
-                ['unknown', 'Неизвестно'],
+                ["", "—"],
+                ["friendly", "Дружелюбное"],
+                ["neutral", "Нейтральное"],
+                ["aggressive", "Агрессивное"],
+                ["unknown", "Неизвестно"],
               ]}
-              onChange={(v) => petsStore.setDraft('toOtherPets', (v || null) as any)}
+              onChange={(v) =>
+                petsStore.setDraft(
+                  "toOtherPets",
+                  (v || null) as Pet["toOtherPets"],
+                )
+              }
             />
             <SelectField
               label="Отношение к детям до 10 лет"
-              value={isEditing ? draft?.toKidsUnder10 ?? '' : view.toKidsUnder10 ?? ''}
+              value={
+                isEditing
+                  ? (draft?.toKidsUnder10 ?? "")
+                  : (view.toKidsUnder10 ?? "")
+              }
               editable={isEditing}
               options={[
-                ['', '—'],
-                ['friendly', 'Дружелюбное'],
-                ['neutral', 'Нейтральное'],
-                ['aggressive', 'Агрессивное'],
-                ['unknown', 'Неизвестно'],
+                ["", "—"],
+                ["friendly", "Дружелюбное"],
+                ["neutral", "Нейтральное"],
+                ["aggressive", "Агрессивное"],
+                ["unknown", "Неизвестно"],
               ]}
-              onChange={(v) => petsStore.setDraft('toKidsUnder10', (v || null) as any)}
+              onChange={(v) =>
+                petsStore.setDraft(
+                  "toKidsUnder10",
+                  (v || null) as Pet["toKidsUnder10"],
+                )
+              }
             />
             <SelectField
               label="Остаётся один дома"
-              value={isEditing ? draft?.staysHomeAlone ?? '' : view.staysHomeAlone ?? ''}
+              value={
+                isEditing
+                  ? (draft?.staysHomeAlone ?? "")
+                  : (view.staysHomeAlone ?? "")
+              }
               editable={isEditing}
               options={[
-                ['', '—'],
-                ['ok', 'Да'],
-                ['not_ok', 'Нет'],
-                ['unknown', 'Неизвестно'],
+                ["", "—"],
+                ["ok", "Да"],
+                ["not_ok", "Нет"],
+                ["unknown", "Неизвестно"],
               ]}
-              onChange={(v) => petsStore.setDraft('staysHomeAlone', (v || null) as any)}
+              onChange={(v) =>
+                petsStore.setDraft(
+                  "staysHomeAlone",
+                  (v || null) as Pet["staysHomeAlone"],
+                )
+              }
             />
             <SelectField
               label="Вакцинации"
-              value={isEditing ? draft?.vaccinated ?? '' : view.vaccinated ?? ''}
+              value={
+                isEditing ? (draft?.vaccinated ?? "") : (view.vaccinated ?? "")
+              }
               editable={isEditing}
               options={[
-                ['', '—'],
-                ['yes', 'Да'],
-                ['no', 'Нет'],
-                ['unknown', 'Неизвестно'],
+                ["", "—"],
+                ["yes", "Да"],
+                ["no", "Нет"],
+                ["unknown", "Неизвестно"],
               ]}
-              onChange={(v) => petsStore.setDraft('vaccinated', (v || null) as any)}
+              onChange={(v) =>
+                petsStore.setDraft(
+                  "vaccinated",
+                  (v || null) as Pet["vaccinated"],
+                )
+              }
             />
           </div>
 
@@ -259,48 +333,71 @@ const PetCard = observer(({ id }: { id: string }) => {
               <textarea
                 className={styles.textarea}
                 rows={4}
-                value={draft?.notes ?? ''}
-                onChange={(e) => petsStore.setDraft('notes', e.target.value)}
+                value={draft?.notes ?? ""}
+                onChange={(e) => petsStore.setDraft("notes", e.target.value)}
                 placeholder="Например: особенности кормления, страхи, любимые игрушки..."
               />
             ) : (
-              <div className={styles.value}>{view.notes || '—'}</div>
+              <div className={styles.value}>{view.notes || "—"}</div>
             )}
           </div>
 
           <div className={styles.deleteRow}>
-            {petsStore.deleteError && <div className={styles.error}>{petsStore.deleteError}</div>}
+            {petsStore.deleteError && (
+              <div className={styles.error}>{petsStore.deleteError}</div>
+            )}
 
             <button
               className={styles.dangerBtn}
               type="button"
-              disabled={petsStore.deleteLoadingId === id || petsStore.saveLoading}
+              disabled={
+                petsStore.deleteLoadingId === id || petsStore.saveLoading
+              }
               onClick={() => {
-                const ok = window.confirm('Удалить питомца? Действие необратимо.');
+                const ok = window.confirm(
+                  "Удалить питомца? Действие необратимо.",
+                );
                 if (!ok) return;
                 void petsStore.deletePet(id);
               }}
             >
-              {petsStore.deleteLoadingId === id ? 'Удаляем...' : 'Удалить питомца'}
+              {petsStore.deleteLoadingId === id
+                ? "Удаляем..."
+                : "Удалить питомца"}
             </button>
           </div>
-
         </div>
       )}
 
       <div className={styles.actions}>
         {isEditing ? (
           <>
-            {petsStore.saveError && <div className={styles.error}>{petsStore.saveError}</div>}
-            <button className={styles.saveBtn} type="button" disabled={petsStore.saveLoading} onClick={() => void petsStore.save()}>
-              {petsStore.saveLoading ? 'Сохраняем...' : 'Сохранить изменения'}
+            {petsStore.saveError && (
+              <div className={styles.error}>{petsStore.saveError}</div>
+            )}
+            <button
+              className={styles.saveBtn}
+              type="button"
+              disabled={petsStore.saveLoading}
+              onClick={() => void petsStore.save()}
+            >
+              {petsStore.saveLoading ? "Сохраняем..." : "Сохранить изменения"}
             </button>
-            <button className={styles.cancelBtn} type="button" onClick={() => petsStore.cancelEdit()} disabled={petsStore.saveLoading}>
+            <button
+              className={styles.cancelBtn}
+              type="button"
+              onClick={() => petsStore.cancelEdit()}
+              disabled={petsStore.saveLoading}
+            >
               Отмена
             </button>
           </>
         ) : (
-          <button className={styles.editBtn} type="button" onClick={() => petsStore.startEdit(id)}>
+          <button
+            className={styles.editBtn}
+            type="button"
+            onClick={() => petsStore.startEdit(id)}
+          >
             Редактировать
           </button>
         )}
@@ -309,14 +406,23 @@ const PetCard = observer(({ id }: { id: string }) => {
   );
 });
 
-function Field(props: { label: string; value: string; editable: boolean; onChange: (v: string) => void }) {
+function Field(props: {
+  label: string;
+  value: string;
+  editable: boolean;
+  onChange: (v: string) => void;
+}) {
   return (
     <div className={styles.field}>
       <div className={styles.label}>{props.label}</div>
       {props.editable ? (
-        <input className={styles.input} value={props.value} onChange={(e) => props.onChange(e.target.value)} />
+        <input
+          className={styles.input}
+          value={props.value}
+          onChange={(e) => props.onChange(e.target.value)}
+        />
       ) : (
-        <div className={styles.value}>{props.value || '—'}</div>
+        <div className={styles.value}>{props.value || "—"}</div>
       )}
     </div>
   );
@@ -333,7 +439,11 @@ function SelectField(props: {
     <div className={styles.field}>
       <div className={styles.label}>{props.label}</div>
       {props.editable ? (
-        <select className={styles.select} value={props.value} onChange={(e) => props.onChange(e.target.value)}>
+        <select
+          className={styles.select}
+          value={props.value}
+          onChange={(e) => props.onChange(e.target.value)}
+        >
           {props.options.map(([v, t]) => (
             <option key={v} value={v}>
               {t}
@@ -341,14 +451,16 @@ function SelectField(props: {
           ))}
         </select>
       ) : (
-        <div className={styles.value}>{props.options.find(([v]) => v === props.value)?.[1] ?? '—'}</div>
+        <div className={styles.value}>
+          {props.options.find(([v]) => v === props.value)?.[1] ?? "—"}
+        </div>
       )}
     </div>
   );
 }
 
-function mapType(t: any) {
-  if (t === 'dog') return 'Собака';
-  if (t === 'cat') return 'Кошка';
-  return 'Другое';
+function mapType(t: "dog" | "cat" | "other") {
+  if (t === "dog") return "Собака";
+  if (t === "cat") return "Кошка";
+  return "Другое";
 }

@@ -42,10 +42,6 @@ export const ShopFavoritesPage = observer(() => {
         };
     }, []);
 
-    useEffect(() => {
-        void shopFavoritesPageStore.load();
-    }, [shopFavoritesStore.productIds.length]);
-
     const { products, error, isEmpty, isInitialized, isLoading } = shopFavoritesPageStore;
 
     return (

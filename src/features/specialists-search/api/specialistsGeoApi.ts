@@ -1,210 +1,109 @@
-//src/features/specialists-search/api/specialistsGeoApi.ts
+// src/features/specialists-search/api/specialistsGeoApi.ts
+
+import { specialistsGeoMockApi } from './specialistsGeoApi.mock';
+
+import type { GeoPoint, GeoSuggestItem } from '../data/mockSpecialistsGeo';
 
 const USE_MOCK = (import.meta.env.VITE_USE_MOCK_API ?? 'true') === 'true';
 const MAPS_API_KEY = import.meta.env.VITE_2GIS_API_KEY ?? '';
 
-export type GeoPoint = {
-    lon: number;
-    lat: number;
-};
-
-export type GeoSuggestItem = {
-    name: string;
-    fullName: string;
-    point: GeoPoint | null;
-    type: string | null;
-};
-
-type SuggestResponseItem = {
-    name?: string;
-    full_name?: string;
-    type?: string;
-    point?: {
-        lon?: number;
-        lat?: number;
-    };
-};
-
-type SuggestResponse = {
-    meta?: {
-        code?: number;
-    };
-    result?: {
-        items?: SuggestResponseItem[];
-    };
-};
-
-type GeocodeResponse = {
-    result?: {
-        items?: Array<{
-            point?: {
-                lon?: number;
-                lat?: number;
-            };
-        }>;
-    };
-};
-
-function normalizeSuggestItems(items: SuggestResponseItem[] = []): GeoSuggestItem[] {
-    return items.map((item) => {
-        const lon = item.point?.lon;
-        const lat = item.point?.lat;
-
-        return {
-            name: item.name ?? '',
-            fullName: item.full_name ?? item.name ?? '',
-            type: item.type ?? null,
-            point:
-                typeof lon === 'number' && typeof lat === 'number'
-                    ? { lon, lat }
-                    : null,
-        };
-    });
+async function realSuggestCities(query: string): Promise<GeoSuggestItem[]> {
+  return specialistsGeoMockApi.suggestCities(query);
 }
 
-function dedupeSuggestItems(items: GeoSuggestItem[]): GeoSuggestItem[] {
-    const seen = new Set<string>();
-
-    return items.filter((item) => {
-        const key = `${item.name}::${item.fullName}::${item.type ?? ''}`;
-
-        if (seen.has(key)) {
-            return false;
-        }
-
-        seen.add(key);
-        return true;
-    });
+async function realGeocodeLocation(query: string): Promise<GeoPoint | null> {
+  return specialistsGeoMockApi.geocodeLocation(query);
 }
 
-function buildDirect2GisUrl(path: string, params: URLSearchParams): string {
-    return `https://catalog.api.2gis.com${path}?${params.toString()}`;
+async function realSuggestDistricts(
+  districtQuery: string,
+  cityQuery?: string,
+): Promise<GeoSuggestItem[]> {
+  return specialistsGeoMockApi.suggestDistricts(districtQuery, cityQuery);
 }
 
-
-
-async function requestJson<T>(url: string): Promise<T> {
-    const response = await fetch(url, {
-        method: 'GET',
-    });
-
-    if (!response.ok) {
-        const errorText = await response.text().catch(() => '');
-        throw new Error(errorText || `HTTP ${response.status}`);
-    }
-
-    return (await response.json()) as T;
-}
-
-async function requestSuggest(query: string): Promise<SuggestResponse> {
-    const params = new URLSearchParams({
-        q: query.trim(),
-        suggest_type: 'address',
-        fields: 'items.point,items.name,items.full_name,items.type',
-        key: MAPS_API_KEY,
-        locale: 'ru_RU',
-    });
-
-    const url = USE_MOCK
-        ? buildDirect2GisUrl('/3.0/suggests', params)
-        : buildDirect2GisUrl('/3.0/suggests', params);
-
-    return requestJson<SuggestResponse>(url);
-}
-
-async function requestGeocode(query: string): Promise<GeocodeResponse> {
-    const params = new URLSearchParams({
-        q: query.trim(),
-        fields: 'items.point',
-        key: MAPS_API_KEY,
-        locale: 'ru_RU',
-        type: 'adm_div.city,adm_div.settlement,adm_div.place,adm_div.district',
-    });
-
-    const url = USE_MOCK
-        ? buildDirect2GisUrl('/3.0/items/geocode', params)
-        : buildDirect2GisUrl('/3.0/items/geocode', params);
-
-    return requestJson<GeocodeResponse>(url);
+async function realGeocodeCity(query: string): Promise<GeoPoint | null> {
+  return specialistsGeoMockApi.geocodeCity(query);
 }
 
 export const specialistsGeoApi = {
-    async suggestCities(query: string): Promise<GeoSuggestItem[]> {
-        const normalizedQuery = query.trim();
+  async suggestCities(query: string): Promise<GeoSuggestItem[]> {
+    const normalizedQuery = query.trim();
 
-        if (normalizedQuery.length < 2) {
-            return [];
-        }
+    if (normalizedQuery.length < 2) {
+      return [];
+    }
 
-        if (!MAPS_API_KEY) {
-            throw new Error('VITE_2GIS_API_KEY is not set');
-        }
+    if (!MAPS_API_KEY) {
+      throw new Error('VITE_2GIS_API_KEY is not set');
+    }
 
-        const data = await requestSuggest(normalizedQuery);
+    if (USE_MOCK) {
+      return specialistsGeoMockApi.suggestCities(normalizedQuery);
+    }
 
-        if (data?.meta?.code !== 200 || !Array.isArray(data?.result?.items)) {
-            return [];
-        }
+    return realSuggestCities(normalizedQuery);
+  },
 
-        const normalized = normalizeSuggestItems(data.result.items);
+  async geocodeLocation(query: string): Promise<GeoPoint | null> {
+    const normalizedQuery = query.trim();
 
-        return dedupeSuggestItems(normalized).slice(0, 8);
-    },
+    if (!normalizedQuery) {
+      return null;
+    }
 
-    async geocodeLocation(query: string): Promise<GeoPoint | null> {
-        const normalizedQuery = query.trim();
+    if (!MAPS_API_KEY) {
+      throw new Error('VITE_2GIS_API_KEY is not set');
+    }
 
-        if (!normalizedQuery) {
-            return null;
-        }
+    if (USE_MOCK) {
+      return specialistsGeoMockApi.geocodeLocation(normalizedQuery);
+    }
 
-        if (!MAPS_API_KEY) {
-            throw new Error('VITE_2GIS_API_KEY is not set');
-        }
+    return realGeocodeLocation(normalizedQuery);
+  },
 
-        const data = await requestGeocode(normalizedQuery);
-        const point = data?.result?.items?.[0]?.point;
+  async suggestDistricts(
+    districtQuery: string,
+    cityQuery?: string,
+  ): Promise<GeoSuggestItem[]> {
+    const normalizedDistrictQuery = districtQuery.trim();
 
-        if (typeof point?.lon === 'number' && typeof point?.lat === 'number') {
-            return {
-                lon: point.lon,
-                lat: point.lat,
-            };
-        }
+    if (normalizedDistrictQuery.length < 2) {
+      return [];
+    }
 
-        return null;
-    },
+    if (!MAPS_API_KEY) {
+      throw new Error('VITE_2GIS_API_KEY is not set');
+    }
 
-    async suggestDistricts(
-        districtQuery: string,
-        cityQuery?: string,
-    ): Promise<GeoSuggestItem[]> {
-        const normalizedDistrictQuery = districtQuery.trim();
-        const normalizedCityQuery = cityQuery?.trim() ?? '';
+    if (USE_MOCK) {
+      return specialistsGeoMockApi.suggestDistricts(
+        normalizedDistrictQuery,
+        cityQuery,
+      );
+    }
 
-        if (normalizedDistrictQuery.length < 2) {
-            return [];
-        }
-        if (!MAPS_API_KEY) {
-            throw new Error('VITE_2GIS_API_KEY is not set');
-        }
+    return realSuggestDistricts(normalizedDistrictQuery, cityQuery);
+  },
 
-        const compositeQuery = normalizedCityQuery
-            ? `${normalizedCityQuery}, ${normalizedDistrictQuery}`
-            : normalizedDistrictQuery;
+  async geocodeCity(query: string): Promise<GeoPoint | null> {
+    const normalizedQuery = query.trim();
 
-        const data = await requestSuggest(compositeQuery);
+    if (!normalizedQuery) {
+      return null;
+    }
 
-        if (data?.meta?.code !== 200 || !Array.isArray(data?.result?.items)) {
-            return [];
-        }
+    if (!MAPS_API_KEY) {
+      throw new Error('VITE_2GIS_API_KEY is not set');
+    }
 
-        const normalized = normalizeSuggestItems(data.result.items);
+    if (USE_MOCK) {
+      return specialistsGeoMockApi.geocodeCity(normalizedQuery);
+    }
 
-        return dedupeSuggestItems(normalized).slice(0, 8);
-    },
-
-    async geocodeCity(query: string): Promise<GeoPoint | null> {
-        return this.geocodeLocation(query);
-    },
+    return realGeocodeCity(normalizedQuery);
+  },
 };
+
+export type { GeoPoint, GeoSuggestItem };

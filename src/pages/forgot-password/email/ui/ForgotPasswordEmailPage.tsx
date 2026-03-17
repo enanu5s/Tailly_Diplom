@@ -1,25 +1,28 @@
 //src/pages/forgot-password/email/ui/ForgotPasswordEmailPage.tsx
 
-import { useState } from 'react';
-import { Link, useNavigate } from 'react-router-dom';
-import styles from '../../ForgotPassword.module.css';
-import { passwordRecoveryService } from '@/features/auth/model/passwordRecoveryService';
+import { useState } from "react";
+import { Link, useNavigate } from "react-router-dom";
+import styles from "../../ForgotPassword.module.css";
+import { passwordRecoveryService } from "@/features/auth/model/passwordRecoveryService";
 
 export const ForgotPasswordEmailPage = () => {
   const navigate = useNavigate();
-  const [email, setEmail] = useState('');
+  const [email, setEmail] = useState("");
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
 
-  const onSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
+  const onSubmit = async (error: React.FormEvent) => {
+    error.preventDefault();
     setError(null);
     setLoading(true);
     try {
       await passwordRecoveryService.start(email);
-      navigate('/forgot-password/verify');
-    } catch (e: any) {
-      setError(e?.message ?? 'Не удалось отправить код');
+      navigate("/forgot-password/verify");
+    } catch (error: unknown) {
+      const message =
+        error instanceof Error ? error.message : "Что-то пошло не так";
+
+      setError(message);
     } finally {
       setLoading(false);
     }
@@ -48,8 +51,12 @@ export const ForgotPasswordEmailPage = () => {
 
             {error && <div className={styles.error}>{error}</div>}
 
-            <button className={styles.submitButton} disabled={loading} type="submit">
-              {loading ? 'Отправляем...' : 'Отправить код'}
+            <button
+              className={styles.submitButton}
+              disabled={loading}
+              type="submit"
+            >
+              {loading ? "Отправляем..." : "Отправить код"}
             </button>
 
             <div className={styles.actionsRow}>
@@ -57,14 +64,14 @@ export const ForgotPasswordEmailPage = () => {
                 type="button"
                 className={styles.linkButton}
                 onClick={() => {
-                  setEmail('');
+                  setEmail("");
                   passwordRecoveryService.resetFlow();
                 }}
               >
                 Очистить
               </button>
 
-              <span style={{ color: '#6b7280', fontSize: '0.95rem' }}>
+              <span style={{ color: "#6b7280", fontSize: "0.95rem" }}>
                 (в мок-режиме код: 123456)
               </span>
             </div>

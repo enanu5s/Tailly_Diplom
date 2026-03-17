@@ -4,8 +4,14 @@ import { request } from '@/shared/api/http';
 
 import type { AuthUser } from '../model/authStore';
 
+import {
+  mockCompleteProfile,
+  mockGetCities,
+  mockStartRegister,
+  mockVerifyCode,
+} from './registerApi.mock';
+
 const USE_MOCK = (import.meta.env.VITE_USE_MOCK_API ?? 'true') === 'true';
-const API_BASE_URL = import.meta.env.VITE_API_BASE_URL ?? '';
 
 export type StartRegisterRequest = {
   email: string;
@@ -44,103 +50,32 @@ export type CompleteProfileResponse = {
   };
 };
 
-const mockDb: {
-  lastCode: string;
-  registrationId: string;
-  verificationToken: string;
-  email: string;
-  cities: City[];
-} = {
-  lastCode: '123456',
-  registrationId: 'reg_1',
-  verificationToken: 'verif_1',
-  email: '',
-  cities: [
-    { id: 'msk', name: 'Москва' },
-    { id: 'spb', name: 'Санкт-Петербург' },
-    { id: 'kzn', name: 'Казань' },
-    { id: 'ekb', name: 'Екатеринбург' },
-  ],
-};
-
-function delay(ms: number): Promise<void> {
-  return new Promise((resolve) => {
-    window.setTimeout(resolve, ms);
-  });
-}
-
-async function mockStartRegister(dto: StartRegisterRequest): Promise<StartRegisterResponse> {
-  await delay(500);
-  mockDb.email = dto.email.trim().toLowerCase();
-
-  return {
-    registrationId: mockDb.registrationId,
-  };
-}
-
-async function mockVerifyCode(dto: VerifyCodeRequest): Promise<VerifyCodeResponse> {
-  await delay(400);
-
-  if (dto.code !== mockDb.lastCode) {
-    throw new Error('Неверный код (мок).\nПопробуй 123456');
-  }
-
-  return {
-    verificationToken: mockDb.verificationToken,
-  };
-}
-
-async function mockGetCities(): Promise<City[]> {
-  await delay(300);
-
-  return JSON.parse(JSON.stringify(mockDb.cities)) as City[];
-}
-
-async function mockCompleteProfile(
-  dto: CompleteProfileRequest,
-): Promise<CompleteProfileResponse> {
-  await delay(500);
-
-  const firstName = dto.firstName.trim();
-  const lastName = dto.lastName.trim();
-  const fullName = `${firstName} ${lastName}`.trim();
-
-  return {
-    accessToken: 'mock-access-token-client',
-    user: {
-      id: 'user-client-registered',
-      email: mockDb.email || 'client@tailly.ru',
-      role: 'client',
-      name: fullName || 'Новый пользователь',
-      firstName: firstName || undefined,
-      lastName: lastName || undefined,
-      cityId: dto.cityId,
-    },
-  };
-}
-
-async function realStartRegister(dto: StartRegisterRequest): Promise<StartRegisterResponse> {
-  return request<StartRegisterResponse>(`${API_BASE_URL} / auth / register / start`, {
+async function realStartRegister(
+  dto: StartRegisterRequest,
+): Promise<StartRegisterResponse> {
+  return request<StartRegisterResponse>('/auth/register/start', {
     method: 'POST',
     body: dto,
   });
 }
 
-async function realVerifyCode(dto: VerifyCodeRequest): Promise<VerifyCodeResponse> {
-  return request<VerifyCodeResponse>(`${API_BASE_URL} / auth / register / verify`, {
+async function realVerifyCode(
+  dto: VerifyCodeRequest,
+): Promise<VerifyCodeResponse> {
+  return request<VerifyCodeResponse>('/auth/register/verify', {
     method: 'POST',
     body: dto,
   });
 }
 
 async function realGetCities(): Promise<City[]> {
-  return request<City[]>(`${API_BASE_URL} / geo / cities`);
+  return request<City[]>('/geo/cities');
 }
 
 async function realCompleteProfile(
   dto: CompleteProfileRequest,
 ): Promise<CompleteProfileResponse> {
-  return request<CompleteProfileResponse>(`${API_BASE_URL} / auth / register / complete`, {
+  return request<CompleteProfileResponse>('/auth/register/complete', {
     method: 'POST',
     body: dto,
   });

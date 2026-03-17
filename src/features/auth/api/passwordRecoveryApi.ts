@@ -1,72 +1,48 @@
-//src/features/auth/api/passwordRecoveryApi.ts
+// src/features/auth/api/passwordRecoveryApi.ts
+
 import { request } from '@/shared/api/http';
+
+import { passwordRecoveryMockApi } from './passwordRecoveryApi.mock';
+
+import type {
+  SendRecoveryCodePayload,
+  VerifyRecoveryCodePayload,
+  ResetPasswordPayload,
+} from '../model/types';
 
 const USE_MOCK = (import.meta.env.VITE_USE_MOCK_API ?? 'true') === 'true';
 
-export type StartRecoveryRequest = { email: string };
-export type StartRecoveryResponse = { recoveryId: string };
-
-export type VerifyRecoveryCodeRequest = { recoveryId: string; code: string };
-export type VerifyRecoveryCodeResponse = { resetToken: string };
-
-export type ResetPasswordRequest = { resetToken: string; newPassword: string };
-export type ResetPasswordResponse = { ok: true };
-
-// ---------------- MOCK ----------------
-const mockDb: {
-  lastCode: string;
-  recoveryId: string;
-  resetToken: string;
-  email: string;
-} = {
-  lastCode: '123456',
-  recoveryId: 'rec_1',
-  resetToken: 'reset_1',
-  email: '',
-};
-
-function delay(ms: number) {
-  return new Promise<void>((resolve) => setTimeout(resolve, ms));
-}
-
-async function mockStart(dto: StartRecoveryRequest): Promise<StartRecoveryResponse> {
-  await delay(400);
-  mockDb.email = dto.email;
-  return { recoveryId: mockDb.recoveryId };
-}
-
-async function mockVerify(dto: VerifyRecoveryCodeRequest): Promise<VerifyRecoveryCodeResponse> {
-  await delay(350);
-  if (dto.code !== mockDb.lastCode) {
-    throw new Error('Неверный код (мок). Попробуй 123456');
-  }
-  return { resetToken: mockDb.resetToken };
-}
-
-async function mockReset(_: ResetPasswordRequest): Promise<ResetPasswordResponse> {
-  await delay(450);
-  return { ok: true };
-}
-
-// --------------- REAL ---------------
-// Когда появится сервер:
-// POST /auth/password/forgot      -> { recoveryId }
-// POST /auth/password/verify      -> { resetToken }
-// POST /auth/password/reset       -> { ok: true }
-
 export const passwordRecoveryApi = {
-  start: (dto: StartRecoveryRequest) => {
-    if (USE_MOCK) return mockStart(dto);
-    return request<StartRecoveryResponse>('/auth/password/forgot', { method: 'POST', body: dto });
+  async sendCode(payload: SendRecoveryCodePayload): Promise<void> {
+    if (USE_MOCK) {
+      return passwordRecoveryMockApi.sendCode(payload);
+    }
+
+    return request('/auth/password-recovery/send-code', {
+      method: 'POST',
+      body: payload,
+    });
   },
 
-  verifyCode: (dto: VerifyRecoveryCodeRequest) => {
-    if (USE_MOCK) return mockVerify(dto);
-    return request<VerifyRecoveryCodeResponse>('/auth/password/verify', { method: 'POST', body: dto });
+  async verifyCode(payload: VerifyRecoveryCodePayload): Promise<void> {
+    if (USE_MOCK) {
+      return passwordRecoveryMockApi.verifyCode(payload);
+    }
+
+    return request('/auth/password-recovery/verify-code', {
+      method: 'POST',
+      body: payload,
+    });
   },
 
-  resetPassword: (dto: ResetPasswordRequest) => {
-    if (USE_MOCK) return mockReset(dto);
-    return request<ResetPasswordResponse>('/auth/password/reset', { method: 'POST', body: dto });
+  async resetPassword(payload: ResetPasswordPayload): Promise<void> {
+    if (USE_MOCK) {
+      return passwordRecoveryMockApi.resetPassword(payload);
+    }
+
+    return request('/auth/password-recovery/reset', {
+      method: 'POST',
+      body: payload,
+    });
   },
 };

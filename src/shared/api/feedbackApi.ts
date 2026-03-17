@@ -15,7 +15,7 @@ function delay(ms: number) {
   return new Promise<void>((resolve) => setTimeout(resolve, ms));
 }
 
-async function mockSend(_: FeedbackRequest): Promise<FeedbackResponse> {
+async function mockSend(): Promise<FeedbackResponse> {
   await delay(600);
   return { ok: true };
 }
@@ -24,7 +24,7 @@ async function mockSend(_: FeedbackRequest): Promise<FeedbackResponse> {
 // POST /support/feedback -> { ok: true }
 export const feedbackApi = {
   send: (dto: FeedbackRequest) => {
-    if (USE_MOCK) return mockSend(dto);
+    if (USE_MOCK) return mockSend();
     return request<FeedbackResponse>('/support/feedback', { method: 'POST', body: dto });
   },
 };

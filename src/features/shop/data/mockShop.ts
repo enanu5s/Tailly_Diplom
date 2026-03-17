@@ -1,0 +1,346 @@
+// src/features/shop/data/mockShop.ts
+
+import type {
+  CatalogFilterState,
+  CatalogMetaResponse,
+  Product,
+  ProductCategory,
+  ProductSort,
+} from '../model/types';
+
+export const SHOP_CATEGORIES_MOCK: ProductCategory[] = [
+  {
+    id: '1',
+    slug: 'food',
+    title: 'Корм',
+  },
+  {
+    id: '2',
+    slug: 'toys',
+    title: 'Игрушки',
+  },
+  {
+    id: '3',
+    slug: 'care',
+    title: 'Уход',
+  },
+  {
+    id: '4',
+    slug: 'accessories',
+    title: 'Аксессуары',
+  },
+  {
+    id: '5',
+    slug: 'medicine',
+    title: 'Здоровье',
+  },
+];
+
+export const SHOP_PRODUCTS_MOCK: Product[] = [
+  {
+    id: 'product-1',
+    slug: 'cat-food-premium-salmon',
+    title: 'Премиум-корм для кошек с лососем',
+    categoryId: '1',
+    categoryTitle: 'Корм',
+    shortDescription: 'Сухой корм для взрослых кошек, 1.5 кг.',
+    description:
+      'Сбалансированный корм для ежедневного питания взрослых кошек. Содержит белок, омега-3, витамины и полезные микроэлементы.',
+    price: 1890,
+    oldPrice: 2190,
+    rating: 4.8,
+    reviewsCount: 12,
+    isAvailable: true,
+    stockQuantity: 18,
+    images: [
+      {
+        id: 'product-1-image-1',
+        url: '/images/shop/product-cat-food-1.jpg',
+        alt: 'Премиум-корм для кошек с лососем',
+      },
+      {
+        id: 'product-1-image-2',
+        url: '/images/shop/product-cat-food-2.jpg',
+        alt: 'Упаковка корма для кошек',
+      },
+    ],
+    reviews: [
+      {
+        id: 'review-1',
+        authorName: 'Анна',
+        rating: 5,
+        text: 'Кошке очень понравился корм, ест с удовольствием.',
+        createdAt: '2026-03-01T10:00:00.000Z',
+      },
+    ],
+    createdAt: '2026-02-10T12:00:00.000Z',
+    updatedAt: '2026-03-01T10:00:00.000Z',
+  },
+  {
+    id: 'product-2',
+    slug: 'dog-toy-rope-ball',
+    title: 'Игрушка для собак: канат с мячом',
+    categoryId: '2',
+    categoryTitle: 'Игрушки',
+    shortDescription: 'Прочная игрушка для активных игр.',
+    description:
+      'Подходит для игр дома и на улице. Помогает снизить тревожность, поддерживать активность и отвлекать питомца.',
+    price: 790,
+    oldPrice: 990,
+    rating: 4.6,
+    reviewsCount: 7,
+    isAvailable: true,
+    stockQuantity: 24,
+    images: [
+      {
+        id: 'product-2-image-1',
+        url: '/images/shop/product-dog-toy-1.jpg',
+        alt: 'Игрушка для собак: канат с мячом',
+      },
+    ],
+    reviews: [],
+    createdAt: '2026-02-12T12:00:00.000Z',
+    updatedAt: '2026-03-02T12:00:00.000Z',
+  },
+  {
+    id: 'product-3',
+    slug: 'cat-litter-natural',
+    title: 'Наполнитель для кошачьего туалета, натуральный',
+    categoryId: '3',
+    categoryTitle: 'Уход',
+    shortDescription: 'Комкующийся наполнитель 5 кг.',
+    description:
+      'Эффективно удерживает запахи, быстро образует плотные комки и удобен в использовании.',
+    price: 650,
+    oldPrice: null,
+    rating: 4.7,
+    reviewsCount: 9,
+    isAvailable: true,
+    stockQuantity: 40,
+    images: [
+      {
+        id: 'product-3-image-1',
+        url: '/images/shop/product-cat-litter-1.jpg',
+        alt: 'Наполнитель для кошачьего туалета',
+      },
+    ],
+    reviews: [],
+    createdAt: '2026-02-08T09:00:00.000Z',
+    updatedAt: '2026-03-01T09:00:00.000Z',
+  },
+  {
+    id: 'product-4',
+    slug: 'pet-bowl-ceramic',
+    title: 'Керамическая миска для питомца',
+    categoryId: '4',
+    categoryTitle: 'Аксессуары',
+    shortDescription: 'Устойчивая миска для воды и корма.',
+    description:
+      'Подходит для кошек и собак мелких пород. Легко моется, не скользит по полу.',
+    price: 490,
+    oldPrice: 590,
+    rating: 4.5,
+    reviewsCount: 5,
+    isAvailable: true,
+    stockQuantity: 15,
+    images: [
+      {
+        id: 'product-4-image-1',
+        url: '/images/shop/product-bowl-1.jpg',
+        alt: 'Керамическая миска для питомца',
+      },
+    ],
+    reviews: [],
+    createdAt: '2026-02-15T13:00:00.000Z',
+    updatedAt: '2026-03-03T13:00:00.000Z',
+  },
+  {
+    id: 'product-5',
+    slug: 'pet-vitamin-complex',
+    title: 'Витаминный комплекс для питомцев',
+    categoryId: '5',
+    categoryTitle: 'Здоровье',
+    shortDescription: 'Поддержка иммунитета и активности.',
+    description:
+      'Комплекс витаминов и минералов для кошек и собак. Подходит для курсового применения.',
+    price: 1190,
+    oldPrice: 1390,
+    rating: 4.9,
+    reviewsCount: 11,
+    isAvailable: false,
+    stockQuantity: 0,
+    images: [
+      {
+        id: 'product-5-image-1',
+        url: '/images/shop/product-vitamins-1.jpg',
+        alt: 'Витаминный комплекс для питомцев',
+      },
+    ],
+    reviews: [],
+    createdAt: '2026-02-20T10:30:00.000Z',
+    updatedAt: '2026-03-04T10:30:00.000Z',
+  },
+];
+
+export function normalizeText(value: string): string {
+  return value
+    .toLowerCase()
+    .replace(/ё/g, 'е')
+    .replace(/[^\p{L}\p{N}\s-]/gu, ' ')
+    .replace(/\s+/g, ' ')
+    .trim();
+}
+
+export function tokenize(value: string): string[] {
+  return normalizeText(value)
+    .split(' ')
+    .map((token) => token.trim())
+    .filter(Boolean);
+}
+
+export function getSearchFields(product: Product): string[] {
+  return [
+    product.title,
+    product.shortDescription,
+    product.description,
+    product.categoryTitle,
+  ];
+}
+
+export function levenshteinDistance(a: string, b: string): number {
+  if (a === b) {
+    return 0;
+  }
+
+  if (a.length === 0) {
+    return b.length;
+  }
+
+  if (b.length === 0) {
+    return a.length;
+  }
+
+  const matrix: number[][] = Array.from(
+    { length: a.length + 1 },
+    (_, rowIndex) =>
+      Array.from({ length: b.length + 1 }, (_, columnIndex) => {
+        if (rowIndex === 0) {
+          return columnIndex;
+        }
+
+        if (columnIndex === 0) {
+          return rowIndex;
+        }
+
+        return 0;
+      }),
+  );
+
+  for (let row = 1; row <= a.length; row += 1) {
+    for (let column = 1; column <= b.length; column += 1) {
+      const cost = a[row - 1] === b[column - 1] ? 0 : 1;
+
+      matrix[row][column] = Math.min(
+        matrix[row - 1][column] + 1,
+        matrix[row][column - 1] + 1,
+        matrix[row - 1][column - 1] + cost,
+      );
+    }
+  }
+
+  return matrix[a.length][b.length];
+}
+
+export function matchesSearch(product: Product, search: string): boolean {
+  const queryTokens = tokenize(search);
+
+  if (queryTokens.length === 0) {
+    return true;
+  }
+
+  const normalizedFields = getSearchFields(product).map(normalizeText);
+  const fullText = normalizedFields.join(' ');
+  const fieldTokens = tokenize(fullText);
+
+  return queryTokens.every((queryToken) => {
+    if (fullText.includes(queryToken)) {
+      return true;
+    }
+
+    return fieldTokens.some((fieldToken) => {
+      return (
+        fieldToken.includes(queryToken) ||
+        queryToken.includes(fieldToken) ||
+        levenshteinDistance(fieldToken, queryToken) <= 1
+      );
+    });
+  });
+}
+
+export function applySort(items: Product[], sort: ProductSort): Product[] {
+  const copy = [...items];
+
+  switch (sort) {
+    case 'price-asc':
+      return copy.sort((a, b) => a.price - b.price);
+    case 'price-desc':
+      return copy.sort((a, b) => b.price - a.price);
+    case 'rating-desc':
+      return copy.sort((a, b) => b.rating - a.rating);
+    case 'newest':
+      return copy.sort(
+        (a, b) =>
+          new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime(),
+      );
+    case 'popular':
+    default:
+      return copy.sort((a, b) => b.reviewsCount - a.reviewsCount);
+  }
+}
+
+export function applyFilters(
+  items: Product[],
+  filters: CatalogFilterState,
+): Product[] {
+  return items.filter((product) => {
+    const isMatchedBySearch = matchesSearch(product, filters.search);
+
+    const isMatchedByCategory =
+      filters.categoryIds.length === 0 ||
+      filters.categoryIds.includes(product.categoryId);
+
+    const isMatchedByMinPrice =
+      filters.minPrice === null || product.price >= filters.minPrice;
+
+    const isMatchedByMaxPrice =
+      filters.maxPrice === null || product.price <= filters.maxPrice;
+
+    const isMatchedByAvailability =
+      !filters.onlyAvailable || product.isAvailable;
+
+    return (
+      isMatchedBySearch &&
+      isMatchedByCategory &&
+      isMatchedByMinPrice &&
+      isMatchedByMaxPrice &&
+      isMatchedByAvailability
+    );
+  });
+}
+
+export function buildCatalogMetaMock(): CatalogMetaResponse {
+  const prices = SHOP_PRODUCTS_MOCK.map((product) => product.price);
+
+  return {
+    categories: SHOP_CATEGORIES_MOCK,
+    minPrice: prices.length > 0 ? Math.min(...prices) : 0,
+    maxPrice: prices.length > 0 ? Math.max(...prices) : 0,
+    availableSorts: [
+      'popular',
+      'newest',
+      'rating-desc',
+      'price-asc',
+      'price-desc',
+    ],
+  };
+}

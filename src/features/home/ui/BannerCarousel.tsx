@@ -1,6 +1,6 @@
 // src/features/home/ui/BannerCarousel.tsx
 
-import { useEffect, useMemo, useState } from 'react';
+import { useMemo, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 
 import type { HomeBanner } from '../model/types';
@@ -19,22 +19,13 @@ export function BannerCarousel({ items: rawItems }: Props) {
   const items = useMemo(() => rawItems.slice(0, 5), [rawItems]);
   const [idx, setIdx] = useState(0);
 
-  useEffect(() => {
-    if (items.length === 0) {
-      setIdx(0);
-      return;
-    }
-
-    if (idx > items.length - 1) {
-      setIdx(0);
-    }
-  }, [items.length, idx]);
+  const safeIdx = items.length === 0 ? 0 : Math.min(idx, items.length - 1);
 
   if (items.length === 0) {
     return null;
   }
 
-  const current = items[idx];
+  const current = items[safeIdx];
   const canSlide = items.length > 1;
 
   const backgroundStyle = current.imageUrl
@@ -106,7 +97,7 @@ export function BannerCarousel({ items: rawItems }: Props) {
             <button
               key={item.id}
               type="button"
-              className={index === idx ? styles.dotActive : styles.dot}
+              className={index === safeIdx ? styles.dotActive : styles.dot}
               onClick={() => setIdx(index)}
               aria-label={`Баннер ${index + 1}`}
             />

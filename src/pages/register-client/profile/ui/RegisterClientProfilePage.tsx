@@ -1,19 +1,19 @@
 //src/pages/register-client/profile/ui/RegisterClientProfilePage.tsx
 
-import { useEffect, useState } from 'react';
-import { useNavigate } from 'react-router-dom';
-import styles from '../../RegisterClient.module.css';
-import { useRegisterFlow } from '@/features/auth/model/useRegisterFlow';
-import { registerService } from '@/features/auth/model/registerService';
-import type { City } from '@/features/auth/api/registerApi';
+import { useEffect, useState } from "react";
+import { useNavigate } from "react-router-dom";
+import styles from "../../RegisterClient.module.css";
+import { useRegisterFlow } from "@/features/auth/model/useRegisterFlow";
+import { registerService } from "@/features/auth/model/registerService";
+import type { City } from "@/features/auth/api/registerApi";
 
 export const RegisterClientProfilePage = () => {
   const navigate = useNavigate();
   const flow = useRegisterFlow();
 
-  const [firstName, setFirstName] = useState('');
-  const [lastName, setLastName] = useState('');
-  const [cityId, setCityId] = useState('');
+  const [firstName, setFirstName] = useState("");
+  const [lastName, setLastName] = useState("");
+  const [cityId, setCityId] = useState("");
 
   const [cities, setCities] = useState<City[]>([]);
   const [citiesLoading, setCitiesLoading] = useState(true);
@@ -23,7 +23,8 @@ export const RegisterClientProfilePage = () => {
 
   // если сюда попали без верификации
   useEffect(() => {
-    if (!flow.verificationToken) navigate('/register/client', { replace: true });
+    if (!flow.verificationToken)
+      navigate("/register/client", { replace: true });
   }, [flow.verificationToken, navigate]);
 
   useEffect(() => {
@@ -33,19 +34,34 @@ export const RegisterClientProfilePage = () => {
       try {
         setCitiesLoading(true);
         const list = await registerService.loadCities();
-        if (!alive) return;
+
+        if (!alive) {
+          return;
+        }
+
         setCities(list);
-        setCityId(list[0]?.id ?? '');
-      } catch (e: any) {
-        if (!alive) return;
-        setError(e?.message ?? 'Не удалось загрузить города');
+        setCityId(list[0]?.id ?? "");
+      } catch (error: unknown) {
+        if (!alive) {
+          return;
+        }
+
+        const message =
+          error instanceof Error
+            ? error.message
+            : "Не удалось загрузить города";
+
+        setError(message);
       } finally {
-        if (!alive) return;
-        setCitiesLoading(false);
+        if (alive) {
+          setCitiesLoading(false);
+        }
       }
     })();
 
-    return () => { alive = false; };
+    return () => {
+      alive = false;
+    };
   }, []);
 
   const onSubmit = async (e: React.FormEvent) => {
@@ -54,16 +70,26 @@ export const RegisterClientProfilePage = () => {
 
     if (!flow.verificationToken) return;
     if (!cityId) {
-      setError('Выберите город');
+      setError("Выберите город");
       return;
     }
 
     setLoading(true);
     try {
-      await registerService.complete(flow.verificationToken, firstName, lastName, cityId);
-      navigate('/', { replace: true }); // сразу залогинились
-    } catch (e: any) {
-      setError(e?.message ?? 'Ошибка завершения регистрации');
+      await registerService.complete(
+        flow.verificationToken,
+        firstName,
+        lastName,
+        cityId,
+      );
+      navigate("/", { replace: true }); // сразу залогинились
+    } catch (error: unknown) {
+      const message =
+        error instanceof Error
+          ? error.message
+          : "Ошибка завершения регистрации";
+
+      setError(message);
     } finally {
       setLoading(false);
     }
@@ -117,8 +143,12 @@ export const RegisterClientProfilePage = () => {
 
             {error && <div className={styles.error}>{error}</div>}
 
-            <button className={styles.submitButton} disabled={loading || citiesLoading} type="submit">
-              {loading ? 'Сохраняем...' : 'Завершить регистрацию'}
+            <button
+              className={styles.submitButton}
+              disabled={loading || citiesLoading}
+              type="submit"
+            >
+              {loading ? "Сохраняем..." : "Завершить регистрацию"}
             </button>
           </form>
         </div>

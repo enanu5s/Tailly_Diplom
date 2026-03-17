@@ -1,0 +1,169 @@
+// src/app/router/publicRoutes.tsx
+
+import { lazy } from 'react';
+import type { RouteObject } from 'react-router-dom';
+
+import { withSuspense } from './withSuspense';
+
+const HomePage = lazy(() =>
+  import('@/pages/home').then((module) => ({ default: module.HomePage })),
+);
+
+const LoginPage = lazy(() =>
+  import('@/pages/login').then((module) => ({ default: module.LoginPage })),
+);
+
+const RegisterPage = lazy(() =>
+  import('@/pages/register').then((module) => ({
+    default: module.RegisterPage,
+  })),
+);
+
+const RegisterClientStep1Page = lazy(() =>
+  import('@/pages/register-client/step1').then((module) => ({
+    default: module.RegisterClientStep1Page,
+  })),
+);
+
+const RegisterClientVerifyPage = lazy(() =>
+  import('@/pages/register-client/verify').then((module) => ({
+    default: module.RegisterClientVerifyPage,
+  })),
+);
+
+const RegisterClientProfilePage = lazy(() =>
+  import('@/pages/register-client/profile').then((module) => ({
+    default: module.RegisterClientProfilePage,
+  })),
+);
+
+const ForgotPasswordEmailPage = lazy(() =>
+  import('@/pages/forgot-password/email').then((module) => ({
+    default: module.ForgotPasswordEmailPage,
+  })),
+);
+
+const ForgotPasswordVerifyPage = lazy(() =>
+  import('@/pages/forgot-password/verify').then((module) => ({
+    default: module.ForgotPasswordVerifyPage,
+  })),
+);
+
+const ForgotPasswordResetPage = lazy(() =>
+  import('@/pages/forgot-password/reset').then((module) => ({
+    default: module.ForgotPasswordResetPage,
+  })),
+);
+
+const BecomeSpecialistPage = lazy(() =>
+  import('@/pages/become-specialist').then((module) => ({
+    default: module.BecomeSpecialistPage,
+  })),
+);
+
+const BecomeSpecialistFormPage = lazy(() =>
+  import('@/pages/become-specialist-form').then((module) => ({
+    default: module.BecomeSpecialistFormPage,
+  })),
+);
+
+const AboutPage = lazy(() =>
+  import('@/pages/about').then((module) => ({ default: module.AboutPage })),
+);
+
+const PostsPage = lazy(() =>
+  import('@/pages/posts').then((module) => ({ default: module.PostsPage })),
+);
+
+const PostPage = lazy(() =>
+  import('@/pages/post').then((module) => ({ default: module.PostPage })),
+);
+
+const ServicesPage = lazy(() =>
+  import('@/pages/services').then((module) => ({
+    default: module.ServicesPage,
+  })),
+);
+
+const SpecialistProfilePage = lazy(() =>
+  import('@/pages/specialist-profile').then((module) => ({
+    default: module.SpecialistProfilePage,
+  })),
+);
+
+const NotFoundPage = lazy(() =>
+  import('@/pages/not-found').then((module) => ({
+    default: module.NotFoundPage,
+  })),
+);
+
+export const publicRoutes: RouteObject[] = [
+  {
+    path: '/',
+    element: withSuspense(<HomePage />),
+  },
+  {
+    path: '/login',
+    element: withSuspense(<LoginPage />),
+  },
+  {
+    path: '/register',
+    element: withSuspense(<RegisterPage />),
+  },
+  {
+    path: '/register/client',
+    element: withSuspense(<RegisterClientStep1Page />),
+  },
+  {
+    path: '/register/client/verify',
+    element: withSuspense(<RegisterClientVerifyPage />),
+  },
+  {
+    path: '/register/client/profile',
+    element: withSuspense(<RegisterClientProfilePage />),
+  },
+  {
+    path: '/forgot-password',
+    element: withSuspense(<ForgotPasswordEmailPage />),
+  },
+  {
+    path: '/forgot-password/verify',
+    element: withSuspense(<ForgotPasswordVerifyPage />),
+  },
+  {
+    path: '/forgot-password/reset',
+    element: withSuspense(<ForgotPasswordResetPage />),
+  },
+  {
+    path: '/become-specialist',
+    element: withSuspense(<BecomeSpecialistPage />),
+  },
+  {
+    path: '/become-specialist/form',
+    element: withSuspense(<BecomeSpecialistFormPage />),
+  },
+  {
+    path: '/about',
+    element: withSuspense(<AboutPage />),
+  },
+  {
+    path: '/posts',
+    element: withSuspense(<PostsPage />),
+  },
+  {
+    path: '/posts/:postId',
+    element: withSuspense(<PostPage />),
+  },
+  {
+    path: '/services',
+    element: withSuspense(<ServicesPage />),
+  },
+  {
+    path: '/specialists/:specialistSlug',
+    element: withSuspense(<SpecialistProfilePage />),
+  },
+  {
+    path: '*',
+    element: withSuspense(<NotFoundPage />),
+  },
+];

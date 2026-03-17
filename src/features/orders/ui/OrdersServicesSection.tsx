@@ -20,10 +20,6 @@ export const OrdersServicesSection = observer(() => {
     void ordersStore.loadServices();
   }, []);
 
-  useEffect(() => {
-    void ordersStore.loadServices();
-  }, [ordersStore.servicesFilter]);
-
   return (
     <section className={styles.card}>
       <div className={styles.headerRow}>

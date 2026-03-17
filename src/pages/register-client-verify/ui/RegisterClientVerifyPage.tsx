@@ -1,86 +1,105 @@
-// src/pages/register-client-verify/ui/RegisterClientVerifyPage.tsx
+// src/pages/register-client/verify/ui/RegisterClientVerifyPage.tsx
+import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { useState } from 'react';
-import { useClientRegistrationStore } from '@/features/registration-client/model/store';
-import styles from './RegisterClientVerifyPage.module.css';
 
-export default function RegisterClientVerifyPage() {
+import { useRegisterFlow } from '@/features/auth/model/useRegisterFlow';
+import { registerService } from '@/features/auth/model/registerService';
+
+import styles from '../../RegisterClient.module.css';
+
+export const RegisterClientVerifyPage = () => {
   const navigate = useNavigate();
-  const { data, setData } = useClientRegistrationStore();
+  const flow = useRegisterFlow();
 
   const [code, setCode] = useState('');
+  const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
 
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    if (code.length !== 6) {
-      alert('Код должен состоять из 6 цифр');
+  useEffect(() => {
+    if (!flow.registrationId) {
+      navigate('/register/client', { replace: true });
+    }
+  }, [flow.registrationId, navigate]);
+
+  const onSubmit = async (event: React.FormEvent) => {
+    event.preventDefault();
+    setError(null);
+
+    if (!flow.registrationId) {
       return;
     }
 
     setLoading(true);
 
     try {
-      const res = await fetch('/api/auth/register/client/verify', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ email: data.email, code }),
-      });
-
-      const result = await res.json();
-
-      if (!res.ok) throw new Error(result.message || 'Неверный код');
-
-      // Сохраняем токен, если сервер его возвращает
-      if (result.token) setData({ verificationToken: result.token });
-
-      alert('Почта успешно подтверждена!');
+      await registerService.verify(flow.registrationId, code);
       navigate('/register/client/profile');
+    } catch (error: unknown) {
+      const message =
+        error instanceof Error ? error.message : 'Ошибка проверки кода';
 
-    } catch (err: any) {
-      alert(err.message || 'Ошибка проверки кода');
+      setError(message);
     } finally {
       setLoading(false);
     }
   };
 
   return (
-    <>
-      <div className={styles.page}>
-        <div className={styles.container}>
-          <button onClick={() => navigate(-1)} className={styles.backButton}>
-            ← Вернуться назад
-          </button>
+    <div className={styles.page}>
+      <div className={styles.container}>
+        <button onClick={() => navigate(-1)} className={styles.backButton}>
+          ← Назад
+        </button>
 
-          <h1 className={styles.title}>Подтверждение почты</h1>
-          <p className={styles.subtitle}>
-            Мы отправили 6-значный код на {data.email}
-          </p>
+        <h1 className={styles.title}>Подтверждение почты</h1>
+        <p className={styles.subtitle}>Шаг 2 из 3 — введите код из письма</p>
 
-          <form onSubmit={handleSubmit}>
+        <div className={styles.card}>
+          <form className={styles.form} onSubmit={onSubmit}>
             <input
-              type="text"
-              maxLength={6}
-              placeholder="000000"
+              className={styles.input}
+              inputMode="numeric"
+              placeholder="Код (6 цифр)"
               value={code}
-              onChange={(e) => setCode(e.target.value.replace(/\D/g, ''))}
-              className={styles.codeInput}
-              autoFocus
+              onChange={(e) => setCode(e.target.value)}
+              required
             />
 
-            <button type="submit" className={styles.submit} disabled={loading}>
-              {loading ? 'Проверяем...' : 'Подтвердить код'}
-            </button>
-          </form>
+            {error && <div className={styles.error}>{error}</div>}
 
-          <p className={styles.resend}>
-            Не пришёл код?{' '}
-            <button type="button" className={styles.resendLink} onClick={() => alert('Повторная отправка (заглушка)')}>
-              Отправить повторно
+            <button
+              className={styles.submitButton}
+              disabled={loading}
+              type="submit"
+            >
+              {loading ? 'Проверяем...' : 'Подтвердить'}
             </button>
-          </p>
+
+            <div className={styles.actionsRow}>
+              <button
+                type="button"
+                className={styles.linkButton}
+                onClick={() => {
+                  setError('Код отправлен повторно (мок). Код: 123456');
+                }}
+              >
+                Отправить код еще раз
+              </button>
+
+              <button
+                type="button"
+                className={styles.linkButton}
+                onClick={() => {
+                  registerService.resetFlow();
+                  navigate('/register/client', { replace: true });
+                }}
+              >
+                Начать заново
+              </button>
+            </div>
+          </form>
         </div>
       </div>
-    </>
+    </div>
   );
-}
+};

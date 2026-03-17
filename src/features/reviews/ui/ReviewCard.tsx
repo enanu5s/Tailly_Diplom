@@ -15,7 +15,7 @@ export function ReviewCard({
   showThanks?: boolean;
   fixedLayout?: boolean;
 }) {
-  const photos = review.photoUrls ?? [];
+  const photos = useMemo(() => review.photoUrls ?? [], [review.photoUrls]);
   const hasPhotos = photos.length > 0;
 
   const showPhotoCol = fixedLayout || hasPhotos;

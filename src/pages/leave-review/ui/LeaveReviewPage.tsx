@@ -25,7 +25,7 @@ export const LeaveReviewPage = observer(() => {
 
     reviewCreateStore.reset();
     if (orderId) void reviewCreateStore.load(orderId);
-    // eslint-disable-next-line react-hooks/exhaustive-deps
+     
   }, [orderId]);
 
   const ctx = reviewCreateStore.context;

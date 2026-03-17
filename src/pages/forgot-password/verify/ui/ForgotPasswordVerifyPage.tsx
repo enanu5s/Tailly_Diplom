@@ -1,20 +1,20 @@
 //src/pages/forgot-password/verify/ui/ForgotPasswordVerifyPage.tsx
-import { useEffect, useState } from 'react';
-import { Link, useNavigate } from 'react-router-dom';
-import styles from '../../ForgotPassword.module.css';
-import { usePasswordRecoveryFlow } from '@/features/auth/model/usePasswordRecoveryFlow';
-import { passwordRecoveryService } from '@/features/auth/model/passwordRecoveryService';
+import { useEffect, useState } from "react";
+import { Link, useNavigate } from "react-router-dom";
+import styles from "../../ForgotPassword.module.css";
+import { usePasswordRecoveryFlow } from "@/features/auth/model/usePasswordRecoveryFlow";
+import { passwordRecoveryService } from "@/features/auth/model/passwordRecoveryService";
 
 export const ForgotPasswordVerifyPage = () => {
   const navigate = useNavigate();
   const flow = usePasswordRecoveryFlow();
 
-  const [code, setCode] = useState('');
+  const [code, setCode] = useState("");
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
 
   useEffect(() => {
-    if (!flow.recoveryId) navigate('/forgot-password', { replace: true });
+    if (!flow.recoveryId) navigate("/forgot-password", { replace: true });
   }, [flow.recoveryId, navigate]);
 
   const onSubmit = async (e: React.FormEvent) => {
@@ -25,9 +25,12 @@ export const ForgotPasswordVerifyPage = () => {
     setLoading(true);
     try {
       await passwordRecoveryService.verify(flow.recoveryId, code);
-      navigate('/forgot-password/reset');
-    } catch (e: any) {
-      setError(e?.message ?? 'Не удалось проверить код');
+      navigate("/forgot-password/reset");
+    } catch (error: unknown) {
+      const message =
+        error instanceof Error ? error.message : "Не удалось проверить код";
+
+      setError(message);
     } finally {
       setLoading(false);
     }
@@ -56,15 +59,21 @@ export const ForgotPasswordVerifyPage = () => {
 
             {error && <div className={styles.error}>{error}</div>}
 
-            <button className={styles.submitButton} disabled={loading} type="submit">
-              {loading ? 'Проверяем...' : 'Продолжить'}
+            <button
+              className={styles.submitButton}
+              disabled={loading}
+              type="submit"
+            >
+              {loading ? "Проверяем..." : "Продолжить"}
             </button>
 
             <div className={styles.actionsRow}>
               <button
                 type="button"
                 className={styles.linkButton}
-                onClick={() => setError('Код отправлен повторно (мок). Код: 123456')}
+                onClick={() =>
+                  setError("Код отправлен повторно (мок). Код: 123456")
+                }
               >
                 Отправить код ещё раз
               </button>
@@ -74,7 +83,7 @@ export const ForgotPasswordVerifyPage = () => {
                 className={styles.linkButton}
                 onClick={() => {
                   passwordRecoveryService.resetFlow();
-                  navigate('/forgot-password', { replace: true });
+                  navigate("/forgot-password", { replace: true });
                 }}
               >
                 Начать заново
