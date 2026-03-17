@@ -7,7 +7,6 @@ import {
   mockDeleteAdmin,
   mockGetAdmins,
 } from './superAdminAdminsManagementApi.mock';
-
 import {
   type CreateAdminPayload,
   type CreateAdminResponse,

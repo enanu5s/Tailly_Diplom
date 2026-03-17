@@ -1,7 +1,9 @@
 // src/features/home/ui/ServicesMenu.tsx
 
 import { useNavigate } from 'react-router-dom';
+
 import type { ServiceConfig } from '@/shared/config/services';
+
 import styles from './ServicesMenu.module.css';
 
 type Props = {

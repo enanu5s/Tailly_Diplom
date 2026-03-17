@@ -4,15 +4,14 @@ import { observer } from 'mobx-react-lite';
 import { useEffect, useMemo } from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 
-import { SpecialistsSearchStore } from '../model/specialistsSearchStore';
 import { SERVICES } from '@/shared/config/services';
 import type { ServiceId } from '@/shared/config/services';
 
+import { SpecialistsSearchStore } from '../model/specialistsSearchStore';
 import { FiltersPanel } from './FiltersPanel/FiltersPanel';
+import { MapView } from './MapView/MapView';
 import { SortBar } from './SortBar/SortBar';
 import { SpecialistsList } from './SpecialistsList/SpecialistsList';
-import { MapView } from './MapView/MapView';
-
 import styles from './SpecialistsSearchPageContent.module.css';
 
 function isServiceId(v: string | null): v is ServiceId {

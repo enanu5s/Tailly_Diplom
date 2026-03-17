@@ -3,6 +3,7 @@
 import { makeAutoObservable, runInAction } from 'mobx';
 
 import { specialistProfileService } from '../service/specialistProfileService';
+
 import type { SpecialistReview } from './types';
 
 type SaveReplyParams = {

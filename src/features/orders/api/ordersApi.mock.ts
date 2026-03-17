@@ -1,5 +1,10 @@
 // src/features/orders/api/ordersApi.mock.ts
 
+import {
+  MOCK_PRODUCT_ORDERS,
+  MOCK_SERVICE_ORDERS,
+} from '../data/mockOrders';
+
 import type {
   ProductOrder,
   RepeatResult,
@@ -8,10 +13,6 @@ import type {
   ServicesFilter,
 } from '../model/types';
 
-import {
-  MOCK_PRODUCT_ORDERS,
-  MOCK_SERVICE_ORDERS,
-} from '../data/mockOrders';
 
 function filterServices(
   list: ServiceOrder[],

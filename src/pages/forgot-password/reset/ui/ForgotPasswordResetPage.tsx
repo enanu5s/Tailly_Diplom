@@ -1,100 +1,98 @@
-//src/pages/forgot-password/reset/ui/ForgotPasswordResetPage.tsx
+// /src/pages/forgot-password/reset/ui/ForgotPasswordResetPage.tsx
+import { useEffect, useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 
-import { useEffect, useState } from "react";
-import { Link, useNavigate } from "react-router-dom";
-import styles from "../../ForgotPassword.module.css";
-import { usePasswordRecoveryFlow } from "@/features/auth/model/usePasswordRecoveryFlow";
-import { passwordRecoveryService } from "@/features/auth/model/passwordRecoveryService";
+import { passwordRecoveryService } from '@/features/auth/model/passwordRecoveryService';
+import { usePasswordRecoveryFlow } from '@/features/auth/model/usePasswordRecoveryFlow';
 
-export const ForgotPasswordResetPage = () => {
+import styles from '../../ForgotPassword.module.css';
+
+export function ForgotPasswordResetPage() {
   const navigate = useNavigate();
   const flow = usePasswordRecoveryFlow();
 
-  const [p1, setP1] = useState("");
-  const [p2, setP2] = useState("");
-  const [error, setError] = useState<string | null>(null);
-  const [loading, setLoading] = useState(false);
+  const [password, setPassword] = useState('');
+  const [passwordRepeat, setPasswordRepeat] = useState('');
+  const [submitting, setSubmitting] = useState(false);
+  const [error, setError] = useState('');
 
   useEffect(() => {
-    if (!flow.resetToken) navigate("/forgot-password", { replace: true });
-  }, [flow.resetToken, navigate]);
+    if (!flow.email || !flow.code || !flow.isVerified) {
+      navigate('/forgot-password', { replace: true });
+    }
+  }, [flow.email, flow.code, flow.isVerified, navigate]);
 
-  const onSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    setError(null);
+  const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
+    event.preventDefault();
 
-    if (!flow.resetToken) return;
+    const normalizedPassword = password.trim();
+    const normalizedPasswordRepeat = passwordRepeat.trim();
 
-    if (p1.length < 6) {
-      setError("Пароль должен быть минимум 6 символов");
+    if (!normalizedPassword || !normalizedPasswordRepeat) {
+      setError('Заполните оба поля пароля.');
       return;
     }
-    if (p1 !== p2) {
-      setError("Пароли не совпадают");
+
+    if (normalizedPassword !== normalizedPasswordRepeat) {
+      setError('Пароли не совпадают.');
       return;
     }
 
-    setLoading(true);
     try {
-      await passwordRecoveryService.reset(flow.resetToken, p1);
-      // после смены пароля обычно кидают на логин
-      navigate("/login", { replace: true });
-    } catch (error: unknown) {
-      const message =
-        error instanceof Error ? error.message : "Не удалось обновить пароль";
+      setSubmitting(true);
+      setError('');
 
-      setError(message);
+      await passwordRecoveryService.resetPassword(normalizedPassword);
+      navigate('/login', { replace: true });
+    } catch (submissionError) {
+      setError(
+        submissionError instanceof Error
+          ? submissionError.message
+          : 'Не удалось сбросить пароль.',
+      );
     } finally {
-      setLoading(false);
+      setSubmitting(false);
     }
   };
 
   return (
-    <div className={styles.page}>
-      <div className={styles.container}>
-        <button onClick={() => navigate(-1)} className={styles.backButton}>
-          ← Назад
+    <div className={styles.card}>
+      <h1 className={styles.title}>Новый пароль</h1>
+      <p className={styles.text}>Введите новый пароль для вашего аккаунта.</p>
+
+      <form className={styles.form} onSubmit={handleSubmit}>
+        <label className={styles.label}>
+          Новый пароль
+          <input
+            className={styles.input}
+            type="password"
+            value={password}
+            onChange={(event) => setPassword(event.target.value)}
+            placeholder="Введите новый пароль"
+            autoComplete="new-password"
+            disabled={submitting}
+          />
+        </label>
+
+        <label className={styles.label}>
+          Повторите пароль
+          <input
+            className={styles.input}
+            type="password"
+            value={passwordRepeat}
+            onChange={(event) => setPasswordRepeat(event.target.value)}
+            placeholder="Повторите новый пароль"
+            autoComplete="new-password"
+            disabled={submitting}
+          />
+        </label>
+
+        {error ? <p className={styles.error}>{error}</p> : null}
+
+        <button className={styles.primaryButton} type="submit" disabled={submitting}>
+          {submitting ? 'Сохраняем...' : 'Сохранить пароль'}
         </button>
-
-        <h1 className={styles.title}>Новый пароль</h1>
-        <p className={styles.subtitle}>Шаг 3 из 3 — придумайте новый пароль</p>
-
-        <div className={styles.card}>
-          <form className={styles.form} onSubmit={onSubmit}>
-            <input
-              className={styles.input}
-              type="password"
-              placeholder="Новый пароль"
-              value={p1}
-              onChange={(e) => setP1(e.target.value)}
-              required
-            />
-
-            <input
-              className={styles.input}
-              type="password"
-              placeholder="Повторите новый пароль"
-              value={p2}
-              onChange={(e) => setP2(e.target.value)}
-              required
-            />
-
-            {error && <div className={styles.error}>{error}</div>}
-
-            <button
-              className={styles.submitButton}
-              disabled={loading}
-              type="submit"
-            >
-              {loading ? "Сохраняем..." : "Сохранить пароль"}
-            </button>
-
-            <div className={styles.hint}>
-              Есть аккаунт? <Link to="/login">Войти</Link>
-            </div>
-          </form>
-        </div>
-      </div>
+      </form>
     </div>
   );
-};
+}

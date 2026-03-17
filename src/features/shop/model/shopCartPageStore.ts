@@ -2,8 +2,9 @@
 import { makeAutoObservable, runInAction } from 'mobx';
 
 import { shopCartStore } from './shopCartStore';
-import type { Product } from './types';
 import { shopService } from '../service/shopService';
+
+import type { Product } from './types';
 
 export class ShopCartPageStore {
     products: Product[] = [];

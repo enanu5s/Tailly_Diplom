@@ -1,7 +1,9 @@
 // src/shared/ui/logo/Logo.tsx
-import type { FC, HTMLAttributes } from 'react';
 import clsx from 'clsx';           // npm install clsx    (очень удобно для классов)
+
 import styles from './Logo.module.css';
+
+import type { FC, HTMLAttributes } from 'react';
 
 export interface LogoProps extends HTMLAttributes<HTMLDivElement> {
   variant?: 'light' | 'dark' | 'color';

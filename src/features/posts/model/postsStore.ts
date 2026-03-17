@@ -1,7 +1,9 @@
 //src/features/posts/model/postsStore.ts
 
 import { makeAutoObservable, runInAction } from 'mobx';
+
 import { postsApi } from '../api/postsApi';
+
 import type { Post, PostsListResponse, PostsSort } from './types';
 
 type ListState = {

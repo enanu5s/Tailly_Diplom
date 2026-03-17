@@ -3,6 +3,7 @@
 import { authStore } from '@/features/auth/model/authStore';
 
 import { specialistProfileApi } from '../api/specialistProfileApi';
+
 import type {
     SpecialistCalendarUpdatePayload,
     SpecialistDetailsUpdatePayload,

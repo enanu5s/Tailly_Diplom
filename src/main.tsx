@@ -3,8 +3,8 @@ import ReactDOM from "react-dom/client";
 import { RouterProvider, createBrowserRouter } from "react-router-dom";
 
 import { routes } from "@/app/router/routes";
-import { configureHttpClient } from "@/shared/api/http";
 import { authStore } from "@/features/auth/model/authStore";
+import { configureHttpClient } from "@/shared/api/http";
 
 const router = createBrowserRouter(routes);
 

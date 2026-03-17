@@ -1,12 +1,6 @@
 // src/features/auth/api/authApi.mock.ts
 
 import {
-  LoginError,
-  type LoginPayload,
-  type LoginSuccessResponse,
-} from '../model/types';
-
-import {
   adminAttemptsMap,
   buildAdminLockUntilIso,
   getAdminAttemptState,
@@ -18,6 +12,12 @@ import {
   resetAdminAttempts,
   wait,
 } from '../data/mockAuthAccounts';
+import {
+  LoginError,
+  type LoginPayload,
+  type LoginSuccessResponse,
+} from '../model/types';
+
 
 export async function mockLogin(
   payload: LoginPayload,

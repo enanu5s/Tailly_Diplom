@@ -2,13 +2,14 @@
 
 import { observer } from 'mobx-react-lite';
 import { useEffect, useSyncExternalStore } from 'react';
-import type { FormEvent, ReactElement } from 'react';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
 
 import { authStore, loginStore } from '@/features/auth';
 import { getDefaultAuthorizedRoute } from '@/shared/lib/auth';
 
 import styles from './LoginPage.module.css';
+
+import type { FormEvent, ReactElement } from 'react';
 
 type LocationState = {
   from?: string;

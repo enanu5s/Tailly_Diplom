@@ -1,28 +1,46 @@
-//src/features/auth/model/passwordRecoveryService.ts
-
-import { passwordRecoveryApi } from '../api/passwordRecoveryApi';
+// /src/features/auth/model/passwordRecoveryService.ts
 import { passwordRecoveryFlowStore } from './passwordRecoveryFlowStore';
+import { passwordRecoveryApi } from '../api/passwordRecoveryApi';
+
 
 export const passwordRecoveryService = {
-  async start(email: string) {
-    const res = await passwordRecoveryApi.start({ email });
-    passwordRecoveryFlowStore.setStart(email, res.recoveryId);
-    return res;
+  async sendCode(email: string): Promise<void> {
+    await passwordRecoveryApi.sendCode({ email });
+    passwordRecoveryFlowStore.setStart(email);
   },
 
-  async verify(recoveryId: string, code: string) {
-    const res = await passwordRecoveryApi.verifyCode({ recoveryId, code });
-    passwordRecoveryFlowStore.setVerified(res.resetToken);
-    return res;
+  async verifyCode(code: string): Promise<void> {
+    const { email } = passwordRecoveryFlowStore.getState();
+
+    if (!email) {
+      throw new Error('Не указан email для восстановления пароля.');
+    }
+
+    await passwordRecoveryApi.verifyCode({ email, code });
+    passwordRecoveryFlowStore.setVerified(code);
   },
 
-  async reset(resetToken: string, newPassword: string) {
-    const res = await passwordRecoveryApi.resetPassword({ resetToken, newPassword });
-    passwordRecoveryFlowStore.reset();
-    return res;
+  async resetPassword(newPassword: string): Promise<void> {
+    const { email, code } = passwordRecoveryFlowStore.getState();
+
+    if (!email) {
+      throw new Error('Не указан email для сброса пароля.');
+    }
+
+    if (!code) {
+      throw new Error('Не указан код подтверждения для сброса пароля.');
+    }
+
+    await passwordRecoveryApi.resetPassword({
+      email,
+      code,
+      newPassword,
+    });
+
+    passwordRecoveryFlowStore.complete();
   },
 
-  resetFlow() {
+  resetFlow(): void {
     passwordRecoveryFlowStore.reset();
   },
 };

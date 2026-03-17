@@ -5,10 +5,11 @@ import { makeAutoObservable, runInAction } from 'mobx';
 import { authStore } from '@/features/auth/model/authStore';
 import { profileService } from '@/features/profile/service/profileService';
 
-import { shopService } from '../service/shopService';
-import { shopOrderService } from '../service/shopOrderService';
-
 import { shopCartStore } from './shopCartStore';
+import { shopOrderService } from '../service/shopOrderService';
+import { shopService } from '../service/shopService';
+
+
 import type { CheckoutForm, PickupPoint, Product, Order } from './types';
 
 type CheckoutValidationErrors = Partial<

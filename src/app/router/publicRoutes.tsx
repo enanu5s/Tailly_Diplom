@@ -1,9 +1,11 @@
 // src/app/router/publicRoutes.tsx
 
 import { lazy } from 'react';
-import type { RouteObject } from 'react-router-dom';
 
 import { withSuspense } from './withSuspense';
+
+import type { RouteObject } from 'react-router-dom';
+
 
 const HomePage = lazy(() =>
   import('@/pages/home').then((module) => ({ default: module.HomePage })),

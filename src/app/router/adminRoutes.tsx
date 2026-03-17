@@ -1,12 +1,14 @@
 // src/app/router/adminRoutes.tsx
 
 import { lazy } from 'react';
-import type { RouteObject } from 'react-router-dom';
+
 
 import { PlaceholderAdminPage } from '@/shared/ui/placeholders/PlaceholderAdminPage';
 import { AdminRouteGuard } from '@/shared/ui/route-guards/ui/AdminRouteGuard';
 
 import { withSuspense } from './withSuspense';
+
+import type { RouteObject } from 'react-router-dom';
 
 const AdminDashboardPage = lazy(() =>
   import('@/pages/admin-dashboard/ui/AdminDashboardPage').then((module) => ({

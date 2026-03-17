@@ -1,10 +1,12 @@
 //src/features/posts/ui/PostsList.tsx
-import { useEffect } from "react";
 import { observer } from "mobx-react-lite";
-import { postsStore } from "../model/postsStore";
-import styles from "./PostsList.module.css";
+import { useEffect } from "react";
 import { useNavigate } from "react-router-dom";
+
 import { saveScrollPosition } from "@/shared/lib/scroll";
+
+import styles from "./PostsList.module.css";
+import { postsStore } from "../model/postsStore";
 
 export const PostsList = observer(() => {
   const navigate = useNavigate();

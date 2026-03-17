@@ -1,10 +1,12 @@
 //src/features/orders/ui/OrdersProductsSection.tsx
-import { useEffect } from 'react';
 import { observer } from 'mobx-react-lite';
+import { useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { ordersStore } from '../model/ordersStore';
-import type { ProductOrder } from '../model/types';
+
 import styles from './OrdersProductsSection.module.css';
+import { ordersStore } from '../model/ordersStore';
+
+import type { ProductOrder } from '../model/types';
 
 export const OrdersProductsSection = observer(() => {
   const navigate = useNavigate();

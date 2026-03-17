@@ -1,12 +1,13 @@
 // src/pages/admin-dashboard/ui/AdminDashboardPage.tsx
 
 import { useMemo, useSyncExternalStore } from 'react';
-import type { ReactElement } from 'react';
 import { useNavigate } from 'react-router-dom';
 
 import { authStore } from '@/features/auth/model/authStore';
 
 import styles from './AdminDashboardPage.module.css';
+
+import type { ReactElement } from 'react';
 
 type AdminAction = {
     title: string;

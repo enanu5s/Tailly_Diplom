@@ -1,48 +1,70 @@
-//src/features/auth/model/passwordRecoveryFlowStore.ts
-
-type RecoveryFlowState = {
-  email: string | null;
-  recoveryId: string | null;
-  resetToken: string | null;
+// /src/features/auth/model/passwordRecoveryFlowStore.ts
+export type RecoveryFlowState = {
+  email: string;
+  code: string;
+  isStarted: boolean;
+  isVerified: boolean;
 };
 
-const KEY = 'tailly_password_recovery_flow';
+type Listener = () => void;
 
-function readInitial(): RecoveryFlowState {
-  const raw = localStorage.getItem(KEY);
-  if (!raw) return { email: null, recoveryId: null, resetToken: null };
-  try {
-    return JSON.parse(raw) as RecoveryFlowState;
-  } catch {
-    return { email: null, recoveryId: null, resetToken: null };
-  }
-}
+const listeners = new Set<Listener>();
 
-let state: RecoveryFlowState = readInitial();
-const listeners = new Set<() => void>();
+let state: RecoveryFlowState = {
+  email: '',
+  code: '',
+  isStarted: false,
+  isVerified: false,
+};
 
-function commit(next: RecoveryFlowState) {
-  state = next;
-  localStorage.setItem(KEY, JSON.stringify(state));
-  listeners.forEach((l) => l());
+function notify(): void {
+  listeners.forEach((listener) => listener());
 }
 
 export const passwordRecoveryFlowStore = {
-  getState: () => state,
-  subscribe: (fn: () => void) => {
+  getState(): RecoveryFlowState {
+    return state;
+  },
+
+  subscribe(fn: Listener): () => boolean {
     listeners.add(fn);
     return () => listeners.delete(fn);
   },
 
-  setStart: (email: string, recoveryId: string) => {
-    commit({ email, recoveryId, resetToken: null });
+  setStart(email: string): void {
+    state = {
+      email: email.trim(),
+      code: '',
+      isStarted: true,
+      isVerified: false,
+    };
+    notify();
   },
 
-  setVerified: (resetToken: string) => {
-    commit({ ...state, resetToken });
+  setVerified(code: string): void {
+    state = {
+      ...state,
+      code: code.trim(),
+      isVerified: true,
+    };
+    notify();
   },
 
-  reset: () => {
-    commit({ email: null, recoveryId: null, resetToken: null });
+  complete(): void {
+    state = {
+      ...state,
+      isVerified: true,
+    };
+    notify();
+  },
+
+  reset(): void {
+    state = {
+      email: '',
+      code: '',
+      isStarted: false,
+      isVerified: false,
+    };
+    notify();
   },
 };

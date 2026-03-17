@@ -1,14 +1,15 @@
 // src/features/home/api/homeApi.mock.ts
 
+import { postsApi } from '@/features/posts/api/postsApi';
+import type { Post } from '@/features/posts/model/types';
 import { SERVICES } from '@/shared/config/services';
 import type { ServiceConfig } from '@/shared/config/services';
 
-import { postsApi } from '@/features/posts/api/postsApi';
-import type { Post } from '@/features/posts/model/types';
+
+import { deepCopy, MOCK_REVIEWS } from '../data/mockHome';
 
 import type { HomeBanner, HomeReview } from '../model/types';
 
-import { deepCopy, MOCK_REVIEWS } from '../data/mockHome';
 
 function buildBannerSubtitle(content: string, maxLength = 120): string {
   const normalized = content.replace(/\s+/g, ' ').trim();

@@ -1,7 +1,6 @@
 // src/pages/profile/ui/ProfilePage.tsx
 
 import { useEffect, useSyncExternalStore } from 'react';
-import type { ReactElement } from 'react';
 import { Navigate } from 'react-router-dom';
 
 import { authStore } from '@/features/auth/model/authStore';
@@ -11,6 +10,8 @@ import { ProfileMainCard } from '@/features/profile';
 import { profileStore } from '@/features/profile/model/profileStore';
 
 import styles from './ProfilePage.module.css';
+
+import type { ReactElement } from 'react';
 
 export const ProfilePage = (): ReactElement => {
   const authState = useSyncExternalStore(

@@ -2,9 +2,11 @@
 
 import { useMemo, useState } from 'react';
 import { Link } from 'react-router-dom';
-import type { Review } from '../model/types';
+
 import styles from './ReviewCard.module.css';
 import { ReviewPhotoModal } from './ReviewPhotoModal.tsx';
+
+import type { Review } from '../model/types';
 
 export function ReviewCard({
   review,

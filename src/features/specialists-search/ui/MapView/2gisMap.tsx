@@ -2,10 +2,13 @@
 
 import { observer } from 'mobx-react-lite';
 import { useEffect, useRef, useState } from 'react';
+
 import { load2GisMaps } from '@/shared/lib/2gis/loader';
-import type { SpecialistsSearchStore } from '../../model/specialistsSearchStore';
-import { specialistsGeoService } from '../../service/specialistsGeoService';
+
 import styles from './2gisMap.module.css';
+import { specialistsGeoService } from '../../service/specialistsGeoService';
+
+import type { SpecialistsSearchStore } from '../../model/specialistsSearchStore';
 
 type Props = {
   store: SpecialistsSearchStore;

@@ -1,9 +1,10 @@
 // src/features/specialist-profile/ui/SpecialistProfileView.tsx
 
 import { observer } from 'mobx-react-lite';
-import { SpecialistPhotoGallery } from './SpecialistPhotoGallery';
-import { SpecialistMiniCalendar } from './SpecialistMiniCalendar';
 
+import { SpecialistMiniCalendar } from './SpecialistMiniCalendar';
+import { SpecialistPhotoGallery } from './SpecialistPhotoGallery';
+import styles from './SpecialistProfileView.module.css';
 import {
     SPECIALIST_ADVANTAGE_OPTIONS,
     SPECIALIST_CHILDREN_POLICY_LABELS,
@@ -14,6 +15,7 @@ import {
     SPECIALIST_PET_TYPE_LABELS,
     SPECIALIST_SERVICE_PRICE_UNIT_LABELS,
 } from '../model/constants';
+
 import type {
     SpecialistChildrenPolicy,
     SpecialistExperienceUnit,
@@ -26,7 +28,6 @@ import type {
     SpecialistServicePriceUnit,
 } from '../model/types';
 
-import styles from './SpecialistProfileView.module.css';
 
 type MainForm = {
     avatarUrl: string;

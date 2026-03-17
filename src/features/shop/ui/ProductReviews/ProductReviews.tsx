@@ -1,7 +1,8 @@
 // src/features/shop/ui/ProductReviews/ProductReviews.tsx
+import styles from './ProductReviews.module.css';
+
 import type { ProductReview } from '../../model/types';
 
-import styles from './ProductReviews.module.css';
 
 type Props = {
     reviews: ProductReview[];

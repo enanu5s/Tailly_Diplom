@@ -1,11 +1,13 @@
 //src/features/posts/ui/PostsCarousel.tsx
 
-import { useEffect, useMemo, useRef } from 'react';
 import { observer } from 'mobx-react-lite';
-import { postsStore } from '../model/postsStore';
-import styles from './PostsCarousel.module.css';
+import { useEffect, useMemo, useRef } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
+
 import { saveScrollPosition } from '@/shared/lib/scroll';
+
+import styles from './PostsCarousel.module.css';
+import { postsStore } from '../model/postsStore';
 
 const TEXT_LIMIT = 220;
 

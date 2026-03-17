@@ -3,6 +3,7 @@
 import { makeAutoObservable, runInAction } from 'mobx';
 
 import { specialistApplicationsService } from '../service/specialistApplicationsService';
+
 import type { SpecialistApplication } from './types';
 
 type ModerationDraft = {

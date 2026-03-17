@@ -1,6 +1,5 @@
 // src/app/router/routes.tsx
 
-import type { RouteObject } from 'react-router-dom';
 
 import { Layout } from '@/app/Layout';
 
@@ -8,6 +7,8 @@ import { adminRoutes } from './adminRoutes';
 import { clientRoutes } from './clientRoutes';
 import { publicRoutes } from './publicRoutes';
 import { shopRoutes } from './shopRoutes';
+
+import type { RouteObject } from 'react-router-dom';
 
 export const routes: RouteObject[] = [
   {

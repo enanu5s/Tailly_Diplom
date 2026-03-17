@@ -1,10 +1,11 @@
 // src/features/specialist-profile/ui/SpecialistReviewRepliesPanel.tsx
 
-import type { ReactElement } from 'react';
+import styles from './SpecialistReviewRepliesPanel.module.css';
 
 import type { SpecialistReview } from '../model/types';
+import type { ReactElement } from 'react';
 
-import styles from './SpecialistReviewRepliesPanel.module.css';
+
 
 type Props = {
     reviews: SpecialistReview[];

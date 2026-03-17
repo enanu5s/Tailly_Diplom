@@ -1,9 +1,9 @@
 // src/features/auth/model/registerService.ts
 
-import { registerApi } from '../api/registerApi';
 
 import { authStore } from './authStore';
 import { registerFlowStore } from './registerFlowStore';
+import { registerApi } from '../api/registerApi';
 
 export const registerService = {
   async start(email: string, password: string) {

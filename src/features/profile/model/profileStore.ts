@@ -1,6 +1,8 @@
 import { makeAutoObservable, runInAction } from 'mobx';
-import type { UserProfile } from './types';
+
 import { profileService } from '../service/profileService';
+
+import type { UserProfile } from './types';
 
 export class ProfileStore {
   profile: UserProfile | null = null;

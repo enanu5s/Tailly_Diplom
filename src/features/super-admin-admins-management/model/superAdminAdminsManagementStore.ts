@@ -3,6 +3,7 @@
 import { makeAutoObservable, runInAction } from 'mobx';
 
 import { superAdminAdminsManagementService } from '../service/superAdminAdminsManagementService';
+
 import type {
     CreateAdminPayload,
     ManagedAdmin,

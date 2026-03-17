@@ -2,9 +2,9 @@
 
 import { makeAutoObservable, runInAction } from 'mobx';
 
-import { authService } from '../service/authService';
 import { authStore } from './authStore';
 import { LoginError } from './types';
+import { authService } from '../service/authService';
 
 class LoginStore {
     email = '';

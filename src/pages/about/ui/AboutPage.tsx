@@ -1,10 +1,12 @@
 //src/pages/about/ui/AboutPage.tsx
 
-import { PostsCarousel } from '@/features/posts/ui/PostsCarousel';
-import { FeedbackSection } from '@/shared/ui/feedback';
 import { useEffect } from 'react';
 import { useLocation } from 'react-router-dom';
+
+import { PostsCarousel } from '@/features/posts/ui/PostsCarousel';
 import { consumeScrollPosition } from '@/shared/lib/scroll';
+import { FeedbackSection } from '@/shared/ui/feedback';
+
 import styles from './AboutPage.module.css';
 
 export const AboutPage = () => {

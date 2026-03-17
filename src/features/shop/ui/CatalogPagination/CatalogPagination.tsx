@@ -1,9 +1,9 @@
 // src/features/shop/ui/CatalogPagination/CatalogPagination.tsx
 import { observer } from 'mobx-react-lite';
 
+import styles from './CatalogPagination.module.css';
 import { shopCatalogStore } from '../../model/shopCatalogStore';
 
-import styles from './CatalogPagination.module.css';
 
 export const CatalogPagination = observer(() => {
     const { filters, totalPages } = shopCatalogStore;

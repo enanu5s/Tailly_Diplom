@@ -6,18 +6,18 @@ import {
 } from '@/shared/lib/mock/specialistAccountsStorage';
 
 import {
-  AdminSpecialistsManagementError,
-  type CreateSpecialistAccountPayload,
-  type CreateSpecialistAccountResponse,
-} from '../model/types';
-
-import {
   buildSpecialistSlug,
   generateId,
   generateTemporaryPassword,
   mapCreatedAccountToResponse,
   wait,
 } from '../data/mockAdminSpecialistsManagement';
+import {
+  AdminSpecialistsManagementError,
+  type CreateSpecialistAccountPayload,
+  type CreateSpecialistAccountResponse,
+} from '../model/types';
+
 
 export async function mockCreateSpecialistAccount(
   payload: CreateSpecialistAccountPayload,

@@ -1,5 +1,6 @@
 // src/features/shop/service/shopService.ts
 import { shopApi } from '../api/shopApi';
+
 import type {
     CatalogFilterState,
     CatalogMetaResponse,

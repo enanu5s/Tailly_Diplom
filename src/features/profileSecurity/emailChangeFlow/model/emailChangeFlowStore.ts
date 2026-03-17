@@ -1,8 +1,11 @@
 //src/features/profileSecurity/emailChangeFlow/model/emailChangeFlowStore.ts
 import { makeAutoObservable, runInAction } from 'mobx';
-import type { EmailChangeFlowState } from './types';
-import { securityService } from '../../service/securityService';
+
 import { profileStore } from '@/features/profile/model/profileStore';
+
+import { securityService } from '../../service/securityService';
+
+import type { EmailChangeFlowState } from './types';
 
 const LS_KEY = 'tailly:flow:email-change';
 

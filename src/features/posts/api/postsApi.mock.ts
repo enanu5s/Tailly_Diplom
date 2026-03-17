@@ -1,6 +1,7 @@
 // src/features/posts/api/postsApi.mock.ts
 
 import { MOCK_POSTS } from '../data/mockPosts';
+
 import type { Post, PostsListParams, PostsListResponse } from '../model/types';
 
 function sortPosts(posts: Post[], sort: PostsListParams['sort']): Post[] {

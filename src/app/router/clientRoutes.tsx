@@ -1,12 +1,14 @@
 // src/app/router/clientRoutes.tsx
 
 import { lazy } from 'react';
-import type { RouteObject } from 'react-router-dom';
+
 
 import { ProtectedRoute } from '@/app/router/ProtectedRoute';
 import { SpecialistOwnerRouteGuard } from '@/app/router/SpecialistOwnerRouteGuard';
 
 import { withSuspense } from './withSuspense';
+
+import type { RouteObject } from 'react-router-dom';
 
 const ProfilePage = lazy(() =>
   import('@/pages/profile').then((module) => ({ default: module.ProfilePage })),

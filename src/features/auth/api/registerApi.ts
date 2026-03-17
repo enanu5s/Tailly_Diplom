@@ -2,14 +2,15 @@
 
 import { request } from '@/shared/api/http';
 
-import type { AuthUser } from '../model/authStore';
-
 import {
   mockCompleteProfile,
   mockGetCities,
   mockStartRegister,
   mockVerifyCode,
 } from './registerApi.mock';
+
+import type { AuthUser } from '../model/authStore';
+
 
 const USE_MOCK = (import.meta.env.VITE_USE_MOCK_API ?? 'true') === 'true';
 

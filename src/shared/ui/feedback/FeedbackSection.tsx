@@ -1,8 +1,10 @@
 //src/shared/ui/feedback/FeedbackSection.tsx
 
 import { useState } from "react";
-import styles from "./FeedbackSection.module.css";
+
 import { feedbackApi } from "@/shared/api/feedbackApi";
+
+import styles from "./FeedbackSection.module.css";
 
 type Props = {
   phone?: string;

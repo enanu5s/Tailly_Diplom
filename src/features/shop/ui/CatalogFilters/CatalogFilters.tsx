@@ -2,10 +2,11 @@
 import { observer } from 'mobx-react-lite';
 import { useMemo } from 'react';
 
+import styles from './CatalogFilters.module.css';
 import { shopCatalogStore } from '../../model/shopCatalogStore';
+
 import type { ProductSort } from '../../model/types';
 
-import styles from './CatalogFilters.module.css';
 
 const SORT_LABELS: Record<ProductSort, string> = {
     popular: 'Сначала популярные',

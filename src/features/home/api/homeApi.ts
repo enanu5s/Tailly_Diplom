@@ -1,10 +1,10 @@
 // src/features/home/api/homeApi.ts
 
+import { postsApi } from '@/features/posts/api/postsApi';
+import type { Post } from '@/features/posts/model/types';
 import { request } from '@/shared/api/http';
 import type { ServiceConfig } from '@/shared/config/services';
 
-import { postsApi } from '@/features/posts/api/postsApi';
-import type { Post } from '@/features/posts/model/types';
 
 import {
   mockGetLatestBanners,

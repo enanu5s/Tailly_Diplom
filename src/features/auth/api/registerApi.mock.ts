@@ -1,5 +1,7 @@
 // src/features/auth/api/registerApi.mock.ts
 
+import { cloneCities, getMockRegisterState, wait } from '../data/mockRegister';
+
 import type {
   City,
   CompleteProfileRequest,
@@ -10,7 +12,6 @@ import type {
   VerifyCodeResponse,
 } from './registerApi';
 
-import { cloneCities, getMockRegisterState, wait } from '../data/mockRegister';
 
 export async function mockStartRegister(
   dto: StartRegisterRequest,

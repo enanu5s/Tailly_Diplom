@@ -1,9 +1,11 @@
 // src/shared/ui/dropdown/DropdownMenu.tsx
-import { useEffect, useRef, useState } from 'react';
-import type { FC } from 'react';
-import { Link } from 'react-router-dom';
 import clsx from 'clsx';
+import { useEffect, useRef, useState } from 'react';
+import { Link } from 'react-router-dom';
+
 import styles from './DropdownMenu.module.css';
+
+import type { FC } from 'react';
 
 export interface NavItem {
   label: string;

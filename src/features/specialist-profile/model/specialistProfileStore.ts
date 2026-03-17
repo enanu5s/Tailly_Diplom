@@ -4,6 +4,7 @@ import { makeAutoObservable, runInAction } from 'mobx';
 
 import { SPECIALIST_ADVANTAGE_OPTIONS } from './constants';
 import { specialistProfileService } from '../service/specialistProfileService';
+
 import type {
     SpecialistChildrenPolicy,
     SpecialistDetails,

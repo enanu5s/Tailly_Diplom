@@ -1,20 +1,20 @@
 // src/features/specialist-profile/ui/SpecialistMiniCalendar.tsx
 
-import type { ReactElement } from 'react';
 import { useNavigate } from 'react-router-dom';
 
+import styles from './SpecialistMiniCalendar.module.css';
 import {
     buildCalendarMonthDays,
     CALENDAR_STATUS_LABELS,
     CALENDAR_WEEKDAY_LABELS,
     toIsoDate,
 } from '../model/calendarUtils';
+
 import type {
     SpecialistCalendar,
     SpecialistCalendarDayStatus,
 } from '../model/types';
-
-import styles from './SpecialistMiniCalendar.module.css';
+import type { ReactElement } from 'react';
 
 type Props = {
     calendar: SpecialistCalendar;

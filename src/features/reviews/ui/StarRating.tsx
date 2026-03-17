@@ -1,6 +1,7 @@
 //src/features/reviews/ui/StarRating.tsx
 
 import { memo } from 'react';
+
 import styles from './StarRating.module.css';
 
 type Props = {

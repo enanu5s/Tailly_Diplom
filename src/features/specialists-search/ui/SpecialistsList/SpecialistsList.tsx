@@ -1,9 +1,11 @@
 //src/features/specialists-search/ui/SpecialistsList/SpecialistsList.tsx
 
 import { observer } from 'mobx-react-lite';
-import type { SpecialistsSearchStore } from '../../model/specialistsSearchStore';
+
 import { SpecialistCard } from './SpecialistCard';
 import styles from './SpecialistsList.module.css';
+
+import type { SpecialistsSearchStore } from '../../model/specialistsSearchStore';
 
 type Props = {
   store: SpecialistsSearchStore;

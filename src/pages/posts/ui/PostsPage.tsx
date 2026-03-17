@@ -1,8 +1,11 @@
 import { useEffect } from 'react';
-import { PostsList } from '@/features/posts/ui/PostsList';
 import { useNavigate } from 'react-router-dom';
-import styles from './PostsPage.module.css';
+
+import { PostsList } from '@/features/posts/ui/PostsList';
 import { consumeScrollPosition } from '@/shared/lib/scroll';
+
+import styles from './PostsPage.module.css';
+
 
 export const PostsPage = () => {
   const navigate = useNavigate();

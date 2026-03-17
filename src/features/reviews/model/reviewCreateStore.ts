@@ -1,8 +1,10 @@
 //src/features/reviews/model/reviewCreateStore.ts
 
 import { makeAutoObservable, runInAction } from 'mobx';
-import type { Review, ReviewContext } from './types';
+
 import { reviewsService } from '../service/reviewsService';
+
+import type { Review, ReviewContext } from './types';
 
 type LocalPhoto = { url: string; file: File };
 

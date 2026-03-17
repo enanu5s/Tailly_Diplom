@@ -1,11 +1,12 @@
 // src/features/shop/ui/ProductPurchasePanel/ProductPurchasePanel.tsx
 import { observer } from 'mobx-react-lite';
 
+import styles from './ProductPurchasePanel.module.css';
 import { shopCartStore } from '../../model/shopCartStore';
 import { shopFavoritesStore } from '../../model/shopFavoritesStore';
+
 import type { Product } from '../../model/types';
 
-import styles from './ProductPurchasePanel.module.css';
 
 type Props = {
     product: Product;

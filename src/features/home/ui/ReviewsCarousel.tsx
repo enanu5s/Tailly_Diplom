@@ -1,11 +1,14 @@
 //src/features/home/ui/ReviewsCarousel.tsx
 
 import { useMemo, useState } from 'react';
-import type { HomeReview } from '../model/types';
-import styles from './ReviewsCarousel.module.css';
+
 
 import { ReviewCard } from '@/features/reviews';
 import type { Review } from '@/features/reviews/model/types';
+
+import styles from './ReviewsCarousel.module.css';
+
+import type { HomeReview } from '../model/types';
 
 export function ReviewsCarousel(props: { items: HomeReview[] }) {
   const items = useMemo(() => props.items.slice(0, 5), [props.items]);

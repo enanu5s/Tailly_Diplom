@@ -1,12 +1,13 @@
 // src/features/pets/api/petsApi.mock.ts
 
-import type { Breed, Pet } from '../model/types';
-
 import {
   deepCopy,
   MOCK_BREEDS,
   MOCK_PETS,
 } from '../data/mockPets';
+
+import type { Breed, Pet } from '../model/types';
+
 
 export async function mockGetPets(): Promise<Pet[]> {
   return deepCopy(MOCK_PETS);

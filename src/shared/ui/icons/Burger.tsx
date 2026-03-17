@@ -1,8 +1,9 @@
 // src/shared/ui/icons/Burger.tsx
-import type { FC, HTMLAttributes } from 'react';
 import clsx from 'clsx';
 
 import styles from './Burger.module.css';
+
+import type { FC, HTMLAttributes } from 'react';
 
 interface BurgerProps extends HTMLAttributes<HTMLSpanElement> {
   isOpen: boolean;

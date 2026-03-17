@@ -2,7 +2,6 @@
 
 import { observer } from 'mobx-react-lite';
 import { useEffect, useSyncExternalStore } from 'react';
-import type { FormEvent, ReactElement } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
 
 import { adminLoginStore } from '@/features/admin-auth/model/adminLoginStore';
@@ -10,6 +9,8 @@ import { authStore } from '@/features/auth/model/authStore';
 import { canAccessAdminArea } from '@/shared/lib/auth/roleAccess';
 
 import styles from './AdminLoginPage.module.css';
+
+import type { FormEvent, ReactElement } from 'react';
 
 type LocationState = {
     from?: string;

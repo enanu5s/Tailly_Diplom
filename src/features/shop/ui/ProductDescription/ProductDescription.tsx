@@ -1,7 +1,8 @@
 // src/features/shop/ui/ProductDescription/ProductDescription.tsx
+import styles from './ProductDescription.module.css';
+
 import type { Product } from '../../model/types';
 
-import styles from './ProductDescription.module.css';
 
 type Props = {
     product: Product;

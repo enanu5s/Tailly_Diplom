@@ -1,12 +1,14 @@
 //src/pages/leave-review/ui/LeaveReviewPage.tsx
 
-import { useEffect, useMemo } from 'react';
 import { observer } from 'mobx-react-lite';
+import { useEffect, useMemo } from 'react';
 import { Link, useLocation, useNavigate, useParams } from 'react-router-dom';
+
 import { reviewCreateStore } from '@/features/reviews';
 import { StarRating } from '@/features/reviews';
-import styles from './LeaveReviewPage.module.css';
 import { ReviewCard } from '@/features/reviews';
+
+import styles from './LeaveReviewPage.module.css';
 
 type LocationState = {
   from?: string;

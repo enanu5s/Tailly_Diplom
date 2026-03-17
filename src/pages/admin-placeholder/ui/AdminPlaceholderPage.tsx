@@ -1,8 +1,9 @@
 // src/pages/admin-placeholder/ui/AdminPlaceholderPage.tsx
 
+import styles from './AdminPlaceholderPage.module.css';
+
 import type { ReactElement } from 'react';
 
-import styles from './AdminPlaceholderPage.module.css';
 
 type Props = {
     title: string;

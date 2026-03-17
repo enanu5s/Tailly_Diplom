@@ -3,7 +3,6 @@
 import { request } from '@/shared/api/http';
 
 import { mockLogin } from './authApi.mock';
-
 import {
   type LoginPayload,
   type LoginSuccessResponse,

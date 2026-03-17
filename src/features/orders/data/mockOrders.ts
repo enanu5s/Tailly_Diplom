@@ -2,7 +2,7 @@
 
 import type { ProductOrder, ServiceOrder } from '../model/types';
 
-export let MOCK_SERVICE_ORDERS: ServiceOrder[] = [
+export const MOCK_SERVICE_ORDERS: ServiceOrder[] = [
   {
     id: 'so-1',
     dateFrom: '2026-02-28T10:00:00.000Z',

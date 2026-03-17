@@ -1,7 +1,9 @@
 //src/features/orders/model/ordersStore.ts
 import { makeAutoObservable, runInAction } from 'mobx';
-import type { ProductOrder, ServiceOrder, ServicesFilter } from './types';
+
 import { ordersService } from '../service/ordersService';
+
+import type { ProductOrder, ServiceOrder, ServicesFilter } from './types';
 
 export class OrdersStore {
   servicesFilter: ServicesFilter = 'all';

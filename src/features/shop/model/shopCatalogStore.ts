@@ -1,7 +1,6 @@
 // src/features/shop/model/shopCatalogStore.ts
 import { makeAutoObservable, reaction, runInAction } from 'mobx';
 
-import { shopService } from '../service/shopService';
 import {
     DEFAULT_CATALOG_FILTERS,
     type CatalogFilterState,
@@ -9,6 +8,7 @@ import {
     type ProductCategory,
     type ProductSort,
 } from './types';
+import { shopService } from '../service/shopService';
 
 export class ShopCatalogStore {
     filters: CatalogFilterState = JSON.parse(JSON.stringify(DEFAULT_CATALOG_FILTERS));

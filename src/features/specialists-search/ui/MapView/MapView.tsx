@@ -1,10 +1,12 @@
 // src/features/specialists-search/ui/MapView/MapView.tsx
 
 import { observer } from 'mobx-react-lite';
-import type { SpecialistsSearchStore } from '../../model/specialistsSearchStore';
-import { SpecialistCard } from '../SpecialistsList/SpecialistCard';
+
 import { GisMap } from './2gisMap';
 import styles from './MapView.module.css';
+import { SpecialistCard } from '../SpecialistsList/SpecialistCard';
+
+import type { SpecialistsSearchStore } from '../../model/specialistsSearchStore';
 
 type Props = {
   store: SpecialistsSearchStore;

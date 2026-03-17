@@ -1,7 +1,9 @@
 // src/shared/ui/footer/Footer.tsx
 import { Link } from 'react-router-dom';
+
 import { footerLinks } from '@/shared/config/navigation';
 import { Logo } from '@/shared/ui/logo';
+
 import styles from './Footer.module.css';
 
 export const Footer = () => {

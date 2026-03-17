@@ -2,9 +2,10 @@
 
 import { useEffect, useMemo, useState } from 'react';
 
+import styles from './SpecialistPhotoGallery.module.css';
+
 import type { SpecialistGalleryItem } from '../model/types';
 
-import styles from './SpecialistPhotoGallery.module.css';
 
 type Props = {
     items: SpecialistGalleryItem[];

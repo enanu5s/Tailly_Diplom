@@ -1,8 +1,9 @@
-import { useEffect } from 'react';
 import { observer } from 'mobx-react-lite';
+import { useEffect } from 'react';
 import { Link } from 'react-router-dom';
-import { profileStore } from '../model/profileStore';
+
 import styles from './ProfileMainCard.module.css';
+import { profileStore } from '../model/profileStore';
 
 export const ProfileMainCard = observer(() => {
   useEffect(() => {

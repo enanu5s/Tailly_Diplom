@@ -4,8 +4,8 @@ import { makeAutoObservable, runInAction } from 'mobx';
 
 import { authStore } from '@/features/auth/model/authStore';
 
-import { adminAuthService } from '../service/adminAuthService';
 import { AdminLoginError } from './types';
+import { adminAuthService } from '../service/adminAuthService';
 
 class AdminLoginStore {
     email = '';

@@ -3,8 +3,8 @@ import { observer } from 'mobx-react-lite';
 import { useEffect } from 'react';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
 
-import { ProductBackButton } from '@/features/shop/ui';
 import { shopCheckoutStore } from '@/features/shop/model/shopCheckoutStore';
+import { ProductBackButton } from '@/features/shop/ui';
 
 import styles from './ShopCheckoutPage.module.css';
 

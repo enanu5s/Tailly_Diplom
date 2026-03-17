@@ -1,8 +1,10 @@
 //src/pages/register-client/step1/ui/RegisterClientStep1Page.tsx
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
-import styles from "../../RegisterClient.module.css";
+
 import { registerService } from "@/features/auth/model/registerService";
+
+import styles from "../../RegisterClient.module.css";
 
 export const RegisterClientStep1Page = () => {
   const navigate = useNavigate();

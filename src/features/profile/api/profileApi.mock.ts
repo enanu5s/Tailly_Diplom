@@ -1,8 +1,9 @@
 // src/features/profile/api/profileApi.mock.ts
 
+import { deepCopy, MOCK_PROFILE } from '../data/mockProfile';
+
 import type { UserProfile } from '../model/types';
 
-import { deepCopy, MOCK_PROFILE } from '../data/mockProfile';
 
 export async function mockGetProfile(): Promise<UserProfile> {
   return deepCopy(MOCK_PROFILE);

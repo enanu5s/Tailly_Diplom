@@ -1,11 +1,12 @@
 // src/pages/admin-specialist-applications/ui/AdminSpecialistApplicationsPage.tsx
 
-import type { ReactElement } from 'react';
 import { useNavigate } from 'react-router-dom';
 
-import { SpecialistApplicationsModerationSection } from '@/features/specialist-applications';
+import { SpecialistApplicationsModerationSection } from '@/features/specialist-applications/ui/SpecialistApplicationsModerationSection';
 
 import styles from './AdminSpecialistApplicationsPage.module.css';
+
+import type { ReactElement } from 'react';
 
 export function AdminSpecialistApplicationsPage(): ReactElement {
     const navigate = useNavigate();

@@ -1,7 +1,9 @@
 //src/pages/profile-security-password/ui/ChangePasswordPage.tsx
 import { useMemo, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
+
 import { securityService } from '@/features/profileSecurity/service/securityService';
+
 import styles from './ChangePasswordPage.module.css';
 
 export const ChangePasswordPage = () => {

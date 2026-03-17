@@ -1,6 +1,7 @@
-//src/features/specialists-search/model/types.ts
-
+// /src/features/specialists-search/model/types.ts
 import type { ServiceId } from '@/shared/config/services';
+
+export type { ServiceId } from '@/shared/config/services';
 
 export type PetType = 'dog' | 'cat' | 'other';
 
@@ -30,8 +31,8 @@ export type Specialist = {
 };
 
 export type DateRange = {
-  from: string | null; // ISO yyyy-mm-dd
-  to: string | null;   // ISO yyyy-mm-dd
+  from: string | null;
+  to: string | null;
 };
 
 export type ViewMode = 'list' | 'map';
@@ -39,21 +40,16 @@ export type ViewMode = 'list' | 'map';
 export type SearchFilters = {
   cityQuery: string;
   districtQuery: string;
-
   dateRange: DateRange;
-
   petType: PetType | 'any';
   serviceId: ServiceId | 'any';
-
   priceMin: number | null;
   priceMax: number | null;
-
   experienceMinYears: number | null;
   hasReviewsOnly: boolean;
 };
 
 export type MapBounds = {
-  // lat/lon bounds: SW & NE
   sw: GeoPoint;
   ne: GeoPoint;
 };

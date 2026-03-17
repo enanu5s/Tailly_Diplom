@@ -1,16 +1,17 @@
 // src/features/reviews/api/reviewsApi.mock.ts
 
+import {
+  deepCopy,
+  MOCK_CONTEXTS,
+  MOCK_REVIEWS,
+} from '../data/mockReviews';
+
 import type {
   Review,
   ReviewContext,
   ReviewCreatePayload,
 } from '../model/types';
 
-import {
-  deepCopy,
-  MOCK_CONTEXTS,
-  MOCK_REVIEWS,
-} from '../data/mockReviews';
 
 export async function mockGetContext(
   orderId: string,

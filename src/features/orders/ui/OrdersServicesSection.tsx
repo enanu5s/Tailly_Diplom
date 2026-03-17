@@ -1,11 +1,17 @@
 //src/features/orders/ui/OrdersServicesSection.tsx
-import { useEffect } from 'react';
 import { observer } from 'mobx-react-lite';
-import { ordersStore } from '../model/ordersStore';
-import type { ServicesFilter, ServiceOrder } from '../model/types';
-import { petsStore } from '@/features/pets/model/petsStore';
-import styles from './OrdersServicesSection.module.css';
+import { useEffect } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
+
+import { petsStore } from '@/features/pets/model/petsStore';
+
+import styles from './OrdersServicesSection.module.css';
+import { ordersStore } from '../model/ordersStore';
+
+import type { ServicesFilter, ServiceOrder } from '../model/types';
+
+
+
 
 const FILTERS: Array<{ key: ServicesFilter; label: string }> = [
   { key: 'all', label: 'Все' },

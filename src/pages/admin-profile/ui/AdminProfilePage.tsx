@@ -2,11 +2,13 @@
 
 import { useSyncExternalStore } from 'react';
 import { useNavigate } from 'react-router-dom';
-import type { ReactElement } from 'react';
+
 
 import { authStore } from '@/features/auth/model/authStore';
 
 import styles from './AdminProfilePage.module.css';
+
+import type { ReactElement } from 'react';
 
 export function AdminProfilePage(): ReactElement {
     const navigate = useNavigate();

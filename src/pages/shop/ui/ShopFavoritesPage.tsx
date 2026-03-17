@@ -3,8 +3,8 @@ import { observer } from 'mobx-react-lite';
 import { useEffect } from 'react';
 import { Link, useLocation } from 'react-router-dom';
 
-import { shopFavoritesStore } from '@/features/shop/model/shopFavoritesStore';
 import { shopFavoritesPageStore } from '@/features/shop/model/shopFavoritesPageStore';
+import { shopFavoritesStore } from '@/features/shop/model/shopFavoritesStore';
 import {
     FavoriteItemCard,
     ProductBackButton,

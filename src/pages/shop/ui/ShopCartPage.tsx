@@ -1,11 +1,11 @@
 // src/pages/shop/ui/ShopCartPage.tsx
+import { reaction } from "mobx";
 import { observer } from "mobx-react-lite";
 import { useEffect } from "react";
 import { Link, useLocation } from "react-router-dom";
-import { reaction } from "mobx";
 
-import { shopCartStore } from "@/features/shop/model/shopCartStore";
 import { shopCartPageStore } from "@/features/shop/model/shopCartPageStore";
+import { shopCartStore } from "@/features/shop/model/shopCartStore";
 import {
   CartItemCard,
   CartSummary,

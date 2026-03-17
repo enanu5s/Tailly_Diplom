@@ -1,87 +1,81 @@
-//src/pages/forgot-password/email/ui/ForgotPasswordEmailPage.tsx
+// /src/pages/forgot-password/email/ui/ForgotPasswordEmailPage.tsx
+import { useState } from 'react';
+import { Link, useNavigate } from 'react-router-dom';
 
-import { useState } from "react";
-import { Link, useNavigate } from "react-router-dom";
-import styles from "../../ForgotPassword.module.css";
-import { passwordRecoveryService } from "@/features/auth/model/passwordRecoveryService";
+import { passwordRecoveryService } from '@/features/auth/model/passwordRecoveryService';
 
-export const ForgotPasswordEmailPage = () => {
+import styles from '../../ForgotPassword.module.css';
+
+export function ForgotPasswordEmailPage() {
   const navigate = useNavigate();
-  const [email, setEmail] = useState("");
-  const [error, setError] = useState<string | null>(null);
-  const [loading, setLoading] = useState(false);
 
-  const onSubmit = async (error: React.FormEvent) => {
-    error.preventDefault();
-    setError(null);
-    setLoading(true);
+  const [email, setEmail] = useState('');
+  const [submitting, setSubmitting] = useState(false);
+  const [error, setError] = useState('');
+
+  const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
+    event.preventDefault();
+
+    const normalizedEmail = email.trim();
+
+    if (!normalizedEmail) {
+      setError('Введите email.');
+      return;
+    }
+
     try {
-      await passwordRecoveryService.start(email);
-      navigate("/forgot-password/verify");
-    } catch (error: unknown) {
-      const message =
-        error instanceof Error ? error.message : "Что-то пошло не так";
+      setSubmitting(true);
+      setError('');
 
-      setError(message);
+      await passwordRecoveryService.sendCode(normalizedEmail);
+      navigate('/forgot-password/verify', { replace: true });
+    } catch (submissionError) {
+      setError(
+        submissionError instanceof Error
+          ? submissionError.message
+          : 'Не удалось отправить код восстановления.',
+      );
     } finally {
-      setLoading(false);
+      setSubmitting(false);
     }
   };
 
+  const handleBackClick = () => {
+    passwordRecoveryService.resetFlow();
+  };
+
   return (
-    <div className={styles.page}>
-      <div className={styles.container}>
-        <button onClick={() => navigate(-1)} className={styles.backButton}>
-          ← Назад
+    <div className={styles.card}>
+      <h1 className={styles.title}>Восстановление пароля</h1>
+      <p className={styles.text}>
+        Введите email, который привязан к вашему аккаунту. Мы отправим код для
+        восстановления пароля.
+      </p>
+
+      <form className={styles.form} onSubmit={handleSubmit}>
+        <label className={styles.label}>
+          Email
+          <input
+            className={styles.input}
+            type="email"
+            value={email}
+            onChange={(event) => setEmail(event.target.value)}
+            placeholder="example@mail.com"
+            autoComplete="email"
+            disabled={submitting}
+          />
+        </label>
+
+        {error ? <p className={styles.error}>{error}</p> : null}
+
+        <button className={styles.primaryButton} type="submit" disabled={submitting}>
+          {submitting ? 'Отправляем...' : 'Отправить код'}
         </button>
+      </form>
 
-        <h1 className={styles.title}>Восстановление пароля</h1>
-        <p className={styles.subtitle}>Шаг 1 из 3 — укажите почту</p>
-
-        <div className={styles.card}>
-          <form className={styles.form} onSubmit={onSubmit}>
-            <input
-              className={styles.input}
-              type="email"
-              placeholder="Email"
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
-              required
-            />
-
-            {error && <div className={styles.error}>{error}</div>}
-
-            <button
-              className={styles.submitButton}
-              disabled={loading}
-              type="submit"
-            >
-              {loading ? "Отправляем..." : "Отправить код"}
-            </button>
-
-            <div className={styles.actionsRow}>
-              <button
-                type="button"
-                className={styles.linkButton}
-                onClick={() => {
-                  setEmail("");
-                  passwordRecoveryService.resetFlow();
-                }}
-              >
-                Очистить
-              </button>
-
-              <span style={{ color: "#6b7280", fontSize: "0.95rem" }}>
-                (в мок-режиме код: 123456)
-              </span>
-            </div>
-
-            <div className={styles.hint}>
-              Вспомнили пароль? <Link to="/login">Войти</Link>
-            </div>
-          </form>
-        </div>
-      </div>
+      <Link className={styles.secondaryLink} to="/login" onClick={handleBackClick}>
+        Вернуться ко входу
+      </Link>
     </div>
   );
-};
+}

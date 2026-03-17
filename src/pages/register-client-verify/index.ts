@@ -1,2 +1,2 @@
-// src/pages/register-client-verify/
-export { default as RegisterClientVerifyPage } from './ui/RegisterClientVerifyPage';
+// /src/pages/register-client-verify/index.ts
+export { RegisterClientVerifyPage } from './ui/RegisterClientVerifyPage';

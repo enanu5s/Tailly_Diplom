@@ -1,16 +1,16 @@
 // src/shared/ui/header/Header.tsx
+import clsx from 'clsx';
 import { useState } from 'react';
 import { Link, useLocation } from 'react-router-dom';
-import clsx from 'clsx';
 
-import { useAuth } from '@/features/auth/model/useAuth';
 import { authService } from '@/features/auth/model/authService';
+import { useAuth } from '@/features/auth/model/useAuth';
 import { mainNav } from '@/shared/config/navigation';
 
+import styles from './Header.module.css';
 import { DropdownMenu } from '../dropdown/DropdownMenu.tsx';
 import { Burger } from '../icons/Burger.tsx';
 import { Logo } from '../logo/Logo.tsx';
-import styles from './Header.module.css';
 
 export const Header = () => {
   const [isMobileOpen, setIsMobileOpen] = useState(false);

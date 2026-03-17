@@ -2,13 +2,13 @@
 
 import { makeAutoObservable, runInAction } from 'mobx';
 
-import { specialistProfileService } from '../service/specialistProfileService';
-
 import {
     getCalendarDayStatus,
     isValidTimeRange,
     toIsoDate,
 } from './calendarUtils';
+import { specialistProfileService } from '../service/specialistProfileService';
+
 import type {
     SpecialistCalendar,
     SpecialistCalendarAvailabilityWindow,

@@ -2,16 +2,17 @@
 import { observer } from 'mobx-react-lite';
 import { useEffect, useRef, useState } from 'react';
 
-import type { SpecialistsSearchStore } from '../../model/specialistsSearchStore';
-import type { PetType } from '../../model/types';
-import { specialistsGeoService } from '../../service/specialistsGeoService';
-import type { GeoSuggestItem } from '../../api/specialistsGeoApi';
 
 import { SERVICES } from '@/shared/config/services';
 import type { ServiceId } from '@/shared/config/services';
 
 import { AdditionalFilters } from './AdditionalFilters';
 import styles from './FiltersPanel.module.css';
+import { specialistsGeoService } from '../../service/specialistsGeoService';
+
+import type { GeoSuggestItem } from '../../api/specialistsGeoApi';
+import type { SpecialistsSearchStore } from '../../model/specialistsSearchStore';
+import type { PetType } from '../../model/types';
 
 type Props = { store: SpecialistsSearchStore };
 

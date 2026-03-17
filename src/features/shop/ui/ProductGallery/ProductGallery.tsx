@@ -1,9 +1,10 @@
 // src/features/shop/ui/ProductGallery/ProductGallery.tsx
 import { useState } from "react";
 
+import styles from "./ProductGallery.module.css";
+
 import type { ProductImage } from "../../model/types";
 
-import styles from "./ProductGallery.module.css";
 
 type Props = {
   images: ProductImage[];

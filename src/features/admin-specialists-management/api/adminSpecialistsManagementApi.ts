@@ -2,7 +2,6 @@
 import { request } from '@/shared/api/http';
 
 import { mockCreateSpecialistAccount } from './adminSpecialistsManagementApi.mock';
-
 import {
   type CreateSpecialistAccountPayload,
   type CreateSpecialistAccountResponse,

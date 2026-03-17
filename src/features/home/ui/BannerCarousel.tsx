@@ -3,8 +3,9 @@
 import { useMemo, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 
-import type { HomeBanner } from '../model/types';
 import styles from './BannerCarousel.module.css';
+
+import type { HomeBanner } from '../model/types';
 
 type Props = {
   items: HomeBanner[];

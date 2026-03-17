@@ -1,6 +1,7 @@
 //src/features/reviews/ui/ReviewPhotoModal.tsx
 
 import { useEffect, useState } from 'react';
+
 import styles from './ReviewPhotoModal.module.css';
 
 export function ReviewPhotoModal(props: { photos: string[]; startIndex: number; onClose: () => void }) {

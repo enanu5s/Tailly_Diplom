@@ -6,7 +6,6 @@ import {
   getSession,
   wait,
 } from '../data/mockPasswordRecovery';
-
 import {
   PasswordRecoveryError,
   type SendRecoveryCodePayload,

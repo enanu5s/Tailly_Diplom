@@ -2,11 +2,12 @@
 import { observer } from 'mobx-react-lite';
 import { Link, useLocation } from 'react-router-dom';
 
+import styles from './FavoriteItemCard.module.css';
 import { shopCartStore } from '../../model/shopCartStore';
 import { shopFavoritesStore } from '../../model/shopFavoritesStore';
+
 import type { Product } from '../../model/types';
 
-import styles from './FavoriteItemCard.module.css';
 
 type Props = {
     product: Product;

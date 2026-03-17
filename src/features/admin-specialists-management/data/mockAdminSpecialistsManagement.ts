@@ -1,9 +1,10 @@
 //src/features/admin-specialists-management/data/mockAdminSpecialistsManagement.ts
+import type { ManagedSpecialistMockAccount } from '@/shared/lib/mock/specialistAccountsStorage';
+
 import type {
   CreateSpecialistAccountResponse,
 } from '../model/types';
 
-import type { ManagedSpecialistMockAccount } from '@/shared/lib/mock/specialistAccountsStorage';
 
 export function wait(delay = 300): Promise<void> {
   return new Promise((resolve) => {

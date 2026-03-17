@@ -1,7 +1,6 @@
 // src/shared/ui/route-guards/AdminRouteGuard.tsx
 
 import { useSyncExternalStore } from 'react';
-import type { ReactNode, ReactElement } from 'react';
 import { Navigate, useLocation } from 'react-router-dom';
 
 import { authStore } from '@/features/auth/model/authStore';
@@ -9,6 +8,8 @@ import {
     canAccessAdminArea,
     canAccessSuperAdminArea,
 } from '@/shared/lib/auth/roleAccess';
+
+import type { ReactNode, ReactElement } from 'react';
 
 type Props = {
     children: ReactNode;

@@ -1,14 +1,6 @@
 // src/features/super-admin-admins-management/api/superAdminAdminsManagementApi.mock.ts
 
 import {
-  AdminManagementError,
-  type CreateAdminPayload,
-  type CreateAdminResponse,
-  type DeleteAdminPayload,
-  type ManagedAdmin,
-} from '../model/types';
-
-import {
   buildAdminId,
   buildTemporaryPassword,
   cloneAdmins,
@@ -17,6 +9,14 @@ import {
   type MockAdminRecord,
   wait,
 } from '../data/mockAdminsManagement';
+import {
+  AdminManagementError,
+  type CreateAdminPayload,
+  type CreateAdminResponse,
+  type DeleteAdminPayload,
+  type ManagedAdmin,
+} from '../model/types';
+
 
 export async function mockGetAdmins(): Promise<ManagedAdmin[]> {
   await wait();

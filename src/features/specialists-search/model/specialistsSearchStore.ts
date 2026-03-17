@@ -1,5 +1,11 @@
 //src/features/specialists-search/model/specialistsSearchStore.ts
 import { makeAutoObservable, runInAction } from 'mobx';
+
+import type { ServiceId } from '@/shared/config/services';
+
+import { servicesSearchPersist } from './persist';
+import { specialistsSearchService } from '../service/specialistsSearchService';
+
 import type {
   Specialist,
   SearchFilters,
@@ -8,9 +14,6 @@ import type {
   SortMode,
   PetType,
 } from './types';
-import type { ServiceId } from '@/shared/config/services';
-import { specialistsSearchService } from '../service/specialistsSearchService';
-import { servicesSearchPersist } from './persist';
 
 function defaultFilters(): SearchFilters {
   return {

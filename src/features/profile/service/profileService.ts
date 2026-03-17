@@ -1,6 +1,7 @@
 // src/features/profile/service/profileService.ts
-import type { UserProfile } from '../model/types';
 import { profileApi } from '../api/profileApi';
+
+import type { UserProfile } from '../model/types';
 
 export const profileService = {
   getProfile: () => profileApi.getProfile(),

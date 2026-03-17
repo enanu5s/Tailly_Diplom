@@ -1,8 +1,9 @@
 //src/features/pets/ui/PetsSection.tsx
-import { useEffect, useRef } from "react";
 import { observer } from "mobx-react-lite";
-import { petsStore } from "../model/petsStore";
+import { useEffect, useRef } from "react";
+
 import styles from "./PetsSection.module.css";
+import { petsStore } from "../model/petsStore";
 
 import type { Pet, PetType } from "../model/types";
 

@@ -1,17 +1,17 @@
 // src/pages/specialist-calendar-edit/ui/SpecialistCalendarEditPage.tsx
 
-import { useEffect, useMemo } from 'react';
 import { observer } from 'mobx-react-lite';
+import { useEffect, useMemo } from 'react';
 import { Link, Navigate, useParams } from 'react-router-dom';
 
 import { useAuth } from '@/features/auth/model/useAuth';
-import { SpecialistCalendarEditStore } from '@/features/specialist-profile/model/specialistCalendarEditStore';
 import {
     buildCalendarMonthDays,
     CALENDAR_STATUS_LABELS,
     CALENDAR_WEEKDAY_LABELS,
     formatMonthLabel,
 } from '@/features/specialist-profile/model/calendarUtils';
+import { SpecialistCalendarEditStore } from '@/features/specialist-profile/model/specialistCalendarEditStore';
 
 import styles from './SpecialistCalendarEditPage.module.css';
 

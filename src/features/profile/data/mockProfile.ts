@@ -6,7 +6,7 @@ export function deepCopy<T>(value: T): T {
   return JSON.parse(JSON.stringify(value)) as T;
 }
 
-export let MOCK_PROFILE: UserProfile = {
+export const MOCK_PROFILE: UserProfile = {
   id: 'u-1',
   firstName: 'Иван',
   lastName: 'Петров',

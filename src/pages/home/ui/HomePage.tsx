@@ -1,10 +1,12 @@
 //src/pages/home/ui/HomePage.tsx
 
-import { useEffect } from 'react';
 import { observer } from 'mobx-react-lite';
+import { useEffect } from 'react';
+
 import { homeStore, BannerCarousel, ServicesMenu, ReviewsCarousel, Faq } from '@/features/home';
-import styles from './HomePage.module.css';
 import { FeedbackSection } from '@/shared/ui/feedback';
+
+import styles from './HomePage.module.css';
 
 export const HomePage = observer(() => {
   useEffect(() => {

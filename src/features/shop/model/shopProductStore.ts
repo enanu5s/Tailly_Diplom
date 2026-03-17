@@ -2,6 +2,7 @@
 import { makeAutoObservable, runInAction } from 'mobx';
 
 import { shopService } from '../service/shopService';
+
 import type { Product } from './types';
 
 export class ShopProductStore {

@@ -2,8 +2,9 @@
 
 import { makeAutoObservable, runInAction } from 'mobx';
 
-import type { HomeBanner, HomeReview, HomeService } from './types';
 import { homeService } from '../service/homeService';
+
+import type { HomeBanner, HomeReview, HomeService } from './types';
 
 export class HomeStore {
   banners: HomeBanner[] = [];

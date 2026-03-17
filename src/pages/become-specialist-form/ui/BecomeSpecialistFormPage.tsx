@@ -1,12 +1,13 @@
 // src/pages/become-specialist-form/ui/BecomeSpecialistFormPage.tsx
 
 import { useState } from 'react';
-import type { FormEvent, ReactElement } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 
 import { specialistApplicationsService } from '@/features/specialist-applications';
 
 import styles from './BecomeSpecialistFormPage.module.css';
+
+import type { FormEvent, ReactElement } from 'react';
 
 export const BecomeSpecialistFormPage = (): ReactElement => {
   const navigate = useNavigate();

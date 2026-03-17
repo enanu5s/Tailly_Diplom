@@ -1,8 +1,7 @@
 // src/pages/specialist-profile/ui/SpecialistProfilePage.tsx
 
-import { useEffect } from 'react';
-import type { ReactElement } from 'react';
 import { observer } from 'mobx-react-lite';
+import { useEffect } from 'react';
 import { useParams } from 'react-router-dom';
 
 import { useAuth } from '@/features/auth/model/useAuth';
@@ -13,6 +12,8 @@ import { SpecialistProfileView } from '@/features/specialist-profile/ui/Speciali
 import { SpecialistReviewRepliesPanel } from '@/features/specialist-profile/ui/SpecialistReviewRepliesPanel';
 
 import styles from './SpecialistProfilePage.module.css';
+
+import type { ReactElement } from 'react';
 
 export const SpecialistProfilePage = observer((): ReactElement => {
     const { specialistSlug } = useParams<{ specialistSlug: string }>();

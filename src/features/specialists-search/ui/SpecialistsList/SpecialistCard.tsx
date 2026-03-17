@@ -1,7 +1,8 @@
 //src/features/specialists-search/ui/SpecialistsList/SpecialistCard.tsx
 
-import type { Specialist, PetType, ServiceId } from '../../model/types';
 import styles from './SpecialistCard.module.css';
+
+import type { Specialist, PetType, ServiceId } from '../../model/types';
 
 type Props = {
   specialist: Specialist;

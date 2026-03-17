@@ -2,7 +2,6 @@
 import { request } from '@/shared/api/http';
 
 import { mockAdminLogin } from './adminAuthApi.mock';
-
 import {
   type AdminLoginPayload,
   type AdminLoginSuccessResponse,

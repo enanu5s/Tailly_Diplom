@@ -1,7 +1,9 @@
 //src/features/pets/model/petsStore.ts
 import { makeAutoObservable, runInAction } from 'mobx';
-import type { Breed, Pet, PetType } from './types';
+
 import { petsService } from '../service/petsService';
+
+import type { Breed, Pet, PetType } from './types';
 
 function newPetId() {
   return `p-${Math.random().toString(16).slice(2)}`;

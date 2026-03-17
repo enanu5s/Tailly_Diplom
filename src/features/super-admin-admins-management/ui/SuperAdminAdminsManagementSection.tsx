@@ -2,10 +2,12 @@
 
 import { observer } from 'mobx-react-lite';
 import { useEffect } from 'react';
+
+import styles from './SuperAdminAdminsManagementSection.module.css';
+import { superAdminAdminsManagementStore } from '../model/superAdminAdminsManagementStore';
+
 import type { ReactElement } from 'react';
 
-import { superAdminAdminsManagementStore } from '../model/superAdminAdminsManagementStore';
-import styles from './SuperAdminAdminsManagementSection.module.css';
 
 function formatDate(value?: string | null): string {
     if (!value) {

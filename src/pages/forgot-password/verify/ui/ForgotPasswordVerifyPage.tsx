@@ -1,101 +1,88 @@
-//src/pages/forgot-password/verify/ui/ForgotPasswordVerifyPage.tsx
-import { useEffect, useState } from "react";
-import { Link, useNavigate } from "react-router-dom";
-import styles from "../../ForgotPassword.module.css";
-import { usePasswordRecoveryFlow } from "@/features/auth/model/usePasswordRecoveryFlow";
-import { passwordRecoveryService } from "@/features/auth/model/passwordRecoveryService";
+// /src/pages/forgot-password/verify/ui/ForgotPasswordVerifyPage.tsx
+import { useEffect, useState } from 'react';
+import { Link, useNavigate } from 'react-router-dom';
 
-export const ForgotPasswordVerifyPage = () => {
+import { passwordRecoveryService } from '@/features/auth/model/passwordRecoveryService';
+import { usePasswordRecoveryFlow } from '@/features/auth/model/usePasswordRecoveryFlow';
+
+import styles from '../../ForgotPassword.module.css';
+
+export function ForgotPasswordVerifyPage() {
   const navigate = useNavigate();
   const flow = usePasswordRecoveryFlow();
 
-  const [code, setCode] = useState("");
-  const [error, setError] = useState<string | null>(null);
-  const [loading, setLoading] = useState(false);
+  const [code, setCode] = useState('');
+  const [submitting, setSubmitting] = useState(false);
+  const [error, setError] = useState('');
 
   useEffect(() => {
-    if (!flow.recoveryId) navigate("/forgot-password", { replace: true });
-  }, [flow.recoveryId, navigate]);
+    if (!flow.email || !flow.isStarted) {
+      navigate('/forgot-password', { replace: true });
+    }
+  }, [flow.email, flow.isStarted, navigate]);
 
-  const onSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    setError(null);
-    if (!flow.recoveryId) return;
+  const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
+    event.preventDefault();
 
-    setLoading(true);
+    const normalizedCode = code.trim();
+
+    if (!normalizedCode) {
+      setError('Введите код подтверждения.');
+      return;
+    }
+
     try {
-      await passwordRecoveryService.verify(flow.recoveryId, code);
-      navigate("/forgot-password/reset");
-    } catch (error: unknown) {
-      const message =
-        error instanceof Error ? error.message : "Не удалось проверить код";
+      setSubmitting(true);
+      setError('');
 
-      setError(message);
+      await passwordRecoveryService.verifyCode(normalizedCode);
+      navigate('/forgot-password/reset', { replace: true });
+    } catch (submissionError) {
+      setError(
+        submissionError instanceof Error
+          ? submissionError.message
+          : 'Не удалось подтвердить код.',
+      );
     } finally {
-      setLoading(false);
+      setSubmitting(false);
     }
   };
 
+  const handleBackClick = () => {
+    passwordRecoveryService.resetFlow();
+  };
+
   return (
-    <div className={styles.page}>
-      <div className={styles.container}>
-        <button onClick={() => navigate(-1)} className={styles.backButton}>
-          ← Назад
+    <div className={styles.card}>
+      <h1 className={styles.title}>Подтверждение кода</h1>
+      <p className={styles.text}>
+        Введите код, отправленный на email {flow.email || 'ваш адрес'}.
+      </p>
+
+      <form className={styles.form} onSubmit={handleSubmit}>
+        <label className={styles.label}>
+          Код подтверждения
+          <input
+            className={styles.input}
+            type="text"
+            value={code}
+            onChange={(event) => setCode(event.target.value)}
+            placeholder="Введите код"
+            autoComplete="one-time-code"
+            disabled={submitting}
+          />
+        </label>
+
+        {error ? <p className={styles.error}>{error}</p> : null}
+
+        <button className={styles.primaryButton} type="submit" disabled={submitting}>
+          {submitting ? 'Проверяем...' : 'Подтвердить код'}
         </button>
+      </form>
 
-        <h1 className={styles.title}>Подтвердите почту</h1>
-        <p className={styles.subtitle}>Шаг 2 из 3 — введите код из письма</p>
-
-        <div className={styles.card}>
-          <form className={styles.form} onSubmit={onSubmit}>
-            <input
-              className={styles.input}
-              inputMode="numeric"
-              placeholder="Код (6 цифр)"
-              value={code}
-              onChange={(e) => setCode(e.target.value)}
-              required
-            />
-
-            {error && <div className={styles.error}>{error}</div>}
-
-            <button
-              className={styles.submitButton}
-              disabled={loading}
-              type="submit"
-            >
-              {loading ? "Проверяем..." : "Продолжить"}
-            </button>
-
-            <div className={styles.actionsRow}>
-              <button
-                type="button"
-                className={styles.linkButton}
-                onClick={() =>
-                  setError("Код отправлен повторно (мок). Код: 123456")
-                }
-              >
-                Отправить код ещё раз
-              </button>
-
-              <button
-                type="button"
-                className={styles.linkButton}
-                onClick={() => {
-                  passwordRecoveryService.resetFlow();
-                  navigate("/forgot-password", { replace: true });
-                }}
-              >
-                Начать заново
-              </button>
-            </div>
-
-            <div className={styles.hint}>
-              Вспомнили пароль? <Link to="/login">Войти</Link>
-            </div>
-          </form>
-        </div>
-      </div>
+      <Link className={styles.secondaryLink} to="/forgot-password" onClick={handleBackClick}>
+        Начать заново
+      </Link>
     </div>
   );
-};
+}

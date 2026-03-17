@@ -6,7 +6,7 @@ export function deepCopy<T>(value: T): T {
   return JSON.parse(JSON.stringify(value)) as T;
 }
 
-export let MOCK_PETS: Pet[] = [
+export const MOCK_PETS: Pet[] = [
   {
     id: 'p-1',
     name: 'Ричи',

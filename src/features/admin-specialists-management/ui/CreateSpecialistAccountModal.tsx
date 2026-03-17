@@ -1,10 +1,12 @@
 // src/features/admin-specialists-management/ui/CreateSpecialistAccountModal.tsx
 
 import { observer } from 'mobx-react-lite';
+
+import styles from './CreateSpecialistAccountModal.module.css';
+import { adminSpecialistsManagementStore } from '../model/adminSpecialistsManagementStore';
+
 import type { ReactElement } from 'react';
 
-import { adminSpecialistsManagementStore } from '../model/adminSpecialistsManagementStore';
-import styles from './CreateSpecialistAccountModal.module.css';
 
 type Props = {
     reviewedBy: string;

@@ -1,8 +1,10 @@
 //src/features/specialists-search/ui/SortBar/SortBar.tsx
 
 import { observer } from 'mobx-react-lite';
-import type { SpecialistsSearchStore } from '../../model/specialistsSearchStore';
+
 import styles from './SortBar.module.css';
+
+import type { SpecialistsSearchStore } from '../../model/specialistsSearchStore';
 
 type Props = { store: SpecialistsSearchStore };
 

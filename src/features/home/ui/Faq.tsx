@@ -1,5 +1,6 @@
 //src/features/home/ui/Faq.tsx
 import { useState } from 'react';
+
 import styles from './Faq.module.css';
 
 type FaqItem = { q: string; a: string };

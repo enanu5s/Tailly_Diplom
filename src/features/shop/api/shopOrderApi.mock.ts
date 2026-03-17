@@ -1,7 +1,6 @@
 // src/features/shop/api/shopOrderApi.mock.ts
 
 import { SHOP_PRODUCTS_MOCK } from './mockData';
-
 import {
   addDays,
   generateOrderId,
@@ -10,6 +9,7 @@ import {
   writeStoredOrders,
 } from '../data/mockShopOrders';
 
+import type { CreateOrderPayload } from './shopOrderApi';
 import type {
   CartDetailedItem,
   Order,
@@ -17,7 +17,6 @@ import type {
   Product,
 } from '../model/types';
 
-import type { CreateOrderPayload } from './shopOrderApi';
 
 type OrderLineInput = {
   productId: string;
