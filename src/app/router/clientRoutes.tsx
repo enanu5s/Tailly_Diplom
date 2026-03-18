@@ -1,9 +1,8 @@
 // src/app/router/clientRoutes.tsx
 import { lazy } from 'react';
-
 import { ClientRouteGuard } from '@/app/router/ClientRouteGuard';
+import { ProtectedRoute } from '@/app/router/ProtectedRoute';
 import { SpecialistOwnerRouteGuard } from '@/app/router/SpecialistOwnerRouteGuard';
-
 import { withSuspense } from './withSuspense';
 
 import type { RouteObject } from 'react-router-dom';
@@ -36,7 +35,22 @@ const SpecialistCalendarEditPage = lazy(() =>
   })),
 );
 
+const MessagesPage = lazy(() =>
+  import('@/pages/messages').then((module) => ({
+    default: module.MessagesPage,
+  })),
+);
+
 export const clientRoutes: RouteObject[] = [
+  {
+    element: <ProtectedRoute />,
+    children: [
+      {
+        path: '/messages',
+        element: withSuspense(<MessagesPage />),
+      },
+    ],
+  },
   {
     element: <ClientRouteGuard />,
     children: [

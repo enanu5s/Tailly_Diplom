@@ -1,0 +1,11 @@
+/* src/pages/messages/ui/MessagesPage.module.css */
+.page {
+  width: 100%;
+  padding: 32px 20px 48px;
+}
+
+.container {
+  width: 100%;
+  max-width: 1280px;
+  margin: 0 auto;
+}

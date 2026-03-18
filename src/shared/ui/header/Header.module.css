@@ -24,6 +24,12 @@
   height: var(--header-height);
 }
 
+.logo {
+  display: inline-flex;
+  align-items: center;
+  text-decoration: none;
+}
+
 /* Десктопное меню скрыто по умолчанию */
 .navDesktop {
   display: none;
@@ -47,6 +53,8 @@
   }
 
   .navLink {
+    display: inline-flex;
+    align-items: center;
     padding: 10px 4px;
     color: var(--text-primary, #1f2937);
     text-decoration: none;
@@ -58,6 +66,69 @@
   .navLink.active {
     color: var(--color-primary, #6366f1);
   }
+}
+
+.rightDesktop {
+  display: none;
+}
+
+@media (min-width: 1024px) {
+  .rightDesktop {
+    display: flex;
+    align-items: center;
+  }
+}
+
+.userBox {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+}
+
+.userName {
+  color: var(--text-primary, #1f2937);
+  text-decoration: none;
+  font-weight: 500;
+}
+
+.userName:hover {
+  color: var(--color-primary, #6366f1);
+}
+
+.logoutBtn,
+.loginBtn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 40px;
+  padding: 0 14px;
+  border-radius: 12px;
+  font: inherit;
+  font-weight: 600;
+  text-decoration: none;
+  cursor: pointer;
+  transition: var(--transition);
+}
+
+.logoutBtn {
+  border: 1px solid #e5e7eb;
+  background: #ffffff;
+  color: #1f2937;
+}
+
+.logoutBtn:hover {
+  border-color: #d1d5db;
+  background: #f8fafc;
+}
+
+.loginBtn {
+  border: none;
+  background: #6366f1;
+  color: #ffffff;
+}
+
+.loginBtn:hover {
+  background: #5558e6;
 }
 
 /* Бургер-иконка видна только на мобильных */
@@ -102,7 +173,8 @@
 }
 
 .mobileLink {
-  display: block;
+  display: inline-flex;
+  align-items: center;
   padding: 14px 0;
   font-size: 1.1rem;
   color: var(--text-primary, #1f2937);
@@ -112,4 +184,20 @@
 .mobileLink:hover,
 .mobileLink.active {
   color: var(--color-primary, #6366f1);
+}
+
+.messagesBadge {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 18px;
+  height: 18px;
+  margin-left: 8px;
+  padding: 0 6px;
+  border-radius: 999px;
+  background: #6366f1;
+  color: #ffffff;
+  font-size: 11px;
+  line-height: 1;
+  font-weight: 700;
 }

@@ -1,25 +1,78 @@
 // src/pages/specialist-profile/ui/SpecialistProfilePage.tsx
+import { observer } from 'mobx-react-lite';
+import { useEffect } from 'react';
+import { useNavigate, useParams } from 'react-router-dom';
 
-import { observer } from "mobx-react-lite";
-import { useEffect } from "react";
-import { useParams } from "react-router-dom";
+import { useAuth } from '@/features/auth/model/useAuth';
+import { messagesStore } from '@/features/messages';
+import { specialistProfileStore } from '@/features/specialist-profile/model/specialistProfileStore';
+import { specialistReviewRepliesStore } from '@/features/specialist-profile/model/specialistReviewRepliesStore';
+import type { SpecialistReview } from '@/features/specialist-profile/model/types';
+import { SpecialistProfileView } from '@/features/specialist-profile/ui/SpecialistProfileView';
+import { SpecialistReviewRepliesPanel } from '@/features/specialist-profile/ui/SpecialistReviewRepliesPanel';
 
-import { useAuth } from "@/features/auth/model/useAuth";
-import { specialistProfileStore } from "@/features/specialist-profile/model/specialistProfileStore";
-import { specialistReviewRepliesStore } from "@/features/specialist-profile/model/specialistReviewRepliesStore";
-import type { SpecialistReview } from "@/features/specialist-profile/model/types";
-import { SpecialistProfileView } from "@/features/specialist-profile/ui/SpecialistProfileView";
-import { SpecialistReviewRepliesPanel } from "@/features/specialist-profile/ui/SpecialistReviewRepliesPanel";
+import styles from './SpecialistProfilePage.module.css';
 
-import styles from "./SpecialistProfilePage.module.css";
+import type { ReactElement } from 'react';
 
-import type { ReactElement } from "react";
+function getViewerDisplayName(user: unknown): string {
+  if (typeof user !== 'object' || user === null) {
+    return 'Пользователь';
+  }
+
+  const source = user as {
+    firstName?: string;
+    lastName?: string;
+    name?: string;
+    email?: string;
+    role?: string;
+  };
+
+  const fullName = `${source.firstName?.trim() ?? ''} ${source.lastName?.trim() ?? ''}`.trim();
+
+  if (fullName) {
+    return fullName;
+  }
+
+  if (source.name?.trim()) {
+    return source.name.trim();
+  }
+
+  if (source.email?.trim()) {
+    return source.email.trim();
+  }
+
+  if (source.role === 'client') {
+    return 'Клиент';
+  }
+
+  if (source.role === 'specialist') {
+    return 'Специалист';
+  }
+
+  if (source.role === 'admin' || source.role === 'super_admin') {
+    return 'Администратор';
+  }
+
+  return 'Пользователь';
+}
+
+function getViewerAvatarUrl(user: unknown): string | undefined {
+  if (typeof user !== 'object' || user === null) {
+    return undefined;
+  }
+
+  const source = user as { avatarUrl?: string };
+
+  return source.avatarUrl?.trim() || undefined;
+}
 
 export const SpecialistProfilePage = observer((): ReactElement => {
   const { specialistSlug } = useParams<{ specialistSlug: string }>();
+  const navigate = useNavigate();
   const { isAuth, user } = useAuth();
 
-  const normalizedSpecialistSlug = specialistSlug?.trim() ?? "";
+  const normalizedSpecialistSlug = specialistSlug?.trim() ?? '';
 
   const store = specialistProfileStore;
   const repliesStore = specialistReviewRepliesStore;
@@ -74,19 +127,53 @@ export const SpecialistProfilePage = observer((): ReactElement => {
     await store.load(slug);
   };
 
+  const handleContactSpecialist = async (): Promise<void> => {
+    if (!store.profile || !user?.id) {
+      return;
+    }
+
+    await messagesStore.startChatWithSpecialist({
+      viewer: {
+        userId: user.id,
+        role:
+          user.role === 'client' ||
+          user.role === 'specialist' ||
+          user.role === 'admin' ||
+          user.role === 'super_admin'
+            ? user.role
+            : 'guest',
+        displayName: getViewerDisplayName(user),
+        avatarUrl: getViewerAvatarUrl(user),
+      },
+      specialistId: store.profile.id,
+      specialistSlug: store.profile.slug,
+      specialistName: `${store.profile.main.firstName} ${store.profile.main.lastName}`.trim(),
+      specialistAvatarUrl: store.profile.main.avatarUrl,
+    });
+
+    navigate('/messages');
+  };
+
   const isSameSlug =
     Boolean(user?.specialistSlug?.trim()) &&
-    user!.specialistSlug!.trim() === (store.profile?.slug.trim() ?? "");
+    user!.specialistSlug!.trim() === (store.profile?.slug.trim() ?? '');
 
   const isSameSpecialistId =
     Boolean(user?.specialistId) &&
-    user!.specialistId === (store.profile?.id ?? "");
+    user!.specialistId === (store.profile?.id ?? '');
 
   const canManageOwnProfile = Boolean(
     isAuth &&
-    store.profile &&
-    user?.role === "specialist" &&
-    (isSameSlug || isSameSpecialistId),
+      store.profile &&
+      user?.role === 'specialist' &&
+      (isSameSlug || isSameSpecialistId),
+  );
+
+  const canContactSpecialist = Boolean(
+    isAuth &&
+      user?.id &&
+      store.profile &&
+      !canManageOwnProfile,
   );
 
   return (
@@ -145,6 +232,13 @@ export const SpecialistProfilePage = observer((): ReactElement => {
           onSaveDetails={() => {
             void store.saveDetails();
           }}
+          onContactSpecialist={
+            canContactSpecialist
+              ? () => {
+                  void handleContactSpecialist();
+                }
+              : undefined
+          }
         />
 
         {canManageOwnProfile && store.profile ? (
