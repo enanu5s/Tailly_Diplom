@@ -1,12 +1,34 @@
-// /src/features/auth/model/passwordRecoveryService.ts
+// src/features/auth/model/passwordRecoveryService.ts
+
 import { passwordRecoveryFlowStore } from './passwordRecoveryFlowStore';
 import { passwordRecoveryApi } from '../api/passwordRecoveryApi';
 
+import type {
+  StartPasswordRecoveryResponse,
+} from './types';
 
 export const passwordRecoveryService = {
+  async startRecovery(email: string): Promise<StartPasswordRecoveryResponse> {
+    const normalizedEmail = email.trim().toLowerCase();
+
+    const result = await passwordRecoveryApi.startRecovery({
+      email: normalizedEmail,
+    });
+
+    if (result.flow === 'default') {
+      passwordRecoveryFlowStore.setStart(normalizedEmail);
+    } else {
+      passwordRecoveryFlowStore.reset();
+    }
+
+    return result;
+  },
+
   async sendCode(email: string): Promise<void> {
-    await passwordRecoveryApi.sendCode({ email });
-    passwordRecoveryFlowStore.setStart(email);
+    const normalizedEmail = email.trim().toLowerCase();
+
+    await passwordRecoveryApi.sendCode({ email: normalizedEmail });
+    passwordRecoveryFlowStore.setStart(normalizedEmail);
   },
 
   async verifyCode(code: string): Promise<void> {
@@ -16,7 +38,11 @@ export const passwordRecoveryService = {
       throw new Error('Не указан email для восстановления пароля.');
     }
 
-    await passwordRecoveryApi.verifyCode({ email, code });
+    await passwordRecoveryApi.verifyCode({
+      email,
+      code: code.trim(),
+    });
+
     passwordRecoveryFlowStore.setVerified(code);
   },
 

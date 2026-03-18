@@ -21,6 +21,8 @@ export type MockAuthAccount = {
   specialistSlug?: string;
   adminId?: string;
   isBlocked: boolean;
+  blockReason?: string;
+  blockedUntil?: string;
 };
 
 export type MockAttemptState = {
@@ -97,6 +99,24 @@ export function isAdminRole(role: UserRole): boolean {
   return role === 'admin' || role === 'super_admin';
 }
 
+export function syncBlockedState(account: MockAuthAccount): void {
+  if (!account.isBlocked || !account.blockedUntil) {
+    return;
+  }
+
+  const blockedUntilTime = new Date(account.blockedUntil).getTime();
+
+  if (Number.isNaN(blockedUntilTime)) {
+    return;
+  }
+
+  if (blockedUntilTime <= Date.now()) {
+    account.isBlocked = false;
+    account.blockedUntil = undefined;
+    account.blockReason = undefined;
+  }
+}
+
 export function getAdminAttemptState(email: string): MockAttemptState {
   const normalizedEmail = normalizeEmail(email);
   const current = adminAttemptsMap.get(normalizedEmail);
@@ -143,7 +163,50 @@ export function mapManagedSpecialistAccountToAuthAccount(
     specialistId: account.specialistId,
     specialistSlug: account.specialistSlug,
     isBlocked: account.isBlocked,
+    blockReason:
+      'blockReason' in account && typeof account.blockReason === 'string'
+        ? account.blockReason
+        : undefined,
+    blockedUntil:
+      'blockedUntil' in account && typeof account.blockedUntil === 'string'
+        ? account.blockedUntil
+        : undefined,
   };
+}
+
+function buildDeduplicationKey(account: MockAuthAccount): string {
+  if (account.role === 'specialist' && account.specialistId?.trim()) {
+    return `specialist:${account.specialistId.trim().toLowerCase()}`;
+  }
+
+  return `email:${normalizeEmail(account.email)}`;
+}
+
+function chooseMoreCompleteAccount(
+  currentAccount: MockAuthAccount,
+  nextAccount: MockAuthAccount,
+): MockAuthAccount {
+  const currentScore =
+    Number(Boolean(currentAccount.firstName)) +
+    Number(Boolean(currentAccount.lastName)) +
+    Number(Boolean(currentAccount.middleName)) +
+    Number(Boolean(currentAccount.phone)) +
+    Number(Boolean(currentAccount.specialistId)) +
+    Number(Boolean(currentAccount.specialistSlug)) +
+    Number(Boolean(currentAccount.blockReason)) +
+    Number(Boolean(currentAccount.blockedUntil));
+
+  const nextScore =
+    Number(Boolean(nextAccount.firstName)) +
+    Number(Boolean(nextAccount.lastName)) +
+    Number(Boolean(nextAccount.middleName)) +
+    Number(Boolean(nextAccount.phone)) +
+    Number(Boolean(nextAccount.specialistId)) +
+    Number(Boolean(nextAccount.specialistSlug)) +
+    Number(Boolean(nextAccount.blockReason)) +
+    Number(Boolean(nextAccount.blockedUntil));
+
+  return nextScore > currentScore ? nextAccount : currentAccount;
 }
 
 export function getMockAuthAccounts(): MockAuthAccount[] {
@@ -151,12 +214,34 @@ export function getMockAuthAccounts(): MockAuthAccount[] {
     mapManagedSpecialistAccountToAuthAccount,
   );
 
-  return [...BASE_AUTH_ACCOUNTS, ...specialistAccounts];
+  const mergedAccounts = [...BASE_AUTH_ACCOUNTS, ...specialistAccounts];
+  const uniqueAccountsMap = new Map<string, MockAuthAccount>();
+
+  for (const account of mergedAccounts) {
+    syncBlockedState(account);
+
+    const key = buildDeduplicationKey(account);
+    const existingAccount = uniqueAccountsMap.get(key);
+
+    if (!existingAccount) {
+      uniqueAccountsMap.set(key, account);
+      continue;
+    }
+
+    uniqueAccountsMap.set(
+      key,
+      chooseMoreCompleteAccount(existingAccount, account),
+    );
+  }
+
+  return Array.from(uniqueAccountsMap.values());
 }
 
 export function mapAccountToLoginSuccess(
   account: MockAuthAccount,
 ): LoginSuccessResponse {
+  syncBlockedState(account);
+
   return {
     accessToken: `mock-token-${account.id}`,
     user: {

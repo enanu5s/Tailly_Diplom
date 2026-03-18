@@ -1,16 +1,16 @@
 // src/shared/ui/header/Header.tsx
-import clsx from 'clsx';
-import { useState } from 'react';
-import { Link, useLocation } from 'react-router-dom';
+import clsx from "clsx";
+import { useState } from "react";
+import { Link, useLocation, useNavigate } from "react-router-dom";
 
-import { authService } from '@/features/auth/model/authService';
-import { useAuth } from '@/features/auth/model/useAuth';
-import { mainNav } from '@/shared/config/navigation';
+import { authService } from "@/features/auth/model/authService";
+import { useAuth } from "@/features/auth/model/useAuth";
+import { mainNav } from "@/shared/config/navigation";
 
-import styles from './Header.module.css';
-import { DropdownMenu } from '../dropdown/DropdownMenu.tsx';
-import { Burger } from '../icons/Burger.tsx';
-import { Logo } from '../logo/Logo.tsx';
+import styles from "./Header.module.css";
+import { DropdownMenu } from "../dropdown/DropdownMenu.tsx";
+import { Burger } from "../icons/Burger.tsx";
+import { Logo } from "../logo/Logo.tsx";
 
 export const Header = () => {
   const [isMobileOpen, setIsMobileOpen] = useState(false);
@@ -19,12 +19,14 @@ export const Header = () => {
   const { isAuth, user } = useAuth();
 
   const navItems = mainNav
-    .filter((item) => (isAuth ? true : item.to !== '/messages'))
-    .filter((item) => item.to !== '/login');
+    .filter((item) => (isAuth ? true : item.to !== "/messages"))
+    .filter((item) => item.to !== "/login");
 
   const toggleMobile = () => {
     setIsMobileOpen((prev) => !prev);
   };
+
+  const navigate = useNavigate();
 
   return (
     <header className={styles.header}>
@@ -41,7 +43,7 @@ export const Header = () => {
                   <DropdownMenu
                     label={item.label}
                     items={item.children}
-                    isActive={location.pathname === '/services'}
+                    isActive={location.pathname === "/services"}
                   />
                 ) : (
                   <Link
@@ -63,13 +65,17 @@ export const Header = () => {
           {isAuth ? (
             <div className={styles.userBox}>
               <Link to="/profile" className={styles.userName}>
-                {user?.name ?? user?.email ?? 'Профиль'}
+                {user?.name ?? user?.email ?? "Профиль"}
               </Link>
 
               <button
                 type="button"
                 className={styles.logoutBtn}
-                onClick={() => authService.logout()}
+                onClick={() => {
+                  authService.logout();
+                  setIsMobileOpen(false);
+                  navigate("/", { replace: true });
+                }}
               >
                 Выйти
               </button>
@@ -85,7 +91,7 @@ export const Header = () => {
           type="button"
           className={styles.burger}
           onClick={toggleMobile}
-          aria-label={isMobileOpen ? 'Закрыть меню' : 'Открыть меню'}
+          aria-label={isMobileOpen ? "Закрыть меню" : "Открыть меню"}
           aria-expanded={isMobileOpen}
           aria-controls="mobile-menu"
         >

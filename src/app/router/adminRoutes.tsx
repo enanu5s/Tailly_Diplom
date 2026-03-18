@@ -2,7 +2,7 @@
 
 import { lazy } from 'react';
 
-
+import { AdminForgotPasswordPage } from '@/pages/admin-forgot-password/ui/AdminForgotPasswordPage';
 import { PlaceholderAdminPage } from '@/shared/ui/placeholders/PlaceholderAdminPage';
 import { AdminRouteGuard } from '@/shared/ui/route-guards/ui/AdminRouteGuard';
 
@@ -40,6 +40,20 @@ const AdminSpecialistApplicationsPage = lazy(() =>
   })),
 );
 
+const SuperAdminPasswordRecoveryPage = lazy(() =>
+  import('@/pages/super-admin-password-recovery/ui/SuperAdminPasswordRecoveryPage').then(
+    (module) => ({
+      default: module.SuperAdminPasswordRecoveryPage,
+    }),
+  ),
+);
+
+const AdminUsersPage = lazy(() =>
+  import('@/pages/admin-users/ui/AdminUsersPage').then((module) => ({
+    default: module.AdminUsersPage,
+  })),
+);
+
 export const adminRoutes: RouteObject[] = [
   {
     path: '/admin/login',
@@ -47,9 +61,7 @@ export const adminRoutes: RouteObject[] = [
   },
   {
     path: '/admin/forgot-password',
-    element: (
-      <PlaceholderAdminPage title="Восстановление пароля администратора" />
-    ),
+    element: <AdminForgotPasswordPage />,
   },
   {
     path: '/admin',
@@ -79,7 +91,7 @@ export const adminRoutes: RouteObject[] = [
     path: '/admin/users',
     element: (
       <AdminRouteGuard>
-        <PlaceholderAdminPage title="Управление пользователями" />
+        {withSuspense(<AdminUsersPage />)}
       </AdminRouteGuard>
     ),
   },
@@ -96,6 +108,14 @@ export const adminRoutes: RouteObject[] = [
     element: (
       <AdminRouteGuard requireSuperAdmin>
         {withSuspense(<SuperAdminAdminsPage />)}
+      </AdminRouteGuard>
+    ),
+  },
+  {
+    path: '/super-admin/password-recovery',
+    element: (
+      <AdminRouteGuard requireSuperAdmin>
+        {withSuspense(<SuperAdminPasswordRecoveryPage />)}
       </AdminRouteGuard>
     ),
   },

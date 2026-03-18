@@ -1,13 +1,13 @@
-// src/pages/admin-profile/ui/AdminProfilePage.tsx
+// src/pages/super-admin-password-recovery/ui/SuperAdminPasswordRecoveryPage.tsx
 import { useNavigate } from 'react-router-dom';
 
-import { AdminProfileSection } from '@/features/admin-profile';
+import { AdminPasswordRecoveryManagementSection } from '@/features/admin-password-recovery-management';
 
-import styles from './AdminProfilePage.module.css';
+import styles from './SuperAdminPasswordRecoveryPage.module.css';
 
 import type { ReactElement } from 'react';
 
-export function AdminProfilePage(): ReactElement {
+export function SuperAdminPasswordRecoveryPage(): ReactElement {
   const navigate = useNavigate();
 
   return (
@@ -21,7 +21,7 @@ export function AdminProfilePage(): ReactElement {
           Назад в админ-панель
         </button>
 
-        <AdminProfileSection />
+        <AdminPasswordRecoveryManagementSection />
       </div>
     </section>
   );

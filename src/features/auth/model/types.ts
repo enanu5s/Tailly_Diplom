@@ -55,6 +55,16 @@ export type ResetPasswordPayload = {
   newPassword: string;
 };
 
+export type PasswordRecoveryStartFlow = 'default' | 'admin';
+
+export type StartPasswordRecoveryPayload = {
+  email: string;
+};
+
+export type StartPasswordRecoveryResponse = {
+  flow: PasswordRecoveryStartFlow;
+};
+
 export class PasswordRecoveryError extends Error {
   constructor(message: string) {
     super(message);

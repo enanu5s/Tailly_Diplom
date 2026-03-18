@@ -1,13 +1,14 @@
-// src/pages/admin-profile/ui/AdminProfilePage.tsx
+// src/pages/admin-users/ui/AdminUsersPage.tsx
+
 import { useNavigate } from 'react-router-dom';
 
-import { AdminProfileSection } from '@/features/admin-profile';
+import { AdminUsersManagementSection } from '@/features/admin-users-management';
 
-import styles from './AdminProfilePage.module.css';
+import styles from './AdminUsersPage.module.css';
 
 import type { ReactElement } from 'react';
 
-export function AdminProfilePage(): ReactElement {
+export function AdminUsersPage(): ReactElement {
   const navigate = useNavigate();
 
   return (
@@ -21,7 +22,7 @@ export function AdminProfilePage(): ReactElement {
           Назад в админ-панель
         </button>
 
-        <AdminProfileSection />
+        <AdminUsersManagementSection />
       </div>
     </section>
   );

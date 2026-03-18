@@ -10,6 +10,7 @@ import {
   MAX_ADMIN_LOGIN_ATTEMPTS,
   normalizeEmail,
   resetAdminAttempts,
+  syncBlockedState,
   wait,
 } from '../data/mockAuthAccounts';
 import {
@@ -17,7 +18,6 @@ import {
   type LoginPayload,
   type LoginSuccessResponse,
 } from '../model/types';
-
 
 export async function mockLogin(
   payload: LoginPayload,
@@ -31,6 +31,10 @@ export async function mockLogin(
     getMockAuthAccounts().find(
       (item) => item.email.toLowerCase() === email,
     ) ?? null;
+
+  if (account) {
+    syncBlockedState(account);
+  }
 
   const isAdminAccount = Boolean(account && isAdminRole(account.role));
 

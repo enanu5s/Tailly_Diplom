@@ -4,27 +4,114 @@ import {
   createSession,
   deleteSession,
   getSession,
-  wait,
 } from '../data/mockPasswordRecovery';
 import {
+  MOCK_ADMIN_PASSWORD_RECOVERY_REQUESTS,
+  buildRecoveryRequestId,
+  findPendingAdminPasswordRecoveryRequestByEmail,
+  wait,
+} from '../data/mockAdminPasswordRecoveryRequests';
+import {
+  getMockAuthAccounts,
+  isAdminRole,
+  normalizeEmail,
+} from '../data/mockAuthAccounts';
+import {
   PasswordRecoveryError,
-  type SendRecoveryCodePayload,
-  type VerifyRecoveryCodePayload,
   type ResetPasswordPayload,
+  type SendRecoveryCodePayload,
+  type StartPasswordRecoveryPayload,
+  type StartPasswordRecoveryResponse,
+  type VerifyRecoveryCodePayload,
 } from '../model/types';
 
+function findAccountByEmail(email: string) {
+  const normalized = normalizeEmail(email);
+
+  return (
+    getMockAuthAccounts().find(
+      (item) => item.email.toLowerCase() === normalized,
+    ) ?? null
+  );
+}
+
 export const passwordRecoveryMockApi = {
+  async startRecovery(
+    payload: StartPasswordRecoveryPayload,
+  ): Promise<StartPasswordRecoveryResponse> {
+    await wait();
+
+    const normalizedEmail = normalizeEmail(payload.email);
+
+    if (!normalizedEmail.includes('@')) {
+      throw new PasswordRecoveryError('Некорректный email');
+    }
+
+    const account = findAccountByEmail(normalizedEmail);
+
+    if (!account) {
+      throw new PasswordRecoveryError(
+        'Пользователь с таким email не найден.',
+      );
+    }
+
+    if (account.isBlocked) {
+      throw new PasswordRecoveryError('Аккаунт заблокирован.');
+    }
+
+    if (isAdminRole(account.role)) {
+      const existingPendingRequest =
+        findPendingAdminPasswordRecoveryRequestByEmail(normalizedEmail);
+
+      if (existingPendingRequest) {
+        throw new PasswordRecoveryError(
+          'Заявка на восстановление пароля уже отправлена главному администратору. Дождитесь обработки текущей заявки.',
+        );
+      }
+
+      MOCK_ADMIN_PASSWORD_RECOVERY_REQUESTS.unshift({
+        id: buildRecoveryRequestId(),
+        email: normalizedEmail,
+        requestedAt: new Date().toISOString(),
+        status: 'pending',
+      });
+
+      return {
+        flow: 'admin',
+      };
+    }
+
+    createSession(normalizedEmail);
+
+    return {
+      flow: 'default',
+    };
+  },
+
   async sendCode(payload: SendRecoveryCodePayload): Promise<void> {
     await wait();
 
-    const email = payload.email.trim().toLowerCase();
+    const email = normalizeEmail(payload.email);
 
     if (!email.includes('@')) {
       throw new PasswordRecoveryError('Некорректный email');
     }
 
-    createSession(email);
+    const account = findAccountByEmail(email);
 
+    if (!account) {
+      throw new PasswordRecoveryError(
+        'Пользователь с таким email не найден.',
+      );
+    }
+
+    if (isAdminRole(account.role)) {
+      throw new PasswordRecoveryError(
+        'Для администратора используется отдельный сценарий восстановления пароля.',
+      );
+    }
+
+    createSession(email);
   },
 
   async verifyCode(payload: VerifyRecoveryCodePayload): Promise<void> {
@@ -57,6 +144,6 @@ export const passwordRecoveryMockApi = {
 
     deleteSession(payload.email);
 
-    // здесь просто имитируем смену пароля
+    // здесь только имитируется смена пароля
   },
 };
