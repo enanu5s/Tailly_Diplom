@@ -3,7 +3,6 @@
 import { lazy } from 'react';
 
 import { AdminForgotPasswordPage } from '@/pages/admin-forgot-password/ui/AdminForgotPasswordPage';
-import { PlaceholderAdminPage } from '@/shared/ui/placeholders/PlaceholderAdminPage';
 import { AdminRouteGuard } from '@/shared/ui/route-guards/ui/AdminRouteGuard';
 
 import { withSuspense } from './withSuspense';
@@ -54,6 +53,12 @@ const AdminUsersPage = lazy(() =>
   })),
 );
 
+const AdminPostsPage = lazy(() =>
+  import('@/pages/admin-posts').then((module) => ({
+    default: module.AdminPostsPage,
+  })),
+);
+
 export const adminRoutes: RouteObject[] = [
   {
     path: '/admin/login',
@@ -99,7 +104,7 @@ export const adminRoutes: RouteObject[] = [
     path: '/admin/posts',
     element: (
       <AdminRouteGuard>
-        <PlaceholderAdminPage title="Посты и баннеры" />
+        {withSuspense(<AdminPostsPage />)}
       </AdminRouteGuard>
     ),
   },
