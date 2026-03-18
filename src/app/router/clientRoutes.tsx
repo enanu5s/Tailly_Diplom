@@ -1,9 +1,7 @@
 // src/app/router/clientRoutes.tsx
-
 import { lazy } from 'react';
 
-
-import { ProtectedRoute } from '@/app/router/ProtectedRoute';
+import { ClientRouteGuard } from '@/app/router/ClientRouteGuard';
 import { SpecialistOwnerRouteGuard } from '@/app/router/SpecialistOwnerRouteGuard';
 
 import { withSuspense } from './withSuspense';
@@ -40,7 +38,7 @@ const SpecialistCalendarEditPage = lazy(() =>
 
 export const clientRoutes: RouteObject[] = [
   {
-    element: <ProtectedRoute />,
+    element: <ClientRouteGuard />,
     children: [
       {
         path: '/profile',

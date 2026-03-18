@@ -1,11 +1,9 @@
 // src/app/router/publicRoutes.tsx
-
 import { lazy } from 'react';
 
 import { withSuspense } from './withSuspense';
 
 import type { RouteObject } from 'react-router-dom';
-
 
 const HomePage = lazy(() =>
   import('@/pages/home').then((module) => ({ default: module.HomePage })),
@@ -93,6 +91,24 @@ const SpecialistProfilePage = lazy(() =>
   })),
 );
 
+const PrivacyPolicyPage = lazy(() =>
+  import('@/pages/privacy-policy').then((module) => ({
+    default: module.PrivacyPolicyPage,
+  })),
+);
+
+const UserAgreementPage = lazy(() =>
+  import('@/pages/user-agreement').then((module) => ({
+    default: module.UserAgreementPage,
+  })),
+);
+
+const PublicOfferPage = lazy(() =>
+  import('@/pages/public-offer').then((module) => ({
+    default: module.PublicOfferPage,
+  })),
+);
+
 const NotFoundPage = lazy(() =>
   import('@/pages/not-found').then((module) => ({
     default: module.NotFoundPage,
@@ -163,6 +179,18 @@ export const publicRoutes: RouteObject[] = [
   {
     path: '/specialists/:specialistSlug',
     element: withSuspense(<SpecialistProfilePage />),
+  },
+  {
+    path: '/privacy-policy',
+    element: withSuspense(<PrivacyPolicyPage />),
+  },
+  {
+    path: '/user-agreement',
+    element: withSuspense(<UserAgreementPage />),
+  },
+  {
+    path: '/public-offer',
+    element: withSuspense(<PublicOfferPage />),
   },
   {
     path: '*',
