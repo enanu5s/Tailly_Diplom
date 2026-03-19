@@ -1,178 +1,232 @@
 import { observer } from 'mobx-react-lite';
-import { useEffect } from 'react';
+import { useEffect, type ChangeEvent, type ReactElement } from 'react';
 import { Link } from 'react-router-dom';
 
-import styles from './ProfileMainCard.module.css';
 import { profileStore } from '../model/profileStore';
 
-export const ProfileMainCard = observer(() => {
+import styles from './ProfileMainCard.module.css';
+
+export const ProfileMainCard = observer((): ReactElement => {
   useEffect(() => {
     if (!profileStore.profile && !profileStore.loading) {
       void profileStore.load();
     }
   }, []);
 
-  const p = profileStore.profile;
+  const profile = profileStore.profile;
+  const isEditing = profileStore.editing;
 
-  const avatarSrc = profileStore.editing
-    ? profileStore.draftAvatarUrl
-    : (p?.avatarUrl ?? '');
-  const fullName = profileStore.editing
-    ? `${profileStore.draftFirstName} ${profileStore.draftLastName}`.trim() || 'Профиль'
-    : (p ? `${p.firstName} ${p.lastName}`.trim() : 'Профиль');
+  const avatarSrc = isEditing
+    ? profileStore.draftAvatarUrl.trim()
+    : (profile?.avatarUrl ?? '').trim();
+
+  const fullName = isEditing
+    ? `${profileStore.draftFirstName} ${profileStore.draftLastName}`.trim() ||
+      'Профиль'
+    : profile
+      ? `${profile.firstName} ${profile.lastName}`.trim() || 'Профиль'
+      : 'Профиль';
+
+  const handleAvatarChange = (event: ChangeEvent<HTMLInputElement>): void => {
+    const file = event.target.files?.[0];
+
+    if (!file) {
+      return;
+    }
+
+    profileStore.setAvatarFromFile(file);
+    event.target.value = '';
+  };
 
   return (
     <section className={styles.card}>
       <div className={styles.headerRow}>
         <h2 className={styles.title}>Основные данные</h2>
+
+        {!isEditing && profile ? (
+          <button
+            className={styles.secondaryBtn}
+            type="button"
+            onClick={() => profileStore.startEdit()}
+          >
+            Редактировать
+          </button>
+        ) : null}
       </div>
 
-      {profileStore.error && <div className={styles.error}>{profileStore.error}</div>}
-      {profileStore.loading && !p && <div className={styles.state}>Загружаем профиль...</div>}
+      {profileStore.error ? (
+        <div className={styles.error}>{profileStore.error}</div>
+      ) : null}
 
-      {p && (
+      {profileStore.loading && !profile ? (
+        <div className={styles.state}>Загружаем профиль...</div>
+      ) : null}
+
+      {profile ? (
         <div className={styles.grid}>
           <div className={styles.avatarCol}>
             <div className={styles.avatarWrap}>
               {avatarSrc ? (
-                <img className={styles.avatar} src={avatarSrc} alt={fullName} />
+                <img
+                  className={styles.avatar}
+                  src={avatarSrc}
+                  alt={fullName}
+                />
               ) : (
                 <div className={styles.avatarPlaceholder}>Фото</div>
               )}
             </div>
 
-            {profileStore.editing ? (
-              <label className={styles.secondaryBtn}>
-                Изменить фото
-                <input
-                  className={styles.fileInput}
-                  type="file"
-                  accept="image/*"
-                  onChange={(e) => {
-                    const file = e.target.files?.[0];
-                    if (file) profileStore.setAvatarFromFile(file);
-                  }}
-                />
-              </label>
+            <div className={styles.fullName}>{fullName}</div>
+
+            {isEditing ? (
+              <div className={styles.fieldActions}>
+                <label className={styles.secondaryBtn}>
+                  Изменить фото
+                  <input
+                    className={styles.fileInput}
+                    type="file"
+                    accept="image/*"
+                    onChange={handleAvatarChange}
+                  />
+                </label>
+              </div>
             ) : null}
 
-            <div className={styles.fullName}>
-              {profileStore.editing ? (
+            <div className={styles.note}>
+              Данные профиля клиента используются в заказах и при общении со
+              специалистами.
+            </div>
+          </div>
+
+          <div className={styles.fieldsCol}>
+            <div>
+              <div className={styles.label}>Имя и фамилия</div>
+
+              {isEditing ? (
                 <div className={styles.nameRow}>
                   <input
                     className={styles.input}
                     value={profileStore.draftFirstName}
-                    onChange={(e) => profileStore.setDraftFirstName(e.target.value)}
+                    onChange={(event) =>
+                      profileStore.setDraftFirstName(event.target.value)
+                    }
                     placeholder="Имя"
                     required
                   />
+
                   <input
                     className={styles.input}
                     value={profileStore.draftLastName}
-                    onChange={(e) => profileStore.setDraftLastName(e.target.value)}
+                    onChange={(event) =>
+                      profileStore.setDraftLastName(event.target.value)
+                    }
                     placeholder="Фамилия"
                     required
                   />
                 </div>
               ) : (
-                <>
-                  {p.firstName} {p.lastName}
-                </>
-              )}
-            </div>
-          </div>
-
-          <div className={styles.fieldsCol}>
-            <div className={styles.field}>
-              <div className={styles.label}>Город</div>
-              {profileStore.editing ? (
-                <input
-                  className={styles.input}
-                  value={profileStore.draftCity}
-                  onChange={(e) => profileStore.setDraftCity(e.target.value)}
-                  placeholder="Введите город"
-                  required
-                />
-              ) : (
                 <div className={styles.value}>
-                  {profileStore.editing
-                    ? (profileStore.draftCity || '—')
-                    : (p.city || '—')}
+                  {`${profile.firstName} ${profile.lastName}`.trim() || '—'}
                 </div>
               )}
             </div>
 
-            <div className={styles.field}>
+            <div>
+              <div className={styles.label}>Город</div>
+
+              {isEditing ? (
+                <input
+                  className={styles.input}
+                  value={profileStore.draftCity}
+                  onChange={(event) =>
+                    profileStore.setDraftCity(event.target.value)
+                  }
+                  placeholder="Введите город"
+                  required
+                />
+              ) : (
+                <div className={styles.value}>{profile.city || '—'}</div>
+              )}
+            </div>
+
+            <div>
               <div className={styles.label}>Телефон</div>
-              {profileStore.editing ? (
+
+              {isEditing ? (
                 <input
                   className={styles.input}
                   value={profileStore.draftPhone}
-                  onChange={(e) => profileStore.setDraftPhone(e.target.value)}
+                  onChange={(event) =>
+                    profileStore.setDraftPhone(event.target.value)
+                  }
                   placeholder="+7 ..."
                   required
                 />
               ) : (
-                <div className={styles.value}>{profileStore.editing
-                  ? (profileStore.draftPhone || '—')
-                  : (p.phone || '—')}</div>
+                <div className={styles.value}>{profile.phone || '—'}</div>
               )}
             </div>
-            <div className={styles.field}>
+
+            <div>
               <div className={styles.label}>Почта</div>
-              <div className={styles.value}>{p.email || '—'}</div>
+              <div className={styles.value}>{profile.email || '—'}</div>
               <div className={styles.muted}>Нужен код подтверждения.</div>
-              <div className={styles.fieldActions}>
-                <Link className={styles.secondaryBtn} to="/profile/security/email">
-                  Сменить почту
-                </Link>
-              </div>
             </div>
 
-            <div className={styles.field}>
+            <div>
               <div className={styles.label}>Пароль</div>
               <div className={styles.value}>••••••••</div>
-              <div className={styles.muted}>Смена — в разделе безопасности.</div>
-              <div className={styles.fieldActions}>
-                <Link className={styles.secondaryBtn} to="/profile/security/password">
-                  Сменить пароль
-                </Link>
+              <div className={styles.muted}>
+                Смена пароля находится в разделе безопасности.
               </div>
             </div>
 
-            <div className={styles.actions}>
-              {profileStore.editing ? (
-                <>
-                  {profileStore.saveError && <div className={styles.error}>{profileStore.saveError}</div>}
-                  {profileStore.saveSuccess && <div className={styles.success}>Данные сохранены.</div>}
+            <div className={styles.securityBtns}>
+              <Link className={styles.secondaryBtn} to="/profile/security/email">
+                Сменить почту
+              </Link>
 
-                  <button
-                    className={styles.primaryBtn}
-                    type="button"
-                    disabled={profileStore.saveLoading}
-                    onClick={() => void profileStore.save()}
-                  >
-                    {profileStore.saveLoading ? 'Сохраняем...' : 'Сохранить'}
-                  </button>
-
-                  <button
-                    className={styles.secondaryBtn}
-                    type="button"
-                    disabled={profileStore.saveLoading}
-                    onClick={() => profileStore.cancelEdit()}
-                  >
-                    Отмена
-                  </button>
-                </>
-              ) : (
-                <button className={styles.primaryBtn} type="button" onClick={() => profileStore.startEdit()}>
-                  Редактировать основные данные
-                </button>
-              )}
+              <Link
+                className={styles.secondaryBtn}
+                to="/profile/security/password"
+              >
+                Сменить пароль
+              </Link>
             </div>
+
+            {isEditing ? (
+              <div className={styles.actions}>
+                {profileStore.saveError ? (
+                  <div className={styles.error}>{profileStore.saveError}</div>
+                ) : null}
+
+                {profileStore.saveSuccess ? (
+                  <div className={styles.success}>Данные сохранены.</div>
+                ) : null}
+
+                <button
+                  className={styles.primaryBtn}
+                  type="button"
+                  disabled={profileStore.saveLoading}
+                  onClick={() => void profileStore.save()}
+                >
+                  {profileStore.saveLoading ? 'Сохраняем...' : 'Сохранить'}
+                </button>
+
+                <button
+                  className={styles.secondaryBtn}
+                  type="button"
+                  disabled={profileStore.saveLoading}
+                  onClick={() => profileStore.cancelEdit()}
+                >
+                  Отмена
+                </button>
+              </div>
+            ) : null}
           </div>
         </div>
-      )}
+      ) : null}
     </section>
   );
 });
