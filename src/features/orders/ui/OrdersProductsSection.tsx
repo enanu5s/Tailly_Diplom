@@ -1,4 +1,3 @@
-//src/features/orders/ui/OrdersProductsSection.tsx
 import { observer } from 'mobx-react-lite';
 import { useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
@@ -6,7 +5,16 @@ import { useNavigate } from 'react-router-dom';
 import styles from './OrdersProductsSection.module.css';
 import { ordersStore } from '../model/ordersStore';
 
+import type { KeyboardEvent } from 'react';
 import type { ProductOrder } from '../model/types';
+
+type CheckoutLocationState = {
+  source: 'repeat_product_order';
+  orderId: string;
+  repeatOrder: Awaited<ReturnType<typeof ordersStore.repeatProduct>> extends infer T
+    ? Exclude<T, null>
+    : never;
+};
 
 export const OrdersProductsSection = observer(() => {
   const navigate = useNavigate();
@@ -21,8 +29,13 @@ export const OrdersProductsSection = observer(() => {
         <h2 className={styles.title}>Мои заказы (товары)</h2>
       </div>
 
-      {ordersStore.productsError && <div className={styles.error}>{ordersStore.productsError}</div>}
-      {ordersStore.actionError && <div className={styles.error}>{ordersStore.actionError}</div>}
+      {ordersStore.productsError ? (
+        <div className={styles.error}>{ordersStore.productsError}</div>
+      ) : null}
+
+      {ordersStore.actionError ? (
+        <div className={styles.error}>{ordersStore.actionError}</div>
+      ) : null}
 
       {ordersStore.productsLoading && ordersStore.productOrders.length === 0 ? (
         <div className={styles.state}>Загружаем заказы...</div>
@@ -30,14 +43,31 @@ export const OrdersProductsSection = observer(() => {
         <div className={styles.state}>Пока нет заказов товаров.</div>
       ) : (
         <div className={styles.list}>
-          {ordersStore.productOrders.map((o) => (
+          {ordersStore.productOrders.map((order) => (
             <ProductOrderCard
-              key={o.id}
-              order={o}
+              key={order.id}
+              order={order}
               onOpen={() => {
-                // фундамент под страницу заказа, но саму страницу не делаем
-                navigate(`/orders/${o.id}`);
+                navigate(`/orders/${order.id}`);
               }}
+              onRepeat={async () => {
+                const draft = await ordersStore.repeatProduct(order.id);
+
+                if (!draft || ordersStore.actionError) {
+                  return;
+                }
+
+                const checkoutState: CheckoutLocationState = {
+                  source: 'repeat_product_order',
+                  orderId: order.id,
+                  repeatOrder: draft,
+                };
+
+                navigate('/shop/checkout', {
+                  state: checkoutState,
+                });
+              }}
+              isRepeatLoading={ordersStore.actionLoadingId === order.id}
             />
           ))}
         </div>
@@ -46,75 +76,117 @@ export const OrdersProductsSection = observer(() => {
   );
 });
 
-const ProductOrderCard = observer(({ order, onOpen }: { order: ProductOrder; onOpen: () => void }) => {
-  const thumbs = order.productThumbs ?? [];
-  const show = thumbs.slice(0, 3);
-  const rest = Math.max(0, thumbs.length - 3);
+type ProductOrderCardProps = {
+  order: ProductOrder;
+  onOpen: () => void;
+  onRepeat: () => Promise<void>;
+  isRepeatLoading: boolean;
+};
 
-  return (
-    <button className={styles.order} type="button" onClick={onOpen}>
-      <div className={styles.left}>
-        <div className={styles.number}>{order.number}</div>
-        <div className={styles.metaRow}>
-          <span className={styles.meta}>{mapProductStatus(order.status)}</span>
-          <span className={styles.dot}>•</span>
-          <span className={styles.meta}>
-            {new Date(order.createdAt).toLocaleDateString('ru-RU', { year: 'numeric', month: 'long', day: '2-digit' })}
-          </span>
+const ProductOrderCard = observer(
+  ({
+    order,
+    onOpen,
+    onRepeat,
+    isRepeatLoading,
+  }: ProductOrderCardProps) => {
+    const thumbs = order.productThumbs ?? [];
+    const show = thumbs.slice(0, 3);
+    const rest = Math.max(0, thumbs.length - 3);
+
+    const handleCardKeyDown = (
+      event: KeyboardEvent<HTMLDivElement>,
+    ): void => {
+      if (event.key === 'Enter' || event.key === ' ') {
+        event.preventDefault();
+        onOpen();
+      }
+    };
+
+    return (
+      <div
+        className={styles.order}
+        role="button"
+        tabIndex={0}
+        onClick={onOpen}
+        onKeyDown={handleCardKeyDown}
+      >
+        <div className={styles.left}>
+          <div className={styles.number}>{order.number}</div>
+
+          <div className={styles.metaRow}>
+            <span className={styles.meta}>{mapProductStatus(order.status)}</span>
+            <span className={styles.dot}>•</span>
+            <span className={styles.meta}>
+              {new Date(order.createdAt).toLocaleDateString('ru-RU', {
+                year: 'numeric',
+                month: 'long',
+                day: '2-digit',
+              })}
+            </span>
+          </div>
+
+          <div className={styles.metaRow}>
+            <span className={styles.meta}>Товаров: {order.itemsCount}</span>
+          </div>
         </div>
 
-        <div className={styles.metaRow}>
-          <span className={styles.meta}>Товаров: {order.itemsCount}</span>
-        </div>
-      </div>
+        <div className={styles.right}>
+          <div className={styles.price}>
+            {formatPrice(order.price, order.currency)}
+          </div>
 
-      <div className={styles.right}>
-        <div className={styles.price}>{formatPrice(order.price, order.currency)}</div>
+          <div className={styles.thumbs}>
+            {show.map((src, idx) => {
+              const isLastVisible = idx === 2;
 
-        <div className={styles.thumbs}>
-          {show.map((src, idx) => {
-            const isLastVisible = idx === 2;
-            if (isLastVisible && rest > 0) {
+              if (isLastVisible && rest > 0) {
+                return (
+                  <div key={`${src}-${idx}`} className={styles.thumbWrap}>
+                    <img className={styles.thumb} src={src} alt="Товар" />
+                    <div className={styles.moreOverlay}>{rest}+</div>
+                  </div>
+                );
+              }
+
               return (
                 <div key={`${src}-${idx}`} className={styles.thumbWrap}>
                   <img className={styles.thumb} src={src} alt="Товар" />
-                  <div className={styles.moreOverlay}>{rest}+</div>
                 </div>
               );
-            }
-            return (
-              <div key={`${src}-${idx}`} className={styles.thumbWrap}>
-                <img className={styles.thumb} src={src} alt="Товар" />
-              </div>
-            );
-          })}
+            })}
+          </div>
+
+          <button
+            className={styles.secondaryBtn}
+            type="button"
+            onClick={(event) => {
+              event.stopPropagation();
+              void onRepeat();
+            }}
+            disabled={isRepeatLoading}
+          >
+            {isRepeatLoading ? '...' : 'Повторить заказ'}
+          </button>
         </div>
-
-        <button
-          className={styles.secondaryBtn}
-          type="button"
-          onClick={(e) => {
-            e.stopPropagation();
-            void ordersStore.repeatProduct(order.id);
-          }}
-          disabled={ordersStore.actionLoadingId === order.id}
-        >
-          {ordersStore.actionLoadingId === order.id ? '...' : 'Повторить заказ'}
-        </button>
       </div>
-    </button>
-  );
-});
+    );
+  },
+);
 
-function mapProductStatus(s: string) {
-  if (s === 'created') return 'Создан';
-  if (s === 'paid') return 'Оплачен';
-  if (s === 'shipped') return 'Отправлен';
-  if (s === 'delivered') return 'Доставлен';
-  if (s === 'canceled') return 'Отменён';
-  return s;
+function mapProductStatus(status: string): string {
+  if (status === 'created') return 'Создан';
+  if (status === 'paid') return 'Оплачен';
+  if (status === 'shipped') return 'Отправлен';
+  if (status === 'delivered') return 'Доставлен';
+  if (status === 'canceled') return 'Отменён';
+
+  return status;
 }
 
-function formatPrice(value: number, currency: 'RUB') {
-  return new Intl.NumberFormat('ru-RU', { style: 'currency', currency }).format(value);
+function formatPrice(value: number, currency: 'RUB'): string {
+  return new Intl.NumberFormat('ru-RU', {
+    style: 'currency',
+    currency,
+  }).format(value);
 }

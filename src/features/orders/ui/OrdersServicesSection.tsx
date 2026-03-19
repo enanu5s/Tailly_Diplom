@@ -1,22 +1,22 @@
 // src/features/orders/ui/OrdersServicesSection.tsx
 
-import { observer } from 'mobx-react-lite';
-import { useEffect, useMemo, useRef, useState } from 'react';
-import { useLocation, useNavigate } from 'react-router-dom';
+import { observer } from "mobx-react-lite";
+import { useEffect, useMemo, useRef, useState } from "react";
+import { useLocation, useNavigate } from "react-router-dom";
 
-import { ordersStore } from '../model/ordersStore';
+import { ordersStore } from "../model/ordersStore";
 import type {
   LeaveServiceReviewPayload,
   OrderStatus,
   ServiceOrder,
   ServicesFilter,
-} from '../model/types';
+} from "../model/types";
 
-import styles from './OrdersServicesSection.module.css';
+import styles from "./OrdersServicesSection.module.css";
 
-import type { ChangeEvent, ReactElement } from 'react';
+import type { ChangeEvent, ReactElement } from "react";
 
-type ViewerRole = 'client' | 'specialist' | 'admin' | 'super_admin';
+type ViewerRole = "client" | "specialist" | "admin" | "super_admin";
 
 type ProfileOrdersLocationState = {
   activeTab?: string;
@@ -31,167 +31,167 @@ type Props = {
 type ReviewDraftState = LeaveServiceReviewPayload;
 
 const FILTERS: Array<{ value: ServicesFilter; label: string }> = [
-  { value: 'all', label: 'Все' },
-  { value: 'upcoming', label: 'Будущие' },
-  { value: 'pending_confirmation', label: 'Ждут подтверждения' },
-  { value: 'confirmed', label: 'Подтверждённые' },
-  { value: 'active', label: 'Активные' },
-  { value: 'completed', label: 'Завершённые' },
-  { value: 'canceled', label: 'Отменённые' },
+  { value: "all", label: "Все" },
+  { value: "upcoming", label: "Будущие" },
+  { value: "pending_confirmation", label: "Ждут подтверждения" },
+  { value: "confirmed", label: "Подтверждённые" },
+  { value: "active", label: "Активные" },
+  { value: "completed", label: "Завершённые" },
+  { value: "canceled", label: "Отменённые" },
 ];
 
 function formatDateTime(iso: string): string {
-  return new Date(iso).toLocaleString('ru-RU', {
-    day: '2-digit',
-    month: 'long',
-    year: 'numeric',
-    hour: '2-digit',
-    minute: '2-digit',
+  return new Date(iso).toLocaleString("ru-RU", {
+    day: "2-digit",
+    month: "long",
+    year: "numeric",
+    hour: "2-digit",
+    minute: "2-digit",
   });
 }
 
 function formatDateOnly(isoOrDate: string): string {
   const value = isoOrDate.length === 10 ? `${isoOrDate}T00:00:00` : isoOrDate;
 
-  return new Date(value).toLocaleDateString('ru-RU', {
-    day: '2-digit',
-    month: 'long',
-    year: 'numeric',
+  return new Date(value).toLocaleDateString("ru-RU", {
+    day: "2-digit",
+    month: "long",
+    year: "numeric",
   });
 }
 
 function formatStatus(status: OrderStatus): string {
-  if (status === 'pending_confirmation') {
-    return 'Ждёт подтверждения';
+  if (status === "pending_confirmation") {
+    return "Ждёт подтверждения";
   }
 
-  if (status === 'confirmed') {
-    return 'Подтверждён';
+  if (status === "confirmed") {
+    return "Подтверждён";
   }
 
-  if (status === 'active') {
-    return 'Выполняется';
+  if (status === "active") {
+    return "Выполняется";
   }
 
-  if (status === 'completed') {
-    return 'Завершён';
+  if (status === "completed") {
+    return "Завершён";
   }
 
-  if (status === 'canceled') {
-    return 'Отменён';
+  if (status === "canceled") {
+    return "Отменён";
   }
 
   return status;
 }
 
 function getStatusTone(status: OrderStatus): string {
-  if (status === 'pending_confirmation') {
+  if (status === "pending_confirmation") {
     return styles.statusPending;
   }
 
-  if (status === 'confirmed') {
+  if (status === "confirmed") {
     return styles.statusConfirmed;
   }
 
-  if (status === 'active') {
+  if (status === "active") {
     return styles.statusActive;
   }
 
-  if (status === 'completed') {
+  if (status === "completed") {
     return styles.statusCompleted;
   }
 
-  if (status === 'canceled') {
+  if (status === "canceled") {
     return styles.statusCanceled;
   }
 
   return styles.statusNeutral;
 }
 
-function formatPrice(value: number, currency: 'RUB'): string {
-  return new Intl.NumberFormat('ru-RU', {
-    style: 'currency',
+function formatPrice(value: number, currency: "RUB"): string {
+  return new Intl.NumberFormat("ru-RU", {
+    style: "currency",
     currency,
     maximumFractionDigits: 0,
   }).format(value);
 }
 
-function formatBookingMode(mode: ServiceOrder['schedule']['mode']): string {
-  if (mode === 'fixed_slot') {
-    return 'Фиксированный слот';
+function formatBookingMode(mode: ServiceOrder["schedule"]["mode"]): string {
+  if (mode === "fixed_slot") {
+    return "Фиксированный слот";
   }
 
-  if (mode === 'time_range') {
-    return 'Произвольный интервал';
+  if (mode === "time_range") {
+    return "Произвольный интервал";
   }
 
-  if (mode === 'multi_day_stay') {
-    return 'Передержка';
+  if (mode === "multi_day_stay") {
+    return "Передержка";
   }
 
-  if (mode === 'open_request') {
-    return 'Свободный запрос';
+  if (mode === "open_request") {
+    return "Свободный запрос";
   }
 
   return mode;
 }
 
 function buildOrderTimeLabel(order: ServiceOrder): string {
-  if (order.schedule.mode === 'fixed_slot') {
+  if (order.schedule.mode === "fixed_slot") {
     const start = new Date(order.schedule.startAt);
     const end = new Date(order.schedule.endAt);
 
     const sameDay = start.toDateString() === end.toDateString();
 
     if (sameDay) {
-      return `${start.toLocaleDateString('ru-RU', {
-        day: '2-digit',
-        month: 'long',
-        year: 'numeric',
-      })}, ${start.toLocaleTimeString('ru-RU', {
-        hour: '2-digit',
-        minute: '2-digit',
-      })} – ${end.toLocaleTimeString('ru-RU', {
-        hour: '2-digit',
-        minute: '2-digit',
+      return `${start.toLocaleDateString("ru-RU", {
+        day: "2-digit",
+        month: "long",
+        year: "numeric",
+      })}, ${start.toLocaleTimeString("ru-RU", {
+        hour: "2-digit",
+        minute: "2-digit",
+      })} – ${end.toLocaleTimeString("ru-RU", {
+        hour: "2-digit",
+        minute: "2-digit",
       })}`;
     }
 
     return `${formatDateTime(order.schedule.startAt)} – ${formatDateTime(order.schedule.endAt)}`;
   }
 
-  if (order.schedule.mode === 'time_range') {
+  if (order.schedule.mode === "time_range") {
     return `${formatDateTime(order.schedule.startAt)} – ${formatDateTime(order.schedule.endAt)}`;
   }
 
-  if (order.schedule.mode === 'multi_day_stay') {
+  if (order.schedule.mode === "multi_day_stay") {
     return `Заезд: ${formatDateTime(order.schedule.checkInAt)} • Выезд: ${formatDateTime(order.schedule.checkOutAt)}`;
   }
 
   if (order.schedule.requestedDate) {
     const startTime = order.schedule.requestedStartTime
       ? `, c ${order.schedule.requestedStartTime}`
-      : '';
+      : "";
     const endTime = order.schedule.requestedEndTime
       ? ` до ${order.schedule.requestedEndTime}`
-      : '';
+      : "";
 
     return `${formatDateOnly(order.schedule.requestedDate)}${startTime}${endTime}`;
   }
 
-  return 'По согласованию со специалистом';
+  return "По согласованию со специалистом";
 }
 
 function buildOrderSecondaryLabel(order: ServiceOrder): string | null {
-  if (order.schedule.mode === 'multi_day_stay') {
+  if (order.schedule.mode === "multi_day_stay") {
     return `${order.schedule.stayDays} дн.`;
   }
 
-  if (order.schedule.mode === 'open_request') {
-    return 'Время будет согласовано после подтверждения';
+  if (order.schedule.mode === "open_request") {
+    return "Время будет согласовано после подтверждения";
   }
 
-  if (order.schedule.mode === 'time_range') {
+  if (order.schedule.mode === "time_range") {
     const start = new Date(order.schedule.startAt);
     const end = new Date(order.schedule.endAt);
     const durationMinutes = Math.max(
@@ -215,33 +215,31 @@ function buildOrderSecondaryLabel(order: ServiceOrder): string | null {
 
 function canLeaveReview(order: ServiceOrder, viewerRole: ViewerRole): boolean {
   return (
-    viewerRole === 'client' &&
-    order.status === 'completed' &&
-    !order.hasReview
+    viewerRole === "client" && order.status === "completed" && !order.hasReview
   );
 }
 
 function canRepeat(order: ServiceOrder, viewerRole: ViewerRole): boolean {
-  return viewerRole === 'client' && order.status === 'completed';
+  return viewerRole === "client" && order.status === "completed";
 }
 
 function canCancel(order: ServiceOrder, viewerRole: ViewerRole): boolean {
   return (
-    viewerRole === 'client' &&
-    (order.status === 'pending_confirmation' || order.status === 'confirmed')
+    viewerRole === "client" &&
+    (order.status === "pending_confirmation" || order.status === "confirmed")
   );
 }
 
 function canConfirm(order: ServiceOrder, viewerRole: ViewerRole): boolean {
-  return viewerRole === 'specialist' && order.status === 'pending_confirmation';
+  return viewerRole === "specialist" && order.status === "pending_confirmation";
 }
 
 function canStart(order: ServiceOrder, viewerRole: ViewerRole): boolean {
-  return viewerRole === 'specialist' && order.status === 'confirmed';
+  return viewerRole === "specialist" && order.status === "confirmed";
 }
 
 function canComplete(order: ServiceOrder, viewerRole: ViewerRole): boolean {
-  return viewerRole === 'specialist' && order.status === 'active';
+  return viewerRole === "specialist" && order.status === "active";
 }
 
 function isRelevantProfileState(
@@ -259,7 +257,7 @@ function isRelevantProfileState(
 function getDefaultReviewDraft(): ReviewDraftState {
   return {
     rating: 5,
-    comment: '',
+    comment: "",
     photos: [],
   };
 }
@@ -267,7 +265,7 @@ function getDefaultReviewDraft(): ReviewDraftState {
 function renderStars(rating: number): string {
   const safeRating = Math.max(1, Math.min(5, rating));
 
-  return `${'★'.repeat(safeRating)}${'☆'.repeat(5 - safeRating)}`;
+  return `${"★".repeat(safeRating)}${"☆".repeat(5 - safeRating)}`;
 }
 
 function readFileAsDataUrl(file: File): Promise<string> {
@@ -275,16 +273,16 @@ function readFileAsDataUrl(file: File): Promise<string> {
     const reader = new FileReader();
 
     reader.onload = () => {
-      if (typeof reader.result === 'string') {
+      if (typeof reader.result === "string") {
         resolve(reader.result);
         return;
       }
 
-      reject(new Error('Не удалось прочитать изображение.'));
+      reject(new Error("Не удалось прочитать изображение."));
     };
 
     reader.onerror = () => {
-      reject(new Error('Не удалось прочитать изображение.'));
+      reject(new Error("Не удалось прочитать изображение."));
     };
 
     reader.readAsDataURL(file);
@@ -292,7 +290,7 @@ function readFileAsDataUrl(file: File): Promise<string> {
 }
 
 export const OrdersServicesSection = observer(
-  ({ viewerRole = 'client' }: Props): ReactElement => {
+  ({ viewerRole = "client" }: Props): ReactElement => {
     const navigate = useNavigate();
     const location = useLocation();
     const locationState =
@@ -331,8 +329,8 @@ export const OrdersServicesSection = observer(
 
         if (node) {
           node.scrollIntoView({
-            block: 'center',
-            behavior: 'smooth',
+            block: "center",
+            behavior: "smooth",
           });
         }
       }, 150);
@@ -418,11 +416,11 @@ export const OrdersServicesSection = observer(
       }
 
       const imageFiles = Array.from(files).filter((file) =>
-        file.type.startsWith('image/'),
+        file.type.startsWith("image/"),
       );
 
       if (imageFiles.length === 0) {
-        event.target.value = '';
+        event.target.value = "";
         return;
       }
 
@@ -443,7 +441,7 @@ export const OrdersServicesSection = observer(
           };
         });
       } finally {
-        event.target.value = '';
+        event.target.value = "";
       }
     };
 
@@ -549,382 +547,396 @@ export const OrdersServicesSection = observer(
           </div>
         ) : null}
 
-        <div className={styles.list}>
-          {serviceOrders.map((order) => {
-            const loadingThisCard = ordersStore.actionLoadingId === order.id;
-            const currentReviewDraft =
-              reviewDrafts[order.id] ?? getDefaultReviewDraft();
-            const isFresh = freshOrderId === order.id;
-            const secondaryLabel = buildOrderSecondaryLabel(order);
+        <div className={styles.listScroll}>
+          <div className={styles.list}>
+            {serviceOrders.map((order) => {
+              const loadingThisCard = ordersStore.actionLoadingId === order.id;
+              const currentReviewDraft =
+                reviewDrafts[order.id] ?? getDefaultReviewDraft();
+              const isFresh = freshOrderId === order.id;
+              const secondaryLabel = buildOrderSecondaryLabel(order);
 
-            return (
-              <article
-                key={order.id}
-                ref={(node) => {
-                  orderRefs.current[order.id] = node;
-                }}
-                className={isFresh ? styles.cardFresh : styles.card}
-              >
-                <div className={styles.cardHeader}>
-                  <div className={styles.cardHeaderMain}>
-                    <div className={styles.orderTitleRow}>
-                      <h3 className={styles.orderTitle}>{order.serviceTitle}</h3>
-                      <span
-                        className={`${styles.statusBadge} ${getStatusTone(order.status)}`}
-                      >
-                        {formatStatus(order.status)}
-                      </span>
-                    </div>
-
-                    <div className={styles.metaGrid}>
-                      <div className={styles.metaItem}>
-                        <span className={styles.metaLabel}>Специалист</span>
-                        <button
-                          type="button"
-                          className={styles.inlineLinkButton}
-                          onClick={() => {
-                            openSpecialistProfile(order.specialistSlug);
-                          }}
+              return (
+                <article
+                  key={order.id}
+                  ref={(node) => {
+                    orderRefs.current[order.id] = node;
+                  }}
+                  className={isFresh ? styles.cardFresh : styles.card}
+                >
+                  <div className={styles.cardHeader}>
+                    <div className={styles.cardHeaderMain}>
+                      <div className={styles.orderTitleRow}>
+                        <h3 className={styles.orderTitle}>
+                          {order.serviceTitle}
+                        </h3>
+                        <span
+                          className={`${styles.statusBadge} ${getStatusTone(order.status)}`}
                         >
-                          {order.sitterName}
-                        </button>
-                      </div>
-
-                      <div className={styles.metaItem}>
-                        <span className={styles.metaLabel}>Питомец</span>
-                        <span className={styles.metaValue}>{order.petName}</span>
-                      </div>
-
-                      <div className={styles.metaItem}>
-                        <span className={styles.metaLabel}>Формат бронирования</span>
-                        <span className={styles.metaValue}>
-                          {formatBookingMode(order.schedule.mode)}
+                          {formatStatus(order.status)}
                         </span>
                       </div>
 
-                      <div className={styles.metaItem}>
-                        <span className={styles.metaLabel}>Дата и время</span>
-                        <span className={styles.metaValue}>
-                          {buildOrderTimeLabel(order)}
-                        </span>
-                      </div>
-
-                      <div className={styles.metaItem}>
-                        <span className={styles.metaLabel}>Формат услуги</span>
-                        <span className={styles.metaValue}>
-                          {order.locationLabel}
-                        </span>
-                      </div>
-
-                      <div className={styles.metaItem}>
-                        <span className={styles.metaLabel}>Стоимость</span>
-                        <span className={styles.metaValue}>
-                          {formatPrice(order.price, order.currency)}
-                        </span>
-                      </div>
-
-                      <div className={styles.metaItem}>
-                        <span className={styles.metaLabel}>Создан</span>
-                        <span className={styles.metaValue}>
-                          {formatDateTime(order.createdAt)}
-                        </span>
-                      </div>
-
-                      {secondaryLabel ? (
+                      <div className={styles.metaGrid}>
                         <div className={styles.metaItem}>
-                          <span className={styles.metaLabel}>Дополнительно</span>
-                          <span className={styles.metaValue}>{secondaryLabel}</span>
+                          <span className={styles.metaLabel}>Специалист</span>
+                          <button
+                            type="button"
+                            className={styles.inlineLinkButton}
+                            onClick={() => {
+                              openSpecialistProfile(order.specialistSlug);
+                            }}
+                          >
+                            {order.sitterName}
+                          </button>
                         </div>
-                      ) : null}
-                    </div>
 
-                    {order.comment ? (
-                      <div className={styles.commentBox}>
-                        <span className={styles.metaLabel}>Комментарий</span>
-                        <p className={styles.commentText}>{order.comment}</p>
-                      </div>
-                    ) : null}
-                  </div>
-                </div>
+                        <div className={styles.metaItem}>
+                          <span className={styles.metaLabel}>Питомец</span>
+                          <span className={styles.metaValue}>
+                            {order.petName}
+                          </span>
+                        </div>
 
-                <div className={styles.timeline}>
-                  {order.lifecycle.map((item, index) => (
-                    <div
-                      key={`${order.id}-${item.status}-${item.changedAt}-${index}`}
-                      className={styles.timelineItem}
-                    >
-                      <span className={styles.timelineDot} />
-                      <div className={styles.timelineContent}>
-                        <div className={styles.timelineTitle}>
-                          {formatStatus(item.status)}
+                        <div className={styles.metaItem}>
+                          <span className={styles.metaLabel}>
+                            Формат бронирования
+                          </span>
+                          <span className={styles.metaValue}>
+                            {formatBookingMode(order.schedule.mode)}
+                          </span>
                         </div>
-                        <div className={styles.timelineDate}>
-                          {formatDateTime(item.changedAt)}
+
+                        <div className={styles.metaItem}>
+                          <span className={styles.metaLabel}>Дата и время</span>
+                          <span className={styles.metaValue}>
+                            {buildOrderTimeLabel(order)}
+                          </span>
                         </div>
-                        {item.comment ? (
-                          <div className={styles.timelineComment}>
-                            {item.comment}
+
+                        <div className={styles.metaItem}>
+                          <span className={styles.metaLabel}>
+                            Формат услуги
+                          </span>
+                          <span className={styles.metaValue}>
+                            {order.locationLabel}
+                          </span>
+                        </div>
+
+                        <div className={styles.metaItem}>
+                          <span className={styles.metaLabel}>Стоимость</span>
+                          <span className={styles.metaValue}>
+                            {formatPrice(order.price, order.currency)}
+                          </span>
+                        </div>
+
+                        <div className={styles.metaItem}>
+                          <span className={styles.metaLabel}>Создан</span>
+                          <span className={styles.metaValue}>
+                            {formatDateTime(order.createdAt)}
+                          </span>
+                        </div>
+
+                        {secondaryLabel ? (
+                          <div className={styles.metaItem}>
+                            <span className={styles.metaLabel}>
+                              Дополнительно
+                            </span>
+                            <span className={styles.metaValue}>
+                              {secondaryLabel}
+                            </span>
                           </div>
                         ) : null}
                       </div>
-                    </div>
-                  ))}
-                </div>
 
-                <div className={styles.actions}>
-                  <button
-                    type="button"
-                    className={styles.secondaryButton}
-                    onClick={() => {
-                      openSpecialistProfile(order.specialistSlug);
-                    }}
-                  >
-                    Перейти в профиль петситтера
-                  </button>
-
-                  {canCancel(order, viewerRole) ? (
-                    <button
-                      type="button"
-                      className={styles.secondaryButton}
-                      disabled={loadingThisCard}
-                      onClick={() => {
-                        void ordersStore.cancelService(order.id);
-                      }}
-                    >
-                      Отменить заказ
-                    </button>
-                  ) : null}
-
-                  {canConfirm(order, viewerRole) ? (
-                    <button
-                      type="button"
-                      className={styles.primaryButton}
-                      disabled={loadingThisCard}
-                      onClick={() => {
-                        void ordersStore.confirmService(order.id);
-                      }}
-                    >
-                      Подтвердить
-                    </button>
-                  ) : null}
-
-                  {canStart(order, viewerRole) ? (
-                    <button
-                      type="button"
-                      className={styles.primaryButton}
-                      disabled={loadingThisCard}
-                      onClick={() => {
-                        void ordersStore.startService(order.id);
-                      }}
-                    >
-                      Начать выполнение
-                    </button>
-                  ) : null}
-
-                  {canComplete(order, viewerRole) ? (
-                    <button
-                      type="button"
-                      className={styles.primaryButton}
-                      disabled={loadingThisCard}
-                      onClick={() => {
-                        void ordersStore.completeService(order.id);
-                      }}
-                    >
-                      Завершить заказ
-                    </button>
-                  ) : null}
-
-                  {canRepeat(order, viewerRole) ? (
-                    <button
-                      type="button"
-                      className={styles.secondaryButton}
-                      disabled={loadingThisCard}
-                      onClick={() => {
-                        void handleRepeat(order.id);
-                      }}
-                    >
-                      Повторить заказ
-                    </button>
-                  ) : null}
-                </div>
-
-                {order.review ? (
-                  <div className={styles.reviewView}>
-                    <div className={styles.reviewViewHeader}>
-                      <div className={styles.reviewViewTitle}>Ваш отзыв</div>
-                      <div className={styles.reviewViewRating}>
-                        {renderStars(order.review.rating)} ({order.review.rating}/5)
-                      </div>
-                    </div>
-
-                    <div className={styles.reviewViewDate}>
-                      {formatDateTime(order.review.createdAt)}
-                    </div>
-
-                    <div className={styles.reviewViewComment}>
-                      {order.review.comment}
-                    </div>
-
-                    {order.review.photos.length > 0 ? (
-                      <div className={styles.reviewPhotosGrid}>
-                        {order.review.photos.map((photo, index) => (
-                          <img
-                            key={`${order.id}-review-photo-${index}`}
-                            className={styles.reviewPhoto}
-                            src={photo}
-                            alt={`Фото к отзыву ${index + 1}`}
-                          />
-                        ))}
-                      </div>
-                    ) : null}
-
-                    {order.review.specialistReply ? (
-                      <details className={styles.replyDetails}>
-                        <summary className={styles.replySummary}>
-                          Ответ специалиста
-                        </summary>
-
-                        <div className={styles.replyBody}>
-                          <div className={styles.replyDate}>
-                            {formatDateTime(order.review.specialistReply.createdAt)}
-                          </div>
-                          <div className={styles.replyComment}>
-                            {order.review.specialistReply.comment}
-                          </div>
+                      {order.comment ? (
+                        <div className={styles.commentBox}>
+                          <span className={styles.metaLabel}>Комментарий</span>
+                          <p className={styles.commentText}>{order.comment}</p>
                         </div>
-                      </details>
-                    ) : null}
+                      ) : null}
+                    </div>
                   </div>
-                ) : null}
 
-                {canLeaveReview(order, viewerRole) ? (
-                  <div className={styles.reviewBox}>
-                    <div className={styles.reviewTitle}>Оставить отзыв</div>
-
-                    <div className={styles.reviewControls}>
-                      <label className={styles.reviewLabel}>
-                        Оценка
-                        <select
-                          className={styles.select}
-                          value={currentReviewDraft.rating}
-                          onChange={(event) => {
-                            handleReviewFieldChange(
-                              order.id,
-                              'rating',
-                              Number(event.target.value) as
-                                | 1
-                                | 2
-                                | 3
-                                | 4
-                                | 5,
-                            );
-                          }}
-                        >
-                          <option value={5}>5</option>
-                          <option value={4}>4</option>
-                          <option value={3}>3</option>
-                          <option value={2}>2</option>
-                          <option value={1}>1</option>
-                        </select>
-                      </label>
-                    </div>
-
-                    <label className={styles.reviewTextLabel}>
-                      Комментарий
-                      <textarea
-                        className={styles.textarea}
-                        value={currentReviewDraft.comment}
-                        onChange={(event) => {
-                          handleReviewFieldChange(
-                            order.id,
-                            'comment',
-                            event.target.value,
-                          );
-                        }}
-                        placeholder="Опишите, как прошла услуга"
-                        rows={4}
-                      />
-                    </label>
-
-                    <div className={styles.reviewPhotosBlock}>
-                      <div className={styles.reviewPhotosTitle}>
-                        Фото к отзыву
-                      </div>
-
-                      <label className={styles.uploadButton}>
-                        Добавить фото
-                        <input
-                          className={styles.hiddenInput}
-                          type="file"
-                          accept="image/*"
-                          multiple
-                          onChange={(event) => {
-                            void handleReviewPhotosChange(order.id, event);
-                          }}
-                        />
-                      </label>
-
-                      {currentReviewDraft.photos.length > 0 ? (
-                        <div className={styles.reviewDraftPhotosGrid}>
-                          {currentReviewDraft.photos.map((photo, index) => (
-                            <div
-                              key={`${order.id}-draft-photo-${index}`}
-                              className={styles.reviewDraftPhotoCard}
-                            >
-                              <img
-                                className={styles.reviewDraftPhoto}
-                                src={photo}
-                                alt={`Черновик фото ${index + 1}`}
-                              />
-                              <button
-                                type="button"
-                                className={styles.removePhotoButton}
-                                onClick={() => {
-                                  handleRemoveReviewPhoto(order.id, index);
-                                }}
-                              >
-                                Удалить
-                              </button>
+                  <div className={styles.timeline}>
+                    {order.lifecycle.map((item, index) => (
+                      <div
+                        key={`${order.id}-${item.status}-${item.changedAt}-${index}`}
+                        className={styles.timelineItem}
+                      >
+                        <span className={styles.timelineDot} />
+                        <div className={styles.timelineContent}>
+                          <div className={styles.timelineTitle}>
+                            {formatStatus(item.status)}
+                          </div>
+                          <div className={styles.timelineDate}>
+                            {formatDateTime(item.changedAt)}
+                          </div>
+                          {item.comment ? (
+                            <div className={styles.timelineComment}>
+                              {item.comment}
                             </div>
-                          ))}
+                          ) : null}
                         </div>
-                      ) : (
-                        <div className={styles.reviewHint}>
-                          Можно добавить несколько изображений.
-                        </div>
-                      )}
-                    </div>
+                      </div>
+                    ))}
+                  </div>
 
-                    <div className={styles.reviewActions}>
+                  <div className={styles.actions}>
+                    <button
+                      type="button"
+                      className={styles.secondaryButton}
+                      onClick={() => {
+                        openSpecialistProfile(order.specialistSlug);
+                      }}
+                    >
+                      Перейти в профиль петситтера
+                    </button>
+
+                    {canCancel(order, viewerRole) ? (
+                      <button
+                        type="button"
+                        className={styles.secondaryButton}
+                        disabled={loadingThisCard}
+                        onClick={() => {
+                          void ordersStore.cancelService(order.id);
+                        }}
+                      >
+                        Отменить заказ
+                      </button>
+                    ) : null}
+
+                    {canConfirm(order, viewerRole) ? (
                       <button
                         type="button"
                         className={styles.primaryButton}
-                        disabled={
-                          loadingThisCard ||
-                          currentReviewDraft.comment.trim().length === 0
-                        }
+                        disabled={loadingThisCard}
                         onClick={() => {
-                          void handleLeaveReview(order.id);
+                          void ordersStore.confirmService(order.id);
                         }}
                       >
-                        Отправить отзыв
+                        Подтвердить
                       </button>
+                    ) : null}
+
+                    {canStart(order, viewerRole) ? (
+                      <button
+                        type="button"
+                        className={styles.primaryButton}
+                        disabled={loadingThisCard}
+                        onClick={() => {
+                          void ordersStore.startService(order.id);
+                        }}
+                      >
+                        Начать выполнение
+                      </button>
+                    ) : null}
+
+                    {canComplete(order, viewerRole) ? (
+                      <button
+                        type="button"
+                        className={styles.primaryButton}
+                        disabled={loadingThisCard}
+                        onClick={() => {
+                          void ordersStore.completeService(order.id);
+                        }}
+                      >
+                        Завершить заказ
+                      </button>
+                    ) : null}
+
+                    {canRepeat(order, viewerRole) ? (
+                      <button
+                        type="button"
+                        className={styles.secondaryButton}
+                        disabled={loadingThisCard}
+                        onClick={() => {
+                          void handleRepeat(order.id);
+                        }}
+                      >
+                        Повторить заказ
+                      </button>
+                    ) : null}
+                  </div>
+
+                  {order.review ? (
+                    <div className={styles.reviewView}>
+                      <div className={styles.reviewViewHeader}>
+                        <div className={styles.reviewViewTitle}>Ваш отзыв</div>
+                        <div className={styles.reviewViewRating}>
+                          {renderStars(order.review.rating)} (
+                          {order.review.rating}/5)
+                        </div>
+                      </div>
+
+                      <div className={styles.reviewViewDate}>
+                        {formatDateTime(order.review.createdAt)}
+                      </div>
+
+                      <div className={styles.reviewViewComment}>
+                        {order.review.comment}
+                      </div>
+
+                      {order.review.photos.length > 0 ? (
+                        <div className={styles.reviewPhotosGrid}>
+                          {order.review.photos.map((photo, index) => (
+                            <img
+                              key={`${order.id}-review-photo-${index}`}
+                              className={styles.reviewPhoto}
+                              src={photo}
+                              alt={`Фото к отзыву ${index + 1}`}
+                            />
+                          ))}
+                        </div>
+                      ) : null}
+
+                      {order.review.specialistReply ? (
+                        <details className={styles.replyDetails}>
+                          <summary className={styles.replySummary}>
+                            Ответ специалиста
+                          </summary>
+
+                          <div className={styles.replyBody}>
+                            <div className={styles.replyDate}>
+                              {formatDateTime(
+                                order.review.specialistReply.createdAt,
+                              )}
+                            </div>
+                            <div className={styles.replyComment}>
+                              {order.review.specialistReply.comment}
+                            </div>
+                          </div>
+                        </details>
+                      ) : null}
                     </div>
-                  </div>
-                ) : null}
+                  ) : null}
 
-                {order.status === 'completed' && order.hasReview && !order.review ? (
-                  <div className={styles.successBox}>Отзыв уже оставлен.</div>
-                ) : null}
+                  {canLeaveReview(order, viewerRole) ? (
+                    <div className={styles.reviewBox}>
+                      <div className={styles.reviewTitle}>Оставить отзыв</div>
 
-                {isFresh ? (
-                  <div className={styles.freshBadge}>
-                    Новый заказ успешно создан
-                  </div>
-                ) : null}
-              </article>
-            );
-          })}
+                      <div className={styles.reviewControls}>
+                        <label className={styles.reviewLabel}>
+                          Оценка
+                          <select
+                            className={styles.select}
+                            value={currentReviewDraft.rating}
+                            onChange={(event) => {
+                              handleReviewFieldChange(
+                                order.id,
+                                "rating",
+                                Number(event.target.value) as 1 | 2 | 3 | 4 | 5,
+                              );
+                            }}
+                          >
+                            <option value={5}>5</option>
+                            <option value={4}>4</option>
+                            <option value={3}>3</option>
+                            <option value={2}>2</option>
+                            <option value={1}>1</option>
+                          </select>
+                        </label>
+                      </div>
+
+                      <label className={styles.reviewTextLabel}>
+                        Комментарий
+                        <textarea
+                          className={styles.textarea}
+                          value={currentReviewDraft.comment}
+                          onChange={(event) => {
+                            handleReviewFieldChange(
+                              order.id,
+                              "comment",
+                              event.target.value,
+                            );
+                          }}
+                          placeholder="Опишите, как прошла услуга"
+                          rows={4}
+                        />
+                      </label>
+
+                      <div className={styles.reviewPhotosBlock}>
+                        <div className={styles.reviewPhotosTitle}>
+                          Фото к отзыву
+                        </div>
+
+                        <label className={styles.uploadButton}>
+                          Добавить фото
+                          <input
+                            className={styles.hiddenInput}
+                            type="file"
+                            accept="image/*"
+                            multiple
+                            onChange={(event) => {
+                              void handleReviewPhotosChange(order.id, event);
+                            }}
+                          />
+                        </label>
+
+                        {currentReviewDraft.photos.length > 0 ? (
+                          <div className={styles.reviewDraftPhotosGrid}>
+                            {currentReviewDraft.photos.map((photo, index) => (
+                              <div
+                                key={`${order.id}-draft-photo-${index}`}
+                                className={styles.reviewDraftPhotoCard}
+                              >
+                                <img
+                                  className={styles.reviewDraftPhoto}
+                                  src={photo}
+                                  alt={`Черновик фото ${index + 1}`}
+                                />
+                                <button
+                                  type="button"
+                                  className={styles.removePhotoButton}
+                                  onClick={() => {
+                                    handleRemoveReviewPhoto(order.id, index);
+                                  }}
+                                >
+                                  Удалить
+                                </button>
+                              </div>
+                            ))}
+                          </div>
+                        ) : (
+                          <div className={styles.reviewHint}>
+                            Можно добавить несколько изображений.
+                          </div>
+                        )}
+                      </div>
+
+                      <div className={styles.reviewActions}>
+                        <button
+                          type="button"
+                          className={styles.primaryButton}
+                          disabled={
+                            loadingThisCard ||
+                            currentReviewDraft.comment.trim().length === 0
+                          }
+                          onClick={() => {
+                            void handleLeaveReview(order.id);
+                          }}
+                        >
+                          Отправить отзыв
+                        </button>
+                      </div>
+                    </div>
+                  ) : null}
+
+                  {order.status === "completed" &&
+                  order.hasReview &&
+                  !order.review ? (
+                    <div className={styles.successBox}>Отзыв уже оставлен.</div>
+                  ) : null}
+
+                  {isFresh ? (
+                    <div className={styles.freshBadge}>
+                      Новый заказ успешно создан
+                    </div>
+                  ) : null}
+                </article>
+              );
+            })}
+          </div>
         </div>
       </section>
     );

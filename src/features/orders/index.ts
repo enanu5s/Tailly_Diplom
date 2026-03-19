@@ -2,6 +2,8 @@
 
 export { ordersStore } from './model';
 export { OrdersServicesSection, OrdersProductsSection } from './ui';
+export { RepeatProductOrderButton } from './ui/RepeatProductOrderButton';
+
 
 export type {
   CancelOrderResult,
@@ -18,4 +20,6 @@ export type {
   ServicePriceUnit,
   ServicesFilter,
   StartOrderResult,
+  RepeatableProductOrder,
+  RepeatableProductOrderItem,
 } from './model';

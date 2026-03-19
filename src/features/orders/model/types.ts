@@ -184,15 +184,27 @@ export type ProductOrderStatus =
   | 'delivered'
   | 'canceled';
 
+export type ProductOrderItem = {
+  productId: string;
+  title: string;
+  quantity: number;
+  price: number;
+  imageUrl?: string;
+  variantId?: string;
+  variantLabel?: string;
+};
+
 export type ProductOrder = {
   id: string;
   number: string;
-  status: ProductOrderStatus;
+  status: 'created' | 'paid' | 'shipped' | 'delivered' | 'canceled';
   createdAt: string;
   price: number;
   currency: 'RUB';
   itemsCount: number;
-  productThumbs: string[];
+  productThumbs?: string[];
+
+  items: ProductOrderItem[];
 };
 
 export type RepeatResult = {

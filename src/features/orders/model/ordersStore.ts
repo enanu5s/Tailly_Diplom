@@ -1,5 +1,3 @@
-// src/features/orders/model/ordersStore.ts
-
 import { makeAutoObservable, runInAction } from 'mobx';
 
 import { ordersService } from '../service/ordersService';
@@ -10,6 +8,7 @@ import type {
   ServiceOrder,
   ServicesFilter,
 } from './types';
+import type { ProductOrderRepeatCheckoutDraft } from './productOrderRepeatCheckout';
 
 export class OrdersStore {
   servicesFilter: ServicesFilter = 'all';
@@ -113,22 +112,28 @@ export class OrdersStore {
     }
   }
 
-  async repeatProduct(orderId: string): Promise<void> {
+  async repeatProduct(
+    orderId: string,
+  ): Promise<ProductOrderRepeatCheckoutDraft | null> {
     this.actionLoadingId = orderId;
     this.actionError = null;
 
     try {
-      await ordersService.repeatProductOrder(orderId);
+      const draft = await ordersService.repeatProductOrder(orderId);
 
       runInAction(() => {
         this.actionLoadingId = null;
       });
+
+      return draft;
     } catch (error) {
       runInAction(() => {
         this.actionError =
           error instanceof Error ? error.message : 'Не удалось повторить заказ';
         this.actionLoadingId = null;
       });
+
+      return null;
     }
   }
 
@@ -149,7 +154,9 @@ export class OrdersStore {
     } catch (error) {
       runInAction(() => {
         this.actionError =
-          error instanceof Error ? error.message : 'Не удалось подтвердить заказ';
+          error instanceof Error
+            ? error.message
+            : 'Не удалось подтвердить заказ';
         this.actionLoadingId = null;
       });
     }

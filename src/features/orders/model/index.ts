@@ -1,4 +1,5 @@
 export { OrdersStore, ordersStore } from './ordersStore';
+export * from './productOrderRepeat';
 export type {
   OrderStatus,
   ServicesFilter,
