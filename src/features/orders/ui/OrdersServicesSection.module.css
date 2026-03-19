@@ -194,6 +194,23 @@
   line-height: 1.45;
 }
 
+.inlineLinkButton {
+  width: fit-content;
+  padding: 0;
+  margin: 0;
+  border: none;
+  background: transparent;
+  color: #4f46e5;
+  font: inherit;
+  line-height: 1.45;
+  text-align: left;
+  cursor: pointer;
+}
+
+.inlineLinkButton:hover {
+  text-decoration: underline;
+}
+
 .commentBox {
   padding: 14px;
   border-radius: 14px;
@@ -260,7 +277,9 @@
 }
 
 .primaryButton,
-.secondaryButton {
+.secondaryButton,
+.uploadButton,
+.removePhotoButton {
   min-height: 44px;
   padding: 0 16px;
   border-radius: 14px;
@@ -292,10 +311,12 @@
   padding: 16px;
   border-radius: 16px;
   background: rgba(99, 102, 241, 0.06);
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
 }
 
 .reviewTitle {
-  margin-bottom: 12px;
   font-weight: 600;
   color: #111827;
 }
@@ -314,6 +335,13 @@
   color: #111827;
 }
 
+.reviewTextLabel {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  color: #111827;
+}
+
 .select {
   min-width: 120px;
   height: 44px;
@@ -323,6 +351,160 @@
   background: #ffffff;
   font: inherit;
   color: #111827;
+}
+
+.textarea {
+  width: 100%;
+  min-height: 110px;
+  padding: 12px 14px;
+  resize: vertical;
+  border-radius: 14px;
+  border: 1px solid rgba(17, 24, 39, 0.12);
+  background: #ffffff;
+  font: inherit;
+  color: #111827;
+}
+
+.reviewPhotosBlock {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.reviewPhotosTitle {
+  font-weight: 500;
+  color: #111827;
+}
+
+.uploadButton {
+  width: fit-content;
+  border: 1px solid rgba(17, 24, 39, 0.12);
+  background: #ffffff;
+  color: #111827;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.hiddenInput {
+  display: none;
+}
+
+.reviewHint {
+  font-size: 13px;
+  color: rgba(17, 24, 39, 0.6);
+}
+
+.reviewDraftPhotosGrid,
+.reviewPhotosGrid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(110px, 1fr));
+  gap: 12px;
+}
+
+.reviewDraftPhotoCard {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.reviewDraftPhoto,
+.reviewPhoto {
+  width: 100%;
+  aspect-ratio: 1 / 1;
+  object-fit: cover;
+  border-radius: 14px;
+  border: 1px solid rgba(17, 24, 39, 0.08);
+  background: #ffffff;
+}
+
+.removePhotoButton {
+  min-height: 36px;
+  border: 1px solid rgba(239, 68, 68, 0.2);
+  background: rgba(239, 68, 68, 0.08);
+  color: #b91c1c;
+}
+
+.reviewActions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+
+.reviewView {
+  margin-top: 16px;
+  padding: 16px;
+  border-radius: 16px;
+  background: rgba(17, 24, 39, 0.04);
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.reviewViewHeader {
+  display: flex;
+  justify-content: space-between;
+  gap: 12px;
+  align-items: flex-start;
+  flex-wrap: wrap;
+}
+
+.reviewViewTitle {
+  font-weight: 600;
+  color: #111827;
+}
+
+.reviewViewRating {
+  color: #4338ca;
+  font-weight: 600;
+}
+
+.reviewViewDate {
+  font-size: 13px;
+  color: rgba(17, 24, 39, 0.56);
+}
+
+.reviewViewComment {
+  color: #111827;
+  white-space: pre-wrap;
+  line-height: 1.5;
+}
+
+.replyDetails {
+  border-radius: 14px;
+  border: 1px solid rgba(17, 24, 39, 0.08);
+  background: #ffffff;
+  overflow: hidden;
+}
+
+.replySummary {
+  cursor: pointer;
+  padding: 14px 16px;
+  font-weight: 600;
+  color: #111827;
+  list-style: none;
+}
+
+.replySummary::-webkit-details-marker {
+  display: none;
+}
+
+.replyBody {
+  padding: 0 16px 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.replyDate {
+  font-size: 13px;
+  color: rgba(17, 24, 39, 0.56);
+}
+
+.replyComment {
+  color: #111827;
+  white-space: pre-wrap;
+  line-height: 1.5;
 }
 
 .freshBadge {
@@ -348,7 +530,8 @@
     grid-template-columns: 1fr;
   }
 
-  .orderTitleRow {
+  .orderTitleRow,
+  .reviewViewHeader {
     flex-direction: column;
     align-items: flex-start;
   }
@@ -357,5 +540,10 @@
     position: static;
     margin-top: 14px;
     width: fit-content;
+  }
+
+  .reviewDraftPhotosGrid,
+  .reviewPhotosGrid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
   }
 }

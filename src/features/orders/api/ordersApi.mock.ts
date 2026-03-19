@@ -13,10 +13,12 @@ import type {
   CompleteOrderResult,
   ConfirmOrderResult,
   CreateServiceOrderPayload,
+  LeaveServiceReviewPayload,
   ProductOrder,
   RepeatResult,
   ReviewResult,
   ServiceOrder,
+  ServiceOrderReview,
   ServicesFilter,
   StartOrderResult,
 } from '../model/types';
@@ -724,18 +726,19 @@ function ensureAllowedTransition(
   }
 }
 
-function addReviewToSpecialist(order: ServiceOrder, rating: number): void {
+function addReviewToSpecialist(
+  order: ServiceOrder,
+  review: ServiceOrderReview,
+): void {
   const { profileIndex, profile } = getSpecialistProfileOrThrow(order.specialistSlug);
 
   const nextReview: SpecialistReview = {
     id: `review-from-order-${order.id}`,
     authorName: 'Вы',
     petName: order.petName,
-    rating: rating as 1 | 2 | 3 | 4 | 5,
-    createdAt: new Date().toISOString().slice(0, 10),
-    text: order.comment?.trim()
-      ? `Отзыв по заказу: ${order.comment.trim()}`
-      : 'Спасибо за выполненный заказ.',
+    rating: review.rating,
+    createdAt: review.createdAt.slice(0, 10),
+    text: review.comment.trim() || 'Спасибо за выполненный заказ.',
   };
 
   const nextReviews = [nextReview, ...profile.reviews];
@@ -932,12 +935,16 @@ export async function mockRepeatProductOrder(): Promise<RepeatResult> {
 
 export async function mockLeaveServiceReview(
   orderId: string,
-  rating: number,
+  payload: LeaveServiceReviewPayload,
 ): Promise<ReviewResult> {
   await wait();
 
-  if (![1, 2, 3, 4, 5].includes(rating)) {
+  if (![1, 2, 3, 4, 5].includes(payload.rating)) {
     throw new Error('Оценка должна быть от 1 до 5.');
+  }
+
+  if (!payload.comment.trim()) {
+    throw new Error('Добавьте комментарий к отзыву.');
   }
 
   const existing = getMockServiceOrderById(orderId);
@@ -950,16 +957,25 @@ export async function mockLeaveServiceReview(
     throw new Error('Оставить отзыв можно только по завершённому заказу.');
   }
 
-  if (existing.hasReview) {
-    return { ok: true };
+  if (existing.hasReview && existing.review) {
+    return { ok: true, review: existing.review };
   }
+
+  const review: ServiceOrderReview = {
+    rating: payload.rating,
+    comment: payload.comment.trim(),
+    photos: payload.photos.filter((item) => item.trim().length > 0),
+    createdAt: new Date().toISOString(),
+    specialistReply: null,
+  };
 
   updateMockServiceOrder(orderId, {
     hasReview: true,
-    rating,
+    rating: payload.rating,
+    review,
   });
 
-  addReviewToSpecialist(existing, rating);
+  addReviewToSpecialist(existing, review);
 
-  return { ok: true };
+  return { ok: true, review };
 }

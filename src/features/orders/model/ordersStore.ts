@@ -5,6 +5,7 @@ import { makeAutoObservable, runInAction } from 'mobx';
 import { ordersService } from '../service/ordersService';
 
 import type {
+  LeaveServiceReviewPayload,
   ProductOrder,
   ServiceOrder,
   ServicesFilter,
@@ -223,17 +224,27 @@ export class OrdersStore {
     }
   }
 
-  async leaveReview(orderId: string, rating: number): Promise<void> {
+  async leaveReview(
+    orderId: string,
+    payload: LeaveServiceReviewPayload,
+  ): Promise<void> {
     this.actionLoadingId = orderId;
     this.actionError = null;
 
     try {
-      await ordersService.leaveServiceReview(orderId, rating);
+      const result = await ordersService.leaveServiceReview(orderId, payload);
 
       runInAction(() => {
         this.updateLocalOrder(orderId, {
           hasReview: true,
-          rating,
+          rating: payload.rating,
+          review: result.review ?? {
+            rating: payload.rating,
+            comment: payload.comment.trim(),
+            photos: payload.photos,
+            createdAt: new Date().toISOString(),
+            specialistReply: null,
+          },
         });
         this.actionLoadingId = null;
       });

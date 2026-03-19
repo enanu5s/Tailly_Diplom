@@ -1,20 +1,28 @@
-// src/features/orders/model/index.ts
-
-export { ordersStore } from './ordersStore';
-
+export { OrdersStore, ordersStore } from './ordersStore';
 export type {
-  CancelOrderResult,
+  OrderStatus,
+  ServicesFilter,
+  ServicePriceUnit,
+  ServiceBookingMode,
+  ServiceOrderLifecycleEvent,
+  ServiceOrderFixedSlotSchedule,
+  ServiceOrderTimeRangeSchedule,
+  ServiceOrderMultiDaySchedule,
+  ServiceOrderOpenRequestSchedule,
+  ServiceOrderSchedule,
+  ServiceOrderServiceSnapshot,
+  ServiceOrderReviewReply,
+  ServiceOrderReview,
+  LeaveServiceReviewPayload,
+  ServiceOrder,
+  CreateServiceOrderPayload,
+  RepeatServiceOrderDraftPayload,
+  ProductOrderStatus,
+  ProductOrder,
+  RepeatResult,
+  ReviewResult,
   CompleteOrderResult,
   ConfirmOrderResult,
-  CreateServiceOrderPayload,
-  OrderStatus,
-  ProductOrder,
-  ProductOrderStatus,
-  RepeatResult,
-  RepeatServiceOrderDraftPayload,
-  ReviewResult,
-  ServiceOrder,
-  ServicePriceUnit,
-  ServicesFilter,
   StartOrderResult,
+  CancelOrderResult,
 } from './types';

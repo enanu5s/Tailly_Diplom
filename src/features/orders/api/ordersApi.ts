@@ -21,6 +21,7 @@ import type {
   CompleteOrderResult,
   ConfirmOrderResult,
   CreateServiceOrderPayload,
+  LeaveServiceReviewPayload,
   ProductOrder,
   RepeatResult,
   ReviewResult,
@@ -109,11 +110,11 @@ async function realRepeatProductOrder(orderId: string): Promise<RepeatResult> {
 
 async function realLeaveServiceReview(
   orderId: string,
-  rating: number,
+  payload: LeaveServiceReviewPayload,
 ): Promise<ReviewResult> {
   return request(`/me/orders/services/${encodeURIComponent(orderId)}/review`, {
     method: 'POST',
-    body: { rating },
+    body: payload,
   });
 }
 
@@ -150,8 +151,8 @@ export const ordersApi = {
   repeatProductOrder: (orderId: string) =>
     USE_MOCK ? mockRepeatProductOrder() : realRepeatProductOrder(orderId),
 
-  leaveServiceReview: (orderId: string, rating: number) =>
+  leaveServiceReview: (orderId: string, payload: LeaveServiceReviewPayload) =>
     USE_MOCK
-      ? mockLeaveServiceReview(orderId, rating)
-      : realLeaveServiceReview(orderId, rating),
+      ? mockLeaveServiceReview(orderId, payload)
+      : realLeaveServiceReview(orderId, payload),
 };

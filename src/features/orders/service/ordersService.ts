@@ -4,6 +4,7 @@ import { ordersApi } from '../api/ordersApi';
 
 import type {
   CreateServiceOrderPayload,
+  LeaveServiceReviewPayload,
   ServicesFilter,
 } from '../model/types';
 
@@ -37,6 +38,8 @@ export const ordersService = {
   repeatProductOrder: (orderId: string) =>
     ordersApi.repeatProductOrder(orderId),
 
-  leaveServiceReview: (orderId: string, rating: number) =>
-    ordersApi.leaveServiceReview(orderId, rating),
+  leaveServiceReview: (
+    orderId: string,
+    payload: LeaveServiceReviewPayload,
+  ) => ordersApi.leaveServiceReview(orderId, payload),
 };

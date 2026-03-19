@@ -1,4 +1,5 @@
 // src/features/messages/data/mockMessagesStorage.ts
+
 import type {
   ChatMessage,
   EnsureSpecialistThreadPayload,
@@ -36,7 +37,6 @@ function safeJsonParse(value: string | null): unknown[] {
 
   try {
     const parsed = JSON.parse(value) as unknown;
-
     return Array.isArray(parsed) ? parsed : [];
   } catch {
     return [];
@@ -50,15 +50,17 @@ function normalizeThread(value: unknown): MessageThread | null {
 
   const id = asString(value.id)?.trim();
   const kind = asString(value.kind);
-  const ownerUserId = asString(value.ownerUserId)?.trim();
   const title = asString(value.title)?.trim();
   const createdAt = asString(value.createdAt)?.trim();
   const updatedAt = asString(value.updatedAt)?.trim();
   const lastMessagePreview = asString(value.lastMessagePreview)?.trim() ?? '';
 
+  const participants = Array.isArray(value.participants)
+    ? value.participants
+    : [];
+
   if (
     !id ||
-    !ownerUserId ||
     !title ||
     !createdAt ||
     !updatedAt ||
@@ -70,17 +72,15 @@ function normalizeThread(value: unknown): MessageThread | null {
   return {
     id,
     kind,
-    ownerUserId,
+    participants,
     title,
     avatarUrl: asString(value.avatarUrl)?.trim() || undefined,
-    specialistId: asString(value.specialistId)?.trim() || undefined,
-    specialistSlug: asString(value.specialistSlug)?.trim() || undefined,
     isPinned: asBoolean(value.isPinned) ?? false,
     createdAt,
     updatedAt,
     lastMessagePreview,
     unreadCount:
-      typeof value.unreadCount === 'number' && Number.isFinite(value.unreadCount)
+      typeof value.unreadCount === 'number'
         ? Math.max(0, Math.floor(value.unreadCount))
         : 0,
   };
@@ -95,6 +95,7 @@ function normalizeMessage(value: unknown): ChatMessage | null {
   const threadId = asString(value.threadId)?.trim();
   const authorId = asString(value.authorId)?.trim();
   const authorRole = asString(value.authorRole);
+  const authorName = asString(value.authorName)?.trim();
   const text = asString(value.text)?.trim();
   const createdAt = asString(value.createdAt)?.trim();
 
@@ -102,6 +103,7 @@ function normalizeMessage(value: unknown): ChatMessage | null {
     !id ||
     !threadId ||
     !authorId ||
+    !authorName ||
     !text ||
     !createdAt ||
     (authorRole !== 'client' &&
@@ -117,9 +119,12 @@ function normalizeMessage(value: unknown): ChatMessage | null {
     threadId,
     authorId,
     authorRole,
+    authorName,
     text,
     createdAt,
-    isRead: asBoolean(value.isRead) ?? false,
+    readByUserIds: Array.isArray(value.readByUserIds)
+      ? value.readByUserIds
+      : [],
   };
 }
 
@@ -145,21 +150,11 @@ function writeMessages(messages: ChatMessage[]): void {
 
 function sortThreads(threads: MessageThread[]): MessageThread[] {
   return [...threads].sort((left, right) => {
-    if (left.kind === 'support' && right.kind !== 'support') {
-      return -1;
-    }
+    if (left.kind === 'support' && right.kind !== 'support') return -1;
+    if (left.kind !== 'support' && right.kind === 'support') return 1;
 
-    if (left.kind !== 'support' && right.kind === 'support') {
-      return 1;
-    }
-
-    if (left.isPinned && !right.isPinned) {
-      return -1;
-    }
-
-    if (!left.isPinned && right.isPinned) {
-      return 1;
-    }
+    if (left.isPinned && !right.isPinned) return -1;
+    if (!left.isPinned && right.isPinned) return 1;
 
     return right.updatedAt.localeCompare(left.updatedAt);
   });
@@ -171,23 +166,30 @@ function seedSupportWelcomeMessage(threadId: string): ChatMessage {
     threadId,
     authorId: 'tailly-support',
     authorRole: 'support',
+    authorName: 'Поддержка',
     text: 'Здравствуйте! Это чат поддержки Tailly. Напишите ваш вопрос, и мы постараемся помочь.',
     createdAt: new Date().toISOString(),
-    isRead: true,
+    readByUserIds: [],
   };
 }
 
-export function getMessagesSnapshot(ownerUserId: string): MessagesSnapshot {
-  const threads = readThreads().filter(
-    (thread) => thread.ownerUserId === ownerUserId,
+export function getMessagesSnapshot(
+  viewerUserId: string,
+): MessagesSnapshot {
+  const threads = readThreads().filter((thread) =>
+    thread.participants.some((p) => p.userId === viewerUserId),
   );
+
   const threadIds = new Set(threads.map((thread) => thread.id));
-  const messages = readMessages().filter((message) => threadIds.has(message.threadId));
+
+  const messages = readMessages().filter((message) =>
+    threadIds.has(message.threadId),
+  );
 
   return {
     threads: sortThreads(threads),
-    messages: [...messages].sort((left, right) =>
-      left.createdAt.localeCompare(right.createdAt),
+    messages: [...messages].sort((l, r) =>
+      l.createdAt.localeCompare(r.createdAt),
     ),
   };
 }
@@ -195,16 +197,19 @@ export function getMessagesSnapshot(ownerUserId: string): MessagesSnapshot {
 export function ensureSupportThread(
   payload: EnsureSupportThreadPayload,
 ): MessagesSnapshot {
+  const { viewer } = payload;
+
   const allThreads = readThreads();
   const allMessages = readMessages();
 
-  const existingThread = allThreads.find(
-    (thread) =>
-      thread.ownerUserId === payload.ownerUserId && thread.kind === 'support',
+  const existing = allThreads.find(
+    (t) =>
+      t.kind === 'support' &&
+      t.participants.some((p) => p.userId === viewer.userId),
   );
 
-  if (existingThread) {
-    return getMessagesSnapshot(payload.ownerUserId);
+  if (existing) {
+    return getMessagesSnapshot(viewer.userId);
   }
 
   const nowIso = new Date().toISOString();
@@ -212,38 +217,45 @@ export function ensureSupportThread(
   const newThread: MessageThread = {
     id: createId('thread'),
     kind: 'support',
-    ownerUserId: payload.ownerUserId,
+    participants: [
+      {
+        userId: viewer.userId,
+        role: viewer.role === 'guest' ? 'client' : viewer.role,
+        displayName: viewer.displayName,
+        avatarUrl: viewer.avatarUrl,
+      },
+    ],
     title: 'Поддержка Tailly',
     isPinned: true,
     createdAt: nowIso,
     updatedAt: nowIso,
-    lastMessagePreview:
-      'Здравствуйте! Это чат поддержки Tailly. Напишите ваш вопрос, и мы постараемся помочь.',
+    lastMessagePreview: '',
     unreadCount: 0,
   };
 
-  const welcomeMessage = seedSupportWelcomeMessage(newThread.id);
+  const welcome = seedSupportWelcomeMessage(newThread.id);
 
   writeThreads(sortThreads([...allThreads, newThread]));
-  writeMessages([...allMessages, welcomeMessage]);
+  writeMessages([...allMessages, welcome]);
 
-  return getMessagesSnapshot(payload.ownerUserId);
+  return getMessagesSnapshot(viewer.userId);
 }
 
 export function ensureSpecialistThread(
   payload: EnsureSpecialistThreadPayload,
 ): MessagesSnapshot {
+  const { viewer } = payload;
+
   const allThreads = readThreads();
 
-  const existingThread = allThreads.find(
-    (thread) =>
-      thread.ownerUserId === payload.ownerUserId &&
-      thread.kind === 'specialist_direct' &&
-      thread.specialistId === payload.specialistId,
+  const existing = allThreads.find(
+    (t) =>
+      t.kind === 'specialist_direct' &&
+      t.participants.some((p) => p.userId === viewer.userId),
   );
 
-  if (existingThread) {
-    return getMessagesSnapshot(payload.ownerUserId);
+  if (existing) {
+    return getMessagesSnapshot(viewer.userId);
   }
 
   const nowIso = new Date().toISOString();
@@ -251,11 +263,16 @@ export function ensureSpecialistThread(
   const newThread: MessageThread = {
     id: createId('thread'),
     kind: 'specialist_direct',
-    ownerUserId: payload.ownerUserId,
-    title: payload.title.trim(),
-    avatarUrl: payload.avatarUrl?.trim() || undefined,
-    specialistId: payload.specialistId.trim(),
-    specialistSlug: payload.specialistSlug.trim(),
+    participants: [
+      {
+        userId: viewer.userId,
+        role: viewer.role === 'guest' ? 'client' : viewer.role,
+        displayName: viewer.displayName,
+        avatarUrl: viewer.avatarUrl,
+      },
+    ],
+    title: payload.specialistName,
+    avatarUrl: payload.specialistAvatarUrl,
     isPinned: false,
     createdAt: nowIso,
     updatedAt: nowIso,
@@ -265,29 +282,30 @@ export function ensureSpecialistThread(
 
   writeThreads(sortThreads([...allThreads, newThread]));
 
-  return getMessagesSnapshot(payload.ownerUserId);
+  return getMessagesSnapshot(viewer.userId);
 }
 
 export function sendMessage(
-  ownerUserId: string,
+  viewerUserId: string,
   payload: SendMessagePayload,
 ): MessagesSnapshot {
   const text = payload.text.trim();
 
   if (!text) {
-    return getMessagesSnapshot(ownerUserId);
+    return getMessagesSnapshot(viewerUserId);
   }
 
   const allThreads = readThreads();
   const allMessages = readMessages();
 
   const threadIndex = allThreads.findIndex(
-    (thread) =>
-      thread.id === payload.threadId && thread.ownerUserId === ownerUserId,
+    (t) =>
+      t.id === payload.threadId &&
+      t.participants.some((p) => p.userId === viewerUserId),
   );
 
   if (threadIndex === -1) {
-    return getMessagesSnapshot(ownerUserId);
+    return getMessagesSnapshot(viewerUserId);
   }
 
   const nowIso = new Date().toISOString();
@@ -295,11 +313,13 @@ export function sendMessage(
   const message: ChatMessage = {
     id: createId('message'),
     threadId: payload.threadId,
-    authorId: payload.authorId,
-    authorRole: payload.authorRole,
+    authorId: payload.viewer.userId,
+    authorRole:
+      payload.viewer.role === 'guest' ? 'client' : payload.viewer.role,
+    authorName: payload.viewer.displayName,
     text,
     createdAt: nowIso,
-    isRead: true,
+    readByUserIds: [payload.viewer.userId],
   };
 
   const updatedThreads = [...allThreads];
@@ -312,5 +332,5 @@ export function sendMessage(
   writeThreads(sortThreads(updatedThreads));
   writeMessages([...allMessages, message]);
 
-  return getMessagesSnapshot(ownerUserId);
+  return getMessagesSnapshot(viewerUserId);
 }

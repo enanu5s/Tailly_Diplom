@@ -6,6 +6,7 @@ import { useLocation, useNavigate } from 'react-router-dom';
 
 import { ordersStore } from '../model/ordersStore';
 import type {
+  LeaveServiceReviewPayload,
   OrderStatus,
   ServiceOrder,
   ServicesFilter,
@@ -13,7 +14,7 @@ import type {
 
 import styles from './OrdersServicesSection.module.css';
 
-import type { ReactElement } from 'react';
+import type { ChangeEvent, ReactElement } from 'react';
 
 type ViewerRole = 'client' | 'specialist' | 'admin' | 'super_admin';
 
@@ -26,6 +27,8 @@ type ProfileOrdersLocationState = {
 type Props = {
   viewerRole?: ViewerRole;
 };
+
+type ReviewDraftState = LeaveServiceReviewPayload;
 
 const FILTERS: Array<{ value: ServicesFilter; label: string }> = [
   { value: 'all', label: 'Все' },
@@ -253,6 +256,41 @@ function isRelevantProfileState(
   );
 }
 
+function getDefaultReviewDraft(): ReviewDraftState {
+  return {
+    rating: 5,
+    comment: '',
+    photos: [],
+  };
+}
+
+function renderStars(rating: number): string {
+  const safeRating = Math.max(1, Math.min(5, rating));
+
+  return `${'★'.repeat(safeRating)}${'☆'.repeat(5 - safeRating)}`;
+}
+
+function readFileAsDataUrl(file: File): Promise<string> {
+  return new Promise((resolve, reject) => {
+    const reader = new FileReader();
+
+    reader.onload = () => {
+      if (typeof reader.result === 'string') {
+        resolve(reader.result);
+        return;
+      }
+
+      reject(new Error('Не удалось прочитать изображение.'));
+    };
+
+    reader.onerror = () => {
+      reject(new Error('Не удалось прочитать изображение.'));
+    };
+
+    reader.readAsDataURL(file);
+  });
+}
+
 export const OrdersServicesSection = observer(
   ({ viewerRole = 'client' }: Props): ReactElement => {
     const navigate = useNavigate();
@@ -260,7 +298,9 @@ export const OrdersServicesSection = observer(
     const locationState =
       (location.state as ProfileOrdersLocationState | null) ?? null;
 
-    const [reviewDrafts, setReviewDrafts] = useState<Record<string, number>>({});
+    const [reviewDrafts, setReviewDrafts] = useState<
+      Record<string, ReviewDraftState>
+    >({});
     const [freshOrderId, setFreshOrderId] = useState<string | null>(
       locationState?.justCreatedOrderId ?? null,
     );
@@ -349,14 +389,113 @@ export const OrdersServicesSection = observer(
       navigate(`/service-booking?repeat=${encodeURIComponent(orderId)}`);
     };
 
-    const handleLeaveReview = async (orderId: string): Promise<void> => {
-      const rating = reviewDrafts[orderId];
+    const handleReviewFieldChange = (
+      orderId: string,
+      field: keyof LeaveServiceReviewPayload,
+      value: LeaveServiceReviewPayload[keyof LeaveServiceReviewPayload],
+    ): void => {
+      setReviewDrafts((prev) => {
+        const current = prev[orderId] ?? getDefaultReviewDraft();
 
-      if (!rating) {
+        return {
+          ...prev,
+          [orderId]: {
+            ...current,
+            [field]: value,
+          } as ReviewDraftState,
+        };
+      });
+    };
+
+    const handleReviewPhotosChange = async (
+      orderId: string,
+      event: ChangeEvent<HTMLInputElement>,
+    ): Promise<void> => {
+      const files = event.target.files;
+
+      if (!files || files.length === 0) {
         return;
       }
 
-      await ordersStore.leaveReview(orderId, rating);
+      const imageFiles = Array.from(files).filter((file) =>
+        file.type.startsWith('image/'),
+      );
+
+      if (imageFiles.length === 0) {
+        event.target.value = '';
+        return;
+      }
+
+      try {
+        const nextPhotos = await Promise.all(
+          imageFiles.slice(0, 6).map((file) => readFileAsDataUrl(file)),
+        );
+
+        setReviewDrafts((prev) => {
+          const current = prev[orderId] ?? getDefaultReviewDraft();
+
+          return {
+            ...prev,
+            [orderId]: {
+              ...current,
+              photos: [...current.photos, ...nextPhotos].slice(0, 6),
+            },
+          };
+        });
+      } finally {
+        event.target.value = '';
+      }
+    };
+
+    const handleRemoveReviewPhoto = (
+      orderId: string,
+      photoIndex: number,
+    ): void => {
+      setReviewDrafts((prev) => {
+        const current = prev[orderId] ?? getDefaultReviewDraft();
+
+        return {
+          ...prev,
+          [orderId]: {
+            ...current,
+            photos: current.photos.filter((_, index) => index !== photoIndex),
+          },
+        };
+      });
+    };
+
+    const handleLeaveReview = async (orderId: string): Promise<void> => {
+      const currentDraft = reviewDrafts[orderId] ?? getDefaultReviewDraft();
+
+      const payload: LeaveServiceReviewPayload = {
+        rating: currentDraft.rating,
+        comment: currentDraft.comment.trim(),
+        photos: currentDraft.photos,
+      };
+
+      if (!payload.comment) {
+        return;
+      }
+
+      await ordersStore.leaveReview(orderId, payload);
+
+      if (ordersStore.actionError) {
+        return;
+      }
+
+      setReviewDrafts((prev) => {
+        const next = { ...prev };
+        delete next[orderId];
+        return next;
+      });
+    };
+
+    const openSpecialistProfile = (specialistSlug: string): void => {
+      navigate(`/specialists/${specialistSlug}`, {
+        state: {
+          from: `${location.pathname}${location.search}`,
+        },
+      });
     };
 
     return (
@@ -413,7 +552,8 @@ export const OrdersServicesSection = observer(
         <div className={styles.list}>
           {serviceOrders.map((order) => {
             const loadingThisCard = ordersStore.actionLoadingId === order.id;
-            const currentReviewDraft = reviewDrafts[order.id] ?? 5;
+            const currentReviewDraft =
+              reviewDrafts[order.id] ?? getDefaultReviewDraft();
             const isFresh = freshOrderId === order.id;
             const secondaryLabel = buildOrderSecondaryLabel(order);
 
@@ -439,7 +579,15 @@ export const OrdersServicesSection = observer(
                     <div className={styles.metaGrid}>
                       <div className={styles.metaItem}>
                         <span className={styles.metaLabel}>Специалист</span>
-                        <span className={styles.metaValue}>{order.sitterName}</span>
+                        <button
+                          type="button"
+                          className={styles.inlineLinkButton}
+                          onClick={() => {
+                            openSpecialistProfile(order.specialistSlug);
+                          }}
+                        >
+                          {order.sitterName}
+                        </button>
                       </div>
 
                       <div className={styles.metaItem}>
@@ -524,6 +672,16 @@ export const OrdersServicesSection = observer(
                 </div>
 
                 <div className={styles.actions}>
+                  <button
+                    type="button"
+                    className={styles.secondaryButton}
+                    onClick={() => {
+                      openSpecialistProfile(order.specialistSlug);
+                    }}
+                  >
+                    Перейти в профиль петситтера
+                  </button>
+
                   {canCancel(order, viewerRole) ? (
                     <button
                       type="button"
@@ -590,6 +748,55 @@ export const OrdersServicesSection = observer(
                   ) : null}
                 </div>
 
+                {order.review ? (
+                  <div className={styles.reviewView}>
+                    <div className={styles.reviewViewHeader}>
+                      <div className={styles.reviewViewTitle}>Ваш отзыв</div>
+                      <div className={styles.reviewViewRating}>
+                        {renderStars(order.review.rating)} ({order.review.rating}/5)
+                      </div>
+                    </div>
+
+                    <div className={styles.reviewViewDate}>
+                      {formatDateTime(order.review.createdAt)}
+                    </div>
+
+                    <div className={styles.reviewViewComment}>
+                      {order.review.comment}
+                    </div>
+
+                    {order.review.photos.length > 0 ? (
+                      <div className={styles.reviewPhotosGrid}>
+                        {order.review.photos.map((photo, index) => (
+                          <img
+                            key={`${order.id}-review-photo-${index}`}
+                            className={styles.reviewPhoto}
+                            src={photo}
+                            alt={`Фото к отзыву ${index + 1}`}
+                          />
+                        ))}
+                      </div>
+                    ) : null}
+
+                    {order.review.specialistReply ? (
+                      <details className={styles.replyDetails}>
+                        <summary className={styles.replySummary}>
+                          Ответ специалиста
+                        </summary>
+
+                        <div className={styles.replyBody}>
+                          <div className={styles.replyDate}>
+                            {formatDateTime(order.review.specialistReply.createdAt)}
+                          </div>
+                          <div className={styles.replyComment}>
+                            {order.review.specialistReply.comment}
+                          </div>
+                        </div>
+                      </details>
+                    ) : null}
+                  </div>
+                ) : null}
+
                 {canLeaveReview(order, viewerRole) ? (
                   <div className={styles.reviewBox}>
                     <div className={styles.reviewTitle}>Оставить отзыв</div>
@@ -599,14 +806,18 @@ export const OrdersServicesSection = observer(
                         Оценка
                         <select
                           className={styles.select}
-                          value={currentReviewDraft}
+                          value={currentReviewDraft.rating}
                           onChange={(event) => {
-                            const nextValue = Number(event.target.value);
-
-                            setReviewDrafts((prev) => ({
-                              ...prev,
-                              [order.id]: nextValue,
-                            }));
+                            handleReviewFieldChange(
+                              order.id,
+                              'rating',
+                              Number(event.target.value) as
+                                | 1
+                                | 2
+                                | 3
+                                | 4
+                                | 5,
+                            );
                           }}
                         >
                           <option value={5}>5</option>
@@ -616,11 +827,82 @@ export const OrdersServicesSection = observer(
                           <option value={1}>1</option>
                         </select>
                       </label>
+                    </div>
 
+                    <label className={styles.reviewTextLabel}>
+                      Комментарий
+                      <textarea
+                        className={styles.textarea}
+                        value={currentReviewDraft.comment}
+                        onChange={(event) => {
+                          handleReviewFieldChange(
+                            order.id,
+                            'comment',
+                            event.target.value,
+                          );
+                        }}
+                        placeholder="Опишите, как прошла услуга"
+                        rows={4}
+                      />
+                    </label>
+
+                    <div className={styles.reviewPhotosBlock}>
+                      <div className={styles.reviewPhotosTitle}>
+                        Фото к отзыву
+                      </div>
+
+                      <label className={styles.uploadButton}>
+                        Добавить фото
+                        <input
+                          className={styles.hiddenInput}
+                          type="file"
+                          accept="image/*"
+                          multiple
+                          onChange={(event) => {
+                            void handleReviewPhotosChange(order.id, event);
+                          }}
+                        />
+                      </label>
+
+                      {currentReviewDraft.photos.length > 0 ? (
+                        <div className={styles.reviewDraftPhotosGrid}>
+                          {currentReviewDraft.photos.map((photo, index) => (
+                            <div
+                              key={`${order.id}-draft-photo-${index}`}
+                              className={styles.reviewDraftPhotoCard}
+                            >
+                              <img
+                                className={styles.reviewDraftPhoto}
+                                src={photo}
+                                alt={`Черновик фото ${index + 1}`}
+                              />
+                              <button
+                                type="button"
+                                className={styles.removePhotoButton}
+                                onClick={() => {
+                                  handleRemoveReviewPhoto(order.id, index);
+                                }}
+                              >
+                                Удалить
+                              </button>
+                            </div>
+                          ))}
+                        </div>
+                      ) : (
+                        <div className={styles.reviewHint}>
+                          Можно добавить несколько изображений.
+                        </div>
+                      )}
+                    </div>
+
+                    <div className={styles.reviewActions}>
                       <button
                         type="button"
                         className={styles.primaryButton}
-                        disabled={loadingThisCard}
+                        disabled={
+                          loadingThisCard ||
+                          currentReviewDraft.comment.trim().length === 0
+                        }
                         onClick={() => {
                           void handleLeaveReview(order.id);
                         }}
@@ -631,11 +913,8 @@ export const OrdersServicesSection = observer(
                   </div>
                 ) : null}
 
-                {order.status === 'completed' && order.hasReview ? (
-                  <div className={styles.successBox}>
-                    Отзыв уже оставлен
-                    {order.rating ? `, оценка: ${order.rating}/5` : '.'}
-                  </div>
+                {order.status === 'completed' && order.hasReview && !order.review ? (
+                  <div className={styles.successBox}>Отзыв уже оставлен.</div>
                 ) : null}
 
                 {isFresh ? (

@@ -76,6 +76,25 @@ export type ServiceOrderServiceSnapshot = {
   bookingMode: ServiceBookingMode;
 };
 
+export type ServiceOrderReviewReply = {
+  comment: string;
+  createdAt: string;
+};
+
+export type ServiceOrderReview = {
+  rating: 1 | 2 | 3 | 4 | 5;
+  comment: string;
+  photos: string[];
+  createdAt: string;
+  specialistReply?: ServiceOrderReviewReply | null;
+};
+
+export type LeaveServiceReviewPayload = {
+  rating: 1 | 2 | 3 | 4 | 5;
+  comment: string;
+  photos: string[];
+};
+
 export type ServiceOrder = {
   id: string;
   createdAt: string;
@@ -112,6 +131,7 @@ export type ServiceOrder = {
 
   rating?: number;
   hasReview: boolean;
+  review?: ServiceOrderReview | null;
 
   lifecycle: ServiceOrderLifecycleEvent[];
 };
@@ -182,6 +202,7 @@ export type RepeatResult = {
 
 export type ReviewResult = {
   ok: true;
+  review?: ServiceOrderReview;
 };
 
 export type CompleteOrderResult = {

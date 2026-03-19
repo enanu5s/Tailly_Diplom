@@ -1,25 +1,25 @@
 // src/pages/specialist-profile/ui/SpecialistProfilePage.tsx
 
-import { observer } from 'mobx-react-lite';
-import { useEffect } from 'react';
-import { useNavigate, useParams } from 'react-router-dom';
+import { observer } from "mobx-react-lite";
+import { useEffect } from "react";
+import { useNavigate, useParams } from "react-router-dom";
 
-import { useAuth } from '@/features/auth/model/useAuth';
-import { messagesStore } from '@/features/messages';
-import { specialistProfileStore } from '@/features/specialist-profile/model/specialistProfileStore';
-import { specialistReviewRepliesStore } from '@/features/specialist-profile/model/specialistReviewRepliesStore';
-import type { SpecialistReview } from '@/features/specialist-profile/model/types';
-import { SpecialistProfileView } from '@/features/specialist-profile/ui/SpecialistProfileView';
-import { SpecialistReviewRepliesPanel } from '@/features/specialist-profile/ui/SpecialistReviewRepliesPanel';
+import { useAuth } from "@/features/auth/model/useAuth";
+import { messagesStore } from "@/features/messages";
+import { specialistProfileStore } from "@/features/specialist-profile/model/specialistProfileStore";
+import { specialistReviewRepliesStore } from "@/features/specialist-profile/model/specialistReviewRepliesStore";
+import type { SpecialistReview } from "@/features/specialist-profile/model/types";
+import { SpecialistProfileView } from "@/features/specialist-profile/ui/SpecialistProfileView";
+import { SpecialistReviewRepliesPanel } from "@/features/specialist-profile/ui/SpecialistReviewRepliesPanel";
 
-import bookingCtaStyles from './SpecialistProfileBookingCta.module.css';
-import styles from './SpecialistProfilePage.module.css';
+import bookingCtaStyles from "./SpecialistProfileBookingCta.module.css";
+import styles from "./SpecialistProfilePage.module.css";
 
-import type { ReactElement } from 'react';
+import type { ReactElement } from "react";
 
 function getViewerDisplayName(user: unknown): string {
-  if (typeof user !== 'object' || user === null) {
-    return 'Пользователь';
+  if (typeof user !== "object" || user === null) {
+    return "Пользователь";
   }
 
   const source = user as {
@@ -31,7 +31,7 @@ function getViewerDisplayName(user: unknown): string {
   };
 
   const fullName =
-    `${source.firstName?.trim() ?? ''} ${source.lastName?.trim() ?? ''}`.trim();
+    `${source.firstName?.trim() ?? ""} ${source.lastName?.trim() ?? ""}`.trim();
 
   if (fullName) {
     return fullName;
@@ -45,23 +45,23 @@ function getViewerDisplayName(user: unknown): string {
     return source.email.trim();
   }
 
-  if (source.role === 'client') {
-    return 'Клиент';
+  if (source.role === "client") {
+    return "Клиент";
   }
 
-  if (source.role === 'specialist') {
-    return 'Специалист';
+  if (source.role === "specialist") {
+    return "Специалист";
   }
 
-  if (source.role === 'admin' || source.role === 'super_admin') {
-    return 'Администратор';
+  if (source.role === "admin" || source.role === "super_admin") {
+    return "Администратор";
   }
 
-  return 'Пользователь';
+  return "Пользователь";
 }
 
 function getViewerAvatarUrl(user: unknown): string | undefined {
-  if (typeof user !== 'object' || user === null) {
+  if (typeof user !== "object" || user === null) {
     return undefined;
   }
 
@@ -75,7 +75,7 @@ export const SpecialistProfilePage = observer((): ReactElement => {
   const navigate = useNavigate();
   const { isAuth, user } = useAuth();
 
-  const normalizedSpecialistSlug = specialistSlug?.trim() ?? '';
+  const normalizedSpecialistSlug = specialistSlug?.trim() ?? "";
   const store = specialistProfileStore;
   const repliesStore = specialistReviewRepliesStore;
 
@@ -138,12 +138,12 @@ export const SpecialistProfilePage = observer((): ReactElement => {
       viewer: {
         userId: user.id,
         role:
-          user.role === 'client' ||
-          user.role === 'specialist' ||
-          user.role === 'admin' ||
-          user.role === 'super_admin'
+          user.role === "client" ||
+          user.role === "specialist" ||
+          user.role === "admin" ||
+          user.role === "super_admin"
             ? user.role
-            : 'guest',
+            : "guest",
         displayName: getViewerDisplayName(user),
         avatarUrl: getViewerAvatarUrl(user),
       },
@@ -154,7 +154,7 @@ export const SpecialistProfilePage = observer((): ReactElement => {
       specialistAvatarUrl: store.profile.main.avatarUrl,
     });
 
-    navigate('/messages');
+    navigate("/messages");
   };
 
   const handleStartBooking = (): void => {
@@ -162,7 +162,7 @@ export const SpecialistProfilePage = observer((): ReactElement => {
       return;
     }
 
-    navigate('/orders/create', {
+    navigate("/orders/create", {
       state: {
         specialistSlug: store.profile.slug,
       },
@@ -171,17 +171,17 @@ export const SpecialistProfilePage = observer((): ReactElement => {
 
   const isSameSlug =
     Boolean(user?.specialistSlug?.trim()) &&
-    user!.specialistSlug!.trim() === (store.profile?.slug.trim() ?? '');
+    user!.specialistSlug!.trim() === (store.profile?.slug.trim() ?? "");
 
   const isSameSpecialistId =
     Boolean(user?.specialistId) &&
-    user!.specialistId === (store.profile?.id ?? '');
+    user!.specialistId === (store.profile?.id ?? "");
 
   const canManageOwnProfile = Boolean(
     isAuth &&
-      store.profile &&
-      user?.role === 'specialist' &&
-      (isSameSlug || isSameSpecialistId),
+    store.profile &&
+    user?.role === "specialist" &&
+    (isSameSlug || isSameSpecialistId),
   );
 
   const canContactSpecialist = Boolean(
@@ -190,10 +190,10 @@ export const SpecialistProfilePage = observer((): ReactElement => {
 
   const canBookSpecialist = Boolean(
     isAuth &&
-      user?.id &&
-      user?.role === 'client' &&
-      store.profile &&
-      !canManageOwnProfile,
+    user?.id &&
+    user?.role === "client" &&
+    store.profile &&
+    !canManageOwnProfile,
   );
 
   return (
@@ -243,6 +243,13 @@ export const SpecialistProfilePage = observer((): ReactElement => {
           onAddService={store.addService}
           onRemoveService={store.removeService}
           onSetServiceField={store.setServiceField}
+          onSetServiceBookingMode={store.setServiceBookingMode}
+          onSetServiceDurationField={store.setServiceDurationField}
+          onSetServiceBufferField={store.setServiceBufferField}
+          onSetServiceCompatibilityField={store.setServiceCompatibilityField}
+          onSetServiceAdvanceField={store.setServiceAdvanceField}
+          onSetServiceMultiDayField={store.setServiceMultiDayField}
+          onSetServiceFlagField={store.setServiceFlagField}
           onSetSpecialistGalleryUrlInput={store.setSpecialistGalleryUrlInput}
           onAddSpecialistGalleryImageByUrl={
             store.addSpecialistGalleryImageByUrl
@@ -265,7 +272,9 @@ export const SpecialistProfilePage = observer((): ReactElement => {
           <section className={bookingCtaStyles.card}>
             <div className={bookingCtaStyles.content}>
               <div>
-                <h2 className={bookingCtaStyles.title}>Готовы оформить услугу?</h2>
+                <h2 className={bookingCtaStyles.title}>
+                  Готовы оформить услугу?
+                </h2>
                 <p className={bookingCtaStyles.description}>
                   Выберите услугу, питомца, дату и время. После создания заказ
                   сразу появится у вас в профиле.

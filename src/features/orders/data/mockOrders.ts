@@ -4,6 +4,7 @@ import type {
   CreateServiceOrderPayload,
   ProductOrder,
   ServiceOrder,
+  ServiceOrderReview,
   ServiceOrderSchedule,
   ServicePriceUnit,
 } from '../model/types';
@@ -37,6 +38,23 @@ function calculateStayDays(checkInAt: string, checkOutAt: string): number {
   const diffMs = checkOut.getTime() - checkIn.getTime();
 
   return Math.max(1, Math.ceil(diffMs / (1000 * 60 * 60 * 24)));
+}
+
+function buildLegacyReview(
+  rating?: number,
+  comment?: string,
+): ServiceOrderReview | null {
+  if (!rating || rating < 1 || rating > 5) {
+    return null;
+  }
+
+  return {
+    rating: rating as 1 | 2 | 3 | 4 | 5,
+    comment: comment?.trim() || 'Спасибо за выполненный заказ.',
+    photos: [],
+    createdAt: new Date().toISOString(),
+    specialistReply: null,
+  };
 }
 
 function generateServiceSeed(): ServiceOrder[] {
@@ -95,6 +113,7 @@ function generateServiceSeed(): ServiceOrder[] {
       price: 900,
       currency: 'RUB',
       hasReview: false,
+      review: null,
       lifecycle: [
         {
           status: 'pending_confirmation',
@@ -135,6 +154,7 @@ function generateServiceSeed(): ServiceOrder[] {
       price: 2500,
       currency: 'RUB',
       hasReview: false,
+      review: null,
       lifecycle: [
         {
           status: 'pending_confirmation',
@@ -181,6 +201,7 @@ function generateServiceSeed(): ServiceOrder[] {
       price: 2400,
       currency: 'RUB',
       hasReview: false,
+      review: null,
       lifecycle: [
         {
           status: 'pending_confirmation',
@@ -232,6 +253,18 @@ function generateServiceSeed(): ServiceOrder[] {
       currency: 'RUB',
       rating: 5,
       hasReview: true,
+      review: {
+        rating: 5,
+        comment:
+          'Всё прошло отлично. Специалист приехала вовремя, прислала фото и очень бережно отнеслась к питомцу.',
+        photos: [],
+        createdAt: completedEnd,
+        specialistReply: {
+          comment:
+            'Спасибо большое за отзыв. Тиша был очень спокойным и чудесно пошёл на контакт.',
+          createdAt: atTime(addDays(now, -3), 18, 10),
+        },
+      },
       lifecycle: [
         {
           status: 'pending_confirmation',
@@ -286,6 +319,7 @@ function generateServiceSeed(): ServiceOrder[] {
       price: 700,
       currency: 'RUB',
       hasReview: false,
+      review: null,
       lifecycle: [
         {
           status: 'pending_confirmation',
@@ -389,6 +423,49 @@ function inferLegacySchedule(order: LegacyServiceOrder): ServiceOrderSchedule {
   };
 }
 
+function normalizeReview(raw: LegacyServiceOrder): ServiceOrderReview | null {
+  if (raw.review) {
+    const review = raw.review as Partial<ServiceOrderReview>;
+
+    if (
+      typeof review.rating === 'number' &&
+      review.rating >= 1 &&
+      review.rating <= 5 &&
+      typeof review.comment === 'string'
+    ) {
+      return {
+        rating: review.rating as 1 | 2 | 3 | 4 | 5,
+        comment: review.comment,
+        photos: Array.isArray(review.photos)
+          ? review.photos.filter(
+              (item): item is string => typeof item === 'string',
+            )
+          : [],
+        createdAt:
+          typeof review.createdAt === 'string'
+            ? review.createdAt
+            : new Date().toISOString(),
+        specialistReply:
+          review.specialistReply &&
+          typeof review.specialistReply === 'object' &&
+          typeof review.specialistReply.comment === 'string' &&
+          typeof review.specialistReply.createdAt === 'string'
+            ? {
+                comment: review.specialistReply.comment,
+                createdAt: review.specialistReply.createdAt,
+              }
+            : null,
+      };
+    }
+  }
+
+  if (raw.hasReview) {
+    return buildLegacyReview(raw.rating, raw.comment);
+  }
+
+  return null;
+}
+
 function migrateLegacyOrder(raw: LegacyServiceOrder): ServiceOrder | null {
   if (
     !raw.id ||
@@ -412,6 +489,8 @@ function migrateLegacyOrder(raw: LegacyServiceOrder): ServiceOrder | null {
     raw.schedule && typeof raw.schedule === 'object'
       ? (raw.schedule as ServiceOrderSchedule)
       : inferLegacySchedule(raw);
+
+  const normalizedReview = normalizeReview(raw);
 
   return {
     id: raw.id,
@@ -444,8 +523,9 @@ function migrateLegacyOrder(raw: LegacyServiceOrder): ServiceOrder | null {
     comment: raw.comment,
     price: raw.price,
     currency: raw.currency ?? 'RUB',
-    rating: raw.rating,
-    hasReview: Boolean(raw.hasReview),
+    rating: normalizedReview?.rating ?? raw.rating,
+    hasReview: Boolean(raw.hasReview || normalizedReview),
+    review: normalizedReview,
     lifecycle: Array.isArray(raw.lifecycle) ? raw.lifecycle : [],
   };
 }
@@ -554,6 +634,7 @@ export function createMockServiceOrder(
     price: payload.price,
     currency: payload.currency,
     hasReview: false,
+    review: null,
     lifecycle: [
       {
         status: 'pending_confirmation',
