@@ -1,9 +1,10 @@
 // src/features/specialist-profile/ui/SpecialistProfileView.tsx
-import { observer } from 'mobx-react-lite';
+import { observer } from "mobx-react-lite";
 
-import { SpecialistMiniCalendar } from './SpecialistMiniCalendar';
-import { SpecialistPhotoGallery } from './SpecialistPhotoGallery';
-import styles from './SpecialistProfileView.module.css';
+import { SpecialistMiniCalendar } from "./SpecialistMiniCalendar";
+import { SpecialistPhotoGallery } from "./SpecialistPhotoGallery";
+import styles from "./SpecialistProfileView.module.css";
+import { SpecialistServicePolicyEditor } from "./SpecialistServicePolicyEditor";
 import {
   SPECIALIST_ADVANTAGE_OPTIONS,
   SPECIALIST_CHILDREN_POLICY_LABELS,
@@ -13,9 +14,10 @@ import {
   SPECIALIST_PET_SIZE_LABELS,
   SPECIALIST_PET_TYPE_LABELS,
   SPECIALIST_SERVICE_PRICE_UNIT_LABELS,
-} from '../model/constants';
+} from "../model/constants";
 
 import type {
+  SpecialistBookingMode,
   SpecialistChildrenPolicy,
   SpecialistExperienceUnit,
   SpecialistHousingType,
@@ -24,8 +26,9 @@ import type {
   SpecialistPetType,
   SpecialistProfile,
   SpecialistReview,
+  SpecialistService,
   SpecialistServicePriceUnit,
-} from '../model/types';
+} from "../model/types";
 
 type MainForm = {
   avatarUrl: string;
@@ -42,12 +45,46 @@ type EditableGalleryItem = {
   alt: string;
 };
 
+type EditableServiceBookingPolicyForm = {
+  mode: SpecialistBookingMode;
+  duration: {
+    defaultDurationMinutes: string;
+    minDurationMinutes: string;
+    maxDurationMinutes: string;
+    durationStepMinutes: string;
+  };
+  buffer: {
+    hasBufferBefore: boolean;
+    bufferBeforeMinutes: string;
+    hasBufferAfter: boolean;
+    bufferAfterMinutes: string;
+  };
+  compatibility: {
+    canOverlapWithOtherServices: boolean;
+    compatibleServiceIds: string[];
+  };
+  advance: {
+    minAdvanceMinutes: string;
+    maxAdvanceDays: string;
+  };
+  multiDay: {
+    allowsMultiDayBooking: boolean;
+    minStayDays: string;
+    maxStayDays: string;
+    checkInTime: string;
+    checkOutTime: string;
+  };
+  allowsClientComment: boolean;
+  requiresSpecialistConfirmation: boolean;
+};
+
 type EditableServiceFormItem = {
   id: string;
   name: string;
   locationLabel: string;
   price: string;
   priceUnit: SpecialistServicePriceUnit;
+  bookingPolicy: EditableServiceBookingPolicyForm;
 };
 
 type DetailsForm = {
@@ -91,16 +128,16 @@ type Props = {
   detailsForm: DetailsForm | null;
   detailsFormErrors: Partial<
     Record<
-      | 'experienceDurationValue'
-      | 'housingType'
-      | 'petSizes'
-      | 'petAges'
-      | 'hasChildrenUnderTen'
-      | 'petTypes'
-      | 'about'
-      | 'services'
-      | 'specialistGallery'
-      | 'selectedAdvantages',
+      | "experienceDurationValue"
+      | "housingType"
+      | "petSizes"
+      | "petAges"
+      | "hasChildrenUnderTen"
+      | "petTypes"
+      | "about"
+      | "services"
+      | "specialistGallery"
+      | "selectedAdvantages",
       string
     >
   >;
@@ -109,7 +146,7 @@ type Props = {
   onSetDetailsField: <
     K extends keyof Omit<
       DetailsForm,
-      'services' | 'specialistGallery' | 'selectedAdvantages'
+      "services" | "specialistGallery" | "selectedAdvantages"
     >,
   >(
     field: K,
@@ -128,55 +165,96 @@ type Props = {
     field: keyof EditableServiceFormItem,
     value: string,
   ) => void;
+
+  onSetServiceBookingMode: (index: number, mode: SpecialistBookingMode) => void;
+
+  onSetServiceDurationField: (
+    index: number,
+    field:
+      | "defaultDurationMinutes"
+      | "minDurationMinutes"
+      | "maxDurationMinutes"
+      | "durationStepMinutes",
+    value: string,
+  ) => void;
+
+  onSetServiceBufferField: (
+    index: number,
+    field:
+      | "hasBufferBefore"
+      | "bufferBeforeMinutes"
+      | "hasBufferAfter"
+      | "bufferAfterMinutes",
+    value: string | boolean,
+  ) => void;
+
+  onSetServiceCompatibilityField: (
+    index: number,
+    field: "canOverlapWithOtherServices" | "compatibleServiceIds",
+    value: boolean | string[],
+  ) => void;
+
+  onSetServiceAdvanceField: (
+    index: number,
+    field: "minAdvanceMinutes" | "maxAdvanceDays",
+    value: string,
+  ) => void;
+
+  onSetServiceMultiDayField: (
+    index: number,
+    field:
+      | "allowsMultiDayBooking"
+      | "minStayDays"
+      | "maxStayDays"
+      | "checkInTime"
+      | "checkOutTime",
+    value: string | boolean,
+  ) => void;
+
+  onSetServiceFlagField: (
+    index: number,
+    field: "allowsClientComment" | "requiresSpecialistConfirmation",
+    value: boolean,
+  ) => void;
+
   onSetSpecialistGalleryUrlInput: (value: string) => void;
   onAddSpecialistGalleryImageByUrl: () => void;
   onAddSpecialistGalleryFiles: (files: FileList | null) => Promise<void> | void;
   onRemoveSpecialistGalleryImage: (index: number) => void;
   onSaveDetails: () => void;
   onContactSpecialist?: () => void;
+  onBookService?: (serviceId: string) => void;
 };
 
 const PET_SIZE_OPTIONS: SpecialistPetSize[] = [
-  'small',
-  'medium',
-  'large',
-  'giant',
+  "small",
+  "medium",
+  "large",
+  "giant",
 ];
 const PET_AGE_OPTIONS: SpecialistPetAge[] = [
-  'baby',
-  'young',
-  'adult',
-  'senior',
+  "baby",
+  "young",
+  "adult",
+  "senior",
 ];
 const PET_TYPE_OPTIONS: SpecialistPetType[] = [
-  'cat',
-  'dog',
-  'rodent',
-  'rabbit',
-  'bird',
-  'fish',
-  'reptile',
-  'other',
+  "cat",
+  "dog",
+  "rodent",
+  "rabbit",
+  "bird",
+  "fish",
+  "reptile",
+  "other",
 ];
 const HOUSING_OPTIONS: SpecialistHousingType[] = [
-  'apartment',
-  'house',
-  'townhouse',
-  'other',
+  "apartment",
+  "house",
+  "townhouse",
+  "other",
 ];
-const CHILDREN_OPTIONS: SpecialistChildrenPolicy[] = [
-  'yes',
-  'no',
-  'sometimes',
-];
-const SERVICE_PRICE_UNIT_OPTIONS: SpecialistServicePriceUnit[] = [
-  'hour',
-  'day',
-  'service',
-  'walk',
-  'visit',
-];
-const MAX_SERVICE_PRICE = 1_000_000;
+const CHILDREN_OPTIONS: SpecialistChildrenPolicy[] = ["yes", "no", "sometimes"];
 
 function formatPhone(phone: string): string {
   return phone.trim();
@@ -189,20 +267,166 @@ function formatDate(date: string): string {
     return date;
   }
 
-  return new Intl.DateTimeFormat('ru-RU', {
-    day: 'numeric',
-    month: 'long',
-    year: 'numeric',
+  return new Intl.DateTimeFormat("ru-RU", {
+    day: "numeric",
+    month: "long",
+    year: "numeric",
   }).format(parsedDate);
 }
 
 function formatPrice(price: number): string {
-  return new Intl.NumberFormat('ru-RU').format(price);
+  return new Intl.NumberFormat("ru-RU").format(price);
 }
 
 function getRatingStars(rating: number): string {
   const rounded = Math.max(0, Math.min(5, Math.round(rating)));
-  return '★'.repeat(rounded) + '☆'.repeat(5 - rounded);
+  return "★".repeat(rounded) + "☆".repeat(5 - rounded);
+}
+
+function formatBookingModeLabel(
+  mode: SpecialistBookingMode | undefined,
+): string {
+  if (mode === "fixed_slot") {
+    return "Фиксированный слот";
+  }
+
+  if (mode === "time_range") {
+    return "Произвольный интервал";
+  }
+
+  if (mode === "multi_day_stay") {
+    return "Передержка на несколько дней";
+  }
+
+  if (mode === "open_request") {
+    return "Свободный запрос";
+  }
+
+  return "Фиксированный слот";
+}
+
+function buildServiceBookingSummary(service: SpecialistService): string[] {
+  const summary: string[] = [];
+
+  const bookingPolicy = service.bookingPolicy;
+
+  if (!bookingPolicy) {
+    summary.push("Бронирование по стандартному слоту специалиста.");
+    return summary;
+  }
+
+  const duration = bookingPolicy.duration;
+  const multiDay = bookingPolicy.multiDay;
+  const advance = bookingPolicy.advance;
+  const compatibility = bookingPolicy.compatibility;
+
+  if (bookingPolicy.mode === "fixed_slot") {
+    if (typeof duration.defaultDurationMinutes === "number") {
+      summary.push(
+        `Обычная длительность: ${duration.defaultDurationMinutes} мин.`,
+      );
+    }
+
+    if (
+      typeof duration.minDurationMinutes === "number" &&
+      typeof duration.maxDurationMinutes === "number"
+    ) {
+      summary.push(
+        `Диапазон длительности: от ${duration.minDurationMinutes} до ${duration.maxDurationMinutes} мин.`,
+      );
+    }
+  }
+
+  if (bookingPolicy.mode === "time_range") {
+    summary.push(
+      "Клиент может выбрать произвольный интервал в рамках доступного окна.",
+    );
+
+    if (
+      typeof duration.minDurationMinutes === "number" &&
+      typeof duration.maxDurationMinutes === "number"
+    ) {
+      summary.push(
+        `Допустимая длительность: от ${duration.minDurationMinutes} до ${duration.maxDurationMinutes} мин.`,
+      );
+    }
+  }
+
+  if (bookingPolicy.mode === "multi_day_stay") {
+    summary.push("Бронирование оформляется как заезд и выезд.");
+
+    if (
+      typeof multiDay?.minStayDays === "number" &&
+      typeof multiDay?.maxStayDays === "number"
+    ) {
+      summary.push(
+        `Срок передержки: от ${multiDay.minStayDays} до ${multiDay.maxStayDays} дн.`,
+      );
+    }
+
+    if (multiDay?.checkInTime || multiDay?.checkOutTime) {
+      summary.push(
+        `Заезд ${
+          multiDay?.checkInTime ?? "по согласованию"
+        }, выезд ${multiDay?.checkOutTime ?? "по согласованию"}.`,
+      );
+    }
+  }
+
+  if (bookingPolicy.mode === "open_request") {
+    summary.push(
+      "Клиент отправляет запрос, а точное время согласуется отдельно.",
+    );
+  }
+
+  if (
+    bookingPolicy.buffer.hasBufferBefore &&
+    bookingPolicy.buffer.bufferBeforeMinutes > 0
+  ) {
+    summary.push(
+      `Буфер до услуги: ${bookingPolicy.buffer.bufferBeforeMinutes} мин.`,
+    );
+  }
+
+  if (
+    bookingPolicy.buffer.hasBufferAfter &&
+    bookingPolicy.buffer.bufferAfterMinutes > 0
+  ) {
+    summary.push(
+      `Буфер после услуги: ${bookingPolicy.buffer.bufferAfterMinutes} мин.`,
+    );
+  }
+
+  if (
+    typeof advance.minAdvanceMinutes === "number" &&
+    advance.minAdvanceMinutes > 0
+  ) {
+    const hours = Math.ceil(advance.minAdvanceMinutes / 60);
+    summary.push(`Минимум за ${hours} ч до начала.`);
+  }
+
+  if (
+    typeof advance.maxAdvanceDays === "number" &&
+    advance.maxAdvanceDays > 0
+  ) {
+    summary.push(
+      `Можно бронировать максимум за ${advance.maxAdvanceDays} дн вперёд.`,
+    );
+  }
+
+  if (bookingPolicy.requiresSpecialistConfirmation) {
+    summary.push("Заказ требует подтверждения специалистом.");
+  } else {
+    summary.push("Подтверждение специалистом не требуется.");
+  }
+
+  if (compatibility.canOverlapWithOtherServices) {
+    summary.push("Может совмещаться с некоторыми другими услугами.");
+  } else {
+    summary.push("Не совмещается с другими услугами по времени.");
+  }
+
+  return summary;
 }
 
 export const SpecialistProfileView = observer(
@@ -243,14 +467,21 @@ export const SpecialistProfileView = observer(
     onAddService,
     onRemoveService,
     onSetServiceField,
+    onSetServiceBookingMode,
+    onSetServiceDurationField,
+    onSetServiceBufferField,
+    onSetServiceCompatibilityField,
+    onSetServiceAdvanceField,
+    onSetServiceMultiDayField,
+    onSetServiceFlagField,
     onSetSpecialistGalleryUrlInput,
     onAddSpecialistGalleryImageByUrl,
     onAddSpecialistGalleryFiles,
     onRemoveSpecialistGalleryImage,
     onSaveDetails,
     onContactSpecialist,
+    onBookService,
   }: Props) => {
-
     if (isLoading) {
       return (
         <div className={styles.stateCard}>
@@ -268,7 +499,11 @@ export const SpecialistProfileView = observer(
           <h2 className={styles.stateTitle}>Не удалось открыть профиль</h2>
           <p className={styles.stateText}>{error}</p>
 
-          <button type="button" className={styles.primaryButton} onClick={onRetry}>
+          <button
+            type="button"
+            className={styles.primaryButton}
+            onClick={onRetry}
+          >
             Попробовать снова
           </button>
         </div>
@@ -292,8 +527,9 @@ export const SpecialistProfileView = observer(
       ? currentDetails.specialistGallery
       : (profile.specialistGallery ?? []);
 
-    const currentName = `${currentMain.firstName} ${currentMain.lastName}`.trim();
-    const currentAvatarUrl = currentMain.avatarUrl?.trim() ?? '';
+    const currentName =
+      `${currentMain.firstName} ${currentMain.lastName}`.trim();
+    const currentAvatarUrl = currentMain.avatarUrl?.trim() ?? "";
     const currentCity = currentMain.city.trim();
     const currentDistrict = currentMain.district.trim();
     const currentPhone = currentMain.phone.trim();
@@ -301,14 +537,14 @@ export const SpecialistProfileView = observer(
 
     const currentExperienceValue = currentDetails
       ? currentDetails.experienceDurationValue
-      : String(profile.details.experienceDurationValue ?? '');
+      : String(profile.details.experienceDurationValue ?? "");
 
     const currentExperienceUnit = currentDetails
       ? currentDetails.experienceDurationUnit
-      : (profile.details.experienceDurationUnit ?? 'years');
+      : (profile.details.experienceDurationUnit ?? "years");
 
     const currentExperienceLabel =
-      currentExperienceValue.trim() !== ''
+      currentExperienceValue.trim() !== ""
         ? `${currentExperienceValue} ${SPECIALIST_EXPERIENCE_UNIT_LABELS[currentExperienceUnit]}`
         : profile.details.experienceLabel;
 
@@ -342,7 +578,9 @@ export const SpecialistProfileView = observer(
         }))
       : profile.services;
 
-    const currentAbout = currentDetails ? currentDetails.about : profile.details.about;
+    const currentAbout = currentDetails
+      ? currentDetails.about
+      : profile.details.about;
 
     const isAllPetSizesSelected = currentDetails
       ? currentDetails.petSizes.length === PET_SIZE_OPTIONS.length
@@ -375,7 +613,7 @@ export const SpecialistProfileView = observer(
                       onClick={onSaveMain}
                       disabled={isSavingMain}
                     >
-                      {isSavingMain ? 'Сохранение...' : 'Сохранить'}
+                      {isSavingMain ? "Сохранение..." : "Сохранить"}
                     </button>
                   </div>
                 ) : (
@@ -390,7 +628,9 @@ export const SpecialistProfileView = observer(
               ) : null}
             </div>
 
-            {mainSaveError ? <div className={styles.formError}>{mainSaveError}</div> : null}
+            {mainSaveError ? (
+              <div className={styles.formError}>{mainSaveError}</div>
+            ) : null}
 
             <div className={styles.mainInfo}>
               <div className={styles.avatarWrap}>
@@ -398,12 +638,12 @@ export const SpecialistProfileView = observer(
                   <img
                     className={styles.avatar}
                     src={currentAvatarUrl}
-                    alt={currentName || 'Специалист'}
+                    alt={currentName || "Специалист"}
                   />
                 ) : (
                   <div className={styles.avatarPlaceholder}>
-                    {(currentMain.firstName || '').charAt(0)}
-                    {(currentMain.lastName || '').charAt(0)}
+                    {(currentMain.firstName || "").charAt(0)}
+                    {(currentMain.lastName || "").charAt(0)}
                   </div>
                 )}
 
@@ -411,8 +651,10 @@ export const SpecialistProfileView = observer(
                   <div className={styles.inlineAvatarEditor}>
                     <input
                       className={styles.input}
-                      value={mainForm?.avatarUrl ?? ''}
-                      onChange={(event) => onSetMainField('avatarUrl', event.target.value)}
+                      value={mainForm?.avatarUrl ?? ""}
+                      onChange={(event) =>
+                        onSetMainField("avatarUrl", event.target.value)
+                      }
                       placeholder="Ссылка на фото"
                     />
                     <label className={styles.uploadButton}>
@@ -424,7 +666,7 @@ export const SpecialistProfileView = observer(
                         onChange={(event) => {
                           const file = event.target.files?.[0] ?? null;
                           void onSetMainAvatarFile(file);
-                          event.currentTarget.value = '';
+                          event.currentTarget.value = "";
                         }}
                       />
                     </label>
@@ -438,29 +680,39 @@ export const SpecialistProfileView = observer(
                     <div className={styles.inlineFieldBlock}>
                       <input
                         className={styles.inlineTitleInput}
-                        value={mainForm?.firstName ?? ''}
-                        onChange={(event) => onSetMainField('firstName', event.target.value)}
+                        value={mainForm?.firstName ?? ""}
+                        onChange={(event) =>
+                          onSetMainField("firstName", event.target.value)
+                        }
                         placeholder="Имя"
                       />
                       {mainFormErrors.firstName ? (
-                        <span className={styles.fieldError}>{mainFormErrors.firstName}</span>
+                        <span className={styles.fieldError}>
+                          {mainFormErrors.firstName}
+                        </span>
                       ) : null}
                     </div>
 
                     <div className={styles.inlineFieldBlock}>
                       <input
                         className={styles.inlineTitleInput}
-                        value={mainForm?.lastName ?? ''}
-                        onChange={(event) => onSetMainField('lastName', event.target.value)}
+                        value={mainForm?.lastName ?? ""}
+                        onChange={(event) =>
+                          onSetMainField("lastName", event.target.value)
+                        }
                         placeholder="Фамилия"
                       />
                       {mainFormErrors.lastName ? (
-                        <span className={styles.fieldError}>{mainFormErrors.lastName}</span>
+                        <span className={styles.fieldError}>
+                          {mainFormErrors.lastName}
+                        </span>
                       ) : null}
                     </div>
                   </div>
                 ) : (
-                  <h1 className={styles.specialistName}>{currentName || 'Без имени'}</h1>
+                  <h1 className={styles.specialistName}>
+                    {currentName || "Без имени"}
+                  </h1>
                 )}
 
                 <ul className={styles.metaList}>
@@ -470,16 +722,22 @@ export const SpecialistProfileView = observer(
                       <div className={styles.inlineFieldBlock}>
                         <input
                           className={styles.inlineValueInput}
-                          value={mainForm?.city ?? ''}
-                          onChange={(event) => onSetMainField('city', event.target.value)}
+                          value={mainForm?.city ?? ""}
+                          onChange={(event) =>
+                            onSetMainField("city", event.target.value)
+                          }
                           placeholder="Город"
                         />
                         {mainFormErrors.city ? (
-                          <span className={styles.fieldError}>{mainFormErrors.city}</span>
+                          <span className={styles.fieldError}>
+                            {mainFormErrors.city}
+                          </span>
                         ) : null}
                       </div>
                     ) : (
-                      <span className={styles.metaValue}>{currentCity || '—'}</span>
+                      <span className={styles.metaValue}>
+                        {currentCity || "—"}
+                      </span>
                     )}
                   </li>
 
@@ -489,16 +747,22 @@ export const SpecialistProfileView = observer(
                       <div className={styles.inlineFieldBlock}>
                         <input
                           className={styles.inlineValueInput}
-                          value={mainForm?.district ?? ''}
-                          onChange={(event) => onSetMainField('district', event.target.value)}
+                          value={mainForm?.district ?? ""}
+                          onChange={(event) =>
+                            onSetMainField("district", event.target.value)
+                          }
                           placeholder="Район"
                         />
                         {mainFormErrors.district ? (
-                          <span className={styles.fieldError}>{mainFormErrors.district}</span>
+                          <span className={styles.fieldError}>
+                            {mainFormErrors.district}
+                          </span>
                         ) : null}
                       </div>
                     ) : (
-                      <span className={styles.metaValue}>{currentDistrict || '—'}</span>
+                      <span className={styles.metaValue}>
+                        {currentDistrict || "—"}
+                      </span>
                     )}
                   </li>
 
@@ -508,16 +772,23 @@ export const SpecialistProfileView = observer(
                       <div className={styles.inlineFieldBlock}>
                         <input
                           className={styles.inlineValueInput}
-                          value={mainForm?.phone ?? ''}
-                          onChange={(event) => onSetMainField('phone', event.target.value)}
+                          value={mainForm?.phone ?? ""}
+                          onChange={(event) =>
+                            onSetMainField("phone", event.target.value)
+                          }
                           placeholder="Телефон"
                         />
                         {mainFormErrors.phone ? (
-                          <span className={styles.fieldError}>{mainFormErrors.phone}</span>
+                          <span className={styles.fieldError}>
+                            {mainFormErrors.phone}
+                          </span>
                         ) : null}
                       </div>
                     ) : currentPhone ? (
-                      <a className={styles.metaValueLink} href={`tel:${currentPhone}`}>
+                      <a
+                        className={styles.metaValueLink}
+                        href={`tel:${currentPhone}`}
+                      >
                         {formatPhone(currentPhone)}
                       </a>
                     ) : (
@@ -527,13 +798,16 @@ export const SpecialistProfileView = observer(
 
                   <li className={styles.metaItem}>
                     <span className={styles.metaLabel}>Email</span>
-                    <span className={styles.metaValue}>{currentEmail || '—'}</span>
+                    <span className={styles.metaValue}>
+                      {currentEmail || "—"}
+                    </span>
                   </li>
 
                   <li className={styles.metaItem}>
                     <span className={styles.metaLabel}>Доступ</span>
                     <span className={styles.metaValue}>
-                      Email и пароль можно изменить только через настройки профиля клиента
+                      Email и пароль можно изменить только через настройки
+                      профиля клиента
                     </span>
                   </li>
                 </ul>
@@ -555,7 +829,9 @@ export const SpecialistProfileView = observer(
 
             <div className={styles.badgesColumn}>
               <div className={styles.infoBadge}>
-                <span className={styles.infoBadgeLabel}>Опыт ухода за животными</span>
+                <span className={styles.infoBadgeLabel}>
+                  Опыт ухода за животными
+                </span>
                 <span className={styles.infoBadgeValue}>
                   {profile.stats.experienceYears} лет
                 </span>
@@ -572,21 +848,28 @@ export const SpecialistProfileView = observer(
                     </div>
                   </div>
 
-                  <a className={styles.primaryLinkButton} href="#specialist-reviews">
+                  <a
+                    className={styles.primaryLinkButton}
+                    href="#specialist-reviews"
+                  >
                     Перейти в отзывы
                   </a>
                 </div>
 
                 <div className={styles.statsGrid}>
                   <div className={styles.statItem}>
-                    <span className={styles.statNumber}>{profile.stats.reviewsCount}</span>
+                    <span className={styles.statNumber}>
+                      {profile.stats.reviewsCount}
+                    </span>
                     <span className={styles.statLabel}>отзывов</span>
                   </div>
                   <div className={styles.statItem}>
                     <span className={styles.statNumber}>
                       {profile.stats.completedOrdersCount}
                     </span>
-                    <span className={styles.statLabel}>выполненных заказов</span>
+                    <span className={styles.statLabel}>
+                      выполненных заказов
+                    </span>
                   </div>
                   <div className={styles.statItem}>
                     <span className={styles.statNumber}>
@@ -633,7 +916,7 @@ export const SpecialistProfileView = observer(
                         onClick={onSaveDetails}
                         disabled={isSavingDetails}
                       >
-                        {isSavingDetails ? 'Сохранение...' : 'Сохранить'}
+                        {isSavingDetails ? "Сохранение..." : "Сохранить"}
                       </button>
                     </>
                   ) : (
@@ -649,7 +932,9 @@ export const SpecialistProfileView = observer(
               </div>
             </div>
 
-            {detailsSaveError ? <div className={styles.formError}>{detailsSaveError}</div> : null}
+            {detailsSaveError ? (
+              <div className={styles.formError}>{detailsSaveError}</div>
+            ) : null}
 
             <div className={styles.subsection}>
               <h3>Фотографии специалиста</h3>
@@ -659,7 +944,10 @@ export const SpecialistProfileView = observer(
                   {currentSpecialistGallery.length > 0 ? (
                     <div className={styles.specialistGalleryGrid}>
                       {currentSpecialistGallery.map((item, index) => (
-                        <div key={item.id} className={styles.specialistGalleryCard}>
+                        <div
+                          key={item.id}
+                          className={styles.specialistGalleryCard}
+                        >
                           <img
                             className={styles.specialistGalleryImage}
                             src={item.imageUrl}
@@ -669,7 +957,9 @@ export const SpecialistProfileView = observer(
                           <button
                             type="button"
                             className={styles.removeGalleryButton}
-                            onClick={() => onRemoveSpecialistGalleryImage(index)}
+                            onClick={() =>
+                              onRemoveSpecialistGalleryImage(index)
+                            }
                           >
                             Удалить
                           </button>
@@ -688,8 +978,10 @@ export const SpecialistProfileView = observer(
                         accept="image/*"
                         multiple
                         onChange={(event) => {
-                          void onAddSpecialistGalleryFiles(event.currentTarget.files);
-                          event.currentTarget.value = '';
+                          void onAddSpecialistGalleryFiles(
+                            event.currentTarget.files,
+                          );
+                          event.currentTarget.value = "";
                         }}
                       />
                     </label>
@@ -698,7 +990,7 @@ export const SpecialistProfileView = observer(
                       <input
                         className={styles.input}
                         type="text"
-                        value={detailsForm?.specialistGalleryUrlInput ?? ''}
+                        value={detailsForm?.specialistGalleryUrlInput ?? ""}
                         onChange={(event) =>
                           onSetSpecialistGalleryUrlInput(event.target.value)
                         }
@@ -732,7 +1024,9 @@ export const SpecialistProfileView = observer(
 
             <div className={styles.detailsSection}>
               <div className={styles.detailRow}>
-                <span className={styles.detailName}>Опыт ухода за животными</span>
+                <span className={styles.detailName}>
+                  Опыт ухода за животными
+                </span>
 
                 {isEditingDetails && detailsForm ? (
                   <div className={styles.experienceEditor}>
@@ -743,7 +1037,10 @@ export const SpecialistProfileView = observer(
                       step="1"
                       value={detailsForm.experienceDurationValue}
                       onChange={(event) =>
-                        onSetDetailsField('experienceDurationValue', event.target.value)
+                        onSetDetailsField(
+                          "experienceDurationValue",
+                          event.target.value,
+                        )
                       }
                       placeholder="Число"
                     />
@@ -752,7 +1049,7 @@ export const SpecialistProfileView = observer(
                       value={detailsForm.experienceDurationUnit}
                       onChange={(event) =>
                         onSetDetailsField(
-                          'experienceDurationUnit',
+                          "experienceDurationUnit",
                           event.target.value as SpecialistExperienceUnit,
                         )
                       }
@@ -772,7 +1069,9 @@ export const SpecialistProfileView = observer(
                     ) : null}
                   </div>
                 ) : (
-                  <span className={styles.detailValue}>{currentExperienceLabel}</span>
+                  <span className={styles.detailValue}>
+                    {currentExperienceLabel}
+                  </span>
                 )}
               </div>
 
@@ -785,7 +1084,7 @@ export const SpecialistProfileView = observer(
                     value={detailsForm.housingType}
                     onChange={(event) =>
                       onSetDetailsField(
-                        'housingType',
+                        "housingType",
                         event.target.value as SpecialistHousingType,
                       )
                     }
@@ -836,10 +1135,10 @@ export const SpecialistProfileView = observer(
                 ) : (
                   <span className={styles.detailValue}>
                     {currentPetSizes.length === PET_SIZE_OPTIONS.length
-                      ? 'Любой'
+                      ? "Любой"
                       : currentPetSizes
                           .map((size) => SPECIALIST_PET_SIZE_LABELS[size])
-                          .join(', ') || '—'}
+                          .join(", ") || "—"}
                   </span>
                 )}
               </div>
@@ -878,10 +1177,10 @@ export const SpecialistProfileView = observer(
                 ) : (
                   <span className={styles.detailValue}>
                     {currentPetAges.length === PET_AGE_OPTIONS.length
-                      ? 'Любой'
+                      ? "Любой"
                       : currentPetAges
                           .map((age) => SPECIALIST_PET_AGE_LABELS[age])
-                          .join(', ') || '—'}
+                          .join(", ") || "—"}
                   </span>
                 )}
               </div>
@@ -894,7 +1193,7 @@ export const SpecialistProfileView = observer(
                     value={detailsForm.hasChildrenUnderTen}
                     onChange={(event) =>
                       onSetDetailsField(
-                        'hasChildrenUnderTen',
+                        "hasChildrenUnderTen",
                         event.target.value as SpecialistChildrenPolicy,
                       )
                     }
@@ -937,7 +1236,7 @@ export const SpecialistProfileView = observer(
                   <span className={styles.detailValue}>
                     {currentPetTypes
                       .map((petType) => SPECIALIST_PET_TYPE_LABELS[petType])
-                      .join(', ') || '—'}
+                      .join(", ") || "—"}
                   </span>
                 )}
               </div>
@@ -950,7 +1249,9 @@ export const SpecialistProfileView = observer(
                     <label key={advantage} className={styles.advantageItem}>
                       <input
                         type="checkbox"
-                        checked={detailsForm.selectedAdvantages.includes(advantage)}
+                        checked={detailsForm.selectedAdvantages.includes(
+                          advantage,
+                        )}
                         onChange={() => onToggleAdvantage(advantage)}
                       />
                       <span>{advantage}</span>
@@ -968,7 +1269,10 @@ export const SpecialistProfileView = observer(
               ) : currentAdvantages.length > 0 ? (
                 <div className={styles.advantagesList}>
                   {currentAdvantages.map((advantage, index) => (
-                    <div key={`${advantage}-${index}`} className={styles.advantageCard}>
+                    <div
+                      key={`${advantage}-${index}`}
+                      className={styles.advantageCard}
+                    >
                       {advantage}
                     </div>
                   ))}
@@ -994,61 +1298,39 @@ export const SpecialistProfileView = observer(
                 {currentServices.length > 0 ? (
                   currentServices.map((service, index) => {
                     const price = Number(service.price);
+                    const fullService = profile.services.find(
+                      (item) => item.id === service.id,
+                    );
+                    const bookingSummary = fullService
+                      ? buildServiceBookingSummary(fullService)
+                      : [];
 
                     return (
                       <article key={service.id} className={styles.serviceCard}>
                         {isEditingDetails && detailsForm ? (
                           <>
-                            <div className={styles.serviceEditorGrid}>
-                              <input
-                                className={styles.input}
-                                value={detailsForm.services[index]?.name ?? ''}
-                                onChange={(event) =>
-                                  onSetServiceField(index, 'name', event.target.value)
-                                }
-                                placeholder="Название услуги"
-                              />
-                              <input
-                                className={styles.input}
-                                value={detailsForm.services[index]?.locationLabel ?? ''}
-                                onChange={(event) =>
-                                  onSetServiceField(
-                                    index,
-                                    'locationLabel',
-                                    event.target.value,
-                                  )
-                                }
-                                placeholder="Где проходит услуга"
-                              />
-                            </div>
+                            <SpecialistServicePolicyEditor
+                              service={detailsForm.services[index]}
+                              index={index}
+                              allServices={detailsForm.services}
+                              onSetServiceField={onSetServiceField}
+                              onSetServiceBookingMode={onSetServiceBookingMode}
+                              onSetServiceDurationField={
+                                onSetServiceDurationField
+                              }
+                              onSetServiceBufferField={onSetServiceBufferField}
+                              onSetServiceCompatibilityField={
+                                onSetServiceCompatibilityField
+                              }
+                              onSetServiceAdvanceField={
+                                onSetServiceAdvanceField
+                              }
+                              onSetServiceMultiDayField={
+                                onSetServiceMultiDayField
+                              }
+                              onSetServiceFlagField={onSetServiceFlagField}
+                            />
 
-                            <div className={styles.servicePriceEditor}>
-                              <input
-                                className={styles.servicePriceInput}
-                                type="number"
-                                min="0"
-                                max={String(MAX_SERVICE_PRICE)}
-                                step="1"
-                                value={detailsForm.services[index]?.price ?? '0'}
-                                onChange={(event) =>
-                                  onSetServiceField(index, 'price', event.target.value)
-                                }
-                                placeholder="Цена"
-                              />
-                              <select
-                                className={styles.servicePriceUnitSelect}
-                                value={detailsForm.services[index]?.priceUnit ?? 'service'}
-                                onChange={(event) =>
-                                  onSetServiceField(index, 'priceUnit', event.target.value)
-                                }
-                              >
-                                {SERVICE_PRICE_UNIT_OPTIONS.map((option) => (
-                                  <option key={option} value={option}>
-                                    {SPECIALIST_SERVICE_PRICE_UNIT_LABELS[option]}
-                                  </option>
-                                ))}
-                              </select>
-                            </div>
                             <button
                               type="button"
                               className={styles.removeButton}
@@ -1060,23 +1342,79 @@ export const SpecialistProfileView = observer(
                         ) : (
                           <>
                             <div className={styles.serviceTop}>
-                              <h4 className={styles.serviceName}>
-                                {service.name || 'Без названия'}
-                              </h4>
+                              <div>
+                                <h4 className={styles.serviceName}>
+                                  {service.name || "Без названия"}
+                                </h4>
+                                {fullService ? (
+                                  <div className={styles.tag}>
+                                    {formatBookingModeLabel(
+                                      fullService.bookingPolicy?.mode,
+                                    )}
+                                  </div>
+                                ) : null}
+                              </div>
+
                               <div className={styles.servicePriceBlock}>
                                 <div className={styles.servicePrice}>
                                   {Number.isFinite(price) && price > 0
                                     ? `${formatPrice(price)} ₽`
-                                    : 'Бесплатно'}
+                                    : "Бесплатно"}
                                 </div>
                                 <div className={styles.servicePriceUnit}>
-                                  {SPECIALIST_SERVICE_PRICE_UNIT_LABELS[service.priceUnit]}
+                                  {
+                                    SPECIALIST_SERVICE_PRICE_UNIT_LABELS[
+                                      service.priceUnit
+                                    ]
+                                  }
                                 </div>
                               </div>
                             </div>
+
                             <div className={styles.serviceMeta}>
-                              <span>{service.locationLabel || 'Место не указано'}</span>
+                              <span>
+                                {service.locationLabel || "Место не указано"}
+                              </span>
                             </div>
+
+                            {bookingSummary.length > 0 ? (
+                              <div className={styles.serviceMeta}>
+                                {bookingSummary.map((item, itemIndex) => (
+                                  <span key={`${service.id}-${itemIndex}`}>
+                                    {item}
+                                  </span>
+                                ))}
+                              </div>
+                            ) : null}
+
+                            {!profile.isOwner ? (
+                              <div className={styles.actionsRow}>
+                                <button
+                                  type="button"
+                                  className={styles.primaryButton}
+                                  onClick={() => {
+                                    if (onBookService) {
+                                      onBookService(service.id);
+                                      return;
+                                    }
+
+                                    onContactSpecialist?.();
+                                  }}
+                                >
+                                  Записаться на услугу
+                                </button>
+
+                                {onContactSpecialist ? (
+                                  <button
+                                    type="button"
+                                    className={styles.secondaryButton}
+                                    onClick={onContactSpecialist}
+                                  >
+                                    Сначала обсудить детали
+                                  </button>
+                                ) : null}
+                              </div>
+                            ) : null}
                           </>
                         )}
                       </article>
@@ -1088,7 +1426,9 @@ export const SpecialistProfileView = observer(
               </div>
 
               {detailsFormErrors.services ? (
-                <span className={styles.fieldError}>{detailsFormErrors.services}</span>
+                <span className={styles.fieldError}>
+                  {detailsFormErrors.services}
+                </span>
               ) : null}
             </div>
 
@@ -1101,26 +1441,35 @@ export const SpecialistProfileView = observer(
                     className={styles.textarea}
                     rows={10}
                     value={detailsForm.about}
-                    onChange={(event) => onSetDetailsField('about', event.target.value)}
+                    onChange={(event) =>
+                      onSetDetailsField("about", event.target.value)
+                    }
                     placeholder="Расскажи о себе, опыте, отношении к животным и условиях передержки"
                   />
                   {detailsFormErrors.about ? (
-                    <span className={styles.fieldError}>{detailsFormErrors.about}</span>
+                    <span className={styles.fieldError}>
+                      {detailsFormErrors.about}
+                    </span>
                   ) : null}
                 </>
               ) : (
                 <div className={styles.aboutText}>
-                  {(currentAbout || '')
-                    .split('\n')
+                  {(currentAbout || "")
+                    .split("\n")
                     .filter((paragraph) => paragraph.trim().length > 0)
                     .map((paragraph, index) => (
-                      <p key={`${paragraph}-${index}`} className={styles.aboutParagraph}>
+                      <p
+                        key={`${paragraph}-${index}`}
+                        className={styles.aboutParagraph}
+                      >
                         {paragraph}
                       </p>
                     ))}
 
                   {!currentAbout.trim() ? (
-                    <p className={styles.emptyText}>Пока описание не заполнено.</p>
+                    <p className={styles.emptyText}>
+                      Пока описание не заполнено.
+                    </p>
                   ) : null}
                 </div>
               )}
@@ -1155,7 +1504,9 @@ export const SpecialistProfileView = observer(
 
                     {review.specialistReply ? (
                       <div className={styles.replyCard}>
-                        <div className={styles.replyTitle}>Ответ специалиста</div>
+                        <div className={styles.replyTitle}>
+                          Ответ специалиста
+                        </div>
                         <div className={styles.replyDate}>
                           {formatDate(review.specialistReply.createdAt)}
                         </div>

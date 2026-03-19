@@ -1,9 +1,20 @@
-//src/features/orders/model/index.ts
+// src/features/orders/model/index.ts
+
 export { ordersStore } from './ordersStore';
+
 export type {
-  ServiceOrder,
-  ProductOrder,
-  ServicesFilter,
+  CancelOrderResult,
+  CompleteOrderResult,
+  ConfirmOrderResult,
+  CreateServiceOrderPayload,
   OrderStatus,
+  ProductOrder,
   ProductOrderStatus,
+  RepeatResult,
+  RepeatServiceOrderDraftPayload,
+  ReviewResult,
+  ServiceOrder,
+  ServicePriceUnit,
+  ServicesFilter,
+  StartOrderResult,
 } from './types';

@@ -1,11 +1,26 @@
 // src/features/service-booking/model/types.ts
 
+import type { ServiceBookingMode } from '@/features/orders/model/types';
+
 export type ServiceBookingDraft = {
+  specialistSlug: string;
   serviceId: string;
   petId: string;
   selectedDate: string;
   selectedSlotId: string;
   comment: string;
+
+  bookingMode: ServiceBookingMode;
+
+  requestedStartDate: string;
+  requestedStartTime: string;
+  requestedEndDate: string;
+  requestedEndTime: string;
+
+  stayCheckInDate: string;
+  stayCheckInTime: string;
+  stayCheckOutDate: string;
+  stayCheckOutTime: string;
 };
 
 export type ServiceBookingLoadParams = {
@@ -33,3 +48,9 @@ export type BookingSlot = {
   endIso: string;
   serviceIds?: string[];
 };
+
+export type ServiceBookingModeView =
+  | 'fixed_slot'
+  | 'time_range'
+  | 'multi_day_stay'
+  | 'open_request';

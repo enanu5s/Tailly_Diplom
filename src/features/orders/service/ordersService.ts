@@ -1,6 +1,7 @@
 // src/features/orders/service/ordersService.ts
 
 import { ordersApi } from '../api/ordersApi';
+
 import type {
   CreateServiceOrderPayload,
   ServicesFilter,
@@ -16,8 +17,17 @@ export const ordersService = {
   createServiceOrder: (payload: CreateServiceOrderPayload) =>
     ordersApi.createServiceOrder(payload),
 
+  confirmServiceOrder: (orderId: string) =>
+    ordersApi.confirmServiceOrder(orderId),
+
+  startServiceOrder: (orderId: string) =>
+    ordersApi.startServiceOrder(orderId),
+
   completeServiceOrder: (orderId: string) =>
     ordersApi.completeServiceOrder(orderId),
+
+  cancelServiceOrder: (orderId: string) =>
+    ordersApi.cancelServiceOrder(orderId),
 
   getProductOrders: () => ordersApi.getProductOrders(),
 

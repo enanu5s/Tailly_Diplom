@@ -3,16 +3,24 @@
 import { makeAutoObservable, runInAction } from 'mobx';
 
 import { ordersService } from '../service/ordersService';
-import type { ProductOrder, ServiceOrder, ServicesFilter } from './types';
+
+import type {
+  ProductOrder,
+  ServiceOrder,
+  ServicesFilter,
+} from './types';
 
 export class OrdersStore {
   servicesFilter: ServicesFilter = 'all';
   serviceOrders: ServiceOrder[] = [];
   productOrders: ProductOrder[] = [];
+
   servicesLoading = false;
   servicesError: string | null = null;
+
   productsLoading = false;
   productsError: string | null = null;
+
   actionLoadingId: string | null = null;
   actionError: string | null = null;
 
@@ -23,6 +31,22 @@ export class OrdersStore {
   setServicesFilter(value: ServicesFilter): void {
     this.servicesFilter = value;
     void this.loadServices();
+  }
+
+  private updateLocalOrder(
+    orderId: string,
+    patch: Partial<ServiceOrder>,
+  ): void {
+    const index = this.serviceOrders.findIndex((item) => item.id === orderId);
+
+    if (index === -1) {
+      return;
+    }
+
+    this.serviceOrders[index] = {
+      ...this.serviceOrders[index],
+      ...patch,
+    };
   }
 
   async loadServices(): Promise<void> {
@@ -107,6 +131,52 @@ export class OrdersStore {
     }
   }
 
+  async confirmService(orderId: string): Promise<void> {
+    this.actionLoadingId = orderId;
+    this.actionError = null;
+
+    try {
+      await ordersService.confirmServiceOrder(orderId);
+
+      runInAction(() => {
+        this.updateLocalOrder(orderId, {
+          status: 'confirmed',
+          confirmedAt: new Date().toISOString(),
+        });
+        this.actionLoadingId = null;
+      });
+    } catch (error) {
+      runInAction(() => {
+        this.actionError =
+          error instanceof Error ? error.message : 'Не удалось подтвердить заказ';
+        this.actionLoadingId = null;
+      });
+    }
+  }
+
+  async startService(orderId: string): Promise<void> {
+    this.actionLoadingId = orderId;
+    this.actionError = null;
+
+    try {
+      await ordersService.startServiceOrder(orderId);
+
+      runInAction(() => {
+        this.updateLocalOrder(orderId, {
+          status: 'active',
+          startedAt: new Date().toISOString(),
+        });
+        this.actionLoadingId = null;
+      });
+    } catch (error) {
+      runInAction(() => {
+        this.actionError =
+          error instanceof Error ? error.message : 'Не удалось начать заказ';
+        this.actionLoadingId = null;
+      });
+    }
+  }
+
   async completeService(orderId: string): Promise<void> {
     this.actionLoadingId = orderId;
     this.actionError = null;
@@ -115,22 +185,39 @@ export class OrdersStore {
       await ordersService.completeServiceOrder(orderId);
 
       runInAction(() => {
-        const index = this.serviceOrders.findIndex((item) => item.id === orderId);
-
-        if (index >= 0) {
-          this.serviceOrders[index] = {
-            ...this.serviceOrders[index],
-            status: 'completed',
-            completedAt: new Date().toISOString(),
-          };
-        }
-
+        this.updateLocalOrder(orderId, {
+          status: 'completed',
+          completedAt: new Date().toISOString(),
+        });
         this.actionLoadingId = null;
       });
     } catch (error) {
       runInAction(() => {
         this.actionError =
           error instanceof Error ? error.message : 'Не удалось завершить заказ';
+        this.actionLoadingId = null;
+      });
+    }
+  }
+
+  async cancelService(orderId: string): Promise<void> {
+    this.actionLoadingId = orderId;
+    this.actionError = null;
+
+    try {
+      await ordersService.cancelServiceOrder(orderId);
+
+      runInAction(() => {
+        this.updateLocalOrder(orderId, {
+          status: 'canceled',
+          canceledAt: new Date().toISOString(),
+        });
+        this.actionLoadingId = null;
+      });
+    } catch (error) {
+      runInAction(() => {
+        this.actionError =
+          error instanceof Error ? error.message : 'Не удалось отменить заказ';
         this.actionLoadingId = null;
       });
     }
@@ -144,16 +231,10 @@ export class OrdersStore {
       await ordersService.leaveServiceReview(orderId, rating);
 
       runInAction(() => {
-        const index = this.serviceOrders.findIndex((item) => item.id === orderId);
-
-        if (index >= 0) {
-          this.serviceOrders[index] = {
-            ...this.serviceOrders[index],
-            hasReview: true,
-            rating,
-          };
-        }
-
+        this.updateLocalOrder(orderId, {
+          hasReview: true,
+          rating,
+        });
         this.actionLoadingId = null;
       });
     } catch (error) {

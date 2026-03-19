@@ -2,6 +2,10 @@
 
 import type { SpecialistProfileResponse } from '../model/types';
 
+function clone<T>(value: T): T {
+  return JSON.parse(JSON.stringify(value)) as T;
+}
+
 export const MOCK_SPECIALIST_PROFILES: SpecialistProfileResponse[] = [
   {
     id: 'specialist-1',
@@ -25,33 +29,129 @@ export const MOCK_SPECIALIST_PROFILES: SpecialistProfileResponse[] = [
     calendar: {
       timezone: 'Europe/Moscow',
       dayOverrides: [
-        { date: '2026-03-15', status: 'day_off' },
-        { date: '2026-03-18', status: 'fully_booked' },
+        { date: '2026-03-25', status: 'day_off' },
+        { date: '2026-03-28', status: 'fully_booked' },
       ],
       bookedSlots: [
         {
           id: 'booked-1',
-          date: '2026-03-12',
+          date: '2026-03-20',
           startTime: '10:00',
           endTime: '11:00',
-          serviceIds: ['service-1'],
+          serviceIds: ['service-walk-1'],
+          orderId: 'seed-booking-1',
+          bufferAfterMinutes: 15,
         },
         {
           id: 'booked-2',
-          date: '2026-03-12',
-          startTime: '17:00',
-          endTime: '18:00',
-          serviceIds: ['service-3'],
+          date: '2026-03-20',
+          startTime: '14:00',
+          endTime: '15:30',
+          serviceIds: ['service-photo-1'],
+          orderId: 'seed-booking-2',
+          bufferBeforeMinutes: 15,
+          bufferAfterMinutes: 30,
+        },
+        {
+          id: 'booked-3',
+          date: '2026-03-22',
+          startTime: '13:00',
+          endTime: '23:59',
+          serviceIds: ['service-boarding-1'],
+          orderId: 'seed-booking-3',
+        },
+        {
+          id: 'booked-4',
+          date: '2026-03-23',
+          startTime: '00:00',
+          endTime: '11:00',
+          serviceIds: ['service-boarding-1'],
+          orderId: 'seed-booking-3',
         },
       ],
       availabilityWindows: [
         {
           id: 'window-1',
-          date: '2026-03-12',
-          startTime: '19:00',
+          date: '2026-03-20',
+          startTime: '09:00',
           endTime: '21:00',
-          serviceIds: ['service-1', 'service-2'],
-          comment: 'Только вечерние записи',
+          serviceIds: ['service-walk-1', 'service-photo-1', 'service-visit-1'],
+          comment: 'Основное дневное окно',
+        },
+        {
+          id: 'window-2',
+          date: '2026-03-21',
+          startTime: '10:00',
+          endTime: '19:00',
+          serviceIds: ['service-walk-1', 'service-photo-1', 'service-visit-1'],
+        },
+        {
+          id: 'window-3',
+          date: '2026-03-22',
+          startTime: '10:00',
+          endTime: '20:00',
+          serviceIds: ['service-boarding-1', 'service-consult-1'],
+        },
+      ],
+      bookingSettings: {
+        dayStartTime: '09:00',
+        dayEndTime: '21:00',
+        slotStepMinutes: 30,
+        defaultDurationMinutes: 60,
+      },
+      availabilityRules: [
+        {
+          id: 'rule-walk-weekdays',
+          title: 'Прогулки по будням',
+          serviceIds: ['service-walk-1'],
+          startDate: '2026-03-01',
+          startTime: '09:00',
+          endTime: '20:00',
+          recurrence: {
+            frequency: 'weekly',
+            interval: 1,
+            weekDays: [1, 2, 3, 4, 5],
+          },
+          isEnabled: true,
+        },
+        {
+          id: 'rule-photo-weekend',
+          title: 'Фотосессии по выходным',
+          serviceIds: ['service-photo-1'],
+          startDate: '2026-03-01',
+          startTime: '11:00',
+          endTime: '18:00',
+          recurrence: {
+            frequency: 'weekly',
+            interval: 1,
+            weekDays: [0, 6],
+          },
+          isEnabled: true,
+        },
+        {
+          id: 'rule-boarding-daily',
+          title: 'Передержка ежедневно',
+          serviceIds: ['service-boarding-1'],
+          startDate: '2026-03-01',
+          startTime: '09:00',
+          endTime: '21:00',
+          recurrence: {
+            frequency: 'daily',
+            interval: 1,
+          },
+          isEnabled: true,
+        },
+      ],
+      availabilityOverrides: [
+        {
+          id: 'override-1',
+          targetDate: '2026-03-24',
+          editScope: 'single',
+          sourceRuleId: 'rule-walk-weekdays',
+          startTime: '13:00',
+          endTime: '19:00',
+          serviceIds: ['service-walk-1'],
+          comment: 'В этот день прогулки только после обеда',
         },
       ],
     },
@@ -88,72 +188,191 @@ export const MOCK_SPECIALIST_PROFILES: SpecialistProfileResponse[] = [
         imageUrl: '/images/specialists/pets/pet-4.jpg',
         alt: 'Собака клиента на прогулке',
       },
-      {
-        id: 'gallery-5',
-        imageUrl: '/images/specialists/pets/pet-5.jpg',
-        alt: 'Питомец клиента дома у специалиста',
-      },
-      {
-        id: 'gallery-6',
-        imageUrl: '/images/specialists/pets/pet-6.jpg',
-        alt: 'Уход за питомцем клиента',
-      },
     ],
     details: {
-      experienceLabel: '5 лет',
+      experienceLabel: '5 лет опыта ухода за животными',
       experienceDurationValue: 5,
       experienceDurationUnit: 'years',
       housingType: 'apartment',
-      petSizes: ['small', 'medium'],
+      petSizes: ['small', 'medium', 'large'],
       petAges: ['baby', 'young', 'adult', 'senior'],
       hasChildrenUnderTen: 'no',
-      petTypes: ['cat', 'rodent', 'rabbit', 'bird'],
+      petTypes: ['cat', 'dog', 'rodent', 'rabbit'],
       advantages: [
-        { id: 'adv-1', title: 'Отправляет ежедневные фото/видеоотчеты' },
-        { id: 'adv-2', title: 'Соблюдает рекомендации по режиму и питанию' },
-        { id: 'adv-3', title: 'Есть опыт с тревожными питомцами' },
+        { id: 'adv-1', title: 'Ежедневные фотоотчёты' },
+        { id: 'adv-2', title: 'Опыт с тревожными питомцами' },
+        { id: 'adv-3', title: 'Гибкий график записи' },
       ],
-      about: `Меня зовут Мария, и вот уже 5 лет я с радостью забочусь о домашних питомцах.
-В моей квартире созданы все условия для комфортного проживания кошек, грызунов и кроликов — просторные клетки, уютные уголки для отдыха и много игрушек.
-
-Я прекрасно понимаю, как важно для хозяев знать, что их любимец в безопасности. Поэтому отправляю ежедневные фото- и видеоотчёты, а также строго соблюдаю все ваши рекомендации по питанию и режиму.
-
-Почему мне можно доверять?
-Опыт работы с разными животными, включая пугливых и тревожных
-Умение распознавать потребности питомцев
-Чистота и порядок в доме
-Готовность к экстренным ситуациям (знаю основы первой помощи)
-
-Для меня важно, чтобы каждый подопечный чувствовал себя как дома. Буду рада познакомиться с вашим питомцем!`,
+      about:
+        'Люблю животных, умею находить подход к тревожным питомцам, строго соблюдаю рекомендации владельцев и всегда остаюсь на связи.',
     },
     services: [
       {
-        id: 'service-1',
-        name: 'Передержка кошек',
-        locationLabel: 'У специалиста дома',
+        id: 'service-walk-1',
+        name: 'Прогулка с собакой',
+        locationLabel: 'На улице рядом с домом клиента',
         price: 900,
-        priceUnit: 'day',
+        priceUnit: 'walk',
+        bookingPolicy: {
+          mode: 'fixed_slot',
+          duration: {
+            defaultDurationMinutes: 60,
+            minDurationMinutes: 30,
+            maxDurationMinutes: 90,
+            durationStepMinutes: 30,
+          },
+          buffer: {
+            hasBufferBefore: false,
+            bufferBeforeMinutes: 0,
+            hasBufferAfter: true,
+            bufferAfterMinutes: 15,
+          },
+          compatibility: {
+            canOverlapWithOtherServices: false,
+            compatibleServiceIds: [],
+          },
+          advance: {
+            minAdvanceMinutes: 120,
+            maxAdvanceDays: 30,
+          },
+          allowsClientComment: true,
+          requiresSpecialistConfirmation: true,
+        },
       },
       {
-        id: 'service-2',
-        name: 'Передержка кроликов и грызунов',
-        locationLabel: 'У специалиста дома',
-        price: 700,
-        priceUnit: 'day',
-      },
-      {
-        id: 'service-3',
-        name: 'Присмотр на дому у клиента',
-        locationLabel: 'У клиента',
-        price: 1200,
-        priceUnit: 'visit',
-      },
-      {
-        id: 'service-4',
-        name: 'Консультация перед первым заказом',
-        locationLabel: 'Онлайн',
-        price: 0,
+        id: 'service-photo-1',
+        name: 'Фотосессия питомца',
+        locationLabel: 'На прогулке или дома у клиента',
+        price: 2500,
         priceUnit: 'service',
+        bookingPolicy: {
+          mode: 'time_range',
+          duration: {
+            defaultDurationMinutes: 90,
+            minDurationMinutes: 60,
+            maxDurationMinutes: 180,
+            durationStepMinutes: 30,
+          },
+          buffer: {
+            hasBufferBefore: true,
+            bufferBeforeMinutes: 15,
+            hasBufferAfter: true,
+            bufferAfterMinutes: 30,
+          },
+          compatibility: {
+            canOverlapWithOtherServices: false,
+            compatibleServiceIds: [],
+          },
+          advance: {
+            minAdvanceMinutes: 1440,
+            maxAdvanceDays: 45,
+          },
+          allowsClientComment: true,
+          requiresSpecialistConfirmation: true,
+        },
+      },
+      {
+        id: 'service-boarding-1',
+        name: 'Передержка у специалиста',
+        locationLabel: 'У специалиста дома',
+        price: 1200,
+        priceUnit: 'day',
+        bookingPolicy: {
+          mode: 'multi_day_stay',
+          duration: {
+            defaultDurationMinutes: 0,
+            minDurationMinutes: 0,
+            maxDurationMinutes: 0,
+            durationStepMinutes: 0,
+          },
+          buffer: {
+            hasBufferBefore: false,
+            bufferBeforeMinutes: 0,
+            hasBufferAfter: false,
+            bufferAfterMinutes: 0,
+          },
+          compatibility: {
+            canOverlapWithOtherServices: true,
+            compatibleServiceIds: ['service-consult-1'],
+          },
+          advance: {
+            minAdvanceMinutes: 1440,
+            maxAdvanceDays: 90,
+          },
+          multiDay: {
+            allowsMultiDayBooking: true,
+            minStayDays: 1,
+            maxStayDays: 30,
+            checkInTime: '13:00',
+            checkOutTime: '11:00',
+          },
+          allowsClientComment: true,
+          requiresSpecialistConfirmation: true,
+        },
+      },
+      {
+        id: 'service-visit-1',
+        name: 'Визит на дом',
+        locationLabel: 'У клиента',
+        price: 1300,
+        priceUnit: 'visit',
+        bookingPolicy: {
+          mode: 'fixed_slot',
+          duration: {
+            defaultDurationMinutes: 60,
+            minDurationMinutes: 30,
+            maxDurationMinutes: 120,
+            durationStepMinutes: 30,
+          },
+          buffer: {
+            hasBufferBefore: false,
+            bufferBeforeMinutes: 0,
+            hasBufferAfter: true,
+            bufferAfterMinutes: 15,
+          },
+          compatibility: {
+            canOverlapWithOtherServices: false,
+            compatibleServiceIds: [],
+          },
+          advance: {
+            minAdvanceMinutes: 180,
+            maxAdvanceDays: 21,
+          },
+          allowsClientComment: true,
+          requiresSpecialistConfirmation: true,
+        },
+      },
+      {
+        id: 'service-consult-1',
+        name: 'Онлайн-консультация',
+        locationLabel: 'Онлайн',
+        price: 700,
+        priceUnit: 'service',
+        bookingPolicy: {
+          mode: 'open_request',
+          duration: {
+            defaultDurationMinutes: 30,
+            minDurationMinutes: 30,
+            maxDurationMinutes: 60,
+            durationStepMinutes: 30,
+          },
+          buffer: {
+            hasBufferBefore: false,
+            bufferBeforeMinutes: 0,
+            hasBufferAfter: false,
+            bufferAfterMinutes: 0,
+          },
+          compatibility: {
+            canOverlapWithOtherServices: true,
+            compatibleServiceIds: ['service-boarding-1'],
+          },
+          advance: {
+            minAdvanceMinutes: 60,
+            maxAdvanceDays: 30,
+          },
+          allowsClientComment: true,
+          requiresSpecialistConfirmation: true,
+        },
       },
     ],
     reviews: [
@@ -162,10 +381,10 @@ export const MOCK_SPECIALIST_PROFILES: SpecialistProfileResponse[] = [
         authorName: 'Анна',
         petName: 'Марта',
         rating: 5,
-        createdAt: '2026-02-18',
-        text: 'Оставляла у Марии кошку на неделю. Каждый день получала фото и видео, кошка быстро адаптировалась и чувствовала себя спокойно.',
+        createdAt: '2026-02-19',
+        text: 'Очень тёплый и бережный подход. Кошка быстро привыкла, отчёты были каждый день.',
         specialistReply: {
-          text: 'Анна, спасибо большое за доверие. Марта очень ласковая и аккуратная кошка, с ней было приятно проводить время.',
+          text: 'Анна, спасибо большое за доверие. Марта чудесная.',
           createdAt: '2026-02-19',
         },
       },
@@ -175,7 +394,7 @@ export const MOCK_SPECIALIST_PROFILES: SpecialistProfileResponse[] = [
         petName: 'Пушок',
         rating: 5,
         createdAt: '2026-02-10',
-        text: 'Очень понравился подход. Всё чётко по рекомендациям, всегда на связи, видно, что человек реально любит животных.',
+        text: 'Очень понравился подход. Всё чётко по рекомендациям, всегда на связи.',
       },
       {
         id: 'review-3',
@@ -183,27 +402,11 @@ export const MOCK_SPECIALIST_PROFILES: SpecialistProfileResponse[] = [
         petName: 'Снежок',
         rating: 5,
         createdAt: '2026-01-27',
-        text: 'Передержка прошла идеально. Кролик был в хорошем настроении, место чистое, рекомендации соблюдены полностью.',
+        text: 'Передержка прошла идеально. Место чистое, рекомендации соблюдены полностью.',
         specialistReply: {
-          text: 'Елена, спасибо. Снежок чудесный, буду рада помочь снова.',
+          text: 'Елена, спасибо. Буду рада помочь снова.',
           createdAt: '2026-01-28',
         },
-      },
-      {
-        id: 'review-4',
-        authorName: 'Ольга',
-        petName: 'Тиша',
-        rating: 5,
-        createdAt: '2026-01-12',
-        text: 'Спокойный и внимательный специалист. Мне было важно получать ежедневные отчёты, и Мария это делала без напоминаний.',
-      },
-      {
-        id: 'review-5',
-        authorName: 'Дмитрий',
-        petName: 'Ричи',
-        rating: 5,
-        createdAt: '2025-12-22',
-        text: 'Очень комфортный опыт. Видно, что специалист умеет работать даже с тревожными животными.',
       },
     ],
   },
@@ -218,7 +421,7 @@ export function delay(ms = 350): Promise<void> {
 export function cloneProfile(
   profile: SpecialistProfileResponse,
 ): SpecialistProfileResponse {
-  return JSON.parse(JSON.stringify(profile)) as SpecialistProfileResponse;
+  return clone(profile);
 }
 
 export function normalizeProfileKey(value: string): string {

@@ -42,6 +42,22 @@ export type SpecialistServicePriceUnit =
 
 export type SpecialistExperienceUnit = 'years' | 'months';
 
+export type SpecialistBookingMode =
+  | 'fixed_slot'
+  | 'time_range'
+  | 'multi_day_stay'
+  | 'open_request';
+
+export type SpecialistRecurrenceFrequency =
+  | 'daily'
+  | 'weekly'
+  | 'every_n_days'
+  | 'every_n_weeks';
+
+export type SpecialistOccurrenceEditScope =
+  | 'single'
+  | 'this_and_future';
+
 export type SpecialistMainInfo = {
   avatarUrl?: string;
   firstName: string;
@@ -71,12 +87,67 @@ export type SpecialistCalendarDayOverride = {
   status: Exclude<SpecialistCalendarDayStatus, 'partially_booked'>;
 };
 
+export type SpecialistServiceDurationPolicy = {
+  defaultDurationMinutes?: number;
+  minDurationMinutes?: number;
+  maxDurationMinutes?: number;
+  durationStepMinutes?: number;
+};
+
+export type SpecialistServiceBufferPolicy = {
+  hasBufferBefore: boolean;
+  bufferBeforeMinutes: number;
+  hasBufferAfter: boolean;
+  bufferAfterMinutes: number;
+};
+
+export type SpecialistServiceCompatibilityPolicy = {
+  canOverlapWithOtherServices: boolean;
+  compatibleServiceIds: string[];
+};
+
+export type SpecialistServiceAdvancePolicy = {
+  minAdvanceMinutes?: number;
+  maxAdvanceDays?: number;
+};
+
+export type SpecialistServiceMultiDayPolicy = {
+  allowsMultiDayBooking: boolean;
+  minStayDays?: number;
+  maxStayDays?: number;
+  checkInTime?: string;
+  checkOutTime?: string;
+};
+
+export type SpecialistServiceBookingPolicy = {
+  mode: SpecialistBookingMode;
+  duration: SpecialistServiceDurationPolicy;
+  buffer: SpecialistServiceBufferPolicy;
+  compatibility: SpecialistServiceCompatibilityPolicy;
+  advance: SpecialistServiceAdvancePolicy;
+  multiDay?: SpecialistServiceMultiDayPolicy;
+  allowsClientComment: boolean;
+  requiresSpecialistConfirmation: boolean;
+};
+
+export type SpecialistService = {
+  id: string;
+  name: string;
+  locationLabel: string;
+  price: number;
+  priceUnit: SpecialistServicePriceUnit;
+  bookingPolicy?: SpecialistServiceBookingPolicy;
+};
+
 export type SpecialistCalendarBookedSlot = {
   id: string;
   date: string;
   startTime: string;
   endTime: string;
   serviceIds: string[];
+  orderId?: string;
+  bufferBeforeMinutes?: number;
+  bufferAfterMinutes?: number;
 };
 
 export type SpecialistCalendarAvailabilityWindow = {
@@ -95,12 +166,47 @@ export type SpecialistCalendarBookingSettings = {
   defaultDurationMinutes: number;
 };
 
+export type SpecialistAvailabilityRecurrenceRule = {
+  frequency: SpecialistRecurrenceFrequency;
+  interval: number;
+  weekDays?: number[];
+  occurrencesCount?: number;
+  untilDate?: string;
+};
+
+export type SpecialistCalendarAvailabilityRule = {
+  id: string;
+  title: string;
+  serviceIds: string[];
+  startDate: string;
+  endDate?: string;
+  startTime: string;
+  endTime: string;
+  recurrence?: SpecialistAvailabilityRecurrenceRule;
+  isEnabled: boolean;
+  comment?: string;
+};
+
+export type SpecialistCalendarAvailabilityOverride = {
+  id: string;
+  targetDate: string;
+  editScope: SpecialistOccurrenceEditScope;
+  sourceRuleId?: string;
+  serviceIds?: string[];
+  startTime?: string;
+  endTime?: string;
+  removeAvailability?: boolean;
+  comment?: string;
+};
+
 export type SpecialistCalendar = {
   timezone: string;
   dayOverrides: SpecialistCalendarDayOverride[];
   bookedSlots: SpecialistCalendarBookedSlot[];
   availabilityWindows: SpecialistCalendarAvailabilityWindow[];
   bookingSettings?: SpecialistCalendarBookingSettings;
+  availabilityRules?: SpecialistCalendarAvailabilityRule[];
+  availabilityOverrides?: SpecialistCalendarAvailabilityOverride[];
 };
 
 export type SpecialistGalleryItem = {
@@ -112,14 +218,6 @@ export type SpecialistGalleryItem = {
 export type SpecialistAdvantage = {
   id: string;
   title: string;
-};
-
-export type SpecialistService = {
-  id: string;
-  name: string;
-  locationLabel: string;
-  price: number;
-  priceUnit: SpecialistServicePriceUnit;
 };
 
 export type SpecialistReviewReply = {
@@ -181,6 +279,7 @@ export type SpecialistServiceUpdateItem = {
   locationLabel: string;
   price: number;
   priceUnit: SpecialistServicePriceUnit;
+  bookingPolicy?: SpecialistServiceBookingPolicy;
 };
 
 export type SpecialistDetailsUpdatePayload = {
@@ -203,6 +302,8 @@ export type SpecialistCalendarUpdatePayload = {
   dayOverrides: SpecialistCalendarDayOverride[];
   availabilityWindows: SpecialistCalendarAvailabilityWindow[];
   bookingSettings: SpecialistCalendarBookingSettings;
+  availabilityRules?: SpecialistCalendarAvailabilityRule[];
+  availabilityOverrides?: SpecialistCalendarAvailabilityOverride[];
 };
 
 export type SpecialistReviewReplyUpsertPayload = {
