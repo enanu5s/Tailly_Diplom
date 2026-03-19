@@ -1,48 +1,44 @@
 // src/features/messages/ui/MessagesSection.tsx
-import { observer } from 'mobx-react-lite';
-import { useEffect, useMemo, useRef } from 'react';
-import {
-  useLocation,
-  useNavigate,
-  useSearchParams,
-} from 'react-router-dom';
+import { observer } from "mobx-react-lite";
+import { useEffect, useMemo, useRef } from "react";
+import { useLocation, useNavigate, useSearchParams } from "react-router-dom";
 
-import { useAuth } from '@/features/auth/model/useAuth';
+import { useAuth } from "@/features/auth/model/useAuth";
 
-import { getMessagesViewerFromUser } from '../model/messagesViewer';
-import { messagesStore } from '../model/messagesStore';
-import type { ChatMessage } from '../model/types';
+import { getMessagesViewerFromUser } from "../model/messagesViewer";
+import { messagesStore } from "../model/messagesStore";
+import type { ChatMessage } from "../model/types";
 
-import styles from './MessagesSection.module.css';
+import styles from "./MessagesSection.module.css";
 
 function formatTime(value: string): string {
   const date = new Date(value);
 
   if (Number.isNaN(date.getTime())) {
-    return '';
+    return "";
   }
 
-  return new Intl.DateTimeFormat('ru-RU', {
-    hour: '2-digit',
-    minute: '2-digit',
+  return new Intl.DateTimeFormat("ru-RU", {
+    hour: "2-digit",
+    minute: "2-digit",
   }).format(date);
 }
 
 function isAdminViewerRole(role: string): boolean {
-  return role === 'admin' || role === 'super_admin';
+  return role === "admin" || role === "super_admin";
 }
 
 function getReadKeyForViewer(
   viewer: ReturnType<typeof getMessagesViewerFromUser>,
 ): string {
-  return isAdminViewerRole(viewer.role) ? 'support-team' : viewer.userId;
+  return isAdminViewerRole(viewer.role) ? "support-team" : viewer.userId;
 }
 
 function isOwnMessageForViewer(
   message: ChatMessage,
   viewer: ReturnType<typeof getMessagesViewerFromUser>,
 ): boolean {
-  if (message.authorRole === 'support') {
+  if (message.authorRole === "support") {
     return isAdminViewerRole(viewer.role);
   }
 
@@ -87,11 +83,11 @@ export const MessagesSection = observer(() => {
   const viewer = useMemo(() => getMessagesViewerFromUser(user), [user]);
 
   const specialistIntent = useMemo(() => {
-    const specialistId = searchParams.get('specialistId')?.trim() ?? '';
-    const specialistSlug = searchParams.get('specialistSlug')?.trim() ?? '';
-    const specialistName = searchParams.get('specialistName')?.trim() ?? '';
+    const specialistId = searchParams.get("specialistId")?.trim() ?? "";
+    const specialistSlug = searchParams.get("specialistSlug")?.trim() ?? "";
+    const specialistName = searchParams.get("specialistName")?.trim() ?? "";
     const specialistAvatarUrl =
-      searchParams.get('specialistAvatarUrl')?.trim() ?? '';
+      searchParams.get("specialistAvatarUrl")?.trim() ?? "";
 
     if (!specialistId || !specialistSlug || !specialistName) {
       return null;
@@ -137,8 +133,14 @@ export const MessagesSection = observer(() => {
       });
   }, [location.pathname, navigate, specialistIntent, viewer]);
 
-  const { threads, activeThread, activeMessages, loading, error, draftMessage } =
-    messagesStore;
+  const {
+    threads,
+    activeThread,
+    activeMessages,
+    loading,
+    error,
+    draftMessage,
+  } = messagesStore;
 
   const unreadMessageIds = useMemo(() => {
     return activeMessages
@@ -178,7 +180,8 @@ export const MessagesSection = observer(() => {
       const firstUnreadId = firstUnreadMessageIdRef.current;
 
       if (firstUnreadId) {
-        const firstUnreadElement = messageElementsRef.current.get(firstUnreadId);
+        const firstUnreadElement =
+          messageElementsRef.current.get(firstUnreadId);
 
         if (firstUnreadElement) {
           const targetTop = firstUnreadElement.offsetTop - 16;
@@ -252,7 +255,9 @@ export const MessagesSection = observer(() => {
             return;
           }
 
-          const messageId = entry.target.getAttribute('data-message-id')?.trim();
+          const messageId = entry.target
+            .getAttribute("data-message-id")
+            ?.trim();
 
           if (!messageId) {
             return;
@@ -354,11 +359,13 @@ export const MessagesSection = observer(() => {
 
                 <div className={styles.threadBottomRow}>
                   <span className={styles.threadPreview}>
-                    {thread.lastMessagePreview || 'Сообщений пока нет'}
+                    {thread.lastMessagePreview || "Сообщений пока нет"}
                   </span>
 
                   {hasUnread ? (
-                    <span className={styles.unreadBadge}>{thread.unreadCount}</span>
+                    <span className={styles.unreadBadge}>
+                      {thread.unreadCount}
+                    </span>
                   ) : null}
                 </div>
               </button>
@@ -374,9 +381,9 @@ export const MessagesSection = observer(() => {
               <div>
                 <h2 className={styles.chatTitle}>{activeThread.title}</h2>
                 <p className={styles.chatSubtitle}>
-                  {activeThread.kind === 'support'
-                    ? 'Чат поддержки'
-                    : 'Личный чат'}
+                  {activeThread.kind === "support"
+                    ? "Чат поддержки"
+                    : "Личный чат"}
                 </p>
               </div>
             </header>
@@ -388,8 +395,8 @@ export const MessagesSection = observer(() => {
                   const isUnread = isUnreadMessageForViewer(message, viewer);
 
                   const shouldShowSupportAgentName =
-                    activeThread.kind === 'support' &&
-                    message.authorRole === 'support' &&
+                    activeThread.kind === "support" &&
+                    message.authorRole === "support" &&
                     Boolean(message.authorSupportAgentName);
 
                   return (
@@ -456,7 +463,11 @@ export const MessagesSection = observer(() => {
               />
 
               <div className={styles.composerFooter}>
-                {error ? <span className={styles.error}>{error}</span> : <span />}
+                {error ? (
+                  <span className={styles.error}>{error}</span>
+                ) : (
+                  <span />
+                )}
                 <button
                   type="submit"
                   className={styles.sendButton}
@@ -471,7 +482,8 @@ export const MessagesSection = observer(() => {
           <div className={styles.emptyState}>
             <h2 className={styles.emptyTitle}>Выберите чат</h2>
             <p className={styles.emptyText}>
-              Здесь будут отображаться ваши диалоги с поддержкой и пользователями.
+              Здесь будут отображаться ваши диалоги с поддержкой и
+              пользователями.
             </p>
           </div>
         )}

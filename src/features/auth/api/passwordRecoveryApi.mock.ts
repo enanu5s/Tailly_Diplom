@@ -129,7 +129,9 @@ export const passwordRecoveryMockApi = {
     }
 
     if (session.code !== payload.code) {
-      throw new PasswordRecoveryError('Неверный код');
+      throw new PasswordRecoveryError(
+        `Неверный код. Тестовый код: ${session.code}`,
+      );
     }
   },
 
