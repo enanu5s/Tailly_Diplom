@@ -1,38 +1,87 @@
-//src/features/orders/model/types.ts
+// src/features/orders/model/types.ts
+
 export type OrderStatus = 'upcoming' | 'active' | 'completed' | 'canceled';
 
-export type ServicesFilter = 'all' | 'upcoming' | 'active' | 'completed' | 'canceled';
+export type ServicesFilter =
+  | 'all'
+  | 'upcoming'
+  | 'active'
+  | 'completed'
+  | 'canceled';
+
+export type ServicePriceUnit =
+  | 'hour'
+  | 'day'
+  | 'service'
+  | 'walk'
+  | 'visit';
 
 export type ServiceOrder = {
   id: string;
-  dateFrom: string; // ISO
-  dateTo?: string;  // ISO (опционально)
+  createdAt: string;
+  completedAt?: string;
+  dateFrom: string;
+  dateTo?: string;
   petId: string;
   petName: string;
   sitterId: string;
   sitterName: string;
+  specialistSlug: string;
   status: OrderStatus;
+  serviceId: string;
   serviceTitle: string;
-
+  servicePriceUnit: ServicePriceUnit;
+  locationLabel: string;
+  comment?: string;
   price: number;
   currency: 'RUB';
-
-  rating?: number;     // 1..5 если есть
-  hasReview: boolean;  // оставлен ли отзыв
+  rating?: number;
+  hasReview: boolean;
 };
 
-export type ProductOrderStatus = 'created' | 'paid' | 'shipped' | 'delivered' | 'canceled';
+export type CreateServiceOrderPayload = {
+  dateFrom: string;
+  dateTo?: string;
+  petId: string;
+  petName: string;
+  sitterId: string;
+  sitterName: string;
+  specialistSlug: string;
+  serviceId: string;
+  serviceTitle: string;
+  servicePriceUnit: ServicePriceUnit;
+  locationLabel: string;
+  comment?: string;
+  price: number;
+  currency: 'RUB';
+};
+
+export type ProductOrderStatus =
+  | 'created'
+  | 'paid'
+  | 'shipped'
+  | 'delivered'
+  | 'canceled';
 
 export type ProductOrder = {
-  id: string;          // внутренний id
-  number: string;      // номер заказа (например "№ 10239")
+  id: string;
+  number: string;
   status: ProductOrderStatus;
-  createdAt: string;   // ISO
+  createdAt: string;
   price: number;
   currency: 'RUB';
   itemsCount: number;
-  productThumbs: string[]; // "/images/..."
+  productThumbs: string[];
 };
 
-export type RepeatResult = { ok: true };
-export type ReviewResult = { ok: true };
+export type RepeatResult = {
+  ok: true;
+};
+
+export type ReviewResult = {
+  ok: true;
+};
+
+export type CompleteOrderResult = {
+  ok: true;
+};

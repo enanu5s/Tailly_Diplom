@@ -1,22 +1,18 @@
-//src/features/orders/model/ordersStore.ts
+// src/features/orders/model/ordersStore.ts
+
 import { makeAutoObservable, runInAction } from 'mobx';
 
 import { ordersService } from '../service/ordersService';
-
 import type { ProductOrder, ServiceOrder, ServicesFilter } from './types';
 
 export class OrdersStore {
   servicesFilter: ServicesFilter = 'all';
-
   serviceOrders: ServiceOrder[] = [];
   productOrders: ProductOrder[] = [];
-
   servicesLoading = false;
   servicesError: string | null = null;
-
   productsLoading = false;
   productsError: string | null = null;
-
   actionLoadingId: string | null = null;
   actionError: string | null = null;
 
@@ -24,89 +20,146 @@ export class OrdersStore {
     makeAutoObservable(this);
   }
 
-  setServicesFilter(v: ServicesFilter) {
-    this.servicesFilter = v;
+  setServicesFilter(value: ServicesFilter): void {
+    this.servicesFilter = value;
+    void this.loadServices();
   }
 
-  async loadServices() {
+  async loadServices(): Promise<void> {
     this.servicesLoading = true;
     this.servicesError = null;
+
     try {
       const list = await ordersService.getServiceOrders(this.servicesFilter);
+
       runInAction(() => {
         this.serviceOrders = list;
         this.servicesLoading = false;
       });
-    } catch (e) {
+    } catch (error) {
       runInAction(() => {
-        this.servicesError = e instanceof Error ? e.message : 'Не удалось загрузить заказы услуг';
+        this.servicesError =
+          error instanceof Error
+            ? error.message
+            : 'Не удалось загрузить заказы услуг';
         this.servicesLoading = false;
       });
     }
   }
 
-  async loadProducts() {
+  async loadProducts(): Promise<void> {
     this.productsLoading = true;
     this.productsError = null;
+
     try {
       const list = await ordersService.getProductOrders();
+
       runInAction(() => {
         this.productOrders = list;
         this.productsLoading = false;
       });
-    } catch (e) {
+    } catch (error) {
       runInAction(() => {
-        this.productsError = e instanceof Error ? e.message : 'Не удалось загрузить заказы товаров';
+        this.productsError =
+          error instanceof Error
+            ? error.message
+            : 'Не удалось загрузить заказы товаров';
         this.productsLoading = false;
       });
     }
   }
 
-  async repeatService(orderId: string) {
+  async repeatService(orderId: string): Promise<void> {
     this.actionLoadingId = orderId;
     this.actionError = null;
+
     try {
       await ordersService.repeatServiceOrder(orderId);
+
       runInAction(() => {
         this.actionLoadingId = null;
       });
-    } catch (e) {
+    } catch (error) {
       runInAction(() => {
-        this.actionError = e instanceof Error ? e.message : 'Не удалось повторить заказ';
+        this.actionError =
+          error instanceof Error ? error.message : 'Не удалось повторить заказ';
         this.actionLoadingId = null;
       });
     }
   }
 
-  async repeatProduct(orderId: string) {
+  async repeatProduct(orderId: string): Promise<void> {
     this.actionLoadingId = orderId;
     this.actionError = null;
+
     try {
       await ordersService.repeatProductOrder(orderId);
+
       runInAction(() => {
         this.actionLoadingId = null;
       });
-    } catch (e) {
+    } catch (error) {
       runInAction(() => {
-        this.actionError = e instanceof Error ? e.message : 'Не удалось повторить заказ';
+        this.actionError =
+          error instanceof Error ? error.message : 'Не удалось повторить заказ';
         this.actionLoadingId = null;
       });
     }
   }
 
-  async leaveReview(orderId: string, rating: number) {
+  async completeService(orderId: string): Promise<void> {
     this.actionLoadingId = orderId;
     this.actionError = null;
+
     try {
-      await ordersService.leaveServiceReview(orderId, rating);
+      await ordersService.completeServiceOrder(orderId);
+
       runInAction(() => {
-        const idx = this.serviceOrders.findIndex((x) => x.id === orderId);
-        if (idx >= 0) this.serviceOrders[idx] = { ...this.serviceOrders[idx], hasReview: true, rating };
+        const index = this.serviceOrders.findIndex((item) => item.id === orderId);
+
+        if (index >= 0) {
+          this.serviceOrders[index] = {
+            ...this.serviceOrders[index],
+            status: 'completed',
+            completedAt: new Date().toISOString(),
+          };
+        }
+
         this.actionLoadingId = null;
       });
-    } catch (e) {
+    } catch (error) {
       runInAction(() => {
-        this.actionError = e instanceof Error ? e.message : 'Не удалось отправить отзыв';
+        this.actionError =
+          error instanceof Error ? error.message : 'Не удалось завершить заказ';
+        this.actionLoadingId = null;
+      });
+    }
+  }
+
+  async leaveReview(orderId: string, rating: number): Promise<void> {
+    this.actionLoadingId = orderId;
+    this.actionError = null;
+
+    try {
+      await ordersService.leaveServiceReview(orderId, rating);
+
+      runInAction(() => {
+        const index = this.serviceOrders.findIndex((item) => item.id === orderId);
+
+        if (index >= 0) {
+          this.serviceOrders[index] = {
+            ...this.serviceOrders[index],
+            hasReview: true,
+            rating,
+          };
+        }
+
+        this.actionLoadingId = null;
+      });
+    } catch (error) {
+      runInAction(() => {
+        this.actionError =
+          error instanceof Error ? error.message : 'Не удалось отправить отзыв';
         this.actionLoadingId = null;
       });
     }

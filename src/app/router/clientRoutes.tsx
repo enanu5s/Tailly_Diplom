@@ -1,14 +1,19 @@
 // src/app/router/clientRoutes.tsx
+
 import { lazy } from 'react';
+
 import { ClientRouteGuard } from '@/app/router/ClientRouteGuard';
 import { ProtectedRoute } from '@/app/router/ProtectedRoute';
 import { SpecialistOwnerRouteGuard } from '@/app/router/SpecialistOwnerRouteGuard';
+
 import { withSuspense } from './withSuspense';
 
 import type { RouteObject } from 'react-router-dom';
 
 const ProfilePage = lazy(() =>
-  import('@/pages/profile').then((module) => ({ default: module.ProfilePage })),
+  import('@/pages/profile').then((module) => ({
+    default: module.ProfilePage,
+  })),
 );
 
 const ChangeEmailPage = lazy(() =>
@@ -26,6 +31,12 @@ const ChangePasswordPage = lazy(() =>
 const LeaveReviewPage = lazy(() =>
   import('@/pages/leave-review').then((module) => ({
     default: module.LeaveReviewPage,
+  })),
+);
+
+const ServiceBookingPage = lazy(() =>
+  import('@/pages/service-booking/ui/ServiceBookingPage').then((module) => ({
+    default: module.ServiceBookingPage,
   })),
 );
 
@@ -69,6 +80,10 @@ export const clientRoutes: RouteObject[] = [
       {
         path: '/profile/review/:orderId',
         element: withSuspense(<LeaveReviewPage />),
+      },
+      {
+        path: '/orders/create',
+        element: withSuspense(<ServiceBookingPage />),
       },
     ],
   },

@@ -1,68 +1,71 @@
+/* src/features/orders/ui/OrdersServicesSection.module.css */
+
 .card {
-  background: #fff;
   border-radius: 18px;
-  border: 1px solid rgba(17, 24, 39, 0.08);
-  box-shadow: 0 10px 30px rgba(17, 24, 39, 0.08);
-  padding: 16px;
+  background: #ffffff;
+  box-shadow: 0 12px 30px rgba(17, 24, 39, 0.08);
+  padding: 20px;
 }
 
 .headerRow {
   display: flex;
-  flex-direction: column;
-  gap: 12px;
-  margin-bottom: 12px;
+  justify-content: space-between;
+  gap: 16px;
+  align-items: flex-start;
+  flex-wrap: wrap;
+  margin-bottom: 16px;
 }
 
 .title {
   margin: 0;
-  font-size: 18px;
+  font-size: 24px;
+  line-height: 1.2;
   color: #111827;
 }
 
 .filters {
   display: flex;
-  gap: 8px;
   flex-wrap: wrap;
+  gap: 8px;
 }
 
 .filterBtn,
 .filterActive {
-  height: 36px;
-  padding: 0 12px;
-  border-radius: 12px;
-  border: 1px solid rgba(17, 24, 39, 0.12);
-  background: #fff;
+  height: 38px;
+  padding: 0 14px;
+  border-radius: 999px;
+  border: 1px solid rgba(17, 24, 39, 0.1);
+  background: #ffffff;
   cursor: pointer;
+  transition:
+    background-color 0.2s ease,
+    color 0.2s ease,
+    border-color 0.2s ease;
 }
 
 .filterActive {
-  border-color: rgba(99, 102, 241, 0.45);
-  box-shadow: 0 10px 28px rgba(99, 102, 241, 0.18);
+  background: #6366f1;
+  border-color: #6366f1;
+  color: #ffffff;
 }
 
 .list {
   display: flex;
   flex-direction: column;
-  gap: 12px;
-  margin-top: 14px;
-
-  /* прокрутка внутри блока */
-  overflow-y: auto;
-
-  /* высота = примерно 4 карточки (подгони под свой дизайн) */
-  max-height: 520px;
-
-  /* чтобы скролл не упирался в края */
-  padding-right: 6px;
+  gap: 14px;
 }
 
 .order {
   display: grid;
-  grid-template-columns: 1fr 220px;
-  gap: 14px;
+  grid-template-columns: 1fr 240px;
+  gap: 16px;
   border-radius: 16px;
   border: 1px solid rgba(17, 24, 39, 0.08);
-  padding: 14px;
+  padding: 16px;
+}
+
+.left {
+  min-width: 0;
 }
 
 .right {
@@ -72,10 +75,17 @@
   align-items: stretch;
 }
 
+.serviceTitle {
+  margin: 0 0 8px;
+  font-size: 18px;
+  line-height: 1.2;
+  color: #111827;
+}
+
 .date {
   font-size: 14px;
   color: rgba(17, 24, 39, 0.85);
-  margin-bottom: 8px;
+  margin-bottom: 10px;
 }
 
 .row {
@@ -86,9 +96,16 @@
 }
 
 .label {
-  font-size: 12px;
-  color: rgba(17, 24, 39, 0.6);
-  min-width: 74px;
+  min-width: 96px;
+  font-size: 13px;
+  color: rgba(17, 24, 39, 0.55);
+}
+
+.metaText,
+.status,
+.stars {
+  color: #111827;
+  word-break: break-word;
 }
 
 .linkBtn {
@@ -97,45 +114,41 @@
   padding: 0;
   cursor: pointer;
   color: #6366f1;
-  text-decoration: underline;
-}
-
-.status {
-  color: rgba(17, 24, 39, 0.85);
-}
-
-.stars {
-  color: rgba(17, 24, 39, 0.8);
-  letter-spacing: 1px;
+  font: inherit;
+  text-align: left;
 }
 
 .price {
-  font-size: 16px;
+  font-size: 20px;
+  font-weight: 700;
   color: #111827;
-  font-weight: 600;
+  text-align: right;
+  margin-bottom: 6px;
+}
+
+.primaryBtn,
+.secondaryBtn,
+.thanksBtn {
+  height: 44px;
+  border-radius: 14px;
+  font: inherit;
 }
 
 .primaryBtn {
-  height: 44px;
-  border-radius: 14px;
   border: none;
-  cursor: pointer;
   background: #6366f1;
-  color: #fff;
+  color: #ffffff;
+  cursor: pointer;
   box-shadow: 0 10px 28px rgba(99, 102, 241, 0.35);
 }
 
 .secondaryBtn {
-  height: 44px;
-  border-radius: 14px;
   border: 1px solid rgba(17, 24, 39, 0.12);
-  background: #fff;
+  background: #ffffff;
   cursor: pointer;
 }
 
 .thanksBtn {
-  height: 44px;
-  border-radius: 14px;
   border: 1px solid rgba(16, 185, 129, 0.35);
   background: rgba(16, 185, 129, 0.08);
   color: #065f46;
@@ -157,20 +170,18 @@
 }
 
 .state {
-  padding: 10px 12px;
+  padding: 12px 14px;
   border-radius: 12px;
   background: rgba(17, 24, 39, 0.06);
   color: rgba(17, 24, 39, 0.75);
 }
 
-.serviceTitle {
-  margin-top: 6px;
-  font-size: 14px;
-  color: #111827;
-}
-
 @media (max-width: 980px) {
   .order {
     grid-template-columns: 1fr;
+  }
+
+  .price {
+    text-align: left;
   }
 }

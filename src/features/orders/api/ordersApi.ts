@@ -3,14 +3,18 @@
 import { request } from '@/shared/api/http';
 
 import {
+  mockCompleteServiceOrder,
+  mockCreateServiceOrder,
   mockGetProductOrders,
+  mockGetServiceOrderById,
   mockGetServiceOrders,
   mockLeaveServiceReview,
   mockRepeatProductOrder,
   mockRepeatServiceOrder,
 } from './ordersApi.mock';
-
 import type {
+  CompleteOrderResult,
+  CreateServiceOrderPayload,
   ProductOrder,
   RepeatResult,
   ReviewResult,
@@ -19,6 +23,8 @@ import type {
 } from '../model/types';
 
 const USE_MOCK = (import.meta.env.VITE_USE_MOCK_API ?? 'true') === 'true';
+const API_BASE_URL = import.meta.env.VITE_API_BASE_URL ?? '';
+void API_BASE_URL;
 
 /* ---------------- REAL ---------------- */
 
@@ -30,6 +36,32 @@ async function realGetServiceOrders(
       status: filter !== 'all' ? filter : undefined,
     },
   });
+}
+
+async function realGetServiceOrderById(orderId: string): Promise<ServiceOrder> {
+  return request<ServiceOrder>(
+    `/me/orders/services/${encodeURIComponent(orderId)}`,
+  );
+}
+
+async function realCreateServiceOrder(
+  payload: CreateServiceOrderPayload,
+): Promise<ServiceOrder> {
+  return request<ServiceOrder>('/me/orders/services', {
+    method: 'POST',
+    body: payload,
+  });
+}
+
+async function realCompleteServiceOrder(
+  orderId: string,
+): Promise<CompleteOrderResult> {
+  return request<CompleteOrderResult>(
+    `/me/orders/services/${encodeURIComponent(orderId)}/complete`,
+    {
+      method: 'POST',
+    },
+  );
 }
 
 async function realGetProductOrders(): Promise<ProductOrder[]> {
@@ -76,6 +108,21 @@ async function realLeaveServiceReview(
 export const ordersApi = {
   getServiceOrders: (filter: ServicesFilter) =>
     USE_MOCK ? mockGetServiceOrders(filter) : realGetServiceOrders(filter),
+
+  getServiceOrderById: (orderId: string) =>
+    USE_MOCK
+      ? mockGetServiceOrderById(orderId)
+      : realGetServiceOrderById(orderId),
+
+  createServiceOrder: (payload: CreateServiceOrderPayload) =>
+    USE_MOCK
+      ? mockCreateServiceOrder(payload)
+      : realCreateServiceOrder(payload),
+
+  completeServiceOrder: (orderId: string) =>
+    USE_MOCK
+      ? mockCompleteServiceOrder(orderId)
+      : realCompleteServiceOrder(orderId),
 
   getProductOrders: () =>
     USE_MOCK ? mockGetProductOrders() : realGetProductOrders(),

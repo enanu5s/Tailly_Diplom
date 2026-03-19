@@ -1,564 +1,542 @@
 /* src/pages/specialist-calendar-edit/ui/SpecialistCalendarEditPage.module.css */
 
 .page {
-    min-height: calc(100vh - 160px);
-    background:
-        radial-gradient(circle at top left, rgba(99, 102, 241, 0.12), transparent 26%),
-        #f8fafc;
-    padding: 40px 20px 80px;
+  padding: 24px 20px 40px;
 }
 
 .container {
-    width: 100%;
-    max-width: 1280px;
-    margin: 0 auto;
+  max-width: 1280px;
+  margin: 0 auto;
 }
 
 .header {
-    display: flex;
-    align-items: flex-start;
-    justify-content: space-between;
-    gap: 24px;
-    margin-bottom: 24px;
+  display: flex;
+  justify-content: space-between;
+  gap: 20px;
+  align-items: flex-start;
+  flex-wrap: wrap;
+  margin-bottom: 20px;
 }
 
 .eyebrow {
-    display: inline-flex;
-    align-items: center;
-    min-height: 32px;
-    padding: 0 12px;
-    border-radius: 999px;
-    background: #eef2ff;
-    color: #4338ca;
-    font-size: 13px;
-    font-weight: 700;
-    letter-spacing: 0.02em;
-    text-transform: uppercase;
+  display: inline-block;
+  margin-bottom: 8px;
+  font-size: 13px;
+  color: rgba(17, 24, 39, 0.55);
 }
 
 .title {
-    margin: 14px 0 0;
-    font-size: 40px;
-    line-height: 1.05;
-    color: #111827;
+  margin: 0 0 8px;
+  font-size: 32px;
+  line-height: 1.1;
+  color: #111827;
 }
 
 .description {
-    max-width: 760px;
-    margin: 14px 0 0;
-    font-size: 16px;
-    line-height: 1.7;
-    color: #4b5563;
+  margin: 0;
+  max-width: 760px;
+  color: rgba(17, 24, 39, 0.72);
 }
 
 .headerActions {
-    display: flex;
-    gap: 12px;
-    flex-wrap: wrap;
+  display: flex;
+  gap: 12px;
+  align-items: center;
+  flex-wrap: wrap;
 }
 
 .layout {
-    display: grid;
-    grid-template-columns: minmax(0, 1.05fr) minmax(360px, 420px);
-    gap: 24px;
+  display: grid;
+  grid-template-columns: minmax(0, 1.1fr) minmax(320px, 420px);
+  gap: 20px;
+  align-items: start;
 }
 
 .leftColumn,
 .rightColumn {
-    display: flex;
-    flex-direction: column;
-    gap: 24px;
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
 }
 
 .panel,
-.stateCard,
-.selectedDateCard {
-    padding: 24px;
-    border-radius: 20px;
-    background: #ffffff;
-    box-shadow: 0 18px 40px rgba(15, 23, 42, 0.08);
+.selectedDateCard,
+.stateCard {
+  border-radius: 18px;
+  background: #ffffff;
+  box-shadow: 0 12px 30px rgba(17, 24, 39, 0.08);
+  padding: 20px;
 }
 
-.selectedDateCard {
-    background: linear-gradient(135deg, rgba(99, 102, 241, 0.08), #ffffff);
-}
-
-.selectedDateCaption {
-    display: block;
-    font-size: 13px;
-    font-weight: 700;
-    text-transform: uppercase;
-    letter-spacing: 0.04em;
-    color: #6366f1;
-}
-
-.selectedDateValue {
-    margin-top: 10px;
-    font-size: 28px;
-    font-weight: 700;
-    color: #111827;
-}
-
-.selectedDateMeta {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 10px;
-    margin-top: 14px;
-}
-
-.metaChip {
-    display: inline-flex;
-    align-items: center;
-    min-height: 34px;
-    padding: 0 12px;
-    border-radius: 999px;
-    background: #f3f4f6;
-    color: #374151;
-    font-size: 13px;
-}
-
+.panelTitle,
 .stateTitle {
-    margin: 0;
-    font-size: 28px;
-    color: #111827;
+  margin: 0 0 8px;
+  font-size: 22px;
+  line-height: 1.2;
+  color: #111827;
 }
 
+.panelDescription,
 .stateText {
-    margin: 12px 0 0;
-    color: #4b5563;
-    line-height: 1.6;
+  margin: 0 0 16px;
+  color: rgba(17, 24, 39, 0.7);
 }
 
 .stateActions {
-    display: flex;
-    gap: 12px;
-    flex-wrap: wrap;
-    margin-top: 20px;
-}
-
-.panelTitle {
-    margin: 0;
-    font-size: 22px;
-    color: #111827;
-}
-
-.panelDescription {
-    margin: 10px 0 0;
-    color: #4b5563;
-    line-height: 1.6;
-    font-size: 14px;
-}
-
-.monthHeader {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    gap: 16px;
-    margin-bottom: 18px;
-}
-
-.monthTitle {
-    font-size: 20px;
-    font-weight: 700;
-    color: #111827;
-}
-
-.iconButton,
-.primaryButton,
-.secondaryButton,
-.removeButton,
-.statusCard {
-    border: none;
-    font: inherit;
-    cursor: pointer;
-}
-
-.iconButton {
-    width: 42px;
-    height: 42px;
-    border-radius: 12px;
-    background: rgba(99, 102, 241, 0.12);
-    color: #4338ca;
-}
-
-.primaryButton,
-.secondaryButton,
-.secondaryLink {
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    min-height: 44px;
-    padding: 0 16px;
-    border-radius: 12px;
-    text-decoration: none;
-    font-weight: 600;
-}
-
-.primaryButton {
-    background: #6366f1;
-    color: #ffffff;
-}
-
-.primaryButton:disabled {
-    opacity: 0.6;
-    cursor: default;
-}
-
-.secondaryButton,
-.secondaryLink {
-    background: rgba(99, 102, 241, 0.12);
-    color: #4338ca;
+  display: flex;
+  gap: 12px;
+  flex-wrap: wrap;
 }
 
 .warningBanner,
 .errorBanner,
 .successBanner {
-    margin-bottom: 18px;
-    padding: 14px 16px;
-    border-radius: 14px;
-    font-size: 14px;
+  margin-bottom: 16px;
+  padding: 14px 16px;
+  border-radius: 14px;
 }
 
 .warningBanner {
-    background: rgba(245, 158, 11, 0.12);
-    color: #b45309;
+  background: rgba(245, 158, 11, 0.1);
+  color: #92400e;
 }
 
-.errorBanner {
-    background: rgba(239, 68, 68, 0.12);
-    color: #b91c1c;
+.errorBanner,
+.fieldError {
+  background: rgba(239, 68, 68, 0.08);
+  color: #b91c1c;
+  border-radius: 12px;
+  padding: 12px 14px;
 }
 
 .successBanner {
-    background: rgba(34, 197, 94, 0.12);
-    color: #15803d;
+  background: rgba(16, 185, 129, 0.1);
+  color: #065f46;
 }
 
-.weekdays,
-.daysGrid {
-    display: grid;
-    grid-template-columns: repeat(7, minmax(0, 1fr));
-    gap: 8px;
+.monthHeader {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 16px;
+}
+
+.monthTitle {
+  font-size: 20px;
+  font-weight: 600;
+  color: #111827;
+  text-transform: capitalize;
+}
+
+.iconButton,
+.primaryButton,
+.secondaryButton,
+.secondaryLink,
+.removeButton {
+  border-radius: 14px;
+  font: inherit;
+}
+
+.iconButton {
+  width: 42px;
+  height: 42px;
+  border: 1px solid rgba(17, 24, 39, 0.12);
+  background: #ffffff;
+  cursor: pointer;
+}
+
+.primaryButton {
+  height: 46px;
+  padding: 0 18px;
+  border: none;
+  background: #6366f1;
+  color: #ffffff;
+  cursor: pointer;
+  box-shadow: 0 10px 28px rgba(99, 102, 241, 0.35);
+}
+
+.secondaryButton,
+.secondaryLink {
+  height: 46px;
+  padding: 0 18px;
+  border: 1px solid rgba(17, 24, 39, 0.12);
+  background: #ffffff;
+  color: #111827;
+  text-decoration: none;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+}
+
+.primaryButton:disabled,
+.secondaryButton:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.selectionToolbar {
+  display: flex;
+  justify-content: space-between;
+  gap: 12px;
+  align-items: center;
+  flex-wrap: wrap;
+  margin-bottom: 14px;
+}
+
+.multiSelectToggle {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  color: #111827;
 }
 
 .weekdays {
-    margin-bottom: 10px;
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
+  gap: 8px;
+  margin-bottom: 8px;
 }
 
 .weekday {
-    text-align: center;
-    font-size: 13px;
-    color: #6b7280;
+  text-align: center;
+  font-size: 13px;
+  color: rgba(17, 24, 39, 0.5);
+}
+
+.daysGrid {
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
+  gap: 8px;
 }
 
 .dayButton {
-    position: relative;
-    min-height: 64px;
-    border-radius: 14px;
-    border: 1px solid #e5e7eb;
-    background: #ffffff;
-    transition:
-        transform 0.2s ease,
-        border-color 0.2s ease,
-        box-shadow 0.2s ease;
+  min-height: 72px;
+  border-radius: 16px;
+  border: 1px solid rgba(17, 24, 39, 0.08);
+  background: #ffffff;
+  cursor: pointer;
+  position: relative;
 }
 
 .dayButtonActive:hover {
-    transform: translateY(-1px);
-    border-color: rgba(99, 102, 241, 0.4);
-    box-shadow: 0 8px 18px rgba(99, 102, 241, 0.12);
+  border-color: rgba(99, 102, 241, 0.35);
 }
 
 .dayButtonEmpty {
-    background: transparent;
-    border-color: transparent;
-    cursor: default;
+  visibility: hidden;
 }
 
 .dayButtonSelected {
-    outline: 2px solid #6366f1;
-    outline-offset: 2px;
+  outline: 2px solid rgba(99, 102, 241, 0.5);
+  outline-offset: 1px;
 }
 
 .dayNumber {
-    font-size: 14px;
-    font-weight: 700;
-    color: #111827;
+  font-size: 16px;
+  font-weight: 600;
+  color: #111827;
 }
 
 .dayDot {
-    position: absolute;
-    left: 50%;
-    bottom: 10px;
-    width: 8px;
-    height: 8px;
-    border-radius: 999px;
-    transform: translateX(-50%);
-    background: currentColor;
+  position: absolute;
+  right: 10px;
+  bottom: 10px;
+  width: 8px;
+  height: 8px;
+  border-radius: 999px;
+  background: #6366f1;
 }
 
 .dayOff {
-    background: #f3f4f6;
-    color: #9ca3af;
+  background: rgba(17, 24, 39, 0.06);
+}
+
+.dayOff .dayNumber {
+  color: rgba(17, 24, 39, 0.45);
 }
 
 .fullyBooked {
-    color: #ef4444;
+  background: rgba(239, 68, 68, 0.08);
 }
 
 .partiallyBooked {
-    color: #f59e0b;
+  background: rgba(99, 102, 241, 0.08);
 }
 
 .legend {
-    display: grid;
-    grid-template-columns: repeat(2, minmax(0, 1fr));
-    gap: 12px;
-    margin-top: 20px;
+  display: flex;
+  gap: 14px;
+  flex-wrap: wrap;
+  margin-top: 16px;
 }
 
 .legendItem {
-    display: flex;
-    align-items: center;
-    gap: 10px;
-    color: #4b5563;
-    font-size: 14px;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  color: rgba(17, 24, 39, 0.72);
+  font-size: 14px;
 }
 
 .legendMark,
 .statusPreview {
-    width: 12px;
-    height: 12px;
-    border-radius: 999px;
-    flex-shrink: 0;
+  width: 12px;
+  height: 12px;
+  border-radius: 999px;
+  flex-shrink: 0;
 }
 
 .legendFree {
-    border: 1px solid #d1d5db;
-    background: #ffffff;
+  background: #10b981;
 }
 
 .legendPartial {
-    background: #f59e0b;
+  background: #6366f1;
 }
 
 .legendFull {
-    background: #ef4444;
+  background: #ef4444;
 }
 
 .legendDayOff {
-    background: #d1d5db;
+  background: #9ca3af;
 }
 
-.field {
-    display: flex;
-    flex-direction: column;
-    gap: 8px;
+.selectedDateCaption {
+  display: inline-block;
+  margin-bottom: 8px;
+  font-size: 13px;
+  color: rgba(17, 24, 39, 0.5);
 }
 
-.fieldRow {
-    display: grid;
-    grid-template-columns: repeat(2, minmax(0, 1fr));
-    gap: 12px;
+.selectedDateValue {
+  font-size: 24px;
+  line-height: 1.2;
+  color: #111827;
+  margin-bottom: 12px;
 }
 
-.fieldLabel {
-    font-size: 14px;
-    font-weight: 600;
-    color: #374151;
+.selectedDateMeta {
+  display: flex;
+  gap: 10px;
+  flex-wrap: wrap;
 }
 
-.input,
-.select {
-    min-height: 46px;
-    border: 1px solid #d1d5db;
-    border-radius: 12px;
-    padding: 0 14px;
-    font: inherit;
-    background: #ffffff;
-    color: #111827;
+.metaChip {
+  display: inline-flex;
+  align-items: center;
+  min-height: 34px;
+  padding: 0 12px;
+  border-radius: 999px;
+  background: rgba(99, 102, 241, 0.08);
+  color: #4338ca;
+  font-size: 13px;
+}
+
+.summaryGrid {
+  margin-top: 16px;
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 10px;
+}
+
+.summaryCard {
+  padding: 12px;
+  border-radius: 14px;
+  background: rgba(17, 24, 39, 0.05);
+}
+
+.summaryLabel {
+  display: block;
+  font-size: 12px;
+  color: rgba(17, 24, 39, 0.55);
+  margin-bottom: 6px;
+}
+
+.summaryValue {
+  font-size: 18px;
+  color: #111827;
 }
 
 .statusCards {
-    display: grid;
-    gap: 12px;
-    margin-top: 16px;
+  display: grid;
+  gap: 12px;
+  margin-bottom: 14px;
 }
 
 .statusCard {
-    display: flex;
-    flex-direction: column;
-    align-items: flex-start;
-    gap: 8px;
-    padding: 16px;
-    border-radius: 16px;
-    background: #f8fafc;
-    border: 1px solid transparent;
-    text-align: left;
-    transition:
-        transform 0.2s ease,
-        border-color 0.2s ease,
-        box-shadow 0.2s ease;
-}
-
-.statusCard:hover {
-    transform: translateY(-1px);
-    border-color: rgba(99, 102, 241, 0.22);
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  text-align: left;
+  padding: 14px;
+  border-radius: 16px;
+  border: 1px solid rgba(17, 24, 39, 0.08);
+  background: #ffffff;
+  cursor: pointer;
 }
 
 .statusCardActive {
-    border-color: #6366f1;
-    box-shadow: 0 10px 24px rgba(99, 102, 241, 0.12);
-    background: rgba(99, 102, 241, 0.06);
+  border-color: #6366f1;
+  background: rgba(99, 102, 241, 0.06);
 }
 
 .statusTitle {
-    font-weight: 700;
-    color: #111827;
+  font-weight: 600;
+  color: #111827;
 }
 
 .statusText {
-    color: #4b5563;
-    font-size: 14px;
-    line-height: 1.5;
+  color: rgba(17, 24, 39, 0.68);
+  font-size: 14px;
 }
 
 .inlineActions {
-    display: flex;
-    gap: 12px;
-    flex-wrap: wrap;
-    margin-top: 18px;
+  display: flex;
+  gap: 12px;
+  flex-wrap: wrap;
+  margin-top: 14px;
 }
 
 .note {
-    margin-top: 14px;
-    padding: 12px 14px;
-    border-radius: 14px;
-    background: #f8fafc;
-    color: #4b5563;
-    font-size: 14px;
-    line-height: 1.6;
+  margin-top: 14px;
+  padding: 12px 14px;
+  border-radius: 12px;
+  background: rgba(17, 24, 39, 0.05);
+  color: rgba(17, 24, 39, 0.72);
+  font-size: 14px;
 }
 
-.selectedDateInline {
-    margin: 14px 0 0;
-    padding: 12px 14px;
-    border-radius: 14px;
-    background: #f8fafc;
-    color: #374151;
-    font-size: 14px;
+.fieldRow {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 14px;
+}
+
+.field {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  margin-top: 14px;
+}
+
+.fieldLabel {
+  color: rgba(17, 24, 39, 0.75);
+  font-size: 14px;
+}
+
+.input {
+  width: 100%;
+  height: 46px;
+  padding: 0 14px;
+  border-radius: 14px;
+  border: 1px solid rgba(17, 24, 39, 0.12);
+  background: #ffffff;
+  color: #111827;
+  font: inherit;
 }
 
 .servicesList {
-    display: flex;
-    flex-direction: column;
-    gap: 10px;
+  display: grid;
+  gap: 10px;
+}
+
+.checkboxCard,
+.checkboxRow {
+  display: flex;
+  gap: 10px;
+  align-items: flex-start;
+  color: #111827;
 }
 
 .checkboxCard {
-    display: flex;
-    align-items: center;
-    gap: 10px;
-    min-height: 44px;
-    padding: 0 14px;
-    border-radius: 12px;
-    background: #f8fafc;
-    color: #374151;
+  padding: 12px 14px;
+  border-radius: 14px;
+  border: 1px solid rgba(17, 24, 39, 0.08);
+  background: #ffffff;
 }
 
-.fieldError {
-    margin-top: 12px;
-    color: #b91c1c;
-    font-size: 14px;
+.checkboxRow {
+  margin-top: 14px;
 }
 
 .windowsList,
 .bookedList {
-    display: flex;
-    flex-direction: column;
-    gap: 12px;
-    margin-top: 18px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  margin-top: 16px;
 }
 
 .windowCard,
 .bookedCard {
-    padding: 14px;
-    border-radius: 14px;
-    background: #f8fafc;
+  padding: 14px;
+  border-radius: 14px;
+  border: 1px solid rgba(17, 24, 39, 0.08);
+  background: #ffffff;
 }
 
 .windowHeader {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    gap: 12px;
-}
-
-.removeButton {
-    padding: 8px 12px;
-    border-radius: 10px;
-    background: rgba(239, 68, 68, 0.12);
-    color: #b91c1c;
+  display: flex;
+  justify-content: space-between;
+  gap: 12px;
+  align-items: center;
+  flex-wrap: wrap;
 }
 
 .windowServices,
-.windowComment,
-.bookedMeta,
+.bookedMeta {
+  margin-top: 8px;
+  color: rgba(17, 24, 39, 0.72);
+}
+
+.windowComment {
+  margin-top: 8px;
+  color: #111827;
+}
+
+.removeButton {
+  min-height: 36px;
+  padding: 0 12px;
+  border: 1px solid rgba(239, 68, 68, 0.2);
+  background: rgba(239, 68, 68, 0.06);
+  color: #b91c1c;
+  cursor: pointer;
+}
+
 .emptyState {
-    margin-top: 8px;
-    color: #4b5563;
-    line-height: 1.5;
+  padding: 14px;
+  border-radius: 14px;
+  background: rgba(17, 24, 39, 0.05);
+  color: rgba(17, 24, 39, 0.72);
 }
 
-@media (max-width: 1080px) {
-    .layout {
-        grid-template-columns: 1fr;
-    }
+.selectedDateInline {
+  color: #111827;
+  margin-bottom: 4px;
 }
 
-@media (max-width: 768px) {
-    .page {
-        padding: 28px 16px 64px;
-    }
+@media (max-width: 980px) {
+  .layout {
+    grid-template-columns: 1fr;
+  }
 
-    .header {
-        flex-direction: column;
-    }
+  .fieldRow {
+    grid-template-columns: 1fr;
+  }
 
-    .title {
-        font-size: 32px;
-    }
+  .daysGrid,
+  .weekdays {
+    gap: 6px;
+  }
 
-    .fieldRow,
-    .legend {
-        grid-template-columns: 1fr;
-    }
+  .dayButton {
+    min-height: 58px;
+  }
 
-    .selectedDateValue {
-        font-size: 24px;
-    }
-}
-
-.selectionToolbar {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    gap: 12px;
-    margin-bottom: 18px;
-    flex-wrap: wrap;
-}
-
-.multiSelectToggle {
-    display: inline-flex;
-    align-items: center;
-    gap: 10px;
-    min-height: 40px;
-    padding: 0 14px;
-    border-radius: 12px;
-    background: #f8fafc;
-    color: #374151;
-}
-
-.multiSelectToggle input {
-    margin: 0;
+  .summaryGrid {
+    grid-template-columns: 1fr;
+  }
 }

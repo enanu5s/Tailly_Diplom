@@ -15,6 +15,24 @@ import type {
   SpecialistReviewReplyUpsertPayload,
 } from '../model/types';
 
+function normalizeTime(value: string, fallback: string): string {
+  const trimmed = value.trim();
+
+  if (/^\d{2}:\d{2}$/.test(trimmed)) {
+    return trimmed;
+  }
+
+  return fallback;
+}
+
+function normalizePositiveMinutes(value: number, fallback: number): number {
+  if (!Number.isFinite(value) || value <= 0) {
+    return fallback;
+  }
+
+  return Math.round(value);
+}
+
 export async function mockGetSpecialistProfileBySlug(
   slug: string,
 ): Promise<SpecialistProfileResponse> {
@@ -140,6 +158,21 @@ export async function mockUpdateCalendar(
         serviceIds: [...item.serviceIds],
         comment: item.comment?.trim() || undefined,
       })),
+      bookingSettings: {
+        dayStartTime: normalizeTime(
+          payload.bookingSettings.dayStartTime,
+          '10:00',
+        ),
+        dayEndTime: normalizeTime(payload.bookingSettings.dayEndTime, '19:00'),
+        slotStepMinutes: normalizePositiveMinutes(
+          payload.bookingSettings.slotStepMinutes,
+          60,
+        ),
+        defaultDurationMinutes: normalizePositiveMinutes(
+          payload.bookingSettings.defaultDurationMinutes,
+          60,
+        ),
+      },
     },
   });
 
@@ -159,6 +192,7 @@ export async function mockUpsertReviewReply(
   }
 
   const currentProfile = MOCK_SPECIALIST_PROFILES[profileIndex];
+
   const reviewIndex = currentProfile.reviews.findIndex(
     (review) => review.id === payload.reviewId,
   );

@@ -1,4 +1,5 @@
-//src/features/orders/ui/OrdersServicesSection.tsx
+// src/features/orders/ui/OrdersServicesSection.tsx
+
 import { observer } from 'mobx-react-lite';
 import { useEffect } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
@@ -7,11 +8,7 @@ import { petsStore } from '@/features/pets/model/petsStore';
 
 import styles from './OrdersServicesSection.module.css';
 import { ordersStore } from '../model/ordersStore';
-
-import type { ServicesFilter, ServiceOrder } from '../model/types';
-
-
-
+import type { ServiceOrder, ServicesFilter } from '../model/types';
 
 const FILTERS: Array<{ key: ServicesFilter; label: string }> = [
   { key: 'all', label: 'Все' },
@@ -32,30 +29,43 @@ export const OrdersServicesSection = observer(() => {
         <h2 className={styles.title}>Мои заказы (услуги)</h2>
 
         <div className={styles.filters}>
-          {FILTERS.map((f) => (
+          {FILTERS.map((filter) => (
             <button
-              key={f.key}
+              key={filter.key}
               type="button"
-              className={f.key === ordersStore.servicesFilter ? styles.filterActive : styles.filterBtn}
-              onClick={() => ordersStore.setServicesFilter(f.key)}
+              className={
+                filter.key === ordersStore.servicesFilter
+                  ? styles.filterActive
+                  : styles.filterBtn
+              }
+              onClick={() => {
+                ordersStore.setServicesFilter(filter.key);
+              }}
             >
-              {f.label}
+              {filter.label}
             </button>
           ))}
         </div>
       </div>
 
-      {ordersStore.servicesError && <div className={styles.error}>{ordersStore.servicesError}</div>}
-      {ordersStore.actionError && <div className={styles.error}>{ordersStore.actionError}</div>}
+      {ordersStore.servicesError ? (
+        <div className={styles.error}>{ordersStore.servicesError}</div>
+      ) : null}
+
+      {ordersStore.actionError ? (
+        <div className={styles.error}>{ordersStore.actionError}</div>
+      ) : null}
 
       {ordersStore.servicesLoading && ordersStore.serviceOrders.length === 0 ? (
         <div className={styles.state}>Загружаем заказы...</div>
       ) : ordersStore.serviceOrders.length === 0 ? (
-        <div className={styles.state}>Пока нет заказов по выбранному фильтру.</div>
+        <div className={styles.state}>
+          Пока нет заказов по выбранному фильтру.
+        </div>
       ) : (
         <div className={styles.list}>
-          {ordersStore.serviceOrders.map((o) => (
-            <ServiceOrderCard key={o.id} order={o} />
+          {ordersStore.serviceOrders.map((order) => (
+            <ServiceOrderCard key={order.id} order={order} />
           ))}
         </div>
       )}
@@ -64,18 +74,23 @@ export const OrdersServicesSection = observer(() => {
 });
 
 const ServiceOrderCard = observer(({ order }: { order: ServiceOrder }) => {
-  const date = formatDateTime(order.dateFrom, order.dateTo);
-
-  const isCanceled = order.status === 'canceled';
-
   const navigate = useNavigate();
   const location = useLocation();
 
+  const isCanceled = order.status === 'canceled';
+  const isCompleted = order.status === 'completed';
+  const canComplete =
+    order.status === 'upcoming' || order.status === 'active';
+  const canLeaveReview = isCompleted && !order.hasReview;
+  const isActionLoading = ordersStore.actionLoadingId === order.id;
+
   return (
     <div className={styles.order}>
-      <div className={styles.serviceTitle}>{order.serviceTitle || '—'}</div>
       <div className={styles.left}>
-        <div className={styles.date}>{date}</div>
+        <div className={styles.serviceTitle}>{order.serviceTitle || '—'}</div>
+        <div className={styles.date}>
+          {formatDateTime(order.dateFrom, order.dateTo)}
+        </div>
 
         <div className={styles.row}>
           <span className={styles.label}>Питомец:</span>
@@ -84,8 +99,8 @@ const ServiceOrderCard = observer(({ order }: { order: ServiceOrder }) => {
             type="button"
             onClick={() => {
               petsStore.revealPet(order.petId);
-              const el = document.getElementById('pets-section');
-              el?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+              const element = document.getElementById('pets-section');
+              element?.scrollIntoView({ behavior: 'smooth', block: 'start' });
             }}
           >
             {order.petName}
@@ -98,14 +113,24 @@ const ServiceOrderCard = observer(({ order }: { order: ServiceOrder }) => {
             className={styles.linkBtn}
             type="button"
             onClick={() => {
-              // фундамент под профиль ситтера
-              // позже: navigate(/sitters/${order.sitterId})
-              // пока ничего не делаем, но UI кликабелен
+              navigate(`/specialists/${order.specialistSlug}`);
             }}
           >
             {order.sitterName}
           </button>
         </div>
+
+        <div className={styles.row}>
+          <span className={styles.label}>Формат:</span>
+          <span className={styles.metaText}>{order.locationLabel}</span>
+        </div>
+
+        {order.comment ? (
+          <div className={styles.row}>
+            <span className={styles.label}>Комментарий:</span>
+            <span className={styles.metaText}>{order.comment}</span>
+          </div>
+        ) : null}
 
         <div className={styles.row}>
           <span className={styles.label}>Статус:</span>
@@ -119,63 +144,117 @@ const ServiceOrderCard = observer(({ order }: { order: ServiceOrder }) => {
       </div>
 
       <div className={styles.right}>
-        <div className={styles.price}>{formatPrice(order.price, order.currency)}</div>
+        <div className={styles.price}>
+          {formatPrice(order.price, order.currency)}
+        </div>
 
-<button
-          className={styles.secondaryBtn}
-          type="button"
-          disabled={ordersStore.actionLoadingId === order.id}
-          onClick={() => void ordersStore.repeatService(order.id)}
-        >
-          {ordersStore.actionLoadingId === order.id ? '...' : 'Повторить заказ'}
-        </button>
+        {canComplete ? (
+          <button
+            className={styles.primaryBtn}
+            type="button"
+            disabled={isActionLoading}
+            onClick={() => {
+              void ordersStore.completeService(order.id);
+            }}
+          >
+            {isActionLoading ? '...' : 'Завершить заказ'}
+          </button>
+        ) : (
+          <button
+            className={styles.secondaryBtn}
+            type="button"
+            disabled={isActionLoading}
+            onClick={() => {
+              navigate(`/orders/create?repeat=${encodeURIComponent(order.id)}`);
+            }}
+          >
+            {isActionLoading ? '...' : 'Повторить заказ'}
+          </button>
+        )}
 
         <button
-          className={order.hasReview ? styles.thanksBtn : styles.primaryBtn}
+          className={order.hasReview ? styles.thanksBtn : styles.secondaryBtn}
           type="button"
-          disabled={isCanceled || order.hasReview || ordersStore.actionLoadingId === order.id}
+          disabled={!canLeaveReview || isActionLoading || isCanceled}
           onClick={() => {
-            if (isCanceled) return;
+            if (!canLeaveReview) {
+              return;
+            }
 
             navigate(`/profile/review/${order.id}`, {
               state: { from: location.pathname + location.search },
             });
           }}
         >
-          {isCanceled ? 'Недоступно для отменённых' : order.hasReview ? 'Спасибо за отзыв!' : 'Оставить отзыв'}
+          {isCanceled
+            ? 'Недоступно для отменённых'
+            : order.hasReview
+              ? 'Спасибо за отзыв!'
+              : isCompleted
+                ? 'Оставить отзыв'
+                : 'Сначала завершите заказ'}
         </button>
       </div>
     </div>
   );
 });
 
-function formatDateTime(fromIso: string, toIso?: string) {
+function formatDateTime(fromIso: string, toIso?: string): string {
   const from = new Date(fromIso);
-  const base = from.toLocaleDateString('ru-RU', { year: 'numeric', month: 'long', day: '2-digit' });
+  const base = from.toLocaleDateString('ru-RU', {
+    year: 'numeric',
+    month: 'long',
+    day: '2-digit',
+  });
+  const start = from.toLocaleTimeString('ru-RU', {
+    hour: '2-digit',
+    minute: '2-digit',
+  });
 
-  const t1 = from.toLocaleTimeString('ru-RU', { hour: '2-digit', minute: '2-digit' });
-  if (!toIso) return `${base}, ${t1}`;
+  if (!toIso) {
+    return `${base}, ${start}`;
+  }
 
   const to = new Date(toIso);
-  const t2 = to.toLocaleTimeString('ru-RU', { hour: '2-digit', minute: '2-digit' });
-  return `${base}, ${t1}–${t2}`;
+  const end = to.toLocaleTimeString('ru-RU', {
+    hour: '2-digit',
+    minute: '2-digit',
+  });
+
+  return `${base}, ${start}–${end}`;
 }
 
-function formatPrice(value: number, currency: 'RUB') {
-  return new Intl.NumberFormat('ru-RU', { style: 'currency', currency }).format(value);
+function formatPrice(value: number, currency: 'RUB'): string {
+  return new Intl.NumberFormat('ru-RU', {
+    style: 'currency',
+    currency,
+  }).format(value);
 }
 
-function mapServiceStatus(s: string) {
-  if (s === 'upcoming') return 'Предстоящий';
-  if (s === 'active') return 'Активный';
-  if (s === 'completed') return 'Завершён';
-  if (s === 'canceled') return 'Отменён';
-  return s;
+function mapServiceStatus(status: string): string {
+  if (status === 'upcoming') {
+    return 'Предстоящий';
+  }
+
+  if (status === 'active') {
+    return 'Активный';
+  }
+
+  if (status === 'completed') {
+    return 'Завершён';
+  }
+
+  if (status === 'canceled') {
+    return 'Отменён';
+  }
+
+  return status;
 }
 
-function renderStars(rating?: number) {
-  const r = rating ?? 0;
-  const full = '★'.repeat(Math.max(0, Math.min(5, r)));
-  const empty = '☆'.repeat(5 - Math.max(0, Math.min(5, r)));
-  return r ? `${full}${empty}` : '—';
+function renderStars(rating?: number): string {
+  const safeRating = Math.max(0, Math.min(5, rating ?? 0));
+  const full = '★'.repeat(safeRating);
+  const empty = '☆'.repeat(5 - safeRating);
+
+  return full + empty;
 }
