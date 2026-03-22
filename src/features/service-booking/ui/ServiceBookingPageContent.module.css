@@ -259,6 +259,20 @@
   max-width: 60%;
 }
 
+.inlineLinkButton {
+  padding: 0;
+  border: none;
+  background: transparent;
+  color: #4f46e5;
+  cursor: pointer;
+  font: inherit;
+  text-align: left;
+}
+
+.inlineLinkButton:hover {
+  text-decoration: underline;
+}
+
 @media (max-width: 960px) {
   .layout {
     grid-template-columns: 1fr;

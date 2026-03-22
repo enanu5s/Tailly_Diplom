@@ -2,8 +2,10 @@
 
 import { observer } from "mobx-react-lite";
 import { useEffect } from "react";
-import { useLocation, useSearchParams } from "react-router-dom";
+
 import { useAppNavigate } from "@/shared/lib/navigation/useAppNavigate";
+import { useLocation, useNavigate, useSearchParams } from "react-router-dom";
+
 
 import { serviceBookingStore } from "../model/serviceBookingStore";
 import type { ServiceBookingLocationState } from "../model/types";
@@ -763,9 +765,20 @@ export const ServiceBookingPageContent = observer((): ReactElement => {
 
           <div className={styles.summaryRow}>
             <span className={styles.summaryLabel}>Специалист</span>
-            <span className={styles.summaryValue}>
+
+            <button
+              type="button"
+              className={styles.inlineLinkButton}
+              onClick={() => {
+                navigate(`/specialists/${specialist.slug}`, {
+                  state: {
+                    from: `${location.pathname}${location.search}`,
+                  },
+                });
+              }}
+            >
               {`${specialist.main.firstName} ${specialist.main.lastName}`.trim()}
-            </span>
+            </button>
           </div>
 
           <div className={styles.summaryRow}>

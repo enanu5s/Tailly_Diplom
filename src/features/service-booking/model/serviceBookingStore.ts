@@ -1,54 +1,53 @@
 // src/features/service-booking/model/serviceBookingStore.ts
 
-import { makeAutoObservable, runInAction } from 'mobx';
+import { makeAutoObservable, runInAction } from "mobx";
 
-import { ordersService } from '@/features/orders/service/ordersService';
+import { ordersService } from "@/features/orders/service/ordersService";
 import type {
   ServiceBookingMode,
   ServiceOrder,
-} from '@/features/orders/model/types';
-import type { Pet } from '@/features/pets/model/types';
-import { petsService } from '@/features/pets/service/petsService';
+} from "@/features/orders/model/types";
+import type { Pet } from "@/features/pets/model/types";
+import { petsService } from "@/features/pets/service/petsService";
 import type {
   SpecialistCalendar,
   SpecialistProfile,
   SpecialistService,
-} from '@/features/specialist-profile/model/types';
-import { specialistProfileService } from '@/features/specialist-profile/service/specialistProfileService';
+} from "@/features/specialist-profile/model/types";
+import { specialistProfileService } from "@/features/specialist-profile/service/specialistProfileService";
 
 import type {
   BookingDateOption,
   BookingSlot,
   ServiceBookingDraft,
   ServiceBookingLoadParams,
-} from './types';
+} from "./types";
 
-const BOOKING_DRAFT_STORAGE_KEY = 'tailly_service_booking_draft_v2';
+const BOOKING_DRAFT_STORAGE_KEY = "tailly_service_booking_draft_v2";
 
 function createEmptyDraft(): ServiceBookingDraft {
   return {
-    specialistSlug: '',
-    serviceId: '',
-    petId: '',
-    selectedDate: '',
-    selectedSlotId: '',
-    comment: '',
-    bookingMode: 'fixed_slot',
-    requestedStartDate: '',
-    requestedStartTime: '',
-    requestedEndDate: '',
-    requestedEndTime: '',
-    stayCheckInDate: '',
-    stayCheckInTime: '',
-    stayCheckOutDate: '',
-    stayCheckOutTime: '',
+    specialistSlug: "",
+    serviceId: "",
+    petId: "",
+    selectedDate: "",
+    selectedSlotId: "",
+    comment: "",
+    bookingMode: "fixed_slot",
+    requestedStartDate: "",
+    requestedStartTime: "",
+    requestedEndDate: "",
+    requestedEndTime: "",
+    stayCheckInDate: "",
+    stayCheckInTime: "",
+    stayCheckOutDate: "",
+    stayCheckOutTime: "",
   };
 }
 
 function canUseStorage(): boolean {
   return (
-    typeof window !== 'undefined' &&
-    typeof window.localStorage !== 'undefined'
+    typeof window !== "undefined" && typeof window.localStorage !== "undefined"
   );
 }
 
@@ -87,14 +86,14 @@ function clearStoredDraft(): void {
 }
 
 function pad2(value: number): string {
-  return String(value).padStart(2, '0');
+  return String(value).padStart(2, "0");
 }
 
 function formatDateLabel(date: string): string {
-  return new Date(`${date}T00:00:00`).toLocaleDateString('ru-RU', {
-    weekday: 'short',
-    day: '2-digit',
-    month: 'long',
+  return new Date(`${date}T00:00:00`).toLocaleDateString("ru-RU", {
+    weekday: "short",
+    day: "2-digit",
+    month: "long",
   });
 }
 
@@ -103,7 +102,7 @@ function buildIsoDateTime(dateValue: string, timeValue: string): string {
 }
 
 function minutesFromTime(value: string): number {
-  const [hours, minutes] = value.split(':').map(Number);
+  const [hours, minutes] = value.split(":").map(Number);
   return hours * 60 + minutes;
 }
 
@@ -119,11 +118,13 @@ function getInitialPetId(pets: Pet[], storedPetId?: string): string {
     return storedPetId;
   }
 
-  return pets[0]?.id ?? '';
+  return pets[0]?.id ?? "";
 }
 
-function getServiceBookingMode(service: SpecialistService | null): ServiceBookingMode {
-  return service?.bookingPolicy?.mode ?? 'fixed_slot';
+function getServiceBookingMode(
+  service: SpecialistService | null
+): ServiceBookingMode {
+  return service?.bookingPolicy?.mode ?? "fixed_slot";
 }
 
 function getServiceDurationConfig(service: SpecialistService | null): {
@@ -136,7 +137,7 @@ function getServiceDurationConfig(service: SpecialistService | null): {
     stepMinutes: Math.max(15, duration?.durationStepMinutes ?? 30),
     defaultDurationMinutes: Math.max(
       15,
-      duration?.defaultDurationMinutes ?? 60,
+      duration?.defaultDurationMinutes ?? 60
     ),
   };
 }
@@ -148,15 +149,15 @@ function getCalendarSettings(calendar: SpecialistCalendar): {
   defaultDurationMinutes: number;
 } {
   return {
-    dayStartTime: calendar.bookingSettings?.dayStartTime ?? '09:00',
-    dayEndTime: calendar.bookingSettings?.dayEndTime ?? '21:00',
+    dayStartTime: calendar.bookingSettings?.dayStartTime ?? "09:00",
+    dayEndTime: calendar.bookingSettings?.dayEndTime ?? "21:00",
     slotStepMinutes: Math.max(
       15,
-      calendar.bookingSettings?.slotStepMinutes ?? 30,
+      calendar.bookingSettings?.slotStepMinutes ?? 30
     ),
     defaultDurationMinutes: Math.max(
       15,
-      calendar.bookingSettings?.defaultDurationMinutes ?? 60,
+      calendar.bookingSettings?.defaultDurationMinutes ?? 60
     ),
   };
 }
@@ -165,7 +166,7 @@ function hasTimeOverlap(
   startA: string,
   endA: string,
   startB: string,
-  endB: string,
+  endB: string
 ): boolean {
   const aStart = minutesFromTime(startA);
   const aEnd = minutesFromTime(endA);
@@ -192,7 +193,7 @@ function buildDateOptions(slots: BookingSlot[]): BookingDateOption[] {
 
 function filterSlotsByService(
   slots: BookingSlot[],
-  serviceId: string,
+  serviceId: string
 ): BookingSlot[] {
   const normalizedServiceId = serviceId.trim();
 
@@ -217,13 +218,13 @@ function uniqueSortedSlots(slots: BookingSlot[]): BookingSlot[] {
   });
 
   return [...map.values()].sort(
-    (a, b) => +new Date(a.startIso) - +new Date(b.startIso),
+    (a, b) => +new Date(a.startIso) - +new Date(b.startIso)
   );
 }
 
 function excludeBookedSlots(
   slots: BookingSlot[],
-  calendar: SpecialistCalendar,
+  calendar: SpecialistCalendar
 ): BookingSlot[] {
   return slots.filter((slot) => {
     return !calendar.bookedSlots.some((booked) => {
@@ -235,7 +236,7 @@ function excludeBookedSlots(
         slot.startTime,
         slot.endTime,
         booked.startTime,
-        booked.endTime,
+        booked.endTime
       );
     });
   });
@@ -243,19 +244,21 @@ function excludeBookedSlots(
 
 function buildSlotsFromWindowsForService(
   calendar: SpecialistCalendar,
-  service: SpecialistService | null,
+  service: SpecialistService | null
 ): BookingSlot[] {
   const settings = getCalendarSettings(calendar);
   const serviceConfig = getServiceDurationConfig(service);
   const stepMinutes = serviceConfig.stepMinutes || settings.slotStepMinutes;
   const durationMinutes =
     serviceConfig.defaultDurationMinutes || settings.defaultDurationMinutes;
-  const serviceId = service?.id ?? '';
+  const serviceId = service?.id ?? "";
 
   const dayOffSet = new Set(
     calendar.dayOverrides
-      .filter((item) => item.status === 'day_off' || item.status === 'fully_booked')
-      .map((item) => item.date),
+      .filter(
+        (item) => item.status === "day_off" || item.status === "fully_booked"
+      )
+      .map((item) => item.date)
   );
 
   const slots: BookingSlot[] = [];
@@ -285,13 +288,20 @@ function buildSlotsFromWindowsForService(
       const startTime = timeFromMinutes(cursor);
       const endTime = timeFromMinutes(cursor + durationMinutes);
 
+      const startIso = buildIsoDateTime(windowItem.date, startTime);
+      const endIso = buildIsoDateTime(windowItem.date, endTime);
+
+      if (new Date(endIso).getTime() <= Date.now()) {
+        continue;
+      }
+
       slots.push({
         id: `${windowItem.id}-${startTime}-${endTime}`,
         date: windowItem.date,
         startTime,
         endTime,
-        startIso: buildIsoDateTime(windowItem.date, startTime),
-        endIso: buildIsoDateTime(windowItem.date, endTime),
+        startIso,
+        endIso,
         serviceIds: [...windowItem.serviceIds],
       });
     }
@@ -314,7 +324,7 @@ function buildDefaultDraftForService(
   specialistSlug: string,
   slots: BookingSlot[],
   pets: Pet[],
-  storedDraft?: ServiceBookingDraft | null,
+  storedDraft?: ServiceBookingDraft | null
 ): ServiceBookingDraft {
   const bookingMode = getServiceBookingMode(service);
   const availableDates = buildDateOptions(slots);
@@ -322,34 +332,34 @@ function buildDefaultDraftForService(
     storedDraft?.selectedDate &&
     availableDates.some((item) => item.date === storedDraft.selectedDate)
       ? storedDraft.selectedDate
-      : availableDates[0]?.date ?? '';
+      : availableDates[0]?.date ?? "";
 
   const slotsForDate = slots.filter((slot) => slot.date === selectedDate);
   const selectedSlotId =
     storedDraft?.selectedSlotId &&
     slotsForDate.some((slot) => slot.id === storedDraft.selectedSlotId)
       ? storedDraft.selectedSlotId
-      : slotsForDate[0]?.id ?? '';
+      : slotsForDate[0]?.id ?? "";
 
   const multiDay = service?.bookingPolicy?.multiDay;
-  const checkInTime = multiDay?.checkInTime ?? '13:00';
-  const checkOutTime = multiDay?.checkOutTime ?? '11:00';
+  const checkInTime = multiDay?.checkInTime ?? "13:00";
+  const checkOutTime = multiDay?.checkOutTime ?? "11:00";
 
-  const firstDate = availableDates[0]?.date ?? '';
+  const firstDate = availableDates[0]?.date ?? "";
   const secondDate = availableDates[1]?.date ?? firstDate;
 
   return {
     specialistSlug,
-    serviceId: service?.id ?? '',
+    serviceId: service?.id ?? "",
     petId: getInitialPetId(pets, storedDraft?.petId),
     selectedDate,
     selectedSlotId,
-    comment: storedDraft?.comment ?? '',
+    comment: storedDraft?.comment ?? "",
     bookingMode,
     requestedStartDate: storedDraft?.requestedStartDate ?? firstDate,
-    requestedStartTime: storedDraft?.requestedStartTime ?? '10:00',
+    requestedStartTime: storedDraft?.requestedStartTime ?? "10:00",
     requestedEndDate: storedDraft?.requestedEndDate ?? firstDate,
-    requestedEndTime: storedDraft?.requestedEndTime ?? '11:30',
+    requestedEndTime: storedDraft?.requestedEndTime ?? "11:30",
     stayCheckInDate: storedDraft?.stayCheckInDate ?? firstDate,
     stayCheckInTime: storedDraft?.stayCheckInTime ?? checkInTime,
     stayCheckOutDate: storedDraft?.stayCheckOutDate ?? secondDate,
@@ -357,88 +367,88 @@ function buildDefaultDraftForService(
   };
 }
 
+function getTomorrowDate(): string {
+  const d = new Date();
+  d.setDate(d.getDate() + 1);
+  return d.toISOString().slice(0, 10);
+}
+
 function buildRepeatDraft(
   order: ServiceOrder,
   service: SpecialistService | null,
   pets: Pet[],
   specialistSlug: string,
-  slots: BookingSlot[],
+  slots: BookingSlot[]
 ): ServiceBookingDraft {
   const baseDraft = buildDefaultDraftForService(
     service,
     specialistSlug,
     slots,
     pets,
-    null,
+    null
   );
 
-  if (order.schedule.mode === 'fixed_slot' || order.schedule.mode === 'time_range') {
-    const date = order.dateFrom.slice(0, 10);
-    const matchingSlot =
-      slots.find((slot) => {
-        return (
-          slot.date === date &&
-          slot.startIso === order.dateFrom &&
-          slot.endIso === order.dateTo
-        );
-      }) ?? null;
+  if (
+    order.schedule.mode === "fixed_slot" ||
+    order.schedule.mode === "time_range"
+  ) {
+    const tomorrow = getTomorrowDate();
+
+    const availableDates = buildDateOptions(slots);
+
+    const safeDate =
+      availableDates.find((item) => item.date >= tomorrow)?.date ??
+      availableDates[0]?.date ??
+      tomorrow;
+
+    const slotsForDate = slots.filter((slot) => slot.date === safeDate);
+    const matchingSlot = slotsForDate[0] ?? null;
 
     return {
       ...baseDraft,
       petId: getInitialPetId(pets, order.petId),
-      comment: order.comment ?? '',
+      comment: order.comment ?? "",
       bookingMode: order.schedule.mode,
       selectedDate: matchingSlot?.date ?? baseDraft.selectedDate,
       selectedSlotId: matchingSlot?.id ?? baseDraft.selectedSlotId,
-      requestedStartDate: date,
-      requestedStartTime: new Date(order.dateFrom).toLocaleTimeString('en-GB', {
-        hour: '2-digit',
-        minute: '2-digit',
-        hour12: false,
-      }),
-      requestedEndDate: order.dateTo?.slice(0, 10) ?? date,
-      requestedEndTime: order.dateTo
-        ? new Date(order.dateTo).toLocaleTimeString('en-GB', {
-            hour: '2-digit',
-            minute: '2-digit',
-            hour12: false,
-          })
-        : '',
+      requestedStartDate: safeDate,
+      requestedStartTime: matchingSlot?.startTime ?? "10:00",
+      requestedEndDate: safeDate,
+      requestedEndTime: matchingSlot?.endTime ?? "11:00",
     };
   }
 
-  if (order.schedule.mode === 'multi_day_stay') {
+  if (order.schedule.mode === "multi_day_stay") {
+    const tomorrow = getTomorrowDate();
+
+    const availableDates = buildDateOptions(slots);
+
+    const safeStart =
+      availableDates.find((item) => item.date >= tomorrow)?.date ??
+      availableDates[0]?.date ??
+      tomorrow;
+
+    const safeEnd =
+      availableDates.find((item) => item.date > safeStart)?.date ?? safeStart;
+
     return {
       ...baseDraft,
       petId: getInitialPetId(pets, order.petId),
-      comment: order.comment ?? '',
-      bookingMode: 'multi_day_stay',
-      stayCheckInDate: order.schedule.checkInAt.slice(0, 10),
-      stayCheckInTime: new Date(order.schedule.checkInAt).toLocaleTimeString(
-        'en-GB',
-        {
-          hour: '2-digit',
-          minute: '2-digit',
-          hour12: false,
-        },
-      ),
-      stayCheckOutDate: order.schedule.checkOutAt.slice(0, 10),
-      stayCheckOutTime: new Date(order.schedule.checkOutAt).toLocaleTimeString(
-        'en-GB',
-        {
-          hour: '2-digit',
-          minute: '2-digit',
-          hour12: false,
-        },
-      ),
+      comment: order.comment ?? "",
+      bookingMode: "multi_day_stay",
+      stayCheckInDate: safeStart,
+      stayCheckInTime: baseDraft.stayCheckInTime,
+      stayCheckOutDate: safeEnd,
+      stayCheckOutTime: baseDraft.stayCheckOutTime,
     };
   }
 
   return {
     ...baseDraft,
     petId: getInitialPetId(pets, order.petId),
-    comment: order.comment ?? '',
-    bookingMode: 'open_request',
+    comment: order.comment ?? "",
+    bookingMode: "open_request",
+    requestedStartDate: getTomorrowDate(),
   };
 }
 
@@ -462,7 +472,9 @@ export class ServiceBookingStore {
   }
 
   get selectedService() {
-    return this.services.find((item) => item.id === this.draft.serviceId) ?? null;
+    return (
+      this.services.find((item) => item.id === this.draft.serviceId) ?? null
+    );
   }
 
   get selectedPet() {
@@ -475,22 +487,23 @@ export class ServiceBookingStore {
 
   get availableDates(): BookingDateOption[] {
     return buildDateOptions(
-      filterSlotsByService(this.normalizedSlots, this.draft.serviceId),
+      filterSlotsByService(this.normalizedSlots, this.draft.serviceId)
     );
   }
 
   get availableSlotsForSelectedDate(): BookingSlot[] {
     const selectedDate = this.draft.selectedDate.trim();
 
-    return filterSlotsByService(this.normalizedSlots, this.draft.serviceId).filter(
-      (slot) => slot.date === selectedDate,
-    );
+    return filterSlotsByService(
+      this.normalizedSlots,
+      this.draft.serviceId
+    ).filter((slot) => slot.date === selectedDate);
   }
 
   get selectedSlot(): BookingSlot | null {
     return (
       this.availableSlotsForSelectedDate.find(
-        (slot) => slot.id === this.draft.selectedSlotId,
+        (slot) => slot.id === this.draft.selectedSlotId
       ) ?? null
     );
   }
@@ -507,10 +520,7 @@ export class ServiceBookingStore {
 
     return calculateStayDays(
       buildIsoDateTime(this.draft.stayCheckInDate, this.draft.stayCheckInTime),
-      buildIsoDateTime(
-        this.draft.stayCheckOutDate,
-        this.draft.stayCheckOutTime,
-      ),
+      buildIsoDateTime(this.draft.stayCheckOutDate, this.draft.stayCheckOutTime)
     );
   }
 
@@ -521,7 +531,7 @@ export class ServiceBookingStore {
       return null;
     }
 
-    if (this.bookingMode === 'multi_day_stay') {
+    if (this.bookingMode === "multi_day_stay") {
       return service.price * Math.max(1, this.stayDays);
     }
 
@@ -547,25 +557,33 @@ export class ServiceBookingStore {
 
     try {
       const repeatOrderId = params.repeatOrderId?.trim() || null;
-      const specialistSlug = params.specialistSlug?.trim() || '';
-      const presetServiceId = params.presetServiceId?.trim() || '';
-      const storedDraft = readStoredDraft();
+      const specialistSlug = params.specialistSlug?.trim() || "";
+      const presetServiceId = params.presetServiceId?.trim() || "";
+      const storedDraft = repeatOrderId ? null : readStoredDraft();
 
       if (repeatOrderId) {
-        const sourceOrder = await ordersService.getServiceOrderById(repeatOrderId);
+        clearStoredDraft();
+      }
+
+      if (repeatOrderId) {
+        const sourceOrder = await ordersService.getServiceOrderById(
+          repeatOrderId
+        );
         const [specialist, pets] = await Promise.all([
           specialistProfileService.getBySlug(sourceOrder.specialistSlug),
           petsService.getPets(),
         ]);
 
         const selectedService =
-          specialist.services.find((item) => item.id === sourceOrder.serviceId) ??
+          specialist.services.find(
+            (item) => item.id === sourceOrder.serviceId
+          ) ??
           specialist.services[0] ??
           null;
 
         const slots = buildSlotsFromWindowsForService(
           specialist.calendar,
-          selectedService,
+          selectedService
         );
 
         runInAction(() => {
@@ -578,7 +596,7 @@ export class ServiceBookingStore {
             selectedService,
             pets,
             specialist.slug,
-            slots,
+            slots
           );
           this.loading = false;
         });
@@ -588,7 +606,7 @@ export class ServiceBookingStore {
       }
 
       if (!specialistSlug) {
-        throw new Error('Не выбран специалист для оформления заказа.');
+        throw new Error("Не выбран специалист для оформления заказа.");
       }
 
       const [specialist, pets] = await Promise.all([
@@ -601,13 +619,15 @@ export class ServiceBookingStore {
 
       const selectedService =
         specialist.services.find((item) => item.id === presetServiceId) ??
-        specialist.services.find((item) => item.id === relevantStoredDraft?.serviceId) ??
+        specialist.services.find(
+          (item) => item.id === relevantStoredDraft?.serviceId
+        ) ??
         specialist.services[0] ??
         null;
 
       const slots = buildSlotsFromWindowsForService(
         specialist.calendar,
-        selectedService,
+        selectedService
       );
 
       runInAction(() => {
@@ -620,7 +640,7 @@ export class ServiceBookingStore {
           specialist.slug,
           slots,
           pets,
-          relevantStoredDraft,
+          relevantStoredDraft
         );
         this.loading = false;
       });
@@ -631,7 +651,7 @@ export class ServiceBookingStore {
         this.error =
           error instanceof Error
             ? error.message
-            : 'Не удалось подготовить оформление заказа.';
+            : "Не удалось подготовить оформление заказа.";
         this.loading = false;
       });
     }
@@ -647,7 +667,7 @@ export class ServiceBookingStore {
 
     const nextSlots = buildSlotsFromWindowsForService(
       this.specialist.calendar,
-      service,
+      service
     );
 
     this.normalizedSlots = nextSlots;
@@ -659,7 +679,7 @@ export class ServiceBookingStore {
       {
         ...this.draft,
         serviceId,
-      },
+      }
     );
     this.saveDraft();
   }
@@ -671,12 +691,12 @@ export class ServiceBookingStore {
   setSelectedDate(selectedDate: string): void {
     const nextSlots = filterSlotsByService(
       this.normalizedSlots,
-      this.draft.serviceId,
+      this.draft.serviceId
     ).filter((slot) => slot.date === selectedDate);
 
     this.replaceDraft({
       selectedDate,
-      selectedSlotId: nextSlots[0]?.id ?? '',
+      selectedSlotId: nextSlots[0]?.id ?? "",
     });
   }
 
@@ -718,19 +738,19 @@ export class ServiceBookingStore {
 
   async submit(): Promise<ServiceOrder | null> {
     if (!this.specialist) {
-      throw new Error('Специалист не найден.');
+      throw new Error("Специалист не найден.");
     }
 
     const service = this.selectedService;
 
     if (!service) {
-      throw new Error('Выберите услугу.');
+      throw new Error("Выберите услугу.");
     }
 
     const pet = this.selectedPet;
 
     if (!pet) {
-      throw new Error('Выберите питомца.');
+      throw new Error("Выберите питомца.");
     }
 
     this.submitting = true;
@@ -739,74 +759,74 @@ export class ServiceBookingStore {
     try {
       let payload;
 
-      if (this.bookingMode === 'fixed_slot') {
+      if (this.bookingMode === "fixed_slot") {
         const slot = this.selectedSlot;
 
         if (!slot) {
-          throw new Error('Выберите доступный слот.');
+          throw new Error("Выберите доступный слот.");
         }
 
         payload = {
           dateFrom: slot.startIso,
           dateTo: slot.endIso,
           schedule: {
-            mode: 'fixed_slot' as const,
+            mode: "fixed_slot" as const,
             startAt: slot.startIso,
             endAt: slot.endIso,
           },
         };
-      } else if (this.bookingMode === 'time_range') {
+      } else if (this.bookingMode === "time_range") {
         if (
           !this.draft.requestedStartDate ||
           !this.draft.requestedStartTime ||
           !this.draft.requestedEndDate ||
           !this.draft.requestedEndTime
         ) {
-          throw new Error('Заполни начало и конец выбранного интервала.');
+          throw new Error("Заполни начало и конец выбранного интервала.");
         }
 
         const startIso = buildIsoDateTime(
           this.draft.requestedStartDate,
-          this.draft.requestedStartTime,
+          this.draft.requestedStartTime
         );
         const endIso = buildIsoDateTime(
           this.draft.requestedEndDate,
-          this.draft.requestedEndTime,
+          this.draft.requestedEndTime
         );
 
         payload = {
           dateFrom: startIso,
           dateTo: endIso,
           schedule: {
-            mode: 'time_range' as const,
+            mode: "time_range" as const,
             startAt: startIso,
             endAt: endIso,
           },
         };
-      } else if (this.bookingMode === 'multi_day_stay') {
+      } else if (this.bookingMode === "multi_day_stay") {
         if (
           !this.draft.stayCheckInDate ||
           !this.draft.stayCheckInTime ||
           !this.draft.stayCheckOutDate ||
           !this.draft.stayCheckOutTime
         ) {
-          throw new Error('Заполни дату и время заезда и выезда.');
+          throw new Error("Заполни дату и время заезда и выезда.");
         }
 
         const checkInAt = buildIsoDateTime(
           this.draft.stayCheckInDate,
-          this.draft.stayCheckInTime,
+          this.draft.stayCheckInTime
         );
         const checkOutAt = buildIsoDateTime(
           this.draft.stayCheckOutDate,
-          this.draft.stayCheckOutTime,
+          this.draft.stayCheckOutTime
         );
 
         payload = {
           dateFrom: checkInAt,
           dateTo: checkOutAt,
           schedule: {
-            mode: 'multi_day_stay' as const,
+            mode: "multi_day_stay" as const,
             checkInAt,
             checkOutAt,
             stayDays: this.stayDays,
@@ -820,12 +840,12 @@ export class ServiceBookingStore {
           dateFrom: requestedDate
             ? buildIsoDateTime(
                 requestedDate,
-                this.draft.requestedStartTime || '09:00',
+                this.draft.requestedStartTime || "09:00"
               )
             : new Date().toISOString(),
           dateTo: undefined,
           schedule: {
-            mode: 'open_request' as const,
+            mode: "open_request" as const,
             requestedDate: requestedDate || undefined,
             requestedStartTime: this.draft.requestedStartTime || undefined,
             requestedEndTime: this.draft.requestedEndTime || undefined,
@@ -848,7 +868,7 @@ export class ServiceBookingStore {
         locationLabel: service.locationLabel,
         comment: this.draft.comment.trim() || undefined,
         price: this.estimatedPrice ?? service.price,
-        currency: 'RUB',
+        currency: "RUB",
       });
 
       runInAction(() => {
@@ -861,7 +881,7 @@ export class ServiceBookingStore {
     } catch (error) {
       runInAction(() => {
         this.submitError =
-          error instanceof Error ? error.message : 'Не удалось создать заказ.';
+          error instanceof Error ? error.message : "Не удалось создать заказ.";
         this.submitting = false;
       });
 

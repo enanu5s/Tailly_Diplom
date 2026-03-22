@@ -1,3 +1,5 @@
+//src/features/orders/ui/OrdersProductsSection.tsx
+
 import { observer } from 'mobx-react-lite';
 import { useEffect } from 'react';
 import { useAppNavigate } from '@/shared/lib/navigation/useAppNavigate';
@@ -5,7 +7,7 @@ import { useAppNavigate } from '@/shared/lib/navigation/useAppNavigate';
 import styles from './OrdersProductsSection.module.css';
 import { ordersStore } from '../model/ordersStore';
 
-import type { KeyboardEvent } from 'react';
+import type { KeyboardEvent, MouseEvent } from 'react';
 import type { ProductOrder } from '../model/types';
 
 type CheckoutLocationState = {
@@ -90,9 +92,10 @@ const ProductOrderCard = observer(
     onRepeat,
     isRepeatLoading,
   }: ProductOrderCardProps) => {
-    const thumbs = order.productThumbs ?? [];
-    const show = thumbs.slice(0, 3);
-    const rest = Math.max(0, thumbs.length - 3);
+    const navigate = useNavigate();
+
+    const visibleItems = order.items.slice(0, 3);
+    const rest = Math.max(0, order.items.length - 3);
 
     const handleCardKeyDown = (
       event: KeyboardEvent<HTMLDivElement>,
@@ -101,6 +104,14 @@ const ProductOrderCard = observer(
         event.preventDefault();
         onOpen();
       }
+    };
+
+    const handleOpenProduct = (
+      event: MouseEvent<HTMLButtonElement>,
+      productId: string,
+    ): void => {
+      event.stopPropagation();
+      navigate(`/shop/${productId}`);
     };
 
     return (
@@ -137,22 +148,46 @@ const ProductOrderCard = observer(
           </div>
 
           <div className={styles.thumbs}>
-            {show.map((src, idx) => {
+            {visibleItems.map((item, idx) => {
               const isLastVisible = idx === 2;
 
               if (isLastVisible && rest > 0) {
                 return (
-                  <div key={`${src}-${idx}`} className={styles.thumbWrap}>
-                    <img className={styles.thumb} src={src} alt="Товар" />
+                  <button
+                    key={`${item.productId}-${idx}`}
+                    type="button"
+                    className={styles.thumbWrap}
+                    onClick={(event) => {
+                      handleOpenProduct(event, item.productId);
+                    }}
+                    aria-label={`Открыть товар ${item.title}`}
+                  >
+                    <img
+                      className={styles.thumb}
+                      src={item.imageUrl}
+                      alt={item.title}
+                    />
                     <div className={styles.moreOverlay}>{rest}+</div>
-                  </div>
+                  </button>
                 );
               }
 
               return (
-                <div key={`${src}-${idx}`} className={styles.thumbWrap}>
-                  <img className={styles.thumb} src={src} alt="Товар" />
-                </div>
+                <button
+                  key={`${item.productId}-${idx}`}
+                  type="button"
+                  className={styles.thumbWrap}
+                  onClick={(event) => {
+                    handleOpenProduct(event, item.productId);
+                  }}
+                  aria-label={`Открыть товар ${item.title}`}
+                >
+                  <img
+                    className={styles.thumb}
+                    src={item.imageUrl}
+                    alt={item.title}
+                  />
+                </button>
               );
             })}
           </div>

@@ -6,9 +6,10 @@ export type HomeBanner = {
   id: string;
   title: string;
   subtitle?: string;
-  imageUrl?: string; // /public/images/... или полный URL
+  imageUrl?: string;
   createdAtIso: string;
-  postId: string; // на какой пост ведём
+  postId?: string;
+  linkUrl?: string;
 };
 
 export type HomeReview = {

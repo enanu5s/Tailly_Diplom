@@ -22,8 +22,9 @@ export const INITIAL_ADMIN_MANAGED_BANNERS: AdminManagedBanner[] = [
     description:
       'Баннер внутри раздела постов для повышения просмотров публикаций.',
     imageUrl: '/images/banner-posts.png',
-    linkUrl: '/posts',
+    linkUrl: '/posts/admin-post-1',
     linkTarget: 'posts',
+    linkedPostId: 'admin-post-1',
     placement: 'posts',
     status: 'published',
     startsAt: '2026-03-05T00:00:00.000Z',

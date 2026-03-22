@@ -1,7 +1,7 @@
 // src/features/admin-posts-banners-management/model/adminPostsBannersManagementStore.ts
-import { makeAutoObservable, runInAction } from 'mobx';
+import { makeAutoObservable, runInAction } from "mobx";
 
-import { adminPostsBannersManagementService } from '../service/adminPostsBannersManagementService';
+import { adminPostsBannersManagementService } from "../service/adminPostsBannersManagementService";
 
 import type {
   AdminBannerStatus,
@@ -10,9 +10,9 @@ import type {
   AdminPostStatus,
   BannerLinkTarget,
   BannerPlacement,
-} from './types';
+} from "./types";
 
-type ManagementTab = 'posts' | 'banners';
+type ManagementTab = "posts" | "banners";
 
 type PostFormState = {
   id?: string;
@@ -31,7 +31,8 @@ type BannerFormState = {
   description: string;
   imageUrl: string;
   placement: BannerPlacement;
-  linkTarget: BannerLinkTarget;
+  linkTarget: BannerLinkTarget | "";
+  linkedPostId: string;
   status: AdminBannerStatus;
   startsAt: string;
   endsAt: string;
@@ -39,45 +40,46 @@ type BannerFormState = {
 
 function createEmptyPostForm(): PostFormState {
   return {
-    title: '',
-    content: '',
+    title: "",
+    content: "",
     imageUrls: [],
-    coverImageUrl: '',
-    imageUrlInput: '',
-    tags: '',
-    status: 'draft',
+    coverImageUrl: "",
+    imageUrlInput: "",
+    tags: "",
+    status: "draft",
   };
 }
 
 function createEmptyBannerForm(): BannerFormState {
   return {
-    title: '',
-    description: '',
-    imageUrl: '',
-    placement: 'home_hero',
-    linkTarget: 'home',
-    status: 'draft',
-    startsAt: '',
-    endsAt: '',
+    title: "",
+    description: "",
+    imageUrl: "",
+    placement: "home_hero",
+    linkTarget: "",
+    linkedPostId: "",
+    status: "draft",
+    startsAt: "",
+    endsAt: "",
   };
 }
 
 function formatDateTimeInputValue(value?: string): string {
   if (!value) {
-    return '';
+    return "";
   }
 
   const date = new Date(value);
 
   if (Number.isNaN(date.getTime())) {
-    return '';
+    return "";
   }
 
   const year = date.getFullYear();
-  const month = String(date.getMonth() + 1).padStart(2, '0');
-  const day = String(date.getDate()).padStart(2, '0');
-  const hours = String(date.getHours()).padStart(2, '0');
-  const minutes = String(date.getMinutes()).padStart(2, '0');
+  const month = String(date.getMonth() + 1).padStart(2, "0");
+  const day = String(date.getDate()).padStart(2, "0");
+  const hours = String(date.getHours()).padStart(2, "0");
+  const minutes = String(date.getMinutes()).padStart(2, "0");
 
   return `${year}-${month}-${day}T${hours}:${minutes}`;
 }
@@ -87,16 +89,16 @@ function readFileAsDataUrl(file: File): Promise<string> {
     const reader = new FileReader();
 
     reader.onload = () => {
-      if (typeof reader.result === 'string') {
+      if (typeof reader.result === "string") {
         resolve(reader.result);
         return;
       }
 
-      reject(new Error('Не удалось прочитать изображение.'));
+      reject(new Error("Не удалось прочитать изображение."));
     };
 
     reader.onerror = () => {
-      reject(new Error('Не удалось прочитать изображение.'));
+      reject(new Error("Не удалось прочитать изображение."));
     };
 
     reader.readAsDataURL(file);
@@ -108,12 +110,12 @@ class AdminPostsBannersManagementStore {
   banners: AdminManagedBanner[] = [];
 
   isLoading = false;
-  loadError = '';
-  actionError = '';
-  successMessage = '';
+  loadError = "";
+  actionError = "";
+  successMessage = "";
 
-  activeTab: ManagementTab = 'posts';
-  search = '';
+  activeTab: ManagementTab = "posts";
+  search = "";
 
   isSavingPost = false;
   isSavingBanner = false;
@@ -142,8 +144,8 @@ class AdminPostsBannersManagementStore {
   }
 
   resetFeedback(): void {
-    this.actionError = '';
-    this.successMessage = '';
+    this.actionError = "";
+    this.successMessage = "";
   }
 
   get filteredPosts(): AdminManagedPost[] {
@@ -154,9 +156,9 @@ class AdminPostsBannersManagementStore {
     }
 
     return this.posts.filter((post) =>
-      `${post.title} ${post.content} ${post.tags.join(' ')}`
+      `${post.title} ${post.content} ${post.tags.join(" ")}`
         .toLowerCase()
-        .includes(query),
+        .includes(query)
     );
   }
 
@@ -168,24 +170,27 @@ class AdminPostsBannersManagementStore {
     }
 
     return this.banners.filter((banner) =>
-      `${banner.title} ${banner.description} ${banner.placement} ${banner.linkUrl ?? ''}`
+      `${banner.title} ${banner.description} ${banner.placement} ${
+        banner.linkUrl ?? ""
+      }`
         .toLowerCase()
-        .includes(query),
+        .includes(query)
     );
   }
 
   get publishedPostsCount(): number {
-    return this.posts.filter((post) => post.status === 'published').length;
+    return this.posts.filter((post) => post.status === "published").length;
   }
 
   get publishedBannersCount(): number {
-    return this.banners.filter((banner) => banner.status === 'published').length;
+    return this.banners.filter((banner) => banner.status === "published")
+      .length;
   }
 
   async load(): Promise<void> {
     runInAction(() => {
       this.isLoading = true;
-      this.loadError = '';
+      this.loadError = "";
     });
 
     try {
@@ -200,7 +205,7 @@ class AdminPostsBannersManagementStore {
         this.loadError =
           error instanceof Error
             ? error.message
-            : 'Не удалось загрузить публикации и баннеры.';
+            : "Не удалось загрузить публикации и баннеры.";
       });
     } finally {
       runInAction(() => {
@@ -224,9 +229,9 @@ class AdminPostsBannersManagementStore {
       title: post.title,
       content: post.content,
       imageUrls: [...post.imageUrls],
-      coverImageUrl: post.coverImageUrl ?? '',
-      imageUrlInput: '',
-      tags: post.tags.join(', '),
+      coverImageUrl: post.coverImageUrl ?? "",
+      imageUrlInput: "",
+      tags: post.tags.join(", "),
       status: post.status,
     };
     this.resetFeedback();
@@ -239,7 +244,7 @@ class AdminPostsBannersManagementStore {
 
   setPostFormField<Key extends keyof PostFormState>(
     key: Key,
-    value: PostFormState[Key],
+    value: PostFormState[Key]
   ): void {
     this.postForm[key] = value;
   }
@@ -248,18 +253,18 @@ class AdminPostsBannersManagementStore {
     const nextUrl = this.postForm.imageUrlInput.trim();
 
     if (!nextUrl) {
-      this.actionError = 'Вставьте ссылку на изображение.';
+      this.actionError = "Вставьте ссылку на изображение.";
       return;
     }
 
     if (this.postForm.imageUrls.includes(nextUrl)) {
-      this.actionError = 'Это изображение уже добавлено.';
+      this.actionError = "Это изображение уже добавлено.";
       return;
     }
 
     this.postForm.imageUrls = [...this.postForm.imageUrls, nextUrl];
-    this.postForm.imageUrlInput = '';
-    this.actionError = '';
+    this.postForm.imageUrlInput = "";
+    this.actionError = "";
 
     if (!this.postForm.coverImageUrl) {
       this.postForm.coverImageUrl = nextUrl;
@@ -273,18 +278,18 @@ class AdminPostsBannersManagementStore {
 
     runInAction(() => {
       this.isUploadingPostImages = true;
-      this.actionError = '';
+      this.actionError = "";
     });
 
     try {
       const files = Array.from(fileList);
       const uploadedImages = await Promise.all(
-        files.map((file) => readFileAsDataUrl(file)),
+        files.map((file) => readFileAsDataUrl(file))
       );
 
       runInAction(() => {
         const uniqueImages = uploadedImages.filter(
-          (imageUrl) => !this.postForm.imageUrls.includes(imageUrl),
+          (imageUrl) => !this.postForm.imageUrls.includes(imageUrl)
         );
 
         this.postForm.imageUrls = [...this.postForm.imageUrls, ...uniqueImages];
@@ -298,7 +303,7 @@ class AdminPostsBannersManagementStore {
         this.actionError =
           error instanceof Error
             ? error.message
-            : 'Не удалось загрузить изображения.';
+            : "Не удалось загрузить изображения.";
       });
     } finally {
       runInAction(() => {
@@ -308,12 +313,14 @@ class AdminPostsBannersManagementStore {
   }
 
   removePostImage(imageUrl: string): void {
-    const nextImages = this.postForm.imageUrls.filter((item) => item !== imageUrl);
+    const nextImages = this.postForm.imageUrls.filter(
+      (item) => item !== imageUrl
+    );
 
     this.postForm.imageUrls = nextImages;
 
     if (this.postForm.coverImageUrl === imageUrl) {
-      this.postForm.coverImageUrl = nextImages[0] ?? '';
+      this.postForm.coverImageUrl = nextImages[0] ?? "";
     }
   }
 
@@ -332,8 +339,8 @@ class AdminPostsBannersManagementStore {
 
     runInAction(() => {
       this.isSavingPost = true;
-      this.actionError = '';
-      this.successMessage = '';
+      this.actionError = "";
+      this.successMessage = "";
     });
 
     try {
@@ -344,7 +351,7 @@ class AdminPostsBannersManagementStore {
         imageUrls: this.postForm.imageUrls,
         coverImageUrl: this.postForm.coverImageUrl || undefined,
         tags: this.postForm.tags
-          .split(',')
+          .split(",")
           .map((tag) => tag.trim())
           .filter(Boolean),
         status: this.postForm.status,
@@ -352,11 +359,13 @@ class AdminPostsBannersManagementStore {
 
       runInAction(() => {
         this.posts = this.posts.some((post) => post.id === savedPost.id)
-          ? this.posts.map((post) => (post.id === savedPost.id ? savedPost : post))
+          ? this.posts.map((post) =>
+              post.id === savedPost.id ? savedPost : post
+            )
           : [savedPost, ...this.posts];
         this.successMessage = this.postForm.id
-          ? 'Публикация обновлена.'
-          : 'Публикация создана.';
+          ? "Публикация обновлена."
+          : "Публикация создана.";
         this.closePostEditor();
       });
     } catch (error) {
@@ -364,7 +373,7 @@ class AdminPostsBannersManagementStore {
         this.actionError =
           error instanceof Error
             ? error.message
-            : 'Не удалось сохранить публикацию.';
+            : "Не удалось сохранить публикацию.";
       });
     } finally {
       runInAction(() => {
@@ -379,7 +388,7 @@ class AdminPostsBannersManagementStore {
     }
 
     const isConfirmed = window.confirm(
-      `Удалить публикацию "${post.title}"? Это действие нельзя отменить.`,
+      `Удалить публикацию "${post.title}"? Это действие нельзя отменить.`
     );
 
     if (!isConfirmed) {
@@ -388,8 +397,8 @@ class AdminPostsBannersManagementStore {
 
     runInAction(() => {
       this.deletingPostId = post.id;
-      this.actionError = '';
-      this.successMessage = '';
+      this.actionError = "";
+      this.successMessage = "";
     });
 
     try {
@@ -408,7 +417,7 @@ class AdminPostsBannersManagementStore {
         this.actionError =
           error instanceof Error
             ? error.message
-            : 'Не удалось удалить публикацию.';
+            : "Не удалось удалить публикацию.";
       });
     } finally {
       runInAction(() => {
@@ -431,9 +440,11 @@ class AdminPostsBannersManagementStore {
       id: banner.id,
       title: banner.title,
       description: banner.description,
-      imageUrl: banner.imageUrl ?? '',
+      imageUrl: banner.imageUrl ?? "",
       placement: banner.placement,
       linkTarget: banner.linkTarget,
+      linkedPostId:
+        banner.linkTarget === "posts" ? banner.linkedPostId ?? "" : "",
       status: banner.status,
       startsAt: formatDateTimeInputValue(banner.startsAt),
       endsAt: formatDateTimeInputValue(banner.endsAt),
@@ -448,7 +459,7 @@ class AdminPostsBannersManagementStore {
 
   setBannerFormField<Key extends keyof BannerFormState>(
     key: Key,
-    value: BannerFormState[Key],
+    value: BannerFormState[Key]
   ): void {
     this.bannerForm[key] = value;
   }
@@ -460,11 +471,28 @@ class AdminPostsBannersManagementStore {
 
     runInAction(() => {
       this.isSavingBanner = true;
-      this.actionError = '';
-      this.successMessage = '';
+      this.actionError = "";
+      this.successMessage = "";
     });
 
     try {
+      if (!this.bannerForm.linkTarget) {
+        runInAction(() => {
+          this.actionError = "Укажите, куда ведёт баннер.";
+        });
+        return;
+      }
+
+      if (
+        this.bannerForm.linkTarget === "posts" &&
+        !this.bannerForm.linkedPostId
+      ) {
+        runInAction(() => {
+          this.actionError = "Выберите пост, к которому привязан баннер.";
+        });
+        return;
+      }
+
       const savedBanner = await adminPostsBannersManagementService.saveBanner({
         id: this.bannerForm.id,
         title: this.bannerForm.title,
@@ -472,6 +500,10 @@ class AdminPostsBannersManagementStore {
         imageUrl: this.bannerForm.imageUrl,
         placement: this.bannerForm.placement,
         linkTarget: this.bannerForm.linkTarget,
+        linkedPostId:
+          this.bannerForm.linkTarget === "posts"
+            ? this.bannerForm.linkedPostId
+            : undefined,
         status: this.bannerForm.status,
         startsAt: this.bannerForm.startsAt
           ? new Date(this.bannerForm.startsAt).toISOString()
@@ -482,14 +514,18 @@ class AdminPostsBannersManagementStore {
       });
 
       runInAction(() => {
-        this.banners = this.banners.some((banner) => banner.id === savedBanner.id)
+        this.banners = this.banners.some(
+          (banner) => banner.id === savedBanner.id
+        )
           ? this.banners.map((banner) =>
-              banner.id === savedBanner.id ? savedBanner : banner,
+              banner.id === savedBanner.id ? savedBanner : banner
             )
           : [savedBanner, ...this.banners];
+
         this.successMessage = this.bannerForm.id
-          ? 'Баннер обновлён.'
-          : 'Баннер создан.';
+          ? "Баннер обновлён."
+          : "Баннер создан.";
+
         this.closeBannerEditor();
       });
     } catch (error) {
@@ -497,7 +533,7 @@ class AdminPostsBannersManagementStore {
         this.actionError =
           error instanceof Error
             ? error.message
-            : 'Не удалось сохранить баннер.';
+            : "Не удалось сохранить баннер.";
       });
     } finally {
       runInAction(() => {
@@ -512,7 +548,7 @@ class AdminPostsBannersManagementStore {
     }
 
     const isConfirmed = window.confirm(
-      `Удалить баннер "${banner.title}"? Это действие нельзя отменить.`,
+      `Удалить баннер "${banner.title}"? Это действие нельзя отменить.`
     );
 
     if (!isConfirmed) {
@@ -521,8 +557,8 @@ class AdminPostsBannersManagementStore {
 
     runInAction(() => {
       this.deletingBannerId = banner.id;
-      this.actionError = '';
-      this.successMessage = '';
+      this.actionError = "";
+      this.successMessage = "";
     });
 
     try {
@@ -539,9 +575,7 @@ class AdminPostsBannersManagementStore {
     } catch (error) {
       runInAction(() => {
         this.actionError =
-          error instanceof Error
-            ? error.message
-            : 'Не удалось удалить баннер.';
+          error instanceof Error ? error.message : "Не удалось удалить баннер.";
       });
     } finally {
       runInAction(() => {
