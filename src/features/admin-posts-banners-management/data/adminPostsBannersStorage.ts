@@ -41,9 +41,18 @@ function normalizePost(post: AdminManagedPost): AdminManagedPost {
 }
 
 function normalizeBanner(banner: AdminManagedBanner): AdminManagedBanner {
+  const normalizedLinkTarget = banner.linkTarget ?? 'home';
+  const normalizedLinkedPostId =
+    normalizedLinkTarget === 'posts' &&
+    typeof banner.linkedPostId === 'string' &&
+    banner.linkedPostId.trim()
+      ? banner.linkedPostId
+      : undefined;
+
   return {
     ...banner,
-    linkTarget: banner.linkTarget ?? 'home',
+    linkTarget: normalizedLinkTarget,
+    linkedPostId: normalizedLinkedPostId,
   };
 }
 

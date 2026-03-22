@@ -46,11 +46,22 @@ export function BannerCarousel({ items: rawItems }: Props) {
   };
 
   const handleOpenPost = (): void => {
-    navigate(`/posts/${encodeURIComponent(current.postId)}`, {
-      state: {
-        from: 'home',
-      },
-    });
+    if (current.linkUrl) {
+      navigate(current.linkUrl, {
+        state: {
+          from: 'home',
+        },
+      });
+      return;
+    }
+  
+    if (current.postId) {
+      navigate(`/posts/${encodeURIComponent(current.postId)}`, {
+        state: {
+          from: 'home',
+        },
+      });
+    }
   };
 
   return (

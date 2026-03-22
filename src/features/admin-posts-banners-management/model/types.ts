@@ -36,6 +36,7 @@ export type AdminManagedBanner = {
   imageUrl?: string;
   linkUrl?: string;
   linkTarget: BannerLinkTarget;
+  linkedPostId?: string;
   placement: BannerPlacement;
   status: AdminBannerStatus;
   startsAt?: string;
@@ -66,6 +67,7 @@ export type SaveAdminBannerPayload = {
   imageUrl?: string;
   placement: BannerPlacement;
   linkTarget: BannerLinkTarget;
+  linkedPostId?: string;
   status: AdminBannerStatus;
   startsAt?: string;
   endsAt?: string;

@@ -1,42 +1,42 @@
 // src/features/service-booking/ui/ServiceBookingPageContent.tsx
 
-import { observer } from 'mobx-react-lite';
-import { useEffect } from 'react';
-import { useLocation, useNavigate, useSearchParams } from 'react-router-dom';
+import { observer } from "mobx-react-lite";
+import { useEffect } from "react";
+import { useLocation, useNavigate, useSearchParams } from "react-router-dom";
 
-import { serviceBookingStore } from '../model/serviceBookingStore';
-import type { ServiceBookingLocationState } from '../model/types';
-import styles from './ServiceBookingPageContent.module.css';
+import { serviceBookingStore } from "../model/serviceBookingStore";
+import type { ServiceBookingLocationState } from "../model/types";
+import styles from "./ServiceBookingPageContent.module.css";
 
-import type { ReactElement } from 'react';
+import type { ReactElement } from "react";
 
 function formatPriceUnit(unit: string): string {
-  if (unit === 'hour') {
-    return 'за час';
+  if (unit === "hour") {
+    return "за час";
   }
 
-  if (unit === 'day') {
-    return 'за день';
+  if (unit === "day") {
+    return "за день";
   }
 
-  if (unit === 'service') {
-    return 'за услугу';
+  if (unit === "service") {
+    return "за услугу";
   }
 
-  if (unit === 'walk') {
-    return 'за прогулку';
+  if (unit === "walk") {
+    return "за прогулку";
   }
 
-  if (unit === 'visit') {
-    return 'за визит';
+  if (unit === "visit") {
+    return "за визит";
   }
 
   return unit;
 }
 
-function formatPrice(value: number, currency: 'RUB'): string {
-  return new Intl.NumberFormat('ru-RU', {
-    style: 'currency',
+function formatPrice(value: number, currency: "RUB"): string {
+  return new Intl.NumberFormat("ru-RU", {
+    style: "currency",
     currency,
     maximumFractionDigits: 0,
   }).format(value);
@@ -44,32 +44,32 @@ function formatPrice(value: number, currency: 'RUB'): string {
 
 function formatDate(value: string): string {
   if (!value) {
-    return '—';
+    return "—";
   }
 
-  return new Date(`${value}T00:00:00`).toLocaleDateString('ru-RU', {
-    weekday: 'long',
-    day: '2-digit',
-    month: 'long',
-    year: 'numeric',
+  return new Date(`${value}T00:00:00`).toLocaleDateString("ru-RU", {
+    weekday: "long",
+    day: "2-digit",
+    month: "long",
+    year: "numeric",
   });
 }
 
 function formatModeLabel(mode: string): string {
-  if (mode === 'fixed_slot') {
-    return 'Фиксированный слот';
+  if (mode === "fixed_slot") {
+    return "Фиксированный слот";
   }
 
-  if (mode === 'time_range') {
-    return 'Произвольный интервал';
+  if (mode === "time_range") {
+    return "Произвольный интервал";
   }
 
-  if (mode === 'multi_day_stay') {
-    return 'Передержка на несколько дней';
+  if (mode === "multi_day_stay") {
+    return "Передержка на несколько дней";
   }
 
-  if (mode === 'open_request') {
-    return 'Свободный запрос';
+  if (mode === "open_request") {
+    return "Свободный запрос";
   }
 
   return mode;
@@ -78,18 +78,18 @@ function formatModeLabel(mode: string): string {
 function buildSummaryDateLabel(): string {
   const mode = serviceBookingStore.bookingMode;
 
-  if (mode === 'fixed_slot') {
+  if (mode === "fixed_slot") {
     return serviceBookingStore.draft.selectedDate
       ? formatDate(serviceBookingStore.draft.selectedDate)
-      : '—';
+      : "—";
   }
 
-  if (mode === 'time_range') {
+  if (mode === "time_range") {
     if (
       !serviceBookingStore.draft.requestedStartDate ||
       !serviceBookingStore.draft.requestedEndDate
     ) {
-      return '—';
+      return "—";
     }
 
     if (
@@ -100,20 +100,20 @@ function buildSummaryDateLabel(): string {
     }
 
     return `${formatDate(
-      serviceBookingStore.draft.requestedStartDate,
+      serviceBookingStore.draft.requestedStartDate
     )} — ${formatDate(serviceBookingStore.draft.requestedEndDate)}`;
   }
 
-  if (mode === 'multi_day_stay') {
+  if (mode === "multi_day_stay") {
     if (
       !serviceBookingStore.draft.stayCheckInDate ||
       !serviceBookingStore.draft.stayCheckOutDate
     ) {
-      return '—';
+      return "—";
     }
 
     return `${formatDate(
-      serviceBookingStore.draft.stayCheckInDate,
+      serviceBookingStore.draft.stayCheckInDate
     )} — ${formatDate(serviceBookingStore.draft.stayCheckOutDate)}`;
   }
 
@@ -121,20 +121,20 @@ function buildSummaryDateLabel(): string {
     return formatDate(serviceBookingStore.draft.requestedStartDate);
   }
 
-  return 'По согласованию';
+  return "По согласованию";
 }
 
 function buildSummaryTimeLabel(): string {
   const mode = serviceBookingStore.bookingMode;
   const selectedSlot = serviceBookingStore.selectedSlot;
 
-  if (mode === 'fixed_slot') {
+  if (mode === "fixed_slot") {
     return selectedSlot
       ? `${selectedSlot.startTime} – ${selectedSlot.endTime}`
-      : 'Не выбрано';
+      : "Не выбрано";
   }
 
-  if (mode === 'time_range') {
+  if (mode === "time_range") {
     const {
       requestedStartTime,
       requestedEndTime,
@@ -148,13 +148,13 @@ function buildSummaryTimeLabel(): string {
       !requestedEndDate ||
       !requestedEndTime
     ) {
-      return 'Не выбрано';
+      return "Не выбрано";
     }
 
     return `${requestedStartTime} – ${requestedEndTime}`;
   }
 
-  if (mode === 'multi_day_stay') {
+  if (mode === "multi_day_stay") {
     const {
       stayCheckInTime,
       stayCheckOutTime,
@@ -168,7 +168,7 @@ function buildSummaryTimeLabel(): string {
       !stayCheckOutDate ||
       !stayCheckOutTime
     ) {
-      return 'Не выбрано';
+      return "Не выбрано";
     }
 
     return `Заезд ${stayCheckInTime}, выезд ${stayCheckOutTime}`;
@@ -178,18 +178,18 @@ function buildSummaryTimeLabel(): string {
   const endTime = serviceBookingStore.draft.requestedEndTime;
 
   if (!startTime && !endTime) {
-    return 'По согласованию';
+    return "По согласованию";
   }
 
   if (startTime && endTime) {
     return `${startTime} – ${endTime}`;
   }
 
-  return startTime || endTime || 'По согласованию';
+  return startTime || endTime || "По согласованию";
 }
 
 function buildSummaryExtraLabel(): string | null {
-  if (serviceBookingStore.bookingMode !== 'multi_day_stay') {
+  if (serviceBookingStore.bookingMode !== "multi_day_stay") {
     return null;
   }
 
@@ -211,25 +211,25 @@ function canSubmitBooking(): boolean {
     return false;
   }
 
-  if (mode === 'fixed_slot') {
+  if (mode === "fixed_slot") {
     return Boolean(serviceBookingStore.selectedSlot);
   }
 
-  if (mode === 'time_range') {
+  if (mode === "time_range") {
     return Boolean(
       serviceBookingStore.draft.requestedStartDate &&
         serviceBookingStore.draft.requestedStartTime &&
         serviceBookingStore.draft.requestedEndDate &&
-        serviceBookingStore.draft.requestedEndTime,
+        serviceBookingStore.draft.requestedEndTime
     );
   }
 
-  if (mode === 'multi_day_stay') {
+  if (mode === "multi_day_stay") {
     return Boolean(
       serviceBookingStore.draft.stayCheckInDate &&
         serviceBookingStore.draft.stayCheckInTime &&
         serviceBookingStore.draft.stayCheckOutDate &&
-        serviceBookingStore.draft.stayCheckOutTime,
+        serviceBookingStore.draft.stayCheckOutTime
     );
   }
 
@@ -242,10 +242,10 @@ export const ServiceBookingPageContent = observer((): ReactElement => {
   const [searchParams] = useSearchParams();
 
   const state = (location.state as ServiceBookingLocationState | null) ?? null;
-  const repeatOrderId = searchParams.get('repeat');
+  const repeatOrderId = searchParams.get("repeat");
 
   useEffect(() => {
-    window.scrollTo({ top: 0, left: 0, behavior: 'auto' });
+    window.scrollTo({ top: 0, left: 0, behavior: "auto" });
 
     void serviceBookingStore.load({
       specialistSlug: state?.specialistSlug,
@@ -275,9 +275,9 @@ export const ServiceBookingPageContent = observer((): ReactElement => {
         return;
       }
 
-      navigate('/profile', {
+      navigate("/profile", {
         state: {
-          activeTab: 'orders',
+          activeTab: "orders",
           highlightedOrderId: createdOrder.id,
           justCreatedOrderId: createdOrder.id,
         },
@@ -332,7 +332,7 @@ export const ServiceBookingPageContent = observer((): ReactElement => {
             <div>
               <h1 className={styles.title}>Оформление заказа</h1>
               <p className={styles.subtitle}>
-                Специалист:{' '}
+                Специалист:{" "}
                 {`${specialist.main.firstName} ${specialist.main.lastName}`.trim()}
               </p>
               <p className={styles.helperText}>
@@ -357,7 +357,9 @@ export const ServiceBookingPageContent = observer((): ReactElement => {
           </div>
 
           {serviceBookingStore.submitError ? (
-            <div className={styles.error}>{serviceBookingStore.submitError}</div>
+            <div className={styles.error}>
+              {serviceBookingStore.submitError}
+            </div>
           ) : null}
 
           <div className={styles.formGrid}>
@@ -373,7 +375,7 @@ export const ServiceBookingPageContent = observer((): ReactElement => {
                 <option value="">Выберите услугу</option>
                 {services.map((service) => (
                   <option key={service.id} value={service.id}>
-                    {service.name} — {formatPrice(service.price, 'RUB')}{' '}
+                    {service.name} — {formatPrice(service.price, "RUB")}{" "}
                     {formatPriceUnit(service.priceUnit)}
                   </option>
                 ))}
@@ -391,7 +393,9 @@ export const ServiceBookingPageContent = observer((): ReactElement => {
                 disabled={pets.length === 0}
               >
                 <option value="">
-                  {pets.length === 0 ? 'Сначала добавьте питомца' : 'Выберите питомца'}
+                  {pets.length === 0
+                    ? "Сначала добавьте питомца"
+                    : "Выберите питомца"}
                 </option>
                 {pets.map((pet) => (
                   <option key={pet.id} value={pet.id}>
@@ -405,21 +409,27 @@ export const ServiceBookingPageContent = observer((): ReactElement => {
               <div className={styles.modeBadge}>
                 {selectedService ? (
                   <>
-                    <span className={styles.modeBadgeLabel}>Режим бронирования</span>
+                    <span className={styles.modeBadgeLabel}>
+                      Режим бронирования
+                    </span>
                     <span className={styles.modeBadgeValue}>
                       {formatModeLabel(bookingMode)}
                     </span>
                   </>
                 ) : (
                   <>
-                    <span className={styles.modeBadgeLabel}>Режим бронирования</span>
-                    <span className={styles.modeBadgeValue}>Сначала выберите услугу</span>
+                    <span className={styles.modeBadgeLabel}>
+                      Режим бронирования
+                    </span>
+                    <span className={styles.modeBadgeValue}>
+                      Сначала выберите услугу
+                    </span>
                   </>
                 )}
               </div>
             </div>
 
-            {bookingMode === 'fixed_slot' ? (
+            {bookingMode === "fixed_slot" ? (
               <>
                 <label className={styles.field}>
                   <span className={styles.label}>Дата</span>
@@ -433,8 +443,8 @@ export const ServiceBookingPageContent = observer((): ReactElement => {
                   >
                     <option value="">
                       {availableDates.length === 0
-                        ? 'Нет доступных дат'
-                        : 'Выберите дату'}
+                        ? "Нет доступных дат"
+                        : "Выберите дату"}
                     </option>
                     {availableDates.map((dateItem) => (
                       <option key={dateItem.date} value={dateItem.date}>
@@ -449,8 +459,8 @@ export const ServiceBookingPageContent = observer((): ReactElement => {
 
                   {availableDates.length === 0 ? (
                     <div className={styles.emptyState}>
-                      У выбранного специалиста пока нет доступных слотов для этой
-                      услуги.
+                      У выбранного специалиста пока нет доступных слотов для
+                      этой услуги.
                     </div>
                   ) : availableSlots.length === 0 ? (
                     <div className={styles.emptyState}>
@@ -485,7 +495,7 @@ export const ServiceBookingPageContent = observer((): ReactElement => {
               </>
             ) : null}
 
-            {bookingMode === 'time_range' ? (
+            {bookingMode === "time_range" ? (
               <div className={styles.fieldWide}>
                 <span className={styles.label}>Интервал времени</span>
                 <div className={styles.rangeGrid}>
@@ -550,13 +560,13 @@ export const ServiceBookingPageContent = observer((): ReactElement => {
 
                 <div className={styles.infoBox}>
                   Для этой услуги можно запросить произвольный интервал внутри
-                  доступного окна специалиста. Проверка пересечений и ограничений
-                  выполняется при создании заказа.
+                  доступного окна специалиста. Проверка пересечений и
+                  ограничений выполняется при создании заказа.
                 </div>
               </div>
             ) : null}
 
-            {bookingMode === 'multi_day_stay' ? (
+            {bookingMode === "multi_day_stay" ? (
               <div className={styles.fieldWide}>
                 <span className={styles.label}>Параметры передержки</span>
                 <div className={styles.rangeGrid}>
@@ -620,17 +630,20 @@ export const ServiceBookingPageContent = observer((): ReactElement => {
                 </div>
 
                 <div className={styles.infoBox}>
-                  Длительность передержки: {serviceBookingStore.stayDays || 0} дн.
+                  Длительность передержки: {serviceBookingStore.stayDays || 0}{" "}
+                  дн.
                 </div>
               </div>
             ) : null}
 
-            {bookingMode === 'open_request' ? (
+            {bookingMode === "open_request" ? (
               <div className={styles.fieldWide}>
                 <span className={styles.label}>Предпочтительное время</span>
                 <div className={styles.rangeGrid}>
                   <label className={styles.field}>
-                    <span className={styles.subLabel}>Предпочтительная дата</span>
+                    <span className={styles.subLabel}>
+                      Предпочтительная дата
+                    </span>
                     <input
                       className={styles.control}
                       type="date"
@@ -644,7 +657,9 @@ export const ServiceBookingPageContent = observer((): ReactElement => {
                   </label>
 
                   <label className={styles.field}>
-                    <span className={styles.subLabel}>Удобное время начала</span>
+                    <span className={styles.subLabel}>
+                      Удобное время начала
+                    </span>
                     <input
                       className={styles.control}
                       type="time"
@@ -659,7 +674,9 @@ export const ServiceBookingPageContent = observer((): ReactElement => {
                   </label>
 
                   <label className={styles.field}>
-                    <span className={styles.subLabel}>Удобное время окончания</span>
+                    <span className={styles.subLabel}>
+                      Удобное время окончания
+                    </span>
                     <input
                       className={styles.control}
                       type="time"
@@ -704,7 +721,7 @@ export const ServiceBookingPageContent = observer((): ReactElement => {
                 type="button"
                 className={styles.secondaryButton}
                 onClick={() => {
-                  navigate('/profile');
+                  navigate("/profile");
                 }}
               >
                 Перейти в профиль
@@ -717,7 +734,7 @@ export const ServiceBookingPageContent = observer((): ReactElement => {
               type="button"
               className={styles.secondaryButton}
               onClick={() => {
-                navigate('/profile');
+                navigate("/profile");
               }}
             >
               Отмена
@@ -735,7 +752,7 @@ export const ServiceBookingPageContent = observer((): ReactElement => {
                 void handleSubmit();
               }}
             >
-              {serviceBookingStore.submitting ? 'Создание...' : 'Создать заказ'}
+              {serviceBookingStore.submitting ? "Создание..." : "Создать заказ"}
             </button>
           </div>
         </div>
@@ -745,9 +762,20 @@ export const ServiceBookingPageContent = observer((): ReactElement => {
 
           <div className={styles.summaryRow}>
             <span className={styles.summaryLabel}>Специалист</span>
-            <span className={styles.summaryValue}>
+
+            <button
+              type="button"
+              className={styles.inlineLinkButton}
+              onClick={() => {
+                navigate(`/specialists/${specialist.slug}`, {
+                  state: {
+                    from: `${location.pathname}${location.search}`,
+                  },
+                });
+              }}
+            >
               {`${specialist.main.firstName} ${specialist.main.lastName}`.trim()}
-            </span>
+            </button>
           </div>
 
           <div className={styles.summaryRow}>
@@ -758,7 +786,7 @@ export const ServiceBookingPageContent = observer((): ReactElement => {
           <div className={styles.summaryRow}>
             <span className={styles.summaryLabel}>Услуга</span>
             <span className={styles.summaryValue}>
-              {selectedService?.name ?? 'Не выбрана'}
+              {selectedService?.name ?? "Не выбрана"}
             </span>
           </div>
 
@@ -772,18 +800,22 @@ export const ServiceBookingPageContent = observer((): ReactElement => {
           <div className={styles.summaryRow}>
             <span className={styles.summaryLabel}>Формат</span>
             <span className={styles.summaryValue}>
-              {selectedService?.locationLabel ?? '—'}
+              {selectedService?.locationLabel ?? "—"}
             </span>
           </div>
 
           <div className={styles.summaryRow}>
             <span className={styles.summaryLabel}>Дата</span>
-            <span className={styles.summaryValue}>{buildSummaryDateLabel()}</span>
+            <span className={styles.summaryValue}>
+              {buildSummaryDateLabel()}
+            </span>
           </div>
 
           <div className={styles.summaryRow}>
             <span className={styles.summaryLabel}>Время</span>
-            <span className={styles.summaryValue}>{buildSummaryTimeLabel()}</span>
+            <span className={styles.summaryValue}>
+              {buildSummaryTimeLabel()}
+            </span>
           </div>
 
           {buildSummaryExtraLabel() ? (
@@ -799,10 +831,10 @@ export const ServiceBookingPageContent = observer((): ReactElement => {
             <span className={styles.summaryLabel}>Стоимость</span>
             <span className={styles.summaryValue}>
               {selectedService && estimatedPrice !== null
-                ? `${formatPrice(estimatedPrice, 'RUB')} ${formatPriceUnit(
-                    selectedService.priceUnit,
+                ? `${formatPrice(estimatedPrice, "RUB")} ${formatPriceUnit(
+                    selectedService.priceUnit
                   )}`
-                : '—'}
+                : "—"}
             </span>
           </div>
         </aside>

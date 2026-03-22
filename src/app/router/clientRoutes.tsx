@@ -82,7 +82,7 @@ export const clientRoutes: RouteObject[] = [
         element: withSuspense(<LeaveReviewPage />),
       },
       {
-        path: '/orders/create',
+        path: '/service-booking',
         element: withSuspense(<ServiceBookingPage />),
       },
     ],

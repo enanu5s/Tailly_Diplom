@@ -177,6 +177,29 @@
     background: #d1d5db;
 }
 
+.monthControls {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-top: 6px;
+  }
+  
+  .monthNavButton {
+    width: 28px;
+    height: 28px;
+    border-radius: 8px;
+    border: 1px solid rgba(17, 24, 39, 0.12);
+    background: #fff;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+  
+  .monthNavButton:hover {
+    background: rgba(99, 102, 241, 0.08);
+  }
+
 @media (max-width: 768px) {
     .card {
         padding: 18px;

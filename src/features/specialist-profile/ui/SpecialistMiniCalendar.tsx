@@ -1,6 +1,7 @@
 // src/features/specialist-profile/ui/SpecialistMiniCalendar.tsx
 
 import { useNavigate } from "react-router-dom";
+import { useState } from "react";
 
 import styles from "./SpecialistMiniCalendar.module.css";
 import {
@@ -41,9 +42,11 @@ export function SpecialistMiniCalendar({
   editHref,
 }: Props): ReactElement {
   const navigate = useNavigate();
-  const { days } = buildCalendarMonthDays(monthDate, calendar);
 
-  const monthLabel = monthDate.toLocaleDateString("ru-RU", {
+  const [currentMonth, setCurrentMonth] = useState<Date>(monthDate);
+  const { days } = buildCalendarMonthDays(currentMonth, calendar);
+
+  const monthLabel = currentMonth.toLocaleDateString("ru-RU", {
     month: "long",
     year: "numeric",
   });
@@ -62,12 +65,47 @@ export function SpecialistMiniCalendar({
     navigate(editHref);
   };
 
+  const handlePrevMonth = (): void => {
+    setCurrentMonth((prev) => {
+      const next = new Date(prev);
+      next.setMonth(prev.getMonth() - 1);
+      return next;
+    });
+  };
+
+  const handleNextMonth = (): void => {
+    setCurrentMonth((prev) => {
+      const next = new Date(prev);
+      next.setMonth(prev.getMonth() + 1);
+      return next;
+    });
+  };
+
   return (
     <section className={styles.card} aria-label="Календарь специалиста">
       <div className={styles.header}>
         <div>
           <h3 className={styles.title}>Календарь</h3>
-          <p className={styles.monthLabel}>{monthLabel}</p>
+
+          <div className={styles.monthControls}>
+            <button
+              type="button"
+              className={styles.monthNavButton}
+              onClick={handlePrevMonth}
+            >
+              ←
+            </button>
+
+            <p className={styles.monthLabel}>{monthLabel}</p>
+
+            <button
+              type="button"
+              className={styles.monthNavButton}
+              onClick={handleNextMonth}
+            >
+              →
+            </button>
+          </div>
         </div>
 
         {editHref ? (

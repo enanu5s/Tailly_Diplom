@@ -1,46 +1,41 @@
-// src/features/home/api/homeApi.mock.ts
+import { readAdminManagedBanners } from '@/features/admin-posts-banners-management/data/adminPostsBannersStorage';
 
-import { postsApi } from '@/features/posts/api/postsApi';
-import type { Post } from '@/features/posts/model/types';
 import { SERVICES } from '@/shared/config/services';
 import type { ServiceConfig } from '@/shared/config/services';
-
 
 import { deepCopy, MOCK_REVIEWS } from '../data/mockHome';
 
 import type { HomeBanner, HomeReview } from '../model/types';
 
-
-function buildBannerSubtitle(content: string, maxLength = 120): string {
-  const normalized = content.replace(/\s+/g, ' ').trim();
-
-  if (!normalized) {
-    return '';
-  }
-
-  if (normalized.length <= maxLength) {
-    return normalized;
-  }
-
-  return `${normalized.slice(0, maxLength).trimEnd()}…`;
-}
-
-function mapPostToBanner(post: Post): HomeBanner {
+// 👉 маппинг admin banner → home banner
+function mapAdminBannerToHomeBanner(banner: any): HomeBanner {
   return {
-    id: `post-banner-${post.id}`,
-    title: post.title,
-    subtitle: buildBannerSubtitle(post.content),
-    imageUrl: post.imageUrl,
-    createdAtIso: post.publishedAt,
-    postId: post.id,
+    id: banner.id,
+    title: banner.title,
+    subtitle: banner.description,
+    imageUrl: banner.imageUrl,
+    createdAtIso: banner.createdAt,
+    postId: banner.linkedPostId,
+    linkUrl: banner.linkUrl,
   };
 }
 
 export async function mockGetLatestBanners(): Promise<HomeBanner[]> {
-  const latestPosts = await postsApi.getLatestPosts(5);
-  const banners = latestPosts.map(mapPostToBanner);
+  const allBanners = readAdminManagedBanners();
 
-  return deepCopy(banners);
+  const filtered = allBanners
+    .filter(
+      (b: any) =>
+        b.status === 'published' &&
+        b.placement === 'home_hero',
+    )
+    .sort((a: any, b: any) =>
+      a.createdAt < b.createdAt ? 1 : -1,
+    )
+    .slice(0, 5)
+    .map(mapAdminBannerToHomeBanner);
+
+  return deepCopy(filtered);
 }
 
 export async function mockGetServices(): Promise<ServiceConfig[]> {
