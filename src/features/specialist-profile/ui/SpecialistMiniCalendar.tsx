@@ -43,9 +43,6 @@ export function SpecialistMiniCalendar({
 }: Props): ReactElement {
 
   const navigate = useAppNavigate();
-  const { days } = buildCalendarMonthDays(monthDate, calendar);
-
-
 
   const [currentMonth, setCurrentMonth] = useState<Date>(monthDate);
   const { days } = buildCalendarMonthDays(currentMonth, calendar);
