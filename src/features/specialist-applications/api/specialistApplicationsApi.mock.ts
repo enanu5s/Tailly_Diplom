@@ -18,7 +18,6 @@ import {
   type SpecialistApplication,
 } from '../model/types';
 
-
 export async function mockCreateApplication(
   payload: CreateSpecialistApplicationPayload,
 ): Promise<{ ok: true; application: SpecialistApplication }> {
@@ -35,6 +34,9 @@ export async function mockCreateApplication(
     phone: payload.phone.trim(),
     city: payload.city.trim(),
     about: payload.about.trim(),
+    questionnaire: JSON.parse(
+      JSON.stringify(payload.questionnaire),
+    ) as CreateSpecialistApplicationPayload['questionnaire'],
     status: 'pending_review',
     createdAt: nowIso,
     updatedAt: nowIso,
@@ -62,7 +64,6 @@ export async function mockGetApplications(): Promise<SpecialistApplication[]> {
   ensureMockSeed();
 
   const applications = readMockApplications();
-
   return JSON.parse(JSON.stringify(applications)) as SpecialistApplication[];
 }
 

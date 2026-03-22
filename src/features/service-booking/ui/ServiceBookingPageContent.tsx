@@ -4,7 +4,7 @@ import { observer } from "mobx-react-lite";
 import { useEffect } from "react";
 
 import { useAppNavigate } from "@/shared/lib/navigation/useAppNavigate";
-import { useLocation, useNavigate, useSearchParams } from "react-router-dom";
+import { useLocation, useSearchParams } from "react-router-dom";
 
 
 import { serviceBookingStore } from "../model/serviceBookingStore";

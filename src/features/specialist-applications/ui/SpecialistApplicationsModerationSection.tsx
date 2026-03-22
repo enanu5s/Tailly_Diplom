@@ -8,9 +8,10 @@ import { authStore } from '@/features/auth';
 
 import styles from './SpecialistApplicationsModerationSection.module.css';
 import { specialistApplicationsModerationStore } from '../model/specialistApplicationsModerationStore';
+import { createEmptySpecialistApplicationQuestionnaire } from '../model/types';
 
-import type { SpecialistApplication } from '../model/types';
 import type { ReactElement } from 'react';
+import type { SpecialistApplication } from '../model/types';
 
 function formatDate(value?: string | null): string {
   if (!value) {
@@ -67,6 +68,14 @@ function getStatusClassName(
   return stylesMap.statusRejected;
 }
 
+function formatBoolean(value: boolean): string {
+  return value ? 'Да' : 'Нет';
+}
+
+function formatList(values: string[]): string {
+  return values.length > 0 ? values.join(', ') : '—';
+}
+
 export const SpecialistApplicationsModerationSection = observer(
   (): ReactElement => {
     const store = specialistApplicationsModerationStore;
@@ -74,9 +83,7 @@ export const SpecialistApplicationsModerationSection = observer(
       authStore.subscribe,
       authStore.getState,
     );
-
-    const reviewedBy =
-      authState.user?.email ?? authState.user?.adminId ?? 'admin';
+    const reviewedBy = authState.user?.email ?? authState.user?.adminId ?? 'admin';
 
     useEffect(() => {
       void store.load();
@@ -89,15 +96,18 @@ export const SpecialistApplicationsModerationSection = observer(
         !selected.specialistAccountCreatedAt,
     );
 
+    const questionnaire =
+      selected?.questionnaire ?? createEmptySpecialistApplicationQuestionnaire();
+
     return (
       <div className={styles.root}>
-        <div className={styles.hero}>
+        <section className={styles.hero}>
           <div className={styles.heroContent}>
-            <span className={styles.badge}>Админ-модерация</span>
+            <div className={styles.badge}>Админ-модерация</div>
             <h1 className={styles.title}>Анкеты специалистов</h1>
             <p className={styles.subtitle}>
-              Здесь отображаются заявки, отправленные с публичной страницы
-              “Стать специалистом”. Администратор проверяет анкету, назначает
+              Здесь отображаются заявки, отправленные с публичной страницы “Стать
+              специалистом”. Администратор проверяет анкету, назначает
               собеседование, одобряет или отклоняет заявку.
             </p>
           </div>
@@ -117,14 +127,14 @@ export const SpecialistApplicationsModerationSection = observer(
               </span>
             </div>
           </div>
-        </div>
+        </section>
 
         {store.isLoading ? (
           <div className={styles.stateCard}>Загрузка заявок...</div>
         ) : null}
 
         {!store.isLoading && store.loadError ? (
-          <div className={styles.errorBanner}>{store.loadError}</div>
+          <div className={styles.stateCard}>{store.loadError}</div>
         ) : null}
 
         {!store.isLoading && !store.loadError ? (
@@ -141,20 +151,23 @@ export const SpecialistApplicationsModerationSection = observer(
                   {store.sortedApplications.map((item) => (
                     <button
                       key={item.id}
+                      type="button"
                       className={`${styles.applicationListItem} ${
                         selected?.id === item.id
                           ? styles.applicationListItemActive
                           : ''
                       }`}
-                      type="button"
-                      onClick={() => store.selectApplication(item.id)}
+                      onClick={() => {
+                        store.selectApplication(item.id);
+                      }}
                     >
                       <div className={styles.applicationTop}>
-                        <span className={styles.applicationName}>
+                        <div className={styles.applicationName}>
                           {item.fullName}
-                        </span>
-
-                        <span className={getStatusClassName(item, styles)}>
+                        </div>
+                        <span
+                          className={getStatusClassName(item, styles)}
+                        >
                           {getStatusLabel(item)}
                         </span>
                       </div>
@@ -168,181 +181,286 @@ export const SpecialistApplicationsModerationSection = observer(
               )}
             </aside>
 
-            <section className={styles.details}>
-              {!selected ? (
-                <div className={styles.emptyCard}>Выбери заявку слева.</div>
-              ) : (
-                <div className={styles.detailsCard}>
-                  <div className={styles.detailsHeader}>
-                    <div>
-                      <h2 className={styles.detailsTitle}>{selected.fullName}</h2>
-                      <p className={styles.detailsSubtitle}>
-                        {selected.email} · {selected.phone}
-                      </p>
-                    </div>
+            {!selected ? (
+              <div className={styles.emptyCard}>Выбери заявку слева.</div>
+            ) : (
+              <div className={styles.detailsCard}>
+                <div className={styles.detailsHeader}>
+                  <div>
+                    <h2 className={styles.detailsTitle}>{selected.fullName}</h2>
+                    <p className={styles.detailsSubtitle}>
+                      {selected.email} · {selected.phone}
+                    </p>
+                  </div>
 
-                    <span className={getStatusClassName(selected, styles)}>
-                      {getStatusLabel(selected)}
+                  <span className={getStatusClassName(selected, styles)}>
+                    {getStatusLabel(selected)}
+                  </span>
+                </div>
+
+                <div className={styles.infoGrid}>
+                  <div className={styles.infoItem}>
+                    <span className={styles.infoLabel}>Город</span>
+                    <span className={styles.infoValue}>{selected.city}</span>
+                  </div>
+
+                  <div className={styles.infoItem}>
+                    <span className={styles.infoLabel}>Дата отправки</span>
+                    <span className={styles.infoValue}>
+                      {formatDate(selected.createdAt)}
                     </span>
                   </div>
 
-                  <div className={styles.infoGrid}>
-                    <div className={styles.infoItem}>
-                      <span className={styles.infoLabel}>Город</span>
-                      <span className={styles.infoValue}>{selected.city}</span>
-                    </div>
-
-                    <div className={styles.infoItem}>
-                      <span className={styles.infoLabel}>Дата отправки</span>
-                      <span className={styles.infoValue}>
-                        {formatDate(selected.createdAt)}
-                      </span>
-                    </div>
-
-                    <div className={styles.infoItem}>
-                      <span className={styles.infoLabel}>Собеседование</span>
-                      <span className={styles.infoValue}>
-                        {selected.interviewDate
-                          ? formatDate(selected.interviewDate)
-                          : '—'}
-                      </span>
-                    </div>
-
-                    <div className={styles.infoItem}>
-                      <span className={styles.infoLabel}>Проверил</span>
-                      <span className={styles.infoValue}>
-                        {selected.reviewedBy || '—'}
-                      </span>
-                    </div>
-
-                    <div className={styles.infoItem}>
-                      <span className={styles.infoLabel}>
-                        Кабинет специалиста
-                      </span>
-                      <span className={styles.infoValue}>
-                        {selected.specialistAccountCreatedAt
-                          ? `Создан ${formatDate(
-                              selected.specialistAccountCreatedAt,
-                            )}`
-                          : 'Ещё не создан'}
-                      </span>
-                    </div>
-
-                    <div className={styles.infoItem}>
-                      <span className={styles.infoLabel}>Specialist ID</span>
-                      <span className={styles.infoValue}>
-                        {selected.createdSpecialistId || '—'}
-                      </span>
-                    </div>
+                  <div className={styles.infoItem}>
+                    <span className={styles.infoLabel}>Собеседование</span>
+                    <span className={styles.infoValue}>
+                      {selected.interviewDate
+                        ? formatDate(selected.interviewDate)
+                        : '—'}
+                    </span>
                   </div>
 
-                  <div className={styles.aboutBlock}>
-                    <h3 className={styles.blockTitle}>О себе</h3>
-                    <p className={styles.aboutText}>{selected.about}</p>
+                  <div className={styles.infoItem}>
+                    <span className={styles.infoLabel}>Проверил</span>
+                    <span className={styles.infoValue}>
+                      {selected.reviewedBy || '—'}
+                    </span>
                   </div>
 
-                  <div className={styles.formBlock}>
-                    <h3 className={styles.blockTitle}>Решение по заявке</h3>
+                  <div className={styles.infoItem}>
+                    <span className={styles.infoLabel}>Кабинет специалиста</span>
+                    <span className={styles.infoValue}>
+                      {selected.specialistAccountCreatedAt
+                        ? `Создан ${formatDate(
+                            selected.specialistAccountCreatedAt,
+                          )}`
+                        : 'Ещё не создан'}
+                    </span>
+                  </div>
 
-                    <div className={styles.formGrid}>
-                      <label className={styles.field}>
-                        <span className={styles.fieldLabel}>
-                          Дата и время собеседования
-                        </span>
-                        <input
-                          className={styles.input}
-                          type="datetime-local"
-                          value={store.draft.interviewDate}
-                          onChange={(event) =>
-                            store.setDraftField(
-                              'interviewDate',
-                              event.target.value,
-                            )
-                          }
-                        />
-                      </label>
+                  <div className={styles.infoItem}>
+                    <span className={styles.infoLabel}>Specialist ID</span>
+                    <span className={styles.infoValue}>
+                      {selected.createdSpecialistId || '—'}
+                    </span>
+                  </div>
 
-                      <label className={styles.fieldWide}>
-                        <span className={styles.fieldLabel}>
-                          Комментарий администратора
-                        </span>
-                        <textarea
-                          className={styles.textarea}
-                          rows={5}
-                          value={store.draft.reviewComment}
-                          onChange={(event) =>
-                            store.setDraftField(
-                              'reviewComment',
-                              event.target.value,
-                            )
-                          }
-                          placeholder="Например: уточнить опыт с крупными собаками или причину отклонения."
-                        />
-                      </label>
-                    </div>
+                  <div className={styles.infoItem}>
+                    <span className={styles.infoLabel}>Опыт</span>
+                    <span className={styles.infoValue}>
+                      {questionnaire.experienceYears || '—'}
+                    </span>
+                  </div>
 
-                    {store.actionError ? (
-                      <div className={styles.errorBanner}>
-                        {store.actionError}
-                      </div>
-                    ) : null}
+                  <div className={styles.infoItem}>
+                    <span className={styles.infoLabel}>Животные</span>
+                    <span className={styles.infoValue}>
+                      {formatList(questionnaire.animalTypes)}
+                    </span>
+                  </div>
 
-                    <div className={styles.actions}>
-                      <button
-                        className={styles.secondaryButton}
-                        type="button"
-                        disabled={store.isAssigningInterview}
-                        onClick={() => {
-                          void store.assignInterview(reviewedBy);
-                        }}
-                      >
-                        {store.isAssigningInterview
-                          ? 'Назначаем...'
-                          : 'Назначить собеседование'}
-                      </button>
+                  <div className={styles.infoItem}>
+                    <span className={styles.infoLabel}>Форматы услуг</span>
+                    <span className={styles.infoValue}>
+                      {formatList(questionnaire.serviceFormats)}
+                    </span>
+                  </div>
 
-                      <button
-                        className={styles.primaryButton}
-                        type="button"
-                        disabled={store.isApproving}
-                        onClick={() => {
-                          void store.approveSelected(reviewedBy);
-                        }}
-                      >
-                        {store.isApproving ? 'Одобряем...' : 'Одобрить'}
-                      </button>
-
-                      <button
-                        className={styles.dangerButton}
-                        type="button"
-                        disabled={store.isRejecting}
-                        onClick={() => {
-                          void store.rejectSelected(reviewedBy);
-                        }}
-                      >
-                        {store.isRejecting ? 'Отклоняем...' : 'Отклонить'}
-                      </button>
-
-                      {canCreateAccount ? (
-                        <button
-                          className={styles.createAccountButton}
-                          type="button"
-                          onClick={() => {
-                            if (selected) {
-                              adminSpecialistsManagementStore.openForApplication(
-                                selected,
-                              );
-                            }
-                          }}
+                  <div className={styles.infoItem}>
+                    <span className={styles.infoLabel}>Портфолио</span>
+                    <span className={styles.infoValue}>
+                      {questionnaire.portfolioUrl ? (
+                        <a
+                          href={questionnaire.portfolioUrl}
+                          target="_blank"
+                          rel="noreferrer"
                         >
-                          Создать кабинет специалиста
-                        </button>
-                      ) : null}
-                    </div>
+                          Открыть ссылку
+                        </a>
+                      ) : (
+                        '—'
+                      )}
+                    </span>
+                  </div>
+
+                  <div className={styles.infoItem}>
+                    <span className={styles.infoLabel}>Готов давать лекарства</span>
+                    <span className={styles.infoValue}>
+                      {formatBoolean(questionnaire.canGiveMedication)}
+                    </span>
+                  </div>
+
+                  <div className={styles.infoItem}>
+                    <span className={styles.infoLabel}>Сложное поведение</span>
+                    <span className={styles.infoValue}>
+                      {formatBoolean(
+                        questionnaire.canHandleDifficultBehavior,
+                      )}
+                    </span>
+                  </div>
+
+                  <div className={styles.infoItem}>
+                    <span className={styles.infoLabel}>Ночные заказы</span>
+                    <span className={styles.infoValue}>
+                      {formatBoolean(questionnaire.canTakeOvernightOrders)}
+                    </span>
+                  </div>
+
+                  <div className={styles.infoItem}>
+                    <span className={styles.infoLabel}>Свои питомцы</span>
+                    <span className={styles.infoValue}>
+                      {formatBoolean(questionnaire.hasOwnPets)}
+                    </span>
+                  </div>
+
+                  <div className={styles.infoItem}>
+                    <span className={styles.infoLabel}>База первой помощи</span>
+                    <span className={styles.infoValue}>
+                      {formatBoolean(questionnaire.hasPetFirstAidBasics)}
+                    </span>
+                  </div>
+
+                  <div className={styles.infoItem}>
+                    <span className={styles.infoLabel}>География выезда</span>
+                    <span className={styles.infoValue}>
+                      {questionnaire.districtPreferences || '—'}
+                    </span>
                   </div>
                 </div>
-              )}
-            </section>
+
+                <div className={styles.aboutBlock}>
+                  <h3 className={styles.blockTitle}>О себе</h3>
+                  <p className={styles.aboutText}>{selected.about}</p>
+                </div>
+
+                <div className={styles.aboutBlock}>
+                  <h3 className={styles.blockTitle}>Условия работы</h3>
+                  <p className={styles.aboutText}>
+                    {questionnaire.housingType || '—'}
+                  </p>
+                </div>
+
+                <div className={styles.aboutBlock}>
+                  <h3 className={styles.blockTitle}>Предпочтительный график</h3>
+                  <p className={styles.aboutText}>
+                    {questionnaire.schedulePreferences || '—'}
+                  </p>
+                </div>
+
+                <div className={styles.aboutBlock}>
+                  <h3 className={styles.blockTitle}>Мотивация</h3>
+                  <p className={styles.aboutText}>
+                    {questionnaire.motivation || '—'}
+                  </p>
+                </div>
+
+                <div className={styles.aboutBlock}>
+                  <h3 className={styles.blockTitle}>Дополнительная информация</h3>
+                  <p className={styles.aboutText}>
+                    {questionnaire.additionalInfo || '—'}
+                  </p>
+                </div>
+
+                <div className={styles.formBlock}>
+                  <h3 className={styles.blockTitle}>Решение по заявке</h3>
+
+                  <div className={styles.formGrid}>
+                    <label className={styles.field}>
+                      <span className={styles.fieldLabel}>
+                        Дата и время собеседования
+                      </span>
+                      <input
+                        className={styles.input}
+                        type="datetime-local"
+                        value={store.draft.interviewDate}
+                        onChange={(event) => {
+                          store.setDraftField(
+                            'interviewDate',
+                            event.target.value,
+                          );
+                        }}
+                      />
+                    </label>
+
+                    <label className={styles.fieldWide}>
+                      <span className={styles.fieldLabel}>
+                        Комментарий администратора
+                      </span>
+                      <textarea
+                        className={styles.textarea}
+                        value={store.draft.reviewComment}
+                        onChange={(event) => {
+                          store.setDraftField(
+                            'reviewComment',
+                            event.target.value,
+                          );
+                        }}
+                        placeholder="Например: уточнить опыт с крупными собаками или причину отклонения."
+                      />
+                    </label>
+                  </div>
+
+                  {store.actionError ? (
+                    <div className={styles.errorBanner}>
+                      {store.actionError}
+                    </div>
+                  ) : null}
+
+                  <div className={styles.actions}>
+                    <button
+                      className={styles.secondaryButton}
+                      type="button"
+                      disabled={store.isAssigningInterview}
+                      onClick={() => {
+                        void store.assignInterview(reviewedBy);
+                      }}
+                    >
+                      {store.isAssigningInterview
+                        ? 'Назначаем...'
+                        : 'Назначить собеседование'}
+                    </button>
+
+                    <button
+                      className={styles.primaryButton}
+                      type="button"
+                      disabled={store.isApproving}
+                      onClick={() => {
+                        void store.approveSelected(reviewedBy);
+                      }}
+                    >
+                      {store.isApproving ? 'Одобряем...' : 'Одобрить'}
+                    </button>
+
+                    <button
+                      className={styles.dangerButton}
+                      type="button"
+                      disabled={store.isRejecting}
+                      onClick={() => {
+                        void store.rejectSelected(reviewedBy);
+                      }}
+                    >
+                      {store.isRejecting ? 'Отклоняем...' : 'Отклонить'}
+                    </button>
+
+                    {canCreateAccount ? (
+                      <button
+                        className={styles.createAccountButton}
+                        type="button"
+                        onClick={() => {
+                          if (selected) {
+                            adminSpecialistsManagementStore.openForApplication(
+                              selected,
+                            );
+                          }
+                        }}
+                      >
+                        Создать кабинет специалиста
+                      </button>
+                    ) : null}
+                  </div>
+                </div>
+              </div>
+            )}
           </div>
         ) : null}
 

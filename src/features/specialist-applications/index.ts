@@ -9,6 +9,11 @@ export type {
   CreateSpecialistApplicationPayload,
   RejectSpecialistApplicationPayload,
   SpecialistApplication,
+  SpecialistApplicationQuestionnaire,
   SpecialistApplicationStatus,
 } from './model/types';
-export { SpecialistApplicationsError } from './model/types';
+
+export {
+  SpecialistApplicationsError,
+  createEmptySpecialistApplicationQuestionnaire,
+} from './model/types';
