@@ -1,6 +1,6 @@
 // src/features/specialist-profile/ui/SpecialistMiniCalendar.tsx
 
-import { useNavigate } from "react-router-dom";
+import { useAppNavigate } from '@/shared/lib/navigation/useAppNavigate';
 
 import styles from "./SpecialistMiniCalendar.module.css";
 import {
@@ -40,7 +40,7 @@ export function SpecialistMiniCalendar({
   monthDate = new Date(),
   editHref,
 }: Props): ReactElement {
-  const navigate = useNavigate();
+  const navigate = useAppNavigate();
   const { days } = buildCalendarMonthDays(monthDate, calendar);
 
   const monthLabel = monthDate.toLocaleDateString("ru-RU", {

@@ -1,14 +1,14 @@
 //src/pages/profile-security-email/ui/ChangeEmailConfirmPage.tsx
 import { observer } from 'mobx-react-lite';
 import { useEffect, useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useAppNavigate } from '@/shared/lib/navigation/useAppNavigate';
 
 import { emailChangeFlowStore } from '@/features/profileSecurity';
 
 import styles from './ChangeEmailPage.module.css';
 
 export const ChangeEmailConfirmPage = observer(() => {
-  const navigate = useNavigate();
+  const navigate = useAppNavigate();
   const [code, setCode] = useState('');
   const [newEmail, setNewEmail] = useState('');
 

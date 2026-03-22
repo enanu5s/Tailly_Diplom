@@ -1,7 +1,9 @@
 // src/pages/become-specialist-form/ui/BecomeSpecialistFormPage.tsx
 
 import { useState } from 'react';
-import { Link, useNavigate } from 'react-router-dom';
+import { Link } from 'react-router-dom';
+import { useAppNavigate } from '@/shared/lib/navigation/useAppNavigate';
+
 
 import { specialistApplicationsService } from '@/features/specialist-applications';
 
@@ -10,7 +12,7 @@ import styles from './BecomeSpecialistFormPage.module.css';
 import type { FormEvent, ReactElement } from 'react';
 
 export const BecomeSpecialistFormPage = (): ReactElement => {
-  const navigate = useNavigate();
+  const navigate = useAppNavigate();
 
   const [name, setName] = useState('');
   const [email, setEmail] = useState('');

@@ -1,7 +1,8 @@
 // src/features/messages/ui/MessagesSection.tsx
 import { observer } from "mobx-react-lite";
 import { useEffect, useMemo, useRef } from "react";
-import { useLocation, useNavigate, useSearchParams } from "react-router-dom";
+import { useLocation, useSearchParams } from "react-router-dom";
+import { useAppNavigate } from '@/shared/lib/navigation/useAppNavigate';
 
 import { useAuth } from "@/features/auth/model/useAuth";
 
@@ -69,7 +70,7 @@ function scrollToBottom(element: HTMLDivElement): void {
 export const MessagesSection = observer(() => {
   const { user } = useAuth();
   const [searchParams] = useSearchParams();
-  const navigate = useNavigate();
+  const navigate = useAppNavigate();
   const location = useLocation();
 
   const messagesAreaRef = useRef<HTMLDivElement | null>(null);

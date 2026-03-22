@@ -1,6 +1,6 @@
 // /src/pages/forgot-password/reset/ui/ForgotPasswordResetPage.tsx
 import { useEffect, useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useAppNavigate } from '@/shared/lib/navigation/useAppNavigate';
 
 import { passwordRecoveryService } from '@/features/auth/model/passwordRecoveryService';
 import { usePasswordRecoveryFlow } from '@/features/auth/model/usePasswordRecoveryFlow';
@@ -8,7 +8,7 @@ import { usePasswordRecoveryFlow } from '@/features/auth/model/usePasswordRecove
 import styles from '../../ForgotPassword.module.css';
 
 export function ForgotPasswordResetPage() {
-  const navigate = useNavigate();
+  const navigate = useAppNavigate();
   const flow = usePasswordRecoveryFlow();
 
   const [password, setPassword] = useState('');

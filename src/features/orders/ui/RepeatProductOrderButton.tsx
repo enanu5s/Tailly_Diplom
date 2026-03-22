@@ -1,7 +1,7 @@
 //src/features/orders/ui/RepeatProductOrderButton.tsx
 
 import { observer } from 'mobx-react-lite';
-import { useNavigate } from 'react-router-dom';
+import { useAppNavigate } from '@/shared/lib/navigation/useAppNavigate';
 
 import { canRepeatProductOrder } from '../model/productOrderRepeat';
 import { productOrdersRepeatStore } from '../model/productOrdersRepeatStore';
@@ -17,7 +17,8 @@ type Props = {
 
 export const RepeatProductOrderButton = observer(
   ({ order, className }: Props) => {
-    const navigate = useNavigate();
+    const navigate = useAppNavigate();
+
 
     const isRepeating = productOrdersRepeatStore.isRepeating(order.id);
     const error = productOrdersRepeatStore.getError(order.id);

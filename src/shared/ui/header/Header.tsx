@@ -2,7 +2,8 @@
 import clsx from 'clsx';
 import { observer } from 'mobx-react-lite';
 import { useEffect, useMemo, useState } from 'react';
-import { Link, useLocation, useNavigate } from 'react-router-dom';
+import { Link, useLocation } from 'react-router-dom';
+import { useAppNavigate } from '@/shared/lib/navigation/useAppNavigate';
 
 import { authService } from '@/features/auth/model/authService';
 import { useAuth } from '@/features/auth/model/useAuth';
@@ -21,7 +22,7 @@ import { Logo } from '../logo/Logo.tsx';
 export const Header = observer(() => {
   const [isMobileOpen, setIsMobileOpen] = useState(false);
   const location = useLocation();
-  const navigate = useNavigate();
+  const navigate = useAppNavigate();
 
   const { isAuth, user } = useAuth();
 

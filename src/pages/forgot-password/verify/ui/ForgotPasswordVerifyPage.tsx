@@ -1,6 +1,7 @@
 // /src/pages/forgot-password/verify/ui/ForgotPasswordVerifyPage.tsx
 import { useEffect, useState } from 'react';
-import { Link, useNavigate } from 'react-router-dom';
+import { Link } from 'react-router-dom';
+import { useAppNavigate } from '@/shared/lib/navigation/useAppNavigate';
 
 import { passwordRecoveryService } from '@/features/auth/model/passwordRecoveryService';
 import { usePasswordRecoveryFlow } from '@/features/auth/model/usePasswordRecoveryFlow';
@@ -8,7 +9,7 @@ import { usePasswordRecoveryFlow } from '@/features/auth/model/usePasswordRecove
 import styles from '../../ForgotPassword.module.css';
 
 export function ForgotPasswordVerifyPage() {
-  const navigate = useNavigate();
+  const navigate = useAppNavigate();
   const flow = usePasswordRecoveryFlow();
 
   const [code, setCode] = useState('');

@@ -1,18 +1,19 @@
 // src/features/specialists-search/ui/SpecialistsSearchPageContent.tsx
 
-import { observer } from 'mobx-react-lite';
-import { useEffect, useMemo } from 'react';
-import { useNavigate, useSearchParams } from 'react-router-dom';
+import { observer } from "mobx-react-lite";
+import { useEffect, useMemo } from "react";
+import { useSearchParams } from "react-router-dom";
+import { useAppNavigate } from '@/shared/lib/navigation/useAppNavigate';
 
-import { SERVICES } from '@/shared/config/services';
-import type { ServiceId } from '@/shared/config/services';
+import { SERVICES } from "@/shared/config/services";
+import type { ServiceId } from "@/shared/config/services";
 
-import { SpecialistsSearchStore } from '../model/specialistsSearchStore';
-import { FiltersPanel } from './FiltersPanel/FiltersPanel';
-import { MapView } from './MapView/MapView';
-import { SortBar } from './SortBar/SortBar';
-import { SpecialistsList } from './SpecialistsList/SpecialistsList';
-import styles from './SpecialistsSearchPageContent.module.css';
+import { SpecialistsSearchStore } from "../model/specialistsSearchStore";
+import { FiltersPanel } from "./FiltersPanel/FiltersPanel";
+import { MapView } from "./MapView/MapView";
+import { SortBar } from "./SortBar/SortBar";
+import { SpecialistsList } from "./SpecialistsList/SpecialistsList";
+import styles from "./SpecialistsSearchPageContent.module.css";
 
 function isServiceId(v: string | null): v is ServiceId {
   if (!v) return false;
@@ -21,7 +22,7 @@ function isServiceId(v: string | null): v is ServiceId {
 
 export const SpecialistsSearchPageContent = observer(() => {
   const [params] = useSearchParams();
-  const navigate = useNavigate();
+  const navigate = useAppNavigate();
 
   const store = useMemo(() => new SpecialistsSearchStore(), []);
 
@@ -32,13 +33,13 @@ export const SpecialistsSearchPageContent = observer(() => {
 
   // 2) реагируем на смену ?service=... (в т.ч. из header)
   useEffect(() => {
-    const raw = params.get('service');
-    store.updateFilters({ serviceId: isServiceId(raw) ? raw : 'any' });
+    const raw = params.get("service");
+    store.updateFilters({ serviceId: isServiceId(raw) ? raw : "any" });
   }, [params, store]);
 
   const onOpenSpecialist = (id: string) => {
     store.persist(window.scrollY);
-    navigate(`/specialists/${id}`, { state: { from: '/services' } });
+    navigate(`/specialists/${id}`, { state: { from: "/services" } });
   };
 
   return (
@@ -47,12 +48,13 @@ export const SpecialistsSearchPageContent = observer(() => {
         <FiltersPanel store={store} />
 
         <div className={styles.foundLine}>
-          Найдено <span className={styles.foundCount}>{store.foundCount}</span> специалистов
+          Найдено <span className={styles.foundCount}>{store.foundCount}</span>{" "}
+          специалистов
         </div>
 
         <SortBar store={store} />
 
-        {store.viewMode === 'list' ? (
+        {store.viewMode === "list" ? (
           <SpecialistsList store={store} onOpenSpecialist={onOpenSpecialist} />
         ) : (
           <MapView store={store} onOpenSpecialist={onOpenSpecialist} />

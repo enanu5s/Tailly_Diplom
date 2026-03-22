@@ -1,7 +1,8 @@
 //src/pages/not-found/ui/NotFoundPage.tsx
 
 import { useMemo } from 'react';
-import { Link, useLocation, useNavigate } from 'react-router-dom';
+import { Link, useLocation } from 'react-router-dom';
+import { useAppNavigate } from '@/shared/lib/navigation/useAppNavigate';
 
 import styles from './NotFoundPage.module.css';
 
@@ -13,7 +14,7 @@ const PET_MESSAGES = [
 ];
 
 export function NotFoundPage() {
-    const navigate = useNavigate();
+    const navigate = useAppNavigate();
     const location = useLocation();
 
     const randomMessage = useMemo(() => {

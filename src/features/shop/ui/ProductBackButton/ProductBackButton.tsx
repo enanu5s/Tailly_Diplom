@@ -1,5 +1,5 @@
 // src/features/shop/ui/ProductBackButton/ProductBackButton.tsx
-import { useNavigate } from 'react-router-dom';
+import { useAppNavigate } from '@/shared/lib/navigation/useAppNavigate';
 
 import styles from './ProductBackButton.module.css';
 
@@ -20,7 +20,8 @@ export const ProductBackButton = ({
     from,
     fallbackPath = '/shop',
 }: Props) => {
-    const navigate = useNavigate();
+
+    const navigate = useAppNavigate();
 
     const handleBack = (): void => {
         if (from) {

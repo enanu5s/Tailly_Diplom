@@ -1,5 +1,5 @@
 // src/pages/admin-posts/ui/AdminPostsPage.tsx
-import { useNavigate } from 'react-router-dom';
+import { useAppNavigate } from '@/shared/lib/navigation/useAppNavigate';
 
 import { AdminPostsBannersManagementSection } from '@/features/admin-posts-banners-management';
 
@@ -8,7 +8,7 @@ import styles from './AdminPostsPage.module.css';
 import type { ReactElement } from 'react';
 
 export function AdminPostsPage(): ReactElement {
-  const navigate = useNavigate();
+  const navigate = useAppNavigate();
 
   return (
     <div className={styles.page}>

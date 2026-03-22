@@ -1,6 +1,6 @@
 import { observer } from 'mobx-react-lite';
 import { useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useAppNavigate } from '@/shared/lib/navigation/useAppNavigate';
 
 import styles from './OrdersProductsSection.module.css';
 import { ordersStore } from '../model/ordersStore';
@@ -17,7 +17,7 @@ type CheckoutLocationState = {
 };
 
 export const OrdersProductsSection = observer(() => {
-  const navigate = useNavigate();
+  const navigate = useAppNavigate();
 
   useEffect(() => {
     void ordersStore.loadProducts();

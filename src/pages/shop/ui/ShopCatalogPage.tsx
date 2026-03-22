@@ -1,7 +1,8 @@
 // src/pages/shop/ui/ShopCatalogPage.tsx
 import { observer } from 'mobx-react-lite';
 import { useEffect, useRef } from 'react';
-import { Link, useLocation, useNavigate } from 'react-router-dom';
+import { Link, useLocation } from 'react-router-dom';
+import { useAppNavigate } from '@/shared/lib/navigation/useAppNavigate';
 
 import { shopCartStore } from '@/features/shop/model/shopCartStore';
 import { shopCatalogStore } from '@/features/shop/model/shopCatalogStore';
@@ -21,7 +22,7 @@ type ShopCatalogPageLocationState = {
 
 export const ShopCatalogPage = observer(() => {
     const location = useLocation();
-    const navigate = useNavigate();
+    const navigate = useAppNavigate();
     const restoredRef = useRef(false);
 
     const {

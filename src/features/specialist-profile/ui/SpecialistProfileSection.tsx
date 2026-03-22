@@ -2,7 +2,8 @@
 
 import { observer } from "mobx-react-lite";
 import { useEffect } from "react";
-import { useNavigate, useParams } from "react-router-dom";
+import { useParams } from "react-router-dom";
+import { useAppNavigate } from "@/shared/lib/navigation/useAppNavigate";
 
 import { specialistProfileStore } from "../model/specialistProfileStore";
 import { SpecialistProfileView } from "./SpecialistProfileView";
@@ -10,7 +11,7 @@ import { SpecialistProfileView } from "./SpecialistProfileView";
 import type { ReactElement } from "react";
 
 export const SpecialistProfileSection = observer((): ReactElement => {
-  const navigate = useNavigate();
+  const navigate = useAppNavigate();
   const params = useParams<{ slug: string }>();
 
   const slug = params.slug?.trim() ?? "";

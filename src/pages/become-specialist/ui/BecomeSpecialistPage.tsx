@@ -1,13 +1,13 @@
 //src/pages/become-specialist/ui/BecomeSpecialistPage.tsx
 
-import { useNavigate } from 'react-router-dom';
+import { useAppNavigate } from '@/shared/lib/navigation/useAppNavigate';
 
 import { FeedbackSection } from '@/shared/ui/feedback';
 
 import styles from './BecomeSpecialistPage.module.css';
 
 export const BecomeSpecialistPage = () => {
-  const navigate = useNavigate();
+  const navigate = useAppNavigate();
 
   return (
     <>

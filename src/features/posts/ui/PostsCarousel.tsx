@@ -2,7 +2,8 @@
 
 import { observer } from 'mobx-react-lite';
 import { useEffect, useMemo, useRef } from 'react';
-import { useLocation, useNavigate } from 'react-router-dom';
+import { useLocation } from 'react-router-dom';
+import { useAppNavigate } from '@/shared/lib/navigation/useAppNavigate';
 
 import { saveScrollPosition } from '@/shared/lib/scroll';
 
@@ -20,7 +21,7 @@ function truncate(text: string, limit: number) {
 export const PostsCarousel = observer(() => {
   const scrollerRef = useRef<HTMLDivElement | null>(null);
 
-  const navigate = useNavigate();
+  const navigate = useAppNavigate();
   const location = useLocation();
 
   const goToAllPosts = () => {

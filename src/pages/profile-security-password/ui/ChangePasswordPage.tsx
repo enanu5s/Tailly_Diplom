@@ -1,13 +1,13 @@
 //src/pages/profile-security-password/ui/ChangePasswordPage.tsx
 import { useMemo, useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useAppNavigate } from '@/shared/lib/navigation/useAppNavigate';
 
 import { securityService } from '@/features/profileSecurity/service/securityService';
 
 import styles from './ChangePasswordPage.module.css';
 
 export const ChangePasswordPage = () => {
-  const navigate = useNavigate();
+  const navigate = useAppNavigate();
 
   const [oldPassword, setOldPassword] = useState('');
   const [new1, setNew1] = useState('');

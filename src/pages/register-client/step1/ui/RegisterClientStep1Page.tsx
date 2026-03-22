@@ -1,13 +1,13 @@
 //src/pages/register-client/step1/ui/RegisterClientStep1Page.tsx
 import { useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { useAppNavigate } from '@/shared/lib/navigation/useAppNavigate';
 
 import { registerService } from "@/features/auth/model/registerService";
 
 import styles from "../../RegisterClient.module.css";
 
 export const RegisterClientStep1Page = () => {
-  const navigate = useNavigate();
+  const navigate = useAppNavigate();
 
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");

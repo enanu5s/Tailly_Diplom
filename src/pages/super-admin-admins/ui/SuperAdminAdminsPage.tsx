@@ -1,6 +1,6 @@
 // src/pages/super-admin-admins/ui/SuperAdminAdminsPage.tsx
 
-import { useNavigate } from 'react-router-dom';
+import { useAppNavigate } from '@/shared/lib/navigation/useAppNavigate';
 
 import { SuperAdminAdminsManagementSection } from '@/features/super-admin-admins-management';
 
@@ -9,7 +9,7 @@ import styles from './SuperAdminAdminsPage.module.css';
 import type { ReactElement } from 'react';
 
 export function SuperAdminAdminsPage(): ReactElement {
-    const navigate = useNavigate();
+    const navigate = useAppNavigate();
 
     return (
         <section className={styles.page}>

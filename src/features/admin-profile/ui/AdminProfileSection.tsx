@@ -1,7 +1,7 @@
 // src/features/admin-profile/ui/AdminProfileSection.tsx
 import { observer } from 'mobx-react-lite';
 import { useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useAppNavigate } from '@/shared/lib/navigation/useAppNavigate';
 
 import { adminProfileStore } from '../model/adminProfileStore';
 
@@ -28,7 +28,7 @@ function formatBirthDate(value?: string): string {
 }
 
 export const AdminProfileSection = observer((): ReactElement => {
-  const navigate = useNavigate();
+  const navigate = useAppNavigate();
   const store = adminProfileStore;
 
   useEffect(() => {

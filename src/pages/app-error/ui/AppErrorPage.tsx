@@ -1,5 +1,6 @@
 // src/pages/app-error/AppErrorPage.tsx
-import { isRouteErrorResponse, useNavigate, useRouteError } from "react-router-dom";
+import { isRouteErrorResponse, useRouteError } from "react-router-dom";
+import { useAppNavigate } from '@/shared/lib/navigation/useAppNavigate';
 
 import styles from "./AppErrorPage.module.css";
 
@@ -29,7 +30,7 @@ function getErrorMessage(error: unknown): string {
 
 export const AppErrorPage = () => {
   const error = useRouteError();
-  const navigate = useNavigate();
+  const navigate = useAppNavigate();
 
   const message = getErrorMessage(error);
 

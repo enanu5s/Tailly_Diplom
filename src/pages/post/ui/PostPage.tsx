@@ -1,6 +1,7 @@
 import { observer } from 'mobx-react-lite';
 import { useEffect } from 'react';
-import { useLocation, useNavigate, useParams } from 'react-router-dom';
+import { useLocation, useParams } from 'react-router-dom';
+import { useAppNavigate } from '@/shared/lib/navigation/useAppNavigate';
 
 import { postsStore } from '@/features/posts/model/postsStore';
 
@@ -15,7 +16,7 @@ const FALLBACK_HERO_BACKGROUND =
 
 export const PostPage = observer(() => {
   const { postId } = useParams<{ postId: string }>();
-  const navigate = useNavigate();
+  const navigate = useAppNavigate();
   const location = useLocation();
 
   const state = (location.state ?? null) as PostPageLocationState | null;

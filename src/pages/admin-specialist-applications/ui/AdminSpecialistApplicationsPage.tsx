@@ -1,6 +1,6 @@
 // src/pages/admin-specialist-applications/ui/AdminSpecialistApplicationsPage.tsx
 
-import { useNavigate } from 'react-router-dom';
+import { useAppNavigate } from '@/shared/lib/navigation/useAppNavigate';
 
 import { SpecialistApplicationsModerationSection } from '@/features/specialist-applications/ui/SpecialistApplicationsModerationSection';
 
@@ -9,7 +9,7 @@ import styles from './AdminSpecialistApplicationsPage.module.css';
 import type { ReactElement } from 'react';
 
 export function AdminSpecialistApplicationsPage(): ReactElement {
-    const navigate = useNavigate();
+    const navigate = useAppNavigate();
 
     return (
         <section className={styles.page}>

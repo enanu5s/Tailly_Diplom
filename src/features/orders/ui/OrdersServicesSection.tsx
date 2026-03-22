@@ -2,7 +2,8 @@
 
 import { observer } from "mobx-react-lite";
 import { useEffect, useMemo, useRef, useState } from "react";
-import { useLocation, useNavigate } from "react-router-dom";
+import { useLocation } from "react-router-dom";
+import { useAppNavigate } from '@/shared/lib/navigation/useAppNavigate';
 
 import { ordersStore } from "../model/ordersStore";
 import type {
@@ -291,7 +292,7 @@ function readFileAsDataUrl(file: File): Promise<string> {
 
 export const OrdersServicesSection = observer(
   ({ viewerRole = "client" }: Props): ReactElement => {
-    const navigate = useNavigate();
+    const navigate = useAppNavigate();
     const location = useLocation();
     const locationState =
       (location.state as ProfileOrdersLocationState | null) ?? null;

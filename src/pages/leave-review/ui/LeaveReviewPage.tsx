@@ -2,7 +2,8 @@
 
 import { observer } from 'mobx-react-lite';
 import { useEffect, useMemo } from 'react';
-import { Link, useLocation, useNavigate, useParams } from 'react-router-dom';
+import { Link, useLocation, useParams } from 'react-router-dom';
+import { useAppNavigate } from '@/shared/lib/navigation/useAppNavigate';
 
 import { reviewCreateStore } from '@/features/reviews';
 import { StarRating } from '@/features/reviews';
@@ -16,7 +17,7 @@ type LocationState = {
 
 export const LeaveReviewPage = observer(() => {
   const { orderId } = useParams();
-  const navigate = useNavigate();
+  const navigate = useAppNavigate();
   const location = useLocation();
   const state = (location.state ?? {}) as LocationState;
 

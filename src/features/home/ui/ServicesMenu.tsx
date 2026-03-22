@@ -1,6 +1,6 @@
 // src/features/home/ui/ServicesMenu.tsx
 
-import { useNavigate } from 'react-router-dom';
+import { useAppNavigate } from '@/shared/lib/navigation/useAppNavigate';
 
 import type { ServiceConfig } from '@/shared/config/services';
 
@@ -11,7 +11,7 @@ type Props = {
 };
 
 export function ServicesMenu({ items }: Props) {
-  const navigate = useNavigate();
+  const navigate = useAppNavigate();
 
   return (
     <div className={styles.root}>

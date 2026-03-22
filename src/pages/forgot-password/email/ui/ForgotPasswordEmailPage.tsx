@@ -1,14 +1,15 @@
 // src/pages/forgot-password/email/ui/ForgotPasswordEmailPage.tsx
 
 import { useState } from 'react';
-import { Link, useNavigate } from 'react-router-dom';
+import { Link } from 'react-router-dom';
+import { useAppNavigate } from '@/shared/lib/navigation/useAppNavigate';
 
 import { passwordRecoveryService } from '@/features/auth/model/passwordRecoveryService';
 
 import styles from '../../ForgotPassword.module.css';
 
 export function ForgotPasswordEmailPage() {
-  const navigate = useNavigate();
+  const navigate = useAppNavigate();
 
   const [email, setEmail] = useState('');
   const [submitting, setSubmitting] = useState(false);

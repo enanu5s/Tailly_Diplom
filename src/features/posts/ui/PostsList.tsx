@@ -1,7 +1,7 @@
 //src/features/posts/ui/PostsList.tsx
 import { observer } from "mobx-react-lite";
 import { useEffect } from "react";
-import { useNavigate } from "react-router-dom";
+import { useAppNavigate } from '@/shared/lib/navigation/useAppNavigate';
 
 import { saveScrollPosition } from "@/shared/lib/scroll";
 
@@ -9,7 +9,7 @@ import styles from "./PostsList.module.css";
 import { postsStore } from "../model/postsStore";
 
 export const PostsList = observer(() => {
-  const navigate = useNavigate();
+  const navigate = useAppNavigate();
   useEffect(() => {
     void postsStore.loadList();
   }, []);

@@ -1,5 +1,5 @@
 // src/pages/admin-profile/ui/AdminProfilePage.tsx
-import { useNavigate } from 'react-router-dom';
+import { useAppNavigate } from '@/shared/lib/navigation/useAppNavigate';
 
 import { AdminProfileSection } from '@/features/admin-profile';
 
@@ -8,7 +8,7 @@ import styles from './AdminProfilePage.module.css';
 import type { ReactElement } from 'react';
 
 export function AdminProfilePage(): ReactElement {
-  const navigate = useNavigate();
+  const navigate = useAppNavigate();
 
   return (
     <section className={styles.page}>

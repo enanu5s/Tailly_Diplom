@@ -1,7 +1,7 @@
 // src/features/home/ui/BannerCarousel.tsx
 
 import { useMemo, useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useAppNavigate } from '@/shared/lib/navigation/useAppNavigate';
 
 import styles from './BannerCarousel.module.css';
 
@@ -15,7 +15,7 @@ const FALLBACK_BANNER_BACKGROUND =
   'linear-gradient(135deg, #6366f1 0%, #8b5cf6 55%, #0f172a 100%)';
 
 export function BannerCarousel({ items: rawItems }: Props) {
-  const navigate = useNavigate();
+  const navigate = useAppNavigate();
 
   const items = useMemo(() => rawItems.slice(0, 5), [rawItems]);
   const [idx, setIdx] = useState(0);

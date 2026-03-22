@@ -2,7 +2,8 @@
 
 import { observer } from "mobx-react-lite";
 import { useEffect } from "react";
-import { useNavigate, useParams } from "react-router-dom";
+import { useParams } from "react-router-dom";
+import { useAppNavigate } from '@/shared/lib/navigation/useAppNavigate';
 
 import { useAuth } from "@/features/auth/model/useAuth";
 import { messagesStore } from "@/features/messages";
@@ -72,7 +73,7 @@ function getViewerAvatarUrl(user: unknown): string | undefined {
 
 export const SpecialistProfilePage = observer((): ReactElement => {
   const { specialistSlug } = useParams<{ specialistSlug: string }>();
-  const navigate = useNavigate();
+  const navigate = useAppNavigate();
   const { isAuth, user } = useAuth();
 
   const normalizedSpecialistSlug = specialistSlug?.trim() ?? "";

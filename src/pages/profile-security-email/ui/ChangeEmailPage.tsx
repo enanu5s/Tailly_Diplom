@@ -1,14 +1,14 @@
 //src/pages/profile-security-email/ui/ChangeEmailPage.tsx
 import { observer } from 'mobx-react-lite';
 import { useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useAppNavigate } from '@/shared/lib/navigation/useAppNavigate';
 
 import { emailChangeFlowStore } from '@/features/profileSecurity';
 
 import styles from './ChangeEmailPage.module.css';
 
 export const ChangeEmailPage = observer(() => {
-  const navigate = useNavigate();
+  const navigate = useAppNavigate();
 
   useEffect(() => {
     window.scrollTo({ top: 0, left: 0, behavior: 'auto' });

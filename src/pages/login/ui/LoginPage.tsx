@@ -2,7 +2,8 @@
 
 import { observer } from 'mobx-react-lite';
 import { useEffect, useSyncExternalStore } from 'react';
-import { Link, useLocation, useNavigate } from 'react-router-dom';
+import { Link, useLocation } from 'react-router-dom';
+import { useAppNavigate } from '@/shared/lib/navigation/useAppNavigate';
 
 import { authStore, loginStore } from '@/features/auth';
 import { getDefaultAuthorizedRoute } from '@/shared/lib/auth';
@@ -16,7 +17,7 @@ type LocationState = {
 };
 
 export const LoginPage = observer((): ReactElement => {
-  const navigate = useNavigate();
+  const navigate = useAppNavigate();
   const location = useLocation();
   const authState = useSyncExternalStore(
     authStore.subscribe,

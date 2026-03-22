@@ -1,6 +1,7 @@
 import { observer } from 'mobx-react-lite';
 import { useEffect } from 'react';
-import { Link, useLocation, useNavigate } from 'react-router-dom';
+import { Link, useLocation } from 'react-router-dom';
+import { useAppNavigate } from '@/shared/lib/navigation/useAppNavigate';
 
 import { shopCheckoutStore } from '@/features/shop/model/shopCheckoutStore';
 import { ProductBackButton } from '@/features/shop/ui';
@@ -24,7 +25,7 @@ type ShopCheckoutPageLocationState = {
 
 export const ShopCheckoutPage = observer(() => {
   const location = useLocation();
-  const navigate = useNavigate();
+  const navigate = useAppNavigate();
   const state = (location.state ?? null) as ShopCheckoutPageLocationState | null;
   const from = state?.from;
 

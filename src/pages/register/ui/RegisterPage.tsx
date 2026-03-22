@@ -1,10 +1,11 @@
 // src/pages/register/ui/RegisterPage.tsx
-import { Link, useNavigate } from 'react-router-dom';
+import { Link } from 'react-router-dom';
+import { useAppNavigate } from '@/shared/lib/navigation/useAppNavigate';
 
 import styles from './RegisterPage.module.css';
 
 const RegisterPage = () => {
-  const navigate = useNavigate();
+  const navigate = useAppNavigate();
 
   return (
     <>
