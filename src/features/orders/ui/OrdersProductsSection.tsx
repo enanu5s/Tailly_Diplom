@@ -92,7 +92,7 @@ const ProductOrderCard = observer(
     onRepeat,
     isRepeatLoading,
   }: ProductOrderCardProps) => {
-    const navigate = useNavigate();
+    const navigate = useAppNavigate();
 
     const visibleItems = order.items.slice(0, 3);
     const rest = Math.max(0, order.items.length - 3);

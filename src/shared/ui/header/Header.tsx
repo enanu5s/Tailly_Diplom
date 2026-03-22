@@ -11,6 +11,7 @@ import {
   getMessagesViewerFromUser,
   messagesUnreadStore,
 } from '@/features/messages';
+import { shopCartStore } from '@/features/shop';
 import { MESSAGES_UPDATED_EVENT } from '@/features/messages/model/messagesEvents';
 import { mainNav } from '@/shared/config/navigation';
 
@@ -63,6 +64,8 @@ export const Header = observer(() => {
       ? messagesUnreadStore.unreadThreadsCount
       : messagesUnreadStore.unreadMessagesCount;
 
+  
+      const shopBadgeCount = shopCartStore.totalItems;
   const navItems = mainNav
     .filter((item) => (isAuth ? true : item.to !== '/messages'))
     .filter((item) => item.to !== '/login');
@@ -71,12 +74,16 @@ export const Header = observer(() => {
     setIsMobileOpen((prev) => !prev);
   };
 
-  const renderMessagesBadge = (itemTo: string) => {
-    if (itemTo !== '/messages' || messagesBadgeCount <= 0) {
-      return null;
+  const renderNavBadge = (itemTo: string) => {
+    if (itemTo === '/messages' && messagesBadgeCount > 0) {
+      return <span className={styles.navBadge}>{messagesBadgeCount}</span>;
     }
 
-    return <span className={styles.messagesBadge}>{messagesBadgeCount}</span>;
+    if (itemTo === '/shop' && shopBadgeCount > 0) {
+      return <span className={styles.navBadge}>{shopBadgeCount}</span>;
+    }
+
+    return null;
   };
 
   return (
@@ -105,7 +112,7 @@ export const Header = observer(() => {
                     )}
                   >
                     <span>{item.label}</span>
-                    {renderMessagesBadge(item.to)}
+                    {renderNavBadge(item.to)}
                   </Link>
                 )}
               </li>
@@ -170,7 +177,7 @@ export const Header = observer(() => {
                       className={styles.mobileLink}
                     >
                       <span>{item.label}</span>
-                      {renderMessagesBadge(item.to)}
+                      {renderNavBadge(item.to)}
                     </Link>
                   )}
                 </li>
