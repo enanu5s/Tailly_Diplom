@@ -1,91 +1,75 @@
+// src/features/orders/service/ordersService.ts
+
 import { ordersApi } from '../api/ordersApi';
-import { productOrderRepeatCheckoutService } from './productOrderRepeatCheckoutService';
 
 import type {
+  CancelOrderResult,
+  CompleteOrderResult,
+  ConfirmOrderResult,
   CreateServiceOrderPayload,
   LeaveServiceReviewPayload,
   ProductOrder,
+  RepeatResult,
+  ReviewResult,
+  ServiceOrder,
   ServicesFilter,
+  StartOrderResult,
 } from '../model/types';
-
 import type { ProductOrderRepeatCheckoutDraft } from '../model/productOrderRepeatCheckout';
 
 export const ordersService = {
-  getServiceOrders: (filter: ServicesFilter) =>
-    ordersApi.getServiceOrders(filter),
-
-  getServiceOrderById: (orderId: string) =>
-    ordersApi.getServiceOrderById(orderId),
-
-  createServiceOrder: (payload: CreateServiceOrderPayload) =>
-    ordersApi.createServiceOrder(payload),
-
-  confirmServiceOrder: (orderId: string) =>
-    ordersApi.confirmServiceOrder(orderId),
-
-  startServiceOrder: (orderId: string) =>
-    ordersApi.startServiceOrder(orderId),
-
-  completeServiceOrder: (orderId: string) =>
-    ordersApi.completeServiceOrder(orderId),
-
-  cancelServiceOrder: (orderId: string) =>
-    ordersApi.cancelServiceOrder(orderId),
-
-  getProductOrders: () => ordersApi.getProductOrders(),
-
-  repeatServiceOrder: (orderId: string) =>
-    ordersApi.repeatServiceOrder(orderId),
-
-  async repeatProductOrder(
-    orderId: string,
-  ): Promise<ProductOrderRepeatCheckoutDraft> {
-    const orders = await ordersApi.getProductOrders();
-
-    const order = orders.find(
-      (item): item is ProductOrder => item.id === orderId,
-    );
-
-    if (!order) {
-      throw new Error('Заказ не найден.');
-    }
-
-    if (!('items' in order) || !Array.isArray(order.items)) {
-      throw new Error(
-        'У товарного заказа нет состава товаров для повторного оформления.',
-      );
-    }
-
-    const items = order.items
-      .filter((item) => item.quantity > 0)
-      .map((item) => ({
-        productId: item.productId,
-        title: item.title,
-        quantity: item.quantity,
-        price: item.price,
-        imageUrl: item.imageUrl,
-        variantId: item.variantId,
-        variantLabel: item.variantLabel,
-      }));
-
-    if (items.length === 0) {
-      throw new Error('В заказе нет товаров для повторного оформления.');
-    }
-
-    const draft: ProductOrderRepeatCheckoutDraft = {
-      source: 'repeat_product_order',
-      orderId: order.id,
-      createdAt: new Date().toISOString(),
-      items,
-    };
-
-    productOrderRepeatCheckoutService.saveDraft(draft);
-
-    return draft;
+  getServiceOrders(filter: ServicesFilter): Promise<ServiceOrder[]> {
+    return ordersApi.getServiceOrders(filter);
   },
 
-  leaveServiceReview: (
+  getServiceOrderById(orderId: string): Promise<ServiceOrder> {
+    return ordersApi.getServiceOrderById(orderId);
+  },
+
+  createServiceOrder(payload: CreateServiceOrderPayload): Promise<ServiceOrder> {
+    return ordersApi.createServiceOrder(payload);
+  },
+
+  confirmServiceOrder(orderId: string): Promise<ConfirmOrderResult> {
+    return ordersApi.confirmServiceOrder(orderId);
+  },
+
+  startServiceOrder(orderId: string): Promise<StartOrderResult> {
+    return ordersApi.startServiceOrder(orderId);
+  },
+
+  completeServiceOrder(orderId: string): Promise<CompleteOrderResult> {
+    return ordersApi.completeServiceOrder(orderId);
+  },
+
+  cancelServiceOrder(orderId: string): Promise<CancelOrderResult> {
+    return ordersApi.cancelServiceOrder(orderId);
+  },
+
+  getProductOrders(): Promise<ProductOrder[]> {
+    return ordersApi.getProductOrders();
+  },
+
+  getProductOrderById(orderId: string): Promise<ProductOrder> {
+    return ordersApi.getProductOrderById(orderId);
+  },
+
+  cancelProductOrder(orderId: string): Promise<CancelOrderResult> {
+    return ordersApi.cancelProductOrder(orderId);
+  },
+
+  repeatServiceOrder(orderId: string): Promise<RepeatResult> {
+    return ordersApi.repeatServiceOrder(orderId);
+  },
+
+  repeatProductOrder(orderId: string): Promise<ProductOrderRepeatCheckoutDraft> {
+    return ordersApi.repeatProductOrder(orderId);
+  },
+
+  leaveServiceReview(
     orderId: string,
     payload: LeaveServiceReviewPayload,
-  ) => ordersApi.leaveServiceReview(orderId, payload),
+  ): Promise<ReviewResult> {
+    return ordersApi.leaveServiceReview(orderId, payload);
+  },
 };

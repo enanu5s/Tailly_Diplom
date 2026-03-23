@@ -194,10 +194,43 @@ export type ProductOrderItem = {
   variantLabel?: string;
 };
 
+export type ProductOrderRecipient = {
+  fullName: string;
+  phone: string;
+};
+
+export type ProductOrderDeliveryAddress = {
+  city: string;
+  street: string;
+  house: string;
+  apartment?: string;
+  comment?: string;
+  postalCode?: string;
+};
+
+export type ProductOrderDelivery = {
+  method: 'courier' | 'pickup';
+  address?: ProductOrderDeliveryAddress;
+  pickupPointLabel?: string;
+  expectedAt?: string;
+  trackingNumber?: string;
+};
+
+export type ProductOrderPayment = {
+  method: 'card' | 'cash_on_delivery';
+  status: 'pending' | 'paid' | 'refunded';
+};
+
+export type ProductOrderLifecycleEvent = {
+  status: ProductOrderStatus;
+  changedAt: string;
+  comment?: string;
+};
+
 export type ProductOrder = {
   id: string;
   number: string;
-  status: 'created' | 'paid' | 'shipped' | 'delivered' | 'canceled';
+  status: ProductOrderStatus;
   createdAt: string;
   price: number;
   currency: 'RUB';
@@ -205,6 +238,13 @@ export type ProductOrder = {
   productThumbs?: string[];
 
   items: ProductOrderItem[];
+
+  recipient?: ProductOrderRecipient;
+  delivery?: ProductOrderDelivery;
+  payment?: ProductOrderPayment;
+  cancelReason?: string;
+  canceledAt?: string;
+  lifecycle?: ProductOrderLifecycleEvent[];
 };
 
 export type RepeatResult = {
@@ -232,3 +272,27 @@ export type StartOrderResult = {
 export type CancelOrderResult = {
   ok: true;
 };
+
+export function isProductOrderCompleted(order: ProductOrder): boolean {
+  return order.status === 'delivered';
+}
+
+export function isProductOrderCanceled(order: ProductOrder): boolean {
+  return order.status === 'canceled';
+}
+
+export function isProductOrderActive(order: ProductOrder): boolean {
+  return (
+    order.status === 'created' ||
+    order.status === 'paid' ||
+    order.status === 'shipped'
+  );
+}
+
+export function canCancelProductOrder(order: ProductOrder): boolean {
+  return order.status === 'created' || order.status === 'paid';
+}
+
+export function shouldOpenProductOrderDetails(order: ProductOrder): boolean {
+  return isProductOrderActive(order);
+}

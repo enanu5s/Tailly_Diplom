@@ -1,7 +1,9 @@
 // src/features/shop/api/shopOrderApi.ts
+
 import { request } from '@/shared/api/http';
 
 import {
+  mockCancelOrder,
   mockCreateOrder,
   mockGetOrderById,
   mockGetPickupPoints,
@@ -46,6 +48,15 @@ async function getOrderByIdReal(orderId: string): Promise<Order | null> {
   );
 }
 
+async function cancelOrderReal(orderId: string): Promise<Order> {
+  return request<Order>(
+    `/shop/orders/${encodeURIComponent(orderId)}/cancel`,
+    {
+      method: 'POST',
+    },
+  );
+}
+
 export const shopOrderApi = {
   async getPickupPoints(city?: string): Promise<PickupPoint[]> {
     if (USE_MOCK) {
@@ -69,5 +80,13 @@ export const shopOrderApi = {
     }
 
     return getOrderByIdReal(orderId);
+  },
+
+  async cancelOrder(orderId: string): Promise<Order> {
+    if (USE_MOCK) {
+      return mockCancelOrder(orderId);
+    }
+
+    return cancelOrderReal(orderId);
   },
 };

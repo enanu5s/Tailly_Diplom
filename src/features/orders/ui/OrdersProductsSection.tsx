@@ -1,4 +1,4 @@
-//src/features/orders/ui/OrdersProductsSection.tsx
+// src/features/orders/ui/OrdersProductsSection.tsx
 
 import { observer } from 'mobx-react-lite';
 import { useEffect } from 'react';
@@ -6,6 +6,10 @@ import { useAppNavigate } from '@/shared/lib/navigation/useAppNavigate';
 
 import styles from './OrdersProductsSection.module.css';
 import { ordersStore } from '../model/ordersStore';
+import {
+  isProductOrderCompleted,
+  shouldOpenProductOrderDetails,
+} from '../model/types';
 
 import type { KeyboardEvent, MouseEvent } from 'react';
 import type { ProductOrder } from '../model/types';
@@ -50,7 +54,11 @@ export const OrdersProductsSection = observer(() => {
               key={order.id}
               order={order}
               onOpen={() => {
-                navigate(`/orders/${order.id}`);
+                navigate(`/shop/order/${encodeURIComponent(order.id)}`, {
+                  state: {
+                    from: 'profile',
+                  },
+                });
               }}
               onRepeat={async () => {
                 const draft = await ordersStore.repeatProduct(order.id);
@@ -114,13 +122,24 @@ const ProductOrderCard = observer(
       navigate(`/shop/${productId}`);
     };
 
+    const canOpenDetails = shouldOpenProductOrderDetails(order) || order.status === 'canceled';
+    const canRepeat = isProductOrderCompleted(order);
+
     return (
       <div
         className={styles.order}
-        role="button"
-        tabIndex={0}
-        onClick={onOpen}
-        onKeyDown={handleCardKeyDown}
+        role={canOpenDetails ? 'button' : undefined}
+        tabIndex={canOpenDetails ? 0 : -1}
+        onClick={() => {
+          if (canOpenDetails) {
+            onOpen();
+          }
+        }}
+        onKeyDown={(event) => {
+          if (canOpenDetails) {
+            handleCardKeyDown(event);
+          }
+        }}
       >
         <div className={styles.left}>
           <div className={styles.number}>{order.number}</div>
@@ -192,17 +211,30 @@ const ProductOrderCard = observer(
             })}
           </div>
 
-          <button
-            className={styles.secondaryBtn}
-            type="button"
-            onClick={(event) => {
-              event.stopPropagation();
-              void onRepeat();
-            }}
-            disabled={isRepeatLoading}
-          >
-            {isRepeatLoading ? '...' : 'Повторить заказ'}
-          </button>
+          {canRepeat ? (
+            <button
+              className={styles.secondaryBtn}
+              type="button"
+              onClick={(event) => {
+                event.stopPropagation();
+                void onRepeat();
+              }}
+              disabled={isRepeatLoading}
+            >
+              {isRepeatLoading ? '...' : 'Повторить заказ'}
+            </button>
+          ) : canOpenDetails ? (
+            <button
+              className={styles.secondaryBtn}
+              type="button"
+              onClick={(event) => {
+                event.stopPropagation();
+                onOpen();
+              }}
+            >
+              Открыть заказ
+            </button>
+          ) : null}
         </div>
       </div>
     );
@@ -223,5 +255,6 @@ function formatPrice(value: number, currency: 'RUB'): string {
   return new Intl.NumberFormat('ru-RU', {
     style: 'currency',
     currency,
+    maximumFractionDigits: 0,
   }).format(value);
 }

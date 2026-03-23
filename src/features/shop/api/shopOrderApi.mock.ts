@@ -17,7 +17,6 @@ import type {
   Product,
 } from '../model/types';
 
-
 type OrderLineInput = {
   productId: string;
   quantity: number;
@@ -103,4 +102,36 @@ export async function mockGetOrderById(
 ): Promise<Order | null> {
   const orders = readStoredOrders();
   return orders.find((order) => order.id === orderId) ?? null;
+}
+
+export async function mockCancelOrder(
+  orderId: string,
+): Promise<Order> {
+  const orders = readStoredOrders();
+  const index = orders.findIndex((order) => order.id === orderId);
+
+  if (index === -1) {
+    throw new Error('Заказ не найден.');
+  }
+
+  const current = orders[index];
+
+  if (!current.canBeCancelled) {
+    throw new Error('Этот заказ уже нельзя отменить.');
+  }
+
+  if (current.status !== 'created' && current.status !== 'paid') {
+    throw new Error('Этот заказ уже нельзя отменить.');
+  }
+
+  const updated: Order = {
+    ...current,
+    status: 'cancelled',
+    canBeCancelled: false,
+  };
+
+  orders[index] = updated;
+  writeStoredOrders(orders);
+
+  return updated;
 }

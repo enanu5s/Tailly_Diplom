@@ -1,25 +1,29 @@
-import { makeAutoObservable, runInAction } from 'mobx';
+import { makeAutoObservable, runInAction } from "mobx";
 
-import { ordersService } from '../service/ordersService';
+import { ordersService } from "../service/ordersService";
 
 import type {
   LeaveServiceReviewPayload,
   ProductOrder,
   ServiceOrder,
   ServicesFilter,
-} from './types';
-import type { ProductOrderRepeatCheckoutDraft } from './productOrderRepeatCheckout';
+} from "./types";
+import type { ProductOrderRepeatCheckoutDraft } from "./productOrderRepeatCheckout";
 
 export class OrdersStore {
-  servicesFilter: ServicesFilter = 'all';
+  servicesFilter: ServicesFilter = "all";
   serviceOrders: ServiceOrder[] = [];
   productOrders: ProductOrder[] = [];
+  selectedProductOrder: ProductOrder | null = null;
 
   servicesLoading = false;
   servicesError: string | null = null;
 
   productsLoading = false;
   productsError: string | null = null;
+
+  selectedProductLoading = false;
+  selectedProductError: string | null = null;
 
   actionLoadingId: string | null = null;
   actionError: string | null = null;
@@ -33,9 +37,15 @@ export class OrdersStore {
     void this.loadServices();
   }
 
+  clearSelectedProductOrder(): void {
+    this.selectedProductOrder = null;
+    this.selectedProductError = null;
+    this.selectedProductLoading = false;
+  }
+
   private updateLocalOrder(
     orderId: string,
-    patch: Partial<ServiceOrder>,
+    patch: Partial<ServiceOrder>
   ): void {
     const index = this.serviceOrders.findIndex((item) => item.id === orderId);
 
@@ -47,6 +57,27 @@ export class OrdersStore {
       ...this.serviceOrders[index],
       ...patch,
     };
+  }
+
+  private updateLocalProductOrder(
+    orderId: string,
+    patch: Partial<ProductOrder>
+  ): void {
+    const index = this.productOrders.findIndex((item) => item.id === orderId);
+
+    if (index !== -1) {
+      this.productOrders[index] = {
+        ...this.productOrders[index],
+        ...patch,
+      };
+    }
+
+    if (this.selectedProductOrder?.id === orderId) {
+      this.selectedProductOrder = {
+        ...this.selectedProductOrder,
+        ...patch,
+      };
+    }
   }
 
   async loadServices(): Promise<void> {
@@ -65,7 +96,7 @@ export class OrdersStore {
         this.servicesError =
           error instanceof Error
             ? error.message
-            : 'Не удалось загрузить заказы услуг';
+            : "Не удалось загрузить заказы услуг";
         this.servicesLoading = false;
       });
     }
@@ -87,8 +118,30 @@ export class OrdersStore {
         this.productsError =
           error instanceof Error
             ? error.message
-            : 'Не удалось загрузить заказы товаров';
+            : "Не удалось загрузить заказы товаров";
         this.productsLoading = false;
+      });
+    }
+  }
+
+  async loadProductById(orderId: string): Promise<void> {
+    this.selectedProductLoading = true;
+    this.selectedProductError = null;
+
+    try {
+      const order = await ordersService.getProductOrderById(orderId);
+
+      runInAction(() => {
+        this.selectedProductOrder = order;
+        this.selectedProductLoading = false;
+      });
+    } catch (error) {
+      runInAction(() => {
+        this.selectedProductError =
+          error instanceof Error
+            ? error.message
+            : "Не удалось загрузить заказ товара";
+        this.selectedProductLoading = false;
       });
     }
   }
@@ -106,14 +159,14 @@ export class OrdersStore {
     } catch (error) {
       runInAction(() => {
         this.actionError =
-          error instanceof Error ? error.message : 'Не удалось повторить заказ';
+          error instanceof Error ? error.message : "Не удалось повторить заказ";
         this.actionLoadingId = null;
       });
     }
   }
 
   async repeatProduct(
-    orderId: string,
+    orderId: string
   ): Promise<ProductOrderRepeatCheckoutDraft | null> {
     this.actionLoadingId = orderId;
     this.actionError = null;
@@ -129,11 +182,63 @@ export class OrdersStore {
     } catch (error) {
       runInAction(() => {
         this.actionError =
-          error instanceof Error ? error.message : 'Не удалось повторить заказ';
+          error instanceof Error ? error.message : "Не удалось повторить заказ";
         this.actionLoadingId = null;
       });
 
       return null;
+    }
+  }
+
+  async cancelProduct(orderId: string): Promise<void> {
+    this.actionLoadingId = orderId;
+    this.actionError = null;
+
+    try {
+      await ordersService.cancelProductOrder(orderId);
+
+      const canceledAt = new Date().toISOString();
+
+      runInAction(() => {
+        const currentLifecycle =
+          this.selectedProductOrder?.id === orderId
+            ? this.selectedProductOrder.lifecycle ?? []
+            : this.productOrders.find((item) => item.id === orderId)
+                ?.lifecycle ?? [];
+
+        this.updateLocalProductOrder(orderId, {
+          status: "canceled",
+          canceledAt,
+          cancelReason: "Отменено пользователем",
+          payment:
+            this.selectedProductOrder?.id === orderId
+              ? this.selectedProductOrder.payment
+                ? {
+                    ...this.selectedProductOrder.payment,
+                    status:
+                      this.selectedProductOrder.payment.status === "paid"
+                        ? "refunded"
+                        : this.selectedProductOrder.payment.status,
+                  }
+                : undefined
+              : undefined,
+          lifecycle: [
+            ...currentLifecycle,
+            {
+              status: "canceled",
+              changedAt: canceledAt,
+              comment: "Пользователь отменил заказ",
+            },
+          ],
+        });
+        this.actionLoadingId = null;
+      });
+    } catch (error) {
+      runInAction(() => {
+        this.actionError =
+          error instanceof Error ? error.message : "Не удалось отменить заказ";
+        this.actionLoadingId = null;
+      });
     }
   }
 
@@ -146,7 +251,7 @@ export class OrdersStore {
 
       runInAction(() => {
         this.updateLocalOrder(orderId, {
-          status: 'confirmed',
+          status: "confirmed",
           confirmedAt: new Date().toISOString(),
         });
         this.actionLoadingId = null;
@@ -156,7 +261,7 @@ export class OrdersStore {
         this.actionError =
           error instanceof Error
             ? error.message
-            : 'Не удалось подтвердить заказ';
+            : "Не удалось подтвердить заказ";
         this.actionLoadingId = null;
       });
     }
@@ -171,7 +276,7 @@ export class OrdersStore {
 
       runInAction(() => {
         this.updateLocalOrder(orderId, {
-          status: 'active',
+          status: "active",
           startedAt: new Date().toISOString(),
         });
         this.actionLoadingId = null;
@@ -179,7 +284,7 @@ export class OrdersStore {
     } catch (error) {
       runInAction(() => {
         this.actionError =
-          error instanceof Error ? error.message : 'Не удалось начать заказ';
+          error instanceof Error ? error.message : "Не удалось начать заказ";
         this.actionLoadingId = null;
       });
     }
@@ -194,7 +299,7 @@ export class OrdersStore {
 
       runInAction(() => {
         this.updateLocalOrder(orderId, {
-          status: 'completed',
+          status: "completed",
           completedAt: new Date().toISOString(),
         });
         this.actionLoadingId = null;
@@ -202,7 +307,7 @@ export class OrdersStore {
     } catch (error) {
       runInAction(() => {
         this.actionError =
-          error instanceof Error ? error.message : 'Не удалось завершить заказ';
+          error instanceof Error ? error.message : "Не удалось завершить заказ";
         this.actionLoadingId = null;
       });
     }
@@ -217,7 +322,7 @@ export class OrdersStore {
 
       runInAction(() => {
         this.updateLocalOrder(orderId, {
-          status: 'canceled',
+          status: "canceled",
           canceledAt: new Date().toISOString(),
         });
         this.actionLoadingId = null;
@@ -225,7 +330,7 @@ export class OrdersStore {
     } catch (error) {
       runInAction(() => {
         this.actionError =
-          error instanceof Error ? error.message : 'Не удалось отменить заказ';
+          error instanceof Error ? error.message : "Не удалось отменить заказ";
         this.actionLoadingId = null;
       });
     }
@@ -233,7 +338,7 @@ export class OrdersStore {
 
   async leaveReview(
     orderId: string,
-    payload: LeaveServiceReviewPayload,
+    payload: LeaveServiceReviewPayload
   ): Promise<void> {
     this.actionLoadingId = orderId;
     this.actionError = null;
@@ -258,7 +363,7 @@ export class OrdersStore {
     } catch (error) {
       runInAction(() => {
         this.actionError =
-          error instanceof Error ? error.message : 'Не удалось отправить отзыв';
+          error instanceof Error ? error.message : "Не удалось отправить отзыв";
         this.actionLoadingId = null;
       });
     }

@@ -3,10 +3,10 @@
 import {
   createMockServiceOrder,
   getMockServiceOrderById,
-  MOCK_PRODUCT_ORDERS,
   readMockServiceOrders,
   updateMockServiceOrder,
 } from '../data/mockOrders';
+import { readProductOrdersFromShop } from '../data/mockProductOrdersAdapter';
 
 import type {
   CancelOrderResult,
@@ -22,11 +22,13 @@ import type {
   ServicesFilter,
   StartOrderResult,
 } from '../model/types';
+import type { ProductOrderRepeatCheckoutDraft } from '../model/productOrderRepeatCheckout';
 
 import {
   MOCK_SPECIALIST_PROFILES,
   findProfileIndexBySlug,
 } from '@/features/specialist-profile/data/mockSpecialistProfiles';
+import { readStoredOrders, writeStoredOrders } from '@/features/shop/data/mockShopOrders';
 
 import type {
   SpecialistCalendarBookedSlot,
@@ -148,7 +150,9 @@ function getServiceBuffer(service: SpecialistService): {
   }
 
   return {
-    before: buffer.hasBufferBefore ? Math.max(0, buffer.bufferBeforeMinutes) : 0,
+    before: buffer.hasBufferBefore
+      ? Math.max(0, buffer.bufferBeforeMinutes)
+      : 0,
     after: buffer.hasBufferAfter ? Math.max(0, buffer.bufferAfterMinutes) : 0,
   };
 }
@@ -165,8 +169,14 @@ function getAdjustedRange(
   const start = Math.max(0, timeToMinutes(startTime) - beforeMinutes);
   const end = Math.min(24 * 60, timeToMinutes(endTime) + afterMinutes);
 
-  const adjustedStart = `${String(Math.floor(start / 60)).padStart(2, '0')}:${String(start % 60).padStart(2, '0')}`;
-  const adjustedEnd = `${String(Math.floor(end / 60)).padStart(2, '0')}:${String(end % 60).padStart(2, '0')}`;
+  const adjustedStart = `${String(Math.floor(start / 60)).padStart(
+    2,
+    '0',
+  )}:${String(start % 60).padStart(2, '0')}`;
+  const adjustedEnd = `${String(Math.floor(end / 60)).padStart(
+    2,
+    '0',
+  )}:${String(end % 60).padStart(2, '0')}`;
 
   return { adjustedStart, adjustedEnd };
 }
@@ -251,7 +261,9 @@ function validateWindowsForSingleDate(
 ): void {
   const { profile } = getSpecialistProfileOrThrow(specialistSlug);
 
-  const dayOverride = profile.calendar.dayOverrides.find((item) => item.date === date);
+  const dayOverride = profile.calendar.dayOverrides.find(
+    (item) => item.date === date,
+  );
 
   if (dayOverride?.status === 'day_off') {
     throw new Error('На выбранную дату специалист недоступен.');
@@ -386,7 +398,8 @@ function buildDailyRanges(
     return [{ date: startDate, startTime, endTime }];
   }
 
-  const result: Array<{ date: string; startTime: string; endTime: string }> = [];
+  const result: Array<{ date: string; startTime: string; endTime: string }> =
+    [];
   const cursor = new Date(`${startDate}T00:00:00`);
   const endCursor = new Date(`${endDate}T00:00:00`);
 
@@ -568,7 +581,12 @@ function validateByMode(payload: CreateServiceOrderPayload): void {
     const endDate = toDateValue(payload.schedule.checkOutAt);
     const endTime = toTimeValue(payload.schedule.checkOutAt);
 
-    const dailyRanges = buildDailyRanges(startDate, startTime, endDate, endTime);
+    const dailyRanges = buildDailyRanges(
+      startDate,
+      startTime,
+      endDate,
+      endTime,
+    );
 
     dailyRanges.forEach((range) => {
       validateWindowsForSingleDate(
@@ -657,7 +675,9 @@ function makeBookedSlotsFromOrder(
 }
 
 function syncBookedSlotsForOrder(order: ServiceOrder): void {
-  const { profileIndex, profile } = getSpecialistProfileOrThrow(order.specialistSlug);
+  const { profileIndex, profile } = getSpecialistProfileOrThrow(
+    order.specialistSlug,
+  );
 
   const nextSlots = profile.calendar.bookedSlots.filter(
     (slot) => slot.orderId !== order.id,
@@ -677,11 +697,14 @@ function syncBookedSlotsForOrder(order: ServiceOrder): void {
     return a.endTime.localeCompare(b.endTime);
   });
 
-  MOCK_SPECIALIST_PROFILES[profileIndex].calendar.bookedSlots = clone(nextSlots);
+  MOCK_SPECIALIST_PROFILES[profileIndex].calendar.bookedSlots =
+    clone(nextSlots);
 }
 
 function removeBookedSlotsForOrder(order: ServiceOrder): void {
-  const { profileIndex, profile } = getSpecialistProfileOrThrow(order.specialistSlug);
+  const { profileIndex, profile } = getSpecialistProfileOrThrow(
+    order.specialistSlug,
+  );
 
   MOCK_SPECIALIST_PROFILES[profileIndex].calendar.bookedSlots =
     profile.calendar.bookedSlots.filter((slot) => slot.orderId !== order.id);
@@ -708,10 +731,7 @@ function ensureAllowedTransition(
 ): void {
   const current = order.status;
 
-  const allowedMap: Record<
-    ServiceOrder['status'],
-    ServiceOrder['status'][]
-  > = {
+  const allowedMap: Record<ServiceOrder['status'], ServiceOrder['status'][]> = {
     pending_confirmation: ['confirmed', 'canceled'],
     confirmed: ['active', 'canceled'],
     active: ['completed'],
@@ -730,7 +750,9 @@ function addReviewToSpecialist(
   order: ServiceOrder,
   review: ServiceOrderReview,
 ): void {
-  const { profileIndex, profile } = getSpecialistProfileOrThrow(order.specialistSlug);
+  const { profileIndex, profile } = getSpecialistProfileOrThrow(
+    order.specialistSlug,
+  );
 
   const nextReview: SpecialistReview = {
     id: `review-from-order-${order.id}`,
@@ -758,6 +780,8 @@ function addReviewToSpecialist(
     },
   };
 }
+
+/* ---------------- SERVICE ORDERS ---------------- */
 
 export async function mockGetServiceOrders(
   filter: ServicesFilter,
@@ -888,12 +912,57 @@ export async function mockCancelServiceOrder(
   return { ok: true };
 }
 
+/* ---------------- PRODUCT ORDERS ---------------- */
+
 export async function mockGetProductOrders(): Promise<ProductOrder[]> {
   await wait();
 
-  return [...MOCK_PRODUCT_ORDERS].sort(
+  return readProductOrdersFromShop().sort(
     (a, b) => +new Date(b.createdAt) - +new Date(a.createdAt),
   );
+}
+
+export async function mockGetProductOrderById(
+  orderId: string,
+): Promise<ProductOrder> {
+  await wait();
+
+  const order = readProductOrdersFromShop().find((item) => item.id === orderId);
+
+  if (!order) {
+    throw new Error('Заказ не найден.');
+  }
+
+  return order;
+}
+
+export async function mockCancelProductOrder(
+  orderId: string,
+): Promise<CancelOrderResult> {
+  await wait();
+
+  const orders = readStoredOrders();
+  const index = orders.findIndex((item) => item.id === orderId);
+
+  if (index === -1) {
+    throw new Error('Заказ не найден.');
+  }
+
+  const current = orders[index];
+
+  if (current.status !== 'created' && current.status !== 'paid') {
+    throw new Error('Этот заказ уже нельзя отменить.');
+  }
+
+  orders[index] = {
+    ...current,
+    status: 'cancelled',
+    canBeCancelled: false,
+  };
+
+  writeStoredOrders(orders);
+
+  return { ok: true };
 }
 
 export async function mockRepeatServiceOrder(
@@ -927,10 +996,31 @@ export async function mockRepeatServiceOrder(
   };
 }
 
-export async function mockRepeatProductOrder(): Promise<RepeatResult> {
+export async function mockRepeatProductOrder(
+  orderId: string,
+): Promise<ProductOrderRepeatCheckoutDraft> {
   await wait();
 
-  return { ok: true };
+  const existing = readProductOrdersFromShop().find((item) => item.id === orderId);
+
+  if (!existing) {
+    throw new Error('Заказ не найден.');
+  }
+
+  return {
+    source: 'repeat_product_order',
+    orderId: existing.id,
+    createdAt: new Date().toISOString(),
+    items: existing.items.map((item) => ({
+      productId: item.productId,
+      title: item.title,
+      quantity: item.quantity,
+      price: item.price,
+      imageUrl: item.imageUrl,
+      variantId: item.variantId,
+      variantLabel: item.variantLabel,
+    })),
+  };
 }
 
 export async function mockLeaveServiceReview(
