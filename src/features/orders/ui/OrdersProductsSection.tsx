@@ -2,259 +2,142 @@
 
 import { observer } from 'mobx-react-lite';
 import { useEffect } from 'react';
+import { Link } from 'react-router-dom';
+
+import { ordersStore } from '../model/ordersStore';
+import {
+  canRepeatProductOrder,
+  getProductOrderStatusLabel,
+  getProductOrderStatusTone,
+} from '../service/productOrderPresentation';
+import { getProfileOrdersPreview } from '@/features/shop/service/profileOrdersPreview';
 import { useAppNavigate } from '@/shared/lib/navigation/useAppNavigate';
 
 import styles from './OrdersProductsSection.module.css';
-import { ordersStore } from '../model/ordersStore';
-import {
-  isProductOrderCompleted,
-  shouldOpenProductOrderDetails,
-} from '../model/types';
 
-import type { KeyboardEvent, MouseEvent } from 'react';
-import type { ProductOrder } from '../model/types';
+function formatPrice(value: number): string {
+  return new Intl.NumberFormat('ru-RU').format(value);
+}
 
-type CheckoutLocationState = {
-  source: 'repeat_product_order';
-  orderId: string;
-  repeatOrder: Awaited<ReturnType<typeof ordersStore.repeatProduct>> extends infer T
-    ? Exclude<T, null>
-    : never;
-};
+function formatItemsLabel(quantity: number): string {
+  const mod10 = quantity % 10;
+  const mod100 = quantity % 100;
+
+  if (mod10 === 1 && mod100 !== 11) {
+    return `${quantity} товар`;
+  }
+
+  if (mod10 >= 2 && mod10 <= 4 && (mod100 < 12 || mod100 > 14)) {
+    return `${quantity} товара`;
+  }
+
+  return `${quantity} товаров`;
+}
 
 export const OrdersProductsSection = observer(() => {
   const navigate = useAppNavigate();
 
   useEffect(() => {
-    void ordersStore.loadProducts();
+    if (
+      ordersStore.productOrders.length === 0 &&
+      !ordersStore.productsLoading
+    ) {
+      void ordersStore.loadProducts();
+    }
   }, []);
 
+  const previewOrders = getProfileOrdersPreview(ordersStore.productOrders);
+
+  const handleOpenOrder = (orderId: string): void => {
+    navigate(`/shop/order/${encodeURIComponent(orderId)}`);
+  };
+
+  const handleRepeatOrder = async (
+    event: React.MouseEvent<HTMLButtonElement>,
+    orderId: string,
+  ): Promise<void> => {
+    event.stopPropagation();
+
+    const repeatDraft = await ordersStore.repeatProduct(orderId);
+
+    if (!repeatDraft) {
+      return;
+    }
+
+    navigate('/shop/checkout', {
+      state: {
+        repeatOrder: repeatDraft,
+      },
+    });
+  };
+
   return (
-    <section className={styles.card}>
-      <div className={styles.headerRow}>
-        <h2 className={styles.title}>Мои заказы (товары)</h2>
+    <section className={styles.section}>
+      <div className={styles.header}>
+        <h2 className={styles.title}>Заказы</h2>
+
+        <Link to="/shop/orders" className={styles.allLink}>
+          Все заказы
+        </Link>
       </div>
 
-      {ordersStore.productsError ? (
-        <div className={styles.error}>{ordersStore.productsError}</div>
+      {ordersStore.productsLoading ? (
+        <div className={styles.state}>Загрузка заказов...</div>
+      ) : null}
+
+      {!ordersStore.productsLoading && previewOrders.length === 0 ? (
+        <div className={styles.state}>У вас пока нет заказов</div>
+      ) : null}
+
+      {!ordersStore.productsLoading && previewOrders.length > 0 ? (
+        <div className={styles.list}>
+          {previewOrders.map((order) => {
+            const isRepeating = ordersStore.actionLoadingId === order.id;
+            const canRepeat = canRepeatProductOrder(order);
+
+            return (
+              <article
+                key={order.id}
+                className={styles.item}
+                onClick={() => handleOpenOrder(order.id)}
+              >
+                <div className={styles.topRow}>
+                  <div className={styles.numberBlock}>
+                    <div className={styles.number}>{order.number}</div>
+                    <div className={styles.meta}>
+                      <span>{formatItemsLabel(order.itemsCount)}</span>
+                      <span className={styles.metaDivider}>•</span>
+                      <span>{formatPrice(order.price)} ₽</span>
+                    </div>
+                  </div>
+
+                  <span
+                    className={styles.status}
+                    data-tone={getProductOrderStatusTone(order.status)}
+                  >
+                    {getProductOrderStatusLabel(order.status)}
+                  </span>
+                </div>
+
+                <div className={styles.actions}>
+                  <button
+                    type="button"
+                    className={styles.repeatButton}
+                    onClick={(event) => void handleRepeatOrder(event, order.id)}
+                    disabled={!canRepeat || isRepeating}
+                  >
+                    {isRepeating ? 'Повторяем...' : 'Повторить заказ'}
+                  </button>
+                </div>
+              </article>
+            );
+          })}
+        </div>
       ) : null}
 
       {ordersStore.actionError ? (
         <div className={styles.error}>{ordersStore.actionError}</div>
       ) : null}
-
-      {ordersStore.productsLoading && ordersStore.productOrders.length === 0 ? (
-        <div className={styles.state}>Загружаем заказы...</div>
-      ) : ordersStore.productOrders.length === 0 ? (
-        <div className={styles.state}>Пока нет заказов товаров.</div>
-      ) : (
-        <div className={styles.list}>
-          {ordersStore.productOrders.map((order) => (
-            <ProductOrderCard
-              key={order.id}
-              order={order}
-              onOpen={() => {
-                navigate(`/shop/order/${encodeURIComponent(order.id)}`, {
-                  state: {
-                    from: 'profile',
-                  },
-                });
-              }}
-              onRepeat={async () => {
-                const draft = await ordersStore.repeatProduct(order.id);
-
-                if (!draft || ordersStore.actionError) {
-                  return;
-                }
-
-                const checkoutState: CheckoutLocationState = {
-                  source: 'repeat_product_order',
-                  orderId: order.id,
-                  repeatOrder: draft,
-                };
-
-                navigate('/shop/checkout', {
-                  state: checkoutState,
-                });
-              }}
-              isRepeatLoading={ordersStore.actionLoadingId === order.id}
-            />
-          ))}
-        </div>
-      )}
     </section>
   );
 });
-
-type ProductOrderCardProps = {
-  order: ProductOrder;
-  onOpen: () => void;
-  onRepeat: () => Promise<void>;
-  isRepeatLoading: boolean;
-};
-
-const ProductOrderCard = observer(
-  ({
-    order,
-    onOpen,
-    onRepeat,
-    isRepeatLoading,
-  }: ProductOrderCardProps) => {
-    const navigate = useAppNavigate();
-
-    const visibleItems = order.items.slice(0, 3);
-    const rest = Math.max(0, order.items.length - 3);
-
-    const handleCardKeyDown = (
-      event: KeyboardEvent<HTMLDivElement>,
-    ): void => {
-      if (event.key === 'Enter' || event.key === ' ') {
-        event.preventDefault();
-        onOpen();
-      }
-    };
-
-    const handleOpenProduct = (
-      event: MouseEvent<HTMLButtonElement>,
-      productId: string,
-    ): void => {
-      event.stopPropagation();
-      navigate(`/shop/${productId}`);
-    };
-
-    const canOpenDetails = shouldOpenProductOrderDetails(order) || order.status === 'canceled';
-    const canRepeat = isProductOrderCompleted(order);
-
-    return (
-      <div
-        className={styles.order}
-        role={canOpenDetails ? 'button' : undefined}
-        tabIndex={canOpenDetails ? 0 : -1}
-        onClick={() => {
-          if (canOpenDetails) {
-            onOpen();
-          }
-        }}
-        onKeyDown={(event) => {
-          if (canOpenDetails) {
-            handleCardKeyDown(event);
-          }
-        }}
-      >
-        <div className={styles.left}>
-          <div className={styles.number}>{order.number}</div>
-
-          <div className={styles.metaRow}>
-            <span className={styles.meta}>{mapProductStatus(order.status)}</span>
-            <span className={styles.dot}>•</span>
-            <span className={styles.meta}>
-              {new Date(order.createdAt).toLocaleDateString('ru-RU', {
-                year: 'numeric',
-                month: 'long',
-                day: '2-digit',
-              })}
-            </span>
-          </div>
-
-          <div className={styles.metaRow}>
-            <span className={styles.meta}>Товаров: {order.itemsCount}</span>
-          </div>
-        </div>
-
-        <div className={styles.right}>
-          <div className={styles.price}>
-            {formatPrice(order.price, order.currency)}
-          </div>
-
-          <div className={styles.thumbs}>
-            {visibleItems.map((item, idx) => {
-              const isLastVisible = idx === 2;
-
-              if (isLastVisible && rest > 0) {
-                return (
-                  <button
-                    key={`${item.productId}-${idx}`}
-                    type="button"
-                    className={styles.thumbWrap}
-                    onClick={(event) => {
-                      handleOpenProduct(event, item.productId);
-                    }}
-                    aria-label={`Открыть товар ${item.title}`}
-                  >
-                    <img
-                      className={styles.thumb}
-                      src={item.imageUrl}
-                      alt={item.title}
-                    />
-                    <div className={styles.moreOverlay}>{rest}+</div>
-                  </button>
-                );
-              }
-
-              return (
-                <button
-                  key={`${item.productId}-${idx}`}
-                  type="button"
-                  className={styles.thumbWrap}
-                  onClick={(event) => {
-                    handleOpenProduct(event, item.productId);
-                  }}
-                  aria-label={`Открыть товар ${item.title}`}
-                >
-                  <img
-                    className={styles.thumb}
-                    src={item.imageUrl}
-                    alt={item.title}
-                  />
-                </button>
-              );
-            })}
-          </div>
-
-          {canRepeat ? (
-            <button
-              className={styles.secondaryBtn}
-              type="button"
-              onClick={(event) => {
-                event.stopPropagation();
-                void onRepeat();
-              }}
-              disabled={isRepeatLoading}
-            >
-              {isRepeatLoading ? '...' : 'Повторить заказ'}
-            </button>
-          ) : canOpenDetails ? (
-            <button
-              className={styles.secondaryBtn}
-              type="button"
-              onClick={(event) => {
-                event.stopPropagation();
-                onOpen();
-              }}
-            >
-              Открыть заказ
-            </button>
-          ) : null}
-        </div>
-      </div>
-    );
-  },
-);
-
-function mapProductStatus(status: string): string {
-  if (status === 'created') return 'Создан';
-  if (status === 'paid') return 'Оплачен';
-  if (status === 'shipped') return 'Отправлен';
-  if (status === 'delivered') return 'Доставлен';
-  if (status === 'canceled') return 'Отменён';
-
-  return status;
-}
-
-function formatPrice(value: number, currency: 'RUB'): string {
-  return new Intl.NumberFormat('ru-RU', {
-    style: 'currency',
-    currency,
-    maximumFractionDigits: 0,
-  }).format(value);
-}

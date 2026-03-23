@@ -109,6 +109,12 @@ const PublicOfferPage = lazy(() =>
   })),
 );
 
+const ShopOrdersPage = lazy(() =>
+  import('@/pages/shop-orders').then((module) => ({
+    default: module.ShopOrdersPage,
+  })),
+);
+
 const NotFoundPage = lazy(() =>
   import('@/pages/not-found').then((module) => ({
     default: module.NotFoundPage,
@@ -191,6 +197,10 @@ export const publicRoutes: RouteObject[] = [
   {
     path: '/public-offer',
     element: withSuspense(<PublicOfferPage />),
+  },
+  {
+    path: '/shop/orders',
+    element: withSuspense(<ShopOrdersPage />),
   },
   {
     path: '*',

@@ -1,4 +1,5 @@
 /* src/pages/shop/ui/ShopCatalogPage.module.css */
+
 .page {
     min-height: calc(100vh - 160px);
     padding: 32px 20px 80px;
@@ -26,12 +27,131 @@
     text-decoration: none;
 }
 
+.breadcrumbLink:hover {
+    text-decoration: underline;
+}
+
 .breadcrumbSeparator {
     color: #94a3b8;
 }
 
 .breadcrumbCurrent {
     color: #475569;
+}
+
+.activeOrdersBanner {
+    display: flex;
+    flex-direction: column;
+    gap: 18px;
+    margin-bottom: 28px;
+    padding: 24px;
+    border: 1px solid rgba(99, 102, 241, 0.18);
+    border-radius: 24px;
+    background:
+        linear-gradient(135deg, rgba(99, 102, 241, 0.1) 0%, rgba(124, 58, 237, 0.08) 100%),
+        #ffffff;
+    box-shadow: 0 14px 36px rgba(15, 23, 42, 0.08);
+}
+
+.activeOrdersHeader {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 16px;
+}
+
+.activeOrdersTitle {
+    margin: 0 0 8px;
+    color: #0f172a;
+    font-size: 24px;
+    line-height: 1.2;
+}
+
+.activeOrdersSubtitle {
+    margin: 0;
+    max-width: 720px;
+    color: #475569;
+    font-size: 15px;
+    line-height: 1.6;
+}
+
+.activeOrdersProfileLink {
+    flex-shrink: 0;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-height: 44px;
+    padding: 0 16px;
+    border-radius: 14px;
+    background: #6366f1;
+    color: #ffffff;
+    text-decoration: none;
+    font-size: 14px;
+    font-weight: 700;
+    transition:
+        background-color 0.2s ease,
+        transform 0.2s ease,
+        box-shadow 0.2s ease;
+}
+
+.activeOrdersProfileLink:hover {
+    background: #5558e6;
+    transform: translateY(-1px);
+    box-shadow: 0 10px 24px rgba(99, 102, 241, 0.24);
+}
+
+.activeOrdersList {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 14px;
+}
+
+.activeOrderItem {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    min-width: 0;
+    padding: 18px;
+    border: 1px solid #e2e8f0;
+    border-radius: 18px;
+    background: #ffffff;
+    color: inherit;
+    text-decoration: none;
+    box-shadow: 0 10px 24px rgba(15, 23, 42, 0.05);
+    transition:
+        transform 0.2s ease,
+        box-shadow 0.2s ease,
+        border-color 0.2s ease;
+}
+
+.activeOrderItem:hover {
+    transform: translateY(-2px);
+    border-color: rgba(99, 102, 241, 0.35);
+    box-shadow: 0 16px 32px rgba(15, 23, 42, 0.08);
+}
+
+.activeOrderNumber {
+    display: block;
+    min-width: 0;
+    color: #0f172a;
+    font-size: 15px;
+    font-weight: 700;
+    line-height: 1.45;
+    word-break: break-word;
+}
+
+.activeOrderMeta {
+    align-self: flex-start;
+    display: inline-flex;
+    align-items: center;
+    min-height: 28px;
+    padding: 4px 10px;
+    border-radius: 999px;
+    background: rgba(34, 197, 94, 0.12);
+    color: #166534;
+    font-size: 13px;
+    font-weight: 700;
+    line-height: 1;
 }
 
 .hero {
@@ -178,6 +298,14 @@
     font-size: 14px;
     font-weight: 700;
     cursor: pointer;
+    transition:
+        background-color 0.2s ease,
+        transform 0.2s ease;
+}
+
+.retryButton:hover {
+    background: #5558e6;
+    transform: translateY(-1px);
 }
 
 .paginationWrap {
@@ -191,6 +319,10 @@
 
     .layout {
         grid-template-columns: 280px minmax(0, 1fr);
+    }
+
+    .activeOrdersList {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
     }
 }
 
@@ -211,6 +343,15 @@
     .sidebar {
         position: static;
     }
+
+    .activeOrdersHeader {
+        flex-direction: column;
+        align-items: stretch;
+    }
+
+    .activeOrdersProfileLink {
+        width: 100%;
+    }
 }
 
 @media (max-width: 640px) {
@@ -228,5 +369,26 @@
 
     .quickStats {
         grid-template-columns: 1fr 1fr;
+    }
+
+    .activeOrdersBanner {
+        padding: 20px;
+        border-radius: 20px;
+    }
+
+    .activeOrdersTitle {
+        font-size: 22px;
+    }
+
+    .activeOrdersList {
+        grid-template-columns: 1fr;
+    }
+
+    .activeOrderItem {
+        padding: 16px;
+    }
+
+    .activeOrderNumber {
+        font-size: 14px;
     }
 }

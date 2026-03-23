@@ -1,22 +1,22 @@
 // src/pages/shop/ui/ShopCatalogPage.tsx
 
-import { observer } from 'mobx-react-lite';
-import { useEffect, useMemo, useRef } from 'react';
-import { Link, useLocation } from 'react-router-dom';
-import { useAppNavigate } from '@/shared/lib/navigation/useAppNavigate';
+import { observer } from "mobx-react-lite";
+import { useEffect, useMemo, useRef } from "react";
+import { Link, useLocation } from "react-router-dom";
+import { useAppNavigate } from "@/shared/lib/navigation/useAppNavigate";
 
-import { ordersStore } from '@/features/orders/model/ordersStore';
-import { shouldOpenProductOrderDetails } from '@/features/orders/model/types';
-import { shopCartStore } from '@/features/shop/model/shopCartStore';
-import { shopCatalogStore } from '@/features/shop/model/shopCatalogStore';
-import { shopFavoritesStore } from '@/features/shop/model/shopFavoritesStore';
+import { ordersStore } from "@/features/orders/model/ordersStore";
+import { shouldOpenProductOrderDetails } from "@/features/orders/model/types";
+import { shopCartStore } from "@/features/shop/model/shopCartStore";
+import { shopCatalogStore } from "@/features/shop/model/shopCatalogStore";
+import { shopFavoritesStore } from "@/features/shop/model/shopFavoritesStore";
 import {
   CatalogFilters,
   CatalogPagination,
   ProductCard,
-} from '@/features/shop/ui';
+} from "@/features/shop/ui";
 
-import styles from './ShopCatalogPage.module.css';
+import styles from "./ShopCatalogPage.module.css";
 
 type ShopCatalogPageLocationState = {
   restoreScrollY?: number;
@@ -28,16 +28,10 @@ export const ShopCatalogPage = observer(() => {
   const navigate = useAppNavigate();
   const restoredRef = useRef(false);
 
-  const {
-    filters,
-    products,
-    total,
-    error,
-    isLoading,
-    isInitialized,
-  } = shopCatalogStore;
+  const { filters, products, total, error, isLoading, isInitialized } =
+    shopCatalogStore;
 
-  const categoryIdsKey = filters.categoryIds.join('|');
+  const categoryIdsKey = filters.categoryIds.join("|");
 
   useEffect(() => {
     if (
@@ -71,7 +65,8 @@ export const ShopCatalogPage = observer(() => {
   ]);
 
   useEffect(() => {
-    const state = (location.state ?? null) as ShopCatalogPageLocationState | null;
+    const state = (location.state ??
+      null) as ShopCatalogPageLocationState | null;
 
     if (!state || restoredRef.current) {
       return;
@@ -87,7 +82,7 @@ export const ShopCatalogPage = observer(() => {
       }
 
       const element = document.querySelector<HTMLElement>(
-        `[data-shop-product-id="${state.restoreProductId}"]`,
+        `[data-shop-product-id="${state.restoreProductId}"]`
       );
 
       if (!element) {
@@ -95,8 +90,8 @@ export const ShopCatalogPage = observer(() => {
       }
 
       element.scrollIntoView({
-        block: 'center',
-        behavior: 'auto',
+        block: "center",
+        behavior: "auto",
       });
 
       return true;
@@ -105,10 +100,10 @@ export const ShopCatalogPage = observer(() => {
     const timerId = window.setTimeout(() => {
       const restoredByProduct = restoreToProduct();
 
-      if (!restoredByProduct && typeof state.restoreScrollY === 'number') {
+      if (!restoredByProduct && typeof state.restoreScrollY === "number") {
         window.scrollTo({
           top: state.restoreScrollY,
-          behavior: 'auto',
+          behavior: "auto",
         });
       }
 
@@ -153,7 +148,7 @@ export const ShopCatalogPage = observer(() => {
       search: location.search,
       hash: location.hash,
       scrollY: window.scrollY,
-      productId: '',
+      productId: "",
     },
   };
 
@@ -163,13 +158,13 @@ export const ShopCatalogPage = observer(() => {
       search: location.search,
       hash: location.hash,
       scrollY: window.scrollY,
-      productId: '',
+      productId: "",
     },
   };
 
   const activeOrders = useMemo(
     () => ordersStore.productOrders.filter(shouldOpenProductOrderDetails),
-    [ordersStore.productOrders],
+    [ordersStore.productOrders]
   );
 
   return (
@@ -191,11 +186,15 @@ export const ShopCatalogPage = observer(() => {
                   У вас есть активные заказы
                 </h2>
                 <p className={styles.activeOrdersSubtitle}>
-                  Открой заказ, чтобы посмотреть детали и при необходимости отменить его.
+                  Открой заказ, чтобы посмотреть детали и при необходимости
+                  отменить его.
                 </p>
               </div>
 
-              <Link to="/profile" className={styles.activeOrdersProfileLink}>
+              <Link
+                to="/shop/orders"
+                className={styles.activeOrdersProfileLink}
+              >
                 Все заказы
               </Link>
             </div>
@@ -261,7 +260,7 @@ export const ShopCatalogPage = observer(() => {
             <div className={styles.toolbar}>
               <div className={styles.results}>
                 {isLoading && !isInitialized
-                  ? 'Загрузка каталога...'
+                  ? "Загрузка каталога..."
                   : `Найдено товаров: ${total}`}
               </div>
 
@@ -272,7 +271,7 @@ export const ShopCatalogPage = observer(() => {
 
             {shopCatalogStore.metaError ? (
               <div className={styles.metaWarning}>
-                Не удалось загрузить метаданные каталога:{' '}
+                Не удалось загрузить метаданные каталога:{" "}
                 {shopCatalogStore.metaError}
               </div>
             ) : null}
@@ -341,11 +340,11 @@ export const ShopCatalogPage = observer(() => {
 });
 
 function mapProductStatus(status: string): string {
-  if (status === 'created') return 'Создан';
-  if (status === 'paid') return 'Оплачен';
-  if (status === 'shipped') return 'Отправлен';
-  if (status === 'delivered') return 'Доставлен';
-  if (status === 'canceled') return 'Отменён';
+  if (status === "created") return "Создан";
+  if (status === "paid") return "Оплачен";
+  if (status === "shipped") return "Отправлен";
+  if (status === "delivered") return "Доставлен";
+  if (status === "canceled") return "Отменён";
 
   return status;
 }

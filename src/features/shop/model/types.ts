@@ -1,22 +1,23 @@
 // src/features/shop/model/types.ts
+
 export type ProductCategory = {
     id: string;
     slug: string;
     title: string;
-};
-
-export type ProductSort =
+  };
+  
+  export type ProductSort =
     | 'popular'
     | 'price-asc'
     | 'price-desc'
     | 'rating-desc'
     | 'newest';
-
-export type DeliveryMethod = 'courier' | 'pickup-point';
-
-export type PaymentMethod = 'card' | 'sbp' | 'cash';
-
-export type OrderStatus =
+  
+  export type DeliveryMethod = 'courier' | 'pickup-point';
+  
+  export type PaymentMethod = 'card' | 'sbp' | 'cash';
+  
+  export type OrderStatus =
     | 'created'
     | 'paid'
     | 'processing'
@@ -24,22 +25,31 @@ export type OrderStatus =
     | 'ready-for-pickup'
     | 'completed'
     | 'cancelled';
-
-export type ProductReview = {
+  
+  export type ProductReview = {
     id: string;
     authorName: string;
     rating: 1 | 2 | 3 | 4 | 5;
     text: string;
     createdAt: string;
-};
-
-export type ProductImage = {
+  };
+  
+  export type ProductImage = {
     id: string;
     url: string;
     alt: string;
-};
-
-export type Product = {
+  };
+  
+  export type ProductDescriptionContent = {
+    summary?: string;
+    suitableFor?: string[];
+    benefits?: string[];
+    features?: string[];
+    usage?: string;
+    composition?: string;
+  };
+  
+  export type Product = {
     id: string;
     slug: string;
     title: string;
@@ -47,6 +57,7 @@ export type Product = {
     categoryTitle: string;
     shortDescription: string;
     description: string;
+    descriptionContent?: ProductDescriptionContent;
     price: number;
     oldPrice: number | null;
     rating: number;
@@ -57,9 +68,9 @@ export type Product = {
     reviews: ProductReview[];
     createdAt: string;
     updatedAt: string;
-};
-
-export type CatalogFilterState = {
+  };
+  
+  export type CatalogFilterState = {
     search: string;
     categoryIds: string[];
     minPrice: number | null;
@@ -68,76 +79,76 @@ export type CatalogFilterState = {
     sort: ProductSort;
     page: number;
     limit: number;
-};
-
-export type CatalogProductsResponse = {
+  };
+  
+  export type CatalogProductsResponse = {
     items: Product[];
     total: number;
     page: number;
     limit: number;
-};
-
-export type CatalogMetaResponse = {
+  };
+  
+  export type CatalogMetaResponse = {
     categories: ProductCategory[];
     minPrice: number;
     maxPrice: number;
     availableSorts: ProductSort[];
-};
-
-export type CartItem = {
+  };
+  
+  export type CartItem = {
     productId: string;
     quantity: number;
-};
-
-export type CartDetailedItem = {
+  };
+  
+  export type CartDetailedItem = {
     product: Product;
     quantity: number;
     lineTotal: number;
-};
-
-export type CartSummary = {
+  };
+  
+  export type CartSummary = {
     items: CartDetailedItem[];
     totalItems: number;
     totalPrice: number;
-};
-
-export type FavoriteItem = {
+  };
+  
+  export type FavoriteItem = {
     productId: string;
     addedAt: string;
-};
-
-export type CheckoutRecipient = {
+  };
+  
+  export type CheckoutRecipient = {
     firstName: string;
     lastName: string;
     phone: string;
     email: string;
-};
-
-export type CheckoutAddress = {
+  };
+  
+  export type CheckoutAddress = {
     city: string;
     street: string;
     house: string;
     apartment: string;
     comment: string;
-};
-
-export type PickupPoint = {
+  };
+  
+  export type PickupPoint = {
     id: string;
     provider: 'cdek';
     title: string;
     address: string;
     estimatedDate: string;
-};
-
-export type CheckoutForm = {
+  };
+  
+  export type CheckoutForm = {
     recipient: CheckoutRecipient;
     deliveryMethod: DeliveryMethod;
     address: CheckoutAddress;
     pickupPointId: string | null;
     paymentMethod: PaymentMethod;
-};
-
-export type Order = {
+  };
+  
+  export type Order = {
     id: string;
     status: OrderStatus;
     items: CartDetailedItem[];
@@ -147,9 +158,9 @@ export type Order = {
     estimatedDeliveryDate: string | null;
     createdAt: string;
     canBeCancelled: boolean;
-};
-
-export const DEFAULT_CATALOG_FILTERS: CatalogFilterState = {
+  };
+  
+  export const DEFAULT_CATALOG_FILTERS: CatalogFilterState = {
     search: '',
     categoryIds: [],
     minPrice: null,
@@ -158,4 +169,4 @@ export const DEFAULT_CATALOG_FILTERS: CatalogFilterState = {
     sort: 'popular',
     page: 1,
     limit: 12,
-};
+  };
