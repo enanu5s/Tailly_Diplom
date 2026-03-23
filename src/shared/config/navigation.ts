@@ -5,7 +5,7 @@ import { SERVICES } from './services';
 export interface NavItem {
   label: string;
   to: string;
-  children?: NavItem[]; // для подменю
+  children?: NavItem[];
 }
 
 export const mainNav: NavItem[] = [
@@ -17,7 +17,6 @@ export const mainNav: NavItem[] = [
       to: `/services?service=${s.id}`,
     })),
   },
-
   { label: 'Стать специалистом', to: '/become-specialist' },
   { label: 'Магазин', to: '/shop' },
   { label: 'О нас', to: '/about' },
@@ -35,9 +34,11 @@ export const footerLinks = {
     { label: 'Сообщения', to: '/messages' },
   ],
   documents: [
-    { label: 'Политика конфиденциальности', to: '/privacy-policy' },
     { label: 'Пользовательское соглашение', to: '/user-agreement' },
     { label: 'Публичная оферта', to: '/public-offer' },
+    { label: 'Политика конфиденциальности', to: '/privacy-policy' },
+    { label: 'Условия возврата', to: '/refund-policy' },
+    { label: 'Агентский договор', to: '/agency-contract' },
   ],
   contacts: {
     email: 'support@tailly.ru',

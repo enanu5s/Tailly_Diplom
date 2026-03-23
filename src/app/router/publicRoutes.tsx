@@ -109,6 +109,18 @@ const PublicOfferPage = lazy(() =>
   })),
 );
 
+const RefundPolicyPage = lazy(() =>
+  import('@/pages/refund-policy').then((module) => ({
+    default: module.RefundPolicyPage,
+  })),
+);
+
+const AgencyContractPage = lazy(() =>
+  import('@/pages/agency-contract').then((module) => ({
+    default: module.AgencyContractPage,
+  })),
+);
+
 const ShopOrdersPage = lazy(() =>
   import('@/pages/shop-orders').then((module) => ({
     default: module.ShopOrdersPage,
@@ -197,6 +209,14 @@ export const publicRoutes: RouteObject[] = [
   {
     path: '/public-offer',
     element: withSuspense(<PublicOfferPage />),
+  },
+  {
+    path: '/refund-policy',
+    element: withSuspense(<RefundPolicyPage />),
+  },
+  {
+    path: '/agency-contract',
+    element: withSuspense(<AgencyContractPage />),
   },
   {
     path: '/shop/orders',

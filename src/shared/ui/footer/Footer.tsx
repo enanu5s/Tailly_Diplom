@@ -10,10 +10,9 @@ export const Footer = () => {
   const { menu, documents, contacts } = footerLinks;
 
   return (
-    <footer className={styles.footer}>           {/* ← это уже есть, но проверьте */}
+    <footer className={styles.footer}>
       <div className={styles.container}>
         <div className={styles.grid}>
-          {/* Колонка 1 */}
           <div className={styles.column}>
             <div className={styles.logoWrapper}>
               <Logo size="medium" variant="light" />
@@ -23,7 +22,6 @@ export const Footer = () => {
             </p>
           </div>
 
-          {/* Колонка 2 — Навигация */}
           <div className={styles.column}>
             <h3 className={styles.title}>Навигация</h3>
             <ul className={styles.list}>
@@ -37,7 +35,6 @@ export const Footer = () => {
             </ul>
           </div>
 
-          {/* Колонка 3 — Документы */}
           <div className={styles.column}>
             <h3 className={styles.title}>Документы</h3>
             <ul className={styles.list}>
@@ -51,18 +48,19 @@ export const Footer = () => {
             </ul>
           </div>
 
-          {/* Колонка 4 — Контакты */}
           <div className={styles.column}>
             <h3 className={styles.title}>Контакты</h3>
             <ul className={styles.list}>
               <li>
-                <a href={'mailto:${contacts.email}'} className={styles.link}>
+                <a href={`mailto:${contacts.email}`} className={styles.link}>
                   {contacts.email}
                 </a>
               </li>
               <li>
-                <a href={"tel:" + contacts.phone.replace(/\D/g, '')}
-                className={styles.link}>
+                <a
+                  href={`tel:${contacts.phone.replace(/\D/g, '')}`}
+                  className={styles.link}
+                >
                   {contacts.phone}
                 </a>
               </li>
@@ -71,7 +69,6 @@ export const Footer = () => {
           </div>
         </div>
 
-        {/* Блок копирайта — теперь внутри общего <footer> */}
         <div className={styles.copyright}>
           © {new Date().getFullYear()} Tailly. Все права защищены.
         </div>
