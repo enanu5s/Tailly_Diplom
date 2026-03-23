@@ -1,25 +1,15 @@
 // src/features/shop/ui/ProductReviews/ProductReviews.tsx
-import type { HTMLAttributes } from 'react';
+import styles from './ProductReviews.module.css';
 
 import type { ProductReview } from '../../model/types';
 
-import styles from './ProductReviews.module.css';
-
 type Props = {
   reviews: ProductReview[];
-} & HTMLAttributes<HTMLElement>;
+};
 
-export const ProductReviews = ({
-  reviews,
-  className,
-  ...sectionProps
-}: Props) => {
-  const sectionClassName = [styles.section, className]
-    .filter(Boolean)
-    .join(' ');
-
+export const ProductReviews = ({ reviews }: Props) => {
   return (
-    <section className={sectionClassName} {...sectionProps}>
+    <section className={styles.section}>
       <header className={styles.header}>
         <h2 className={styles.title}>Отзывы</h2>
         <div className={styles.count}>{reviews.length}</div>
@@ -48,6 +38,21 @@ export const ProductReviews = ({
               </div>
 
               <p className={styles.text}>{review.text}</p>
+
+              {review.siteReply ? (
+                <div className={styles.reply}>
+                  <div className={styles.replyHeader}>
+                    <div className={styles.replyAuthor}>
+                      {review.siteReply.authorName}
+                    </div>
+                    <div className={styles.replyDate}>
+                      {formatDate(review.siteReply.createdAt)}
+                    </div>
+                  </div>
+
+                  <p className={styles.replyText}>{review.siteReply.text}</p>
+                </div>
+              ) : null}
             </article>
           ))}
         </div>
