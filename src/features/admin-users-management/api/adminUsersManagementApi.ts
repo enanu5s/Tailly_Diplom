@@ -4,12 +4,14 @@ import { request } from '@/shared/api/http';
 
 import {
   mockGetManagedUsers,
+  mockRestoreManagedUserFromDeletion,
   mockUpdateManagedUserBlockedStatus,
   mockUpdateManagedUserProfile,
 } from './adminUsersManagementApi.mock';
 
 import type {
   ManagedUser,
+  RestoreManagedUserFromDeletionPayload,
   UpdateManagedUserProfilePayload,
   UpdateUserBlockStatusPayload,
 } from '../model/types';
@@ -55,6 +57,17 @@ async function realUpdateManagedUserProfile(
   );
 }
 
+async function realRestoreManagedUserFromDeletion(
+  payload: RestoreManagedUserFromDeletionPayload,
+): Promise<ManagedUser> {
+  return request<ManagedUser>(
+    `${API_BASE_URL}/admin/users/${payload.userId}/restore-from-deletion`,
+    {
+      method: 'POST',
+    },
+  );
+}
+
 export const adminUsersManagementApi = {
   async getUsers(): Promise<ManagedUser[]> {
     if (USE_MOCK) {
@@ -82,5 +95,15 @@ export const adminUsersManagementApi = {
     }
 
     return realUpdateManagedUserProfile(payload);
+  },
+
+  async restoreUserFromDeletion(
+    payload: RestoreManagedUserFromDeletionPayload,
+  ): Promise<ManagedUser> {
+    if (USE_MOCK) {
+      return mockRestoreManagedUserFromDeletion(payload);
+    }
+
+    return realRestoreManagedUserFromDeletion(payload);
   },
 };

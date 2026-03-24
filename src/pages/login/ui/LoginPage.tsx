@@ -2,7 +2,7 @@
 
 import { observer } from "mobx-react-lite";
 import { useEffect, useMemo, useSyncExternalStore } from "react";
-import { Link, useLocation } from "react-router-dom";
+import { Link, useLocation, useSearchParams } from "react-router-dom";
 import { useAppNavigate } from "@/shared/lib/navigation/useAppNavigate";
 
 import { authStore, loginStore } from "@/features/auth";
@@ -36,6 +36,7 @@ function getRedirectFromQuery(search: string): string | null {
 export const LoginPage = observer((): ReactElement => {
   const navigate = useAppNavigate();
   const location = useLocation();
+  const [searchParams] = useSearchParams();
   const authState = useSyncExternalStore(
     authStore.subscribe,
     authStore.getState
@@ -46,6 +47,18 @@ export const LoginPage = observer((): ReactElement => {
   const redirectFromQuery = useMemo<string | null>(() => {
     return getRedirectFromQuery(location.search);
   }, [location.search]);
+
+  const accountFlowNotice = useMemo(() => {
+    if (searchParams.get("accountDeletion") === "scheduled") {
+      return "Аккаунт запланирован к удалению. Проверьте почту: там ссылка для восстановления до указанной даты.";
+    }
+
+    if (searchParams.get("accountRestored") === "1") {
+      return "Аккаунт восстановлен. Вы можете войти с прежним паролем.";
+    }
+
+    return null;
+  }, [searchParams]);
 
   useEffect(() => {
     if (authState.user) {
@@ -155,6 +168,10 @@ export const LoginPage = observer((): ReactElement => {
                 Осталось попыток для администратора:{" "}
                 {loginStore.failedAttemptsLeft}
               </div>
+            ) : null}
+
+            {accountFlowNotice ? (
+              <div className={styles.infoBanner}>{accountFlowNotice}</div>
             ) : null}
 
             {loginStore.submitError ? (

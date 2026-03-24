@@ -4,7 +4,10 @@ import {
   normalizeEmail,
 } from '@/features/admin-auth/data/mockAdminAccounts';
 import { authStore } from '@/features/auth/model/authStore';
-import { MOCK_ADMINS } from '@/features/super-admin-admins-management/data/mockAdminsManagement';
+import {
+  MOCK_ADMINS,
+  type MockAdminRecord,
+} from '@/features/super-admin-admins-management/data/mockAdminsManagement';
 
 import {
   AdminProfileError,
@@ -125,7 +128,7 @@ export function updateMockAdminProfile(
     throw new AdminProfileError('Имя и фамилия обязательны для заполнения.');
   }
 
-  const nextRecord: MockAdminProfileRecord = {
+  const nextRecord: MockAdminRecord = {
     ...MOCK_ADMINS[recordIndex],
     firstName: nextFirstName,
     lastName: nextLastName,

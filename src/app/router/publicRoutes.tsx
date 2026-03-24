@@ -133,6 +133,12 @@ const NotFoundPage = lazy(() =>
   })),
 );
 
+const RestoreAccountPage = lazy(() =>
+  import('@/pages/account-restore').then((module) => ({
+    default: module.RestoreAccountPage,
+  })),
+);
+
 export const publicRoutes: RouteObject[] = [
   {
     path: '/',
@@ -221,6 +227,10 @@ export const publicRoutes: RouteObject[] = [
   {
     path: '/shop/orders',
     element: withSuspense(<ShopOrdersPage />),
+  },
+  {
+    path: '/account/restore/:token',
+    element: withSuspense(<RestoreAccountPage />),
   },
   {
     path: '*',

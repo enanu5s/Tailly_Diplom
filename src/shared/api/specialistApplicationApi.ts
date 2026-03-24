@@ -1,4 +1,5 @@
 // /src/shared/api/specialistApplicationApi.ts
+import { createEmptySpecialistApplicationQuestionnaire } from '@/features/specialist-applications/model/types';
 import { specialistApplicationsService } from '@/features/specialist-applications/service/specialistApplicationsService';
 
 export type SpecialistApplicationRequest = {
@@ -23,6 +24,7 @@ export const specialistApplicationApi = {
       phone: dto.phone,
       city: dto.city,
       about: dto.about,
+      questionnaire: createEmptySpecialistApplicationQuestionnaire(),
     });
 
     return { ok: true };

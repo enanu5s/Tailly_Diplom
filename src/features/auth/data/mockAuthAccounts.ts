@@ -1,6 +1,11 @@
 //src/features/auth/data/mockAuthAccounts.ts
 
 import {
+  getActiveSoftDeleteRecord,
+  getPermanentDeletedIds,
+  purgeExpiredSoftDeletes,
+} from './mockAccountDeletionStorage';
+import {
   readManagedSpecialistAccounts,
   type ManagedSpecialistMockAccount,
 } from '@/shared/lib/mock/specialistAccountsStorage';
@@ -23,6 +28,8 @@ export type MockAuthAccount = {
   isBlocked: boolean;
   blockReason?: string;
   blockedUntil?: string;
+  softDeletedAt?: string;
+  softDeleteRestoreUntil?: string;
 };
 
 export type MockAttemptState = {
@@ -230,6 +237,10 @@ function chooseMoreCompleteAccount(
 }
 
 export function getMockAuthAccounts(): MockAuthAccount[] {
+  purgeExpiredSoftDeletes();
+
+  const permanent = getPermanentDeletedIds();
+
   const specialistAccounts = readManagedSpecialistAccounts().map(
     mapManagedSpecialistAccountToAuthAccount,
   );
@@ -254,7 +265,24 @@ export function getMockAuthAccounts(): MockAuthAccount[] {
     );
   }
 
-  return Array.from(uniqueAccountsMap.values());
+  return Array.from(uniqueAccountsMap.values())
+    .filter((account) => !permanent.has(account.id))
+    .map((account) => {
+      const rec = getActiveSoftDeleteRecord(account.id);
+
+      if (!rec) {
+        return account;
+      }
+
+      return {
+        ...account,
+        isBlocked: false,
+        blockReason: undefined,
+        blockedUntil: undefined,
+        softDeletedAt: rec.softDeletedAt,
+        softDeleteRestoreUntil: rec.restoreUntil,
+      };
+    });
 }
 
 export function mapAccountToLoginSuccess(

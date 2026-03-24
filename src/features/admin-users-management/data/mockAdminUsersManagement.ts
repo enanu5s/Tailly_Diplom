@@ -1,5 +1,9 @@
 // src/features/admin-users-management/data/mockAdminUsersManagement.ts
 
+import {
+  getActiveSoftDeleteRecord,
+  removeSoftDeleteRecord,
+} from '@/features/auth/data/mockAccountDeletionStorage';
 import { getMockAuthAccounts } from '@/features/auth/data/mockAuthAccounts';
 import {
   updateManagedSpecialistAccount,
@@ -10,6 +14,7 @@ import {
   AdminUsersManagementError,
   type ManagedUser,
   type ManagedUserRole,
+  type RestoreManagedUserFromDeletionPayload,
   type UpdateManagedUserProfilePayload,
   type UpdateUserBlockStatusPayload,
 } from '../model/types';
@@ -86,6 +91,7 @@ function mapAccountToManagedUser(account: ExtendedMockAuthAccount): ManagedUser 
   syncAutoUnblock(account);
 
   const role = getAccountManagedRole(account);
+  const deletion = getActiveSoftDeleteRecord(account.id);
 
   return JSON.parse(
     JSON.stringify({
@@ -102,6 +108,8 @@ function mapAccountToManagedUser(account: ExtendedMockAuthAccount): ManagedUser 
       blockReason: account.blockReason,
       blockedUntil: account.blockedUntil,
       isPermanentBlock: Boolean(account.isPermanentBlock),
+      isScheduledForDeletion: Boolean(deletion),
+      scheduledDeletionDeadline: deletion?.restoreUntil,
     }),
   ) as ManagedUser;
 }
@@ -365,6 +373,31 @@ export function updateManagedUserProfile(
   if (account.roles.includes('specialist')) {
     persistSpecialistBlockState(account);
   }
+
+  return mapAccountToManagedUser(account);
+}
+
+export function restoreManagedUserFromDeletion(
+  payload: RestoreManagedUserFromDeletionPayload,
+): ManagedUser {
+  const accounts = getMockAuthAccounts() as ExtendedMockAuthAccount[];
+
+  const account = accounts.find(
+    (item) =>
+      item.id === payload.userId && getAccountManagedRole(item) !== null,
+  );
+
+  if (!account) {
+    throw new AdminUsersManagementError('Пользователь не найден.');
+  }
+
+  if (!getActiveSoftDeleteRecord(account.id)) {
+    throw new AdminUsersManagementError(
+      'Аккаунт не находится в периоде восстановления после удаления.',
+    );
+  }
+
+  removeSoftDeleteRecord(account.id);
 
   return mapAccountToManagedUser(account);
 }

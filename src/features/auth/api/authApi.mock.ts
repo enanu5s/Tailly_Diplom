@@ -1,5 +1,6 @@
 //src/features/auth/api/authApi.mock.ts
 
+import { getActiveSoftDeleteRecord } from '../data/mockAccountDeletionStorage';
 import {
   adminAttemptsMap,
   buildAdminLockUntilIso,
@@ -22,6 +23,19 @@ import {
 
 function resolveAdminSessionRole(roles: UserRole[]): 'admin' | 'super_admin' {
   return roles.includes('super_admin') ? 'super_admin' : 'admin';
+}
+
+function formatRuDeadline(iso: string): string {
+  const time = new Date(iso).getTime();
+
+  if (Number.isNaN(time)) {
+    return iso;
+  }
+
+  return new Date(iso).toLocaleString('ru-RU', {
+    dateStyle: 'long',
+    timeStyle: 'short',
+  });
 }
 
 export async function mockLogin(
@@ -105,6 +119,15 @@ export async function mockLogin(
     throw new LoginError({
       code: 'INVALID_CREDENTIALS',
       message: 'Неверный логин или пароль.',
+    });
+  }
+
+  const softRec = getActiveSoftDeleteRecord(account.id);
+
+  if (softRec) {
+    throw new LoginError({
+      code: 'ACCOUNT_PENDING_DELETION',
+      message: `Аккаунт запланирован к удалению. Восстановить его можно по ссылке из письма до ${formatRuDeadline(softRec.restoreUntil)}.`,
     });
   }
 

@@ -16,6 +16,8 @@ export type ManagedUser = {
   blockReason?: string;
   blockedUntil?: string;
   isPermanentBlock?: boolean;
+  isScheduledForDeletion?: boolean;
+  scheduledDeletionDeadline?: string;
 };
 
 export type UpdateUserBlockStatusPayload = {
@@ -33,6 +35,10 @@ export type UpdateManagedUserProfilePayload = {
   lastName: string;
   middleName?: string;
   specialistSlug?: string;
+};
+
+export type RestoreManagedUserFromDeletionPayload = {
+  userId: string;
 };
 
 export class AdminUsersManagementError extends Error {

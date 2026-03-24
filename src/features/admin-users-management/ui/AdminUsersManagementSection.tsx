@@ -65,8 +65,9 @@ export const AdminUsersManagementSection = observer(
             <p className={styles.subtitle}>
               Здесь можно просматривать клиентов и специалистов, искать
               пользователей по данным аккаунта, править ФИО и (для специалистов)
-              публичный slug профиля, а также управлять блокировкой с указанием
-              причины и срока. Email и роль меняются только через отдельные
+              публичный slug профиля, управлять блокировкой с указанием причины и
+              срока, а также восстанавливать аккаунты в период отложенного
+              удаления (30 дней). Email и роль меняются только через отдельные
               процедуры.
             </p>
           </div>
@@ -172,12 +173,18 @@ export const AdminUsersManagementSection = observer(
 
                         <span
                           className={
-                            user.isBlocked
-                              ? styles.statusBlocked
-                              : styles.statusActive
+                            user.isScheduledForDeletion
+                              ? styles.statusDeletionPending
+                              : user.isBlocked
+                                ? styles.statusBlocked
+                                : styles.statusActive
                           }
                         >
-                          {user.isBlocked ? 'Заблокирован' : 'Активен'}
+                          {user.isScheduledForDeletion
+                            ? 'К удалению'
+                            : user.isBlocked
+                              ? 'Заблокирован'
+                              : 'Активен'}
                         </span>
                       </div>
                     </div>
@@ -232,6 +239,17 @@ export const AdminUsersManagementSection = observer(
                             : formatDateTime(user.blockedUntil)}
                         </span>
                       </div>
+
+                      <div className={styles.metaItem}>
+                        <span className={styles.metaLabel}>
+                          Окончательное удаление
+                        </span>
+                        <span className={styles.metaValue}>
+                          {user.isScheduledForDeletion
+                            ? formatDateTime(user.scheduledDeletionDeadline)
+                            : '—'}
+                        </span>
+                      </div>
                     </div>
 
                     <div className={styles.cardActions}>
@@ -248,6 +266,21 @@ export const AdminUsersManagementSection = observer(
                       </button>
 
                       <div className={styles.cardActionsRisk}>
+                        {user.isScheduledForDeletion ? (
+                          <button
+                            className={styles.secondaryButton}
+                            type="button"
+                            disabled={store.changingUserId === user.id}
+                            onClick={() => {
+                              void store.restoreUserFromScheduledDeletion(user);
+                            }}
+                          >
+                            {store.changingUserId === user.id
+                              ? 'Сохраняем...'
+                              : 'Восстановить аккаунт'}
+                          </button>
+                        ) : null}
+
                         {user.isBlocked ? (
                           <button
                             className={styles.secondaryButton}
@@ -265,7 +298,10 @@ export const AdminUsersManagementSection = observer(
                           <button
                             className={styles.dangerButton}
                             type="button"
-                            disabled={store.changingUserId === user.id}
+                            disabled={
+                              store.changingUserId === user.id ||
+                              user.isScheduledForDeletion
+                            }
                             onClick={() => store.openBlockModal(user)}
                           >
                             Заблокировать

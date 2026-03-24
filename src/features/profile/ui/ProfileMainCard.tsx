@@ -219,6 +219,10 @@ export const ProfileMainCard = observer((): ReactElement => {
               >
                 Сменить пароль
               </Link>
+
+              <Link className={styles.dangerLink} to="/account/delete">
+                Удалить аккаунт
+              </Link>
             </div>
 
             {isEditing ? (

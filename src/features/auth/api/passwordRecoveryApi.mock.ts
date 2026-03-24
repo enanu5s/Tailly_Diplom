@@ -11,9 +11,10 @@ import {
   findPendingAdminPasswordRecoveryRequestByEmail,
   wait,
 } from '../data/mockAdminPasswordRecoveryRequests';
+import { getActiveSoftDeleteRecord } from '../data/mockAccountDeletionStorage';
 import {
   getMockAuthAccounts,
-  isAdminRole,
+  hasAdminRole,
   normalizeEmail,
 } from '../data/mockAuthAccounts';
 import {
@@ -59,7 +60,13 @@ export const passwordRecoveryMockApi = {
       throw new PasswordRecoveryError('Аккаунт заблокирован.');
     }
 
-    if (isAdminRole(account.role)) {
+    if (getActiveSoftDeleteRecord(account.id)) {
+      throw new PasswordRecoveryError(
+        'Аккаунт запланирован к удалению. Используйте ссылку восстановления из письма.',
+      );
+    }
+
+    if (hasAdminRole(account.roles)) {
       const existingPendingRequest =
         findPendingAdminPasswordRecoveryRequestByEmail(normalizedEmail);
 
@@ -105,7 +112,7 @@ export const passwordRecoveryMockApi = {
       );
     }
 
-    if (isAdminRole(account.role)) {
+    if (hasAdminRole(account.roles)) {
       throw new PasswordRecoveryError(
         'Для администратора используется отдельный сценарий восстановления пароля.',
       );

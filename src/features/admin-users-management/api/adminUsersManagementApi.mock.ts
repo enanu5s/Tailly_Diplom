@@ -2,6 +2,7 @@
 
 import {
   cloneManagedUsers,
+  restoreManagedUserFromDeletion,
   updateManagedUserBlockedStatus,
   updateManagedUserProfile,
   wait,
@@ -9,6 +10,7 @@ import {
 
 import type {
   ManagedUser,
+  RestoreManagedUserFromDeletionPayload,
   UpdateManagedUserProfilePayload,
   UpdateUserBlockStatusPayload,
 } from '../model/types';
@@ -33,4 +35,12 @@ export async function mockUpdateManagedUserProfile(
   await wait();
 
   return updateManagedUserProfile(payload);
+}
+
+export async function mockRestoreManagedUserFromDeletion(
+  payload: RestoreManagedUserFromDeletionPayload,
+): Promise<ManagedUser> {
+  await wait();
+
+  return restoreManagedUserFromDeletion(payload);
 }

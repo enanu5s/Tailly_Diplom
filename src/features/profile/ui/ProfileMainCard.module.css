@@ -166,6 +166,22 @@
   font: inherit;
 }
 
+.dangerLink {
+  height: 44px;
+  padding: 0 16px;
+  border-radius: 14px;
+  border: 1px solid rgba(185, 28, 28, 0.35);
+  background: #fff;
+  cursor: pointer;
+  color: #b91c1c;
+  text-decoration: none;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  font: inherit;
+  font-size: 14px;
+}
+
 .primaryBtn:disabled,
 .secondaryBtn:disabled {
   cursor: not-allowed;
@@ -230,7 +246,8 @@
   }
 
   .primaryBtn,
-  .secondaryBtn {
+  .secondaryBtn,
+  .dangerLink {
     width: 100%;
   }
 }

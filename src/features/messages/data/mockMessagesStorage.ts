@@ -121,6 +121,7 @@ function normalizeMessage(value: unknown): ChatMessage | null {
     authorRole,
     authorName,
     text,
+    attachments: [],
     createdAt,
     readByUserIds: Array.isArray(value.readByUserIds)
       ? value.readByUserIds
@@ -168,6 +169,7 @@ function seedSupportWelcomeMessage(threadId: string): ChatMessage {
     authorRole: 'support',
     authorName: 'Поддержка',
     text: 'Здравствуйте! Это чат поддержки Tailly. Напишите ваш вопрос, и мы постараемся помочь.',
+    attachments: [],
     createdAt: new Date().toISOString(),
     readByUserIds: [],
   };
@@ -318,6 +320,7 @@ export function sendMessage(
       payload.viewer.role === 'guest' ? 'client' : payload.viewer.role,
     authorName: payload.viewer.displayName,
     text,
+    attachments: [],
     createdAt: nowIso,
     readByUserIds: [payload.viewer.userId],
   };

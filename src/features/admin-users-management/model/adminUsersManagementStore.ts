@@ -324,6 +324,39 @@ class AdminUsersManagementStore {
     }
   }
 
+  async restoreUserFromScheduledDeletion(user: ManagedUser): Promise<void> {
+    runInAction(() => {
+      this.changingUserId = user.id;
+      this.changeError = '';
+      this.successMessage = '';
+    });
+
+    try {
+      const updatedUser =
+        await adminUsersManagementService.restoreUserFromDeletion({
+          userId: user.id,
+        });
+
+      runInAction(() => {
+        this.users = this.users.map((item) =>
+          item.id === updatedUser.id ? updatedUser : item,
+        );
+        this.successMessage = `Аккаунт ${updatedUser.email} восстановлен.`;
+      });
+    } catch (error) {
+      runInAction(() => {
+        this.changeError =
+          error instanceof Error
+            ? error.message
+            : 'Не удалось восстановить аккаунт.';
+      });
+    } finally {
+      runInAction(() => {
+        this.changingUserId = null;
+      });
+    }
+  }
+
   async unblockUser(user: ManagedUser): Promise<void> {
     runInAction(() => {
       this.changingUserId = user.id;

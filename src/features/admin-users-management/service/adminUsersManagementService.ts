@@ -4,6 +4,7 @@ import { adminUsersManagementApi } from '../api/adminUsersManagementApi';
 
 import type {
   ManagedUser,
+  RestoreManagedUserFromDeletionPayload,
   UpdateManagedUserProfilePayload,
   UpdateUserBlockStatusPayload,
 } from '../model/types';
@@ -23,5 +24,11 @@ export const adminUsersManagementService = {
     payload: UpdateManagedUserProfilePayload,
   ): Promise<ManagedUser> {
     return adminUsersManagementApi.updateUserProfile(payload);
+  },
+
+  restoreUserFromDeletion(
+    payload: RestoreManagedUserFromDeletionPayload,
+  ): Promise<ManagedUser> {
+    return adminUsersManagementApi.restoreUserFromDeletion(payload);
   },
 };

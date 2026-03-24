@@ -3,6 +3,7 @@
 import { lazy } from 'react';
 
 import { ClientRouteGuard } from '@/app/router/ClientRouteGuard';
+import { ConsumerAccountRouteGuard } from '@/app/router/ConsumerAccountRouteGuard';
 import { ProtectedRoute } from '@/app/router/ProtectedRoute';
 import { SpecialistOwnerRouteGuard } from '@/app/router/SpecialistOwnerRouteGuard';
 
@@ -76,6 +77,12 @@ const MessagesPage = lazy(() =>
   })),
 );
 
+const DeleteAccountPage = lazy(() =>
+  import('@/pages/account-delete').then((module) => ({
+    default: module.DeleteAccountPage,
+  })),
+);
+
 export const clientRoutes: RouteObject[] = [
   {
     element: <ProtectedRoute />,
@@ -83,6 +90,15 @@ export const clientRoutes: RouteObject[] = [
       {
         path: '/messages',
         element: withSuspense(<MessagesPage />),
+      },
+    ],
+  },
+  {
+    element: <ConsumerAccountRouteGuard />,
+    children: [
+      {
+        path: '/account/delete',
+        element: withSuspense(<DeleteAccountPage />),
       },
     ],
   },

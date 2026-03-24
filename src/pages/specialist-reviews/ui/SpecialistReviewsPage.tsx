@@ -129,7 +129,9 @@ export const SpecialistReviewsPage = observer((): ReactElement => {
                   void handleSave(review);
                 }}
                 onOpenOrder={
-                  review.orderId ? () => openOrder(review.orderId) : undefined
+                  review.orderId
+                    ? () => openOrder(review.orderId as string)
+                    : undefined
                 }
               />
             ))}

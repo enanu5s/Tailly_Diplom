@@ -7,7 +7,7 @@ import {
 } from '@/features/auth/data/mockAdminPasswordRecoveryRequests';
 import {
   getMockAuthAccounts,
-  isAdminRole,
+  hasAdminRole,
   normalizeEmail,
 } from '@/features/auth/data/mockAuthAccounts';
 
@@ -51,7 +51,7 @@ function updateAdminAccountPassword(
   const account = accounts.find(
     (item) =>
       item.email.toLowerCase() === normalizedTargetEmail &&
-      isAdminRole(item.role),
+      hasAdminRole(item.roles),
   );
 
   if (!account) {

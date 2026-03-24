@@ -958,6 +958,12 @@ export const SpecialistProfileView = observer(
                     >
                       Ответы на отзывы
                     </Link>
+                    <Link
+                      className={styles.ownerWorkspaceLinkSecondary}
+                      to="/account/delete"
+                    >
+                      Удаление аккаунта
+                    </Link>
                   </div>
                 ) : null}
               </div>

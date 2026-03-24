@@ -110,6 +110,15 @@
   font-size: 14px;
 }
 
+.infoBanner {
+  border-radius: 12px;
+  background: #eff6ff;
+  color: #1e40af;
+  padding: 12px 14px;
+  font-size: 14px;
+  line-height: 1.45;
+}
+
 .error {
   border-radius: 12px;
   background: #fef2f2;

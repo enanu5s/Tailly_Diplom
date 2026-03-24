@@ -28,6 +28,8 @@ type ProductPageNavigationState = {
 
 export const FavoriteItemCard = observer(({ product }: Props) => {
     const location = useLocation();
+    const { user } = useAuth();
+    const showConsumerControls = shouldShowShopConsumerControls(user);
     const quantity = shopCartStore.getQuantity(product.id);
     const mainImage = product.images[0];
 

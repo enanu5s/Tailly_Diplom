@@ -17,7 +17,8 @@ export type LoginErrorCode =
   | 'INVALID_CREDENTIALS'
   | 'TOO_MANY_ATTEMPTS'
   | 'ACCOUNT_BLOCKED'
-  | 'INVALID_ROLE';
+  | 'INVALID_ROLE'
+  | 'ACCOUNT_PENDING_DELETION';
 
 export class LoginError extends Error {
   readonly code: LoginErrorCode;
