@@ -1,5 +1,5 @@
 // src/features/messages/ui/MessagesSection.tsx
-import { observer } from 'mobx-react-lite';
+import { observer } from "mobx-react-lite";
 import {
   useEffect,
   useMemo,
@@ -7,17 +7,17 @@ import {
   useState,
   type KeyboardEvent as ReactKeyboardEvent,
   type PointerEvent as ReactPointerEvent,
-} from 'react';
-import { useLocation, useSearchParams } from 'react-router-dom';
+} from "react";
+import { useLocation, useSearchParams } from "react-router-dom";
 
-import { useAuth } from '@/features/auth/model/useAuth';
-import { useAppNavigate } from '@/shared/lib/navigation/useAppNavigate';
+import { useAuth } from "@/features/auth/model/useAuth";
+import { useAppNavigate } from "@/shared/lib/navigation/useAppNavigate";
 
-import { getMessagesViewerFromUser } from '../model/messagesViewer';
-import { messagesStore } from '../model/messagesStore';
-import type { ChatMessage, MessageImageAttachment } from '../model/types';
+import { getMessagesViewerFromUser } from "../model/messagesViewer";
+import { messagesStore } from "../model/messagesStore";
+import type { ChatMessage, MessageImageAttachment } from "../model/types";
 
-import styles from './MessagesSection.module.css';
+import styles from "./MessagesSection.module.css";
 
 type LightboxState = {
   attachments: MessageImageAttachment[];
@@ -44,30 +44,30 @@ function formatTime(value: string): string {
   const date = new Date(value);
 
   if (Number.isNaN(date.getTime())) {
-    return '';
+    return "";
   }
 
-  return new Intl.DateTimeFormat('ru-RU', {
-    hour: '2-digit',
-    minute: '2-digit',
+  return new Intl.DateTimeFormat("ru-RU", {
+    hour: "2-digit",
+    minute: "2-digit",
   }).format(date);
 }
 
 function isAdminViewerRole(role: string): boolean {
-  return role === 'admin' || role === 'super_admin';
+  return role === "admin" || role === "super_admin";
 }
 
 function getReadKeyForViewer(
-  viewer: ReturnType<typeof getMessagesViewerFromUser>,
+  viewer: ReturnType<typeof getMessagesViewerFromUser>
 ): string {
-  return isAdminViewerRole(viewer.role) ? 'support-team' : viewer.userId;
+  return isAdminViewerRole(viewer.role) ? "support-team" : viewer.userId;
 }
 
 function isOwnMessageForViewer(
   message: ChatMessage,
-  viewer: ReturnType<typeof getMessagesViewerFromUser>,
+  viewer: ReturnType<typeof getMessagesViewerFromUser>
 ): boolean {
-  if (message.authorRole === 'support') {
+  if (message.authorRole === "support") {
     return isAdminViewerRole(viewer.role);
   }
 
@@ -76,7 +76,7 @@ function isOwnMessageForViewer(
 
 function isUnreadMessageForViewer(
   message: ChatMessage,
-  viewer: ReturnType<typeof getMessagesViewerFromUser>,
+  viewer: ReturnType<typeof getMessagesViewerFromUser>
 ): boolean {
   if (isOwnMessageForViewer(message, viewer)) {
     return false;
@@ -97,12 +97,12 @@ function scrollToBottom(element: HTMLDivElement): void {
 
 function formatThreadPreview(preview: string): string {
   const normalizedPreview = preview.trim();
-  return normalizedPreview || 'Сообщений пока нет';
+  return normalizedPreview || "Сообщений пока нет";
 }
 
 function formatAttachmentCounter(count: number): string {
   if (count === 1) {
-    return '1 фото';
+    return "1 фото";
   }
 
   return `${count} фото`;
@@ -112,7 +112,7 @@ function formatReplyPreviewText(message: {
   text?: string;
   attachmentsCount?: number;
 }): string {
-  const text = message.text?.trim() ?? '';
+  const text = message.text?.trim() ?? "";
   const attachmentsCount = message.attachmentsCount ?? 0;
 
   if (text && attachmentsCount > 0) {
@@ -124,22 +124,22 @@ function formatReplyPreviewText(message: {
   }
 
   if (attachmentsCount === 1) {
-    return 'Фото';
+    return "Фото";
   }
 
   if (attachmentsCount > 1) {
     return `Фото: ${attachmentsCount}`;
   }
 
-  return 'Сообщение';
+  return "Сообщение";
 }
 
 function isTouchLikeViewport(): boolean {
-  if (typeof window === 'undefined') {
+  if (typeof window === "undefined") {
     return false;
   }
 
-  return window.matchMedia('(pointer: coarse)').matches;
+  return window.matchMedia("(pointer: coarse)").matches;
 }
 
 export const MessagesSection = observer(() => {
@@ -165,15 +165,16 @@ export const MessagesSection = observer(() => {
     useState<HighlightState | null>(null);
   const [showScrollToBottomButton, setShowScrollToBottomButton] =
     useState(false);
+  const [search, setSearch] = useState("");
 
   const viewer = useMemo(() => getMessagesViewerFromUser(user), [user]);
 
   const specialistIntent = useMemo(() => {
-    const specialistId = searchParams.get('specialistId')?.trim() ?? '';
-    const specialistSlug = searchParams.get('specialistSlug')?.trim() ?? '';
-    const specialistName = searchParams.get('specialistName')?.trim() ?? '';
+    const specialistId = searchParams.get("specialistId")?.trim() ?? "";
+    const specialistSlug = searchParams.get("specialistSlug")?.trim() ?? "";
+    const specialistName = searchParams.get("specialistName")?.trim() ?? "";
     const specialistAvatarUrl =
-      searchParams.get('specialistAvatarUrl')?.trim() ?? '';
+      searchParams.get("specialistAvatarUrl")?.trim() ?? "";
 
     if (!specialistId || !specialistSlug || !specialistName) {
       return null;
@@ -214,7 +215,7 @@ export const MessagesSection = observer(() => {
           {
             pathname: location.pathname,
           },
-          { replace: true },
+          { replace: true }
         );
       });
   }, [location.pathname, navigate, specialistIntent, viewer]);
@@ -231,6 +232,20 @@ export const MessagesSection = observer(() => {
     canSendDraft,
     replyTo,
   } = messagesStore;
+
+  const filteredThreads = useMemo(() => {
+    const normalizedSearch = search.trim().toLowerCase();
+    const supportThread = threads.find((thread) => thread.kind === "support");
+    const otherThreads = threads.filter((thread) => thread.kind !== "support");
+
+    const filteredOthers = normalizedSearch
+      ? otherThreads.filter((thread) =>
+          thread.title.toLowerCase().includes(normalizedSearch)
+        )
+      : otherThreads;
+
+    return supportThread ? [supportThread, ...filteredOthers] : filteredOthers;
+  }, [search, threads]);
 
   const activeLightboxAttachment = useMemo(() => {
     if (!lightbox) {
@@ -362,7 +377,7 @@ export const MessagesSection = observer(() => {
           }
 
           const messageId = entry.target
-            .getAttribute('data-message-id')
+            .getAttribute("data-message-id")
             ?.trim();
 
           if (!messageId) {
@@ -381,7 +396,7 @@ export const MessagesSection = observer(() => {
         }
 
         visibleUnreadIds.forEach((messageId) =>
-          pendingReadIdsRef.current.add(messageId),
+          pendingReadIdsRef.current.add(messageId)
         );
 
         if (readTimerRef.current !== null) {
@@ -407,7 +422,7 @@ export const MessagesSection = observer(() => {
       {
         root,
         threshold: 0.7,
-      },
+      }
     );
 
     unreadMessageIds.forEach((messageId) => {
@@ -443,10 +458,10 @@ export const MessagesSection = observer(() => {
     };
 
     handleScroll();
-    root.addEventListener('scroll', handleScroll, { passive: true });
+    root.addEventListener("scroll", handleScroll, { passive: true });
 
     return () => {
-      root.removeEventListener('scroll', handleScroll);
+      root.removeEventListener("scroll", handleScroll);
     };
   }, [messagesStore.activeThreadId, activeMessages.length]);
 
@@ -456,12 +471,12 @@ export const MessagesSection = observer(() => {
     }
 
     const handleKeyDown = (event: KeyboardEvent): void => {
-      if (event.key === 'Escape') {
+      if (event.key === "Escape") {
         setLightbox(null);
         return;
       }
 
-      if (event.key === 'ArrowLeft') {
+      if (event.key === "ArrowLeft") {
         setLightbox((current) => {
           if (!current) {
             return current;
@@ -480,7 +495,7 @@ export const MessagesSection = observer(() => {
         return;
       }
 
-      if (event.key === 'ArrowRight') {
+      if (event.key === "ArrowRight") {
         setLightbox((current) => {
           if (!current) {
             return current;
@@ -499,12 +514,12 @@ export const MessagesSection = observer(() => {
       }
     };
 
-    document.body.style.overflow = 'hidden';
-    window.addEventListener('keydown', handleKeyDown);
+    document.body.style.overflow = "hidden";
+    window.addEventListener("keydown", handleKeyDown);
 
     return () => {
-      document.body.style.overflow = '';
-      window.removeEventListener('keydown', handleKeyDown);
+      document.body.style.overflow = "";
+      window.removeEventListener("keydown", handleKeyDown);
     };
   }, [lightbox]);
 
@@ -518,7 +533,7 @@ export const MessagesSection = observer(() => {
 
   const openLightbox = (
     attachments: MessageImageAttachment[],
-    activeIndex: number,
+    activeIndex: number
   ): void => {
     if (attachments.length === 0) {
       return;
@@ -572,7 +587,7 @@ export const MessagesSection = observer(() => {
 
   const scrollToMessageById = (
     messageId: string,
-    options?: { highlight?: boolean; smooth?: boolean },
+    options?: { highlight?: boolean; smooth?: boolean }
   ): void => {
     const element = messageElementsRef.current.get(messageId);
     const container = messagesAreaRef.current;
@@ -585,7 +600,7 @@ export const MessagesSection = observer(() => {
 
     container.scrollTo({
       top,
-      behavior: options?.smooth === false ? 'auto' : 'smooth',
+      behavior: options?.smooth === false ? "auto" : "smooth",
     });
 
     if (options?.highlight) {
@@ -617,8 +632,8 @@ export const MessagesSection = observer(() => {
 
     requestAnimationFrame(() => {
       composerRef.current?.scrollIntoView({
-        behavior: 'smooth',
-        block: 'start',
+        behavior: "smooth",
+        block: "start",
       });
     });
   };
@@ -651,7 +666,7 @@ export const MessagesSection = observer(() => {
 
   const handleMessagePointerDown = (
     event: ReactPointerEvent<HTMLDivElement>,
-    messageId: string,
+    messageId: string
   ): void => {
     if (!isTouchLikeViewport()) {
       return;
@@ -666,7 +681,7 @@ export const MessagesSection = observer(() => {
 
   const handleMessagePointerUp = (
     event: ReactPointerEvent<HTMLDivElement>,
-    message: ChatMessage,
+    message: ChatMessage
   ): void => {
     if (!isTouchLikeViewport()) {
       return;
@@ -699,47 +714,62 @@ export const MessagesSection = observer(() => {
             <p className={styles.sidebarSubtitle}>
               Поддержка всегда наверху, личные диалоги — ниже
             </p>
+
+            <input
+              type="text"
+              className={styles.searchInput}
+              placeholder="Поиск по ФИО"
+              value={search}
+              onChange={(event) => setSearch(event.target.value)}
+            />
           </div>
 
           <div className={styles.threadList}>
-            {threads.map((thread) => {
-              const isActive = thread.id === activeThread?.id;
-              const hasUnread = thread.unreadCount > 0;
+            {filteredThreads.length > 0 ? (
+              filteredThreads.map((thread) => {
+                const isActive = thread.id === activeThread?.id;
+                const hasUnread = thread.unreadCount > 0;
 
-              return (
-                <button
-                  key={thread.id}
-                  type="button"
-                  className={
-                    isActive
-                      ? styles.threadActive
-                      : hasUnread
+                return (
+                  <button
+                    key={thread.id}
+                    type="button"
+                    className={[
+                      isActive
+                        ? styles.threadActive
+                        : hasUnread
                         ? styles.threadUnread
-                        : styles.thread
-                  }
-                  onClick={() => messagesStore.setActiveThread(thread.id)}
-                >
-                  <div className={styles.threadTopRow}>
-                    <span className={styles.threadTitle}>{thread.title}</span>
-                    <span className={styles.threadTime}>
-                      {formatTime(thread.updatedAt)}
-                    </span>
-                  </div>
-
-                  <div className={styles.threadBottomRow}>
-                    <span className={styles.threadPreview}>
-                      {formatThreadPreview(thread.lastMessagePreview)}
-                    </span>
-
-                    {hasUnread ? (
-                      <span className={styles.unreadBadge}>
-                        {thread.unreadCount}
+                        : styles.thread,
+                      thread.kind === "support" ? styles.threadSupport : "",
+                    ].join(" ")}
+                    onClick={() => messagesStore.setActiveThread(thread.id)}
+                  >
+                    <div className={styles.threadTopRow}>
+                      <span className={styles.threadTitle}>{thread.title}</span>
+                      <span className={styles.threadTime}>
+                        {formatTime(thread.updatedAt)}
                       </span>
-                    ) : null}
-                  </div>
-                </button>
-              );
-            })}
+                    </div>
+
+                    <div className={styles.threadBottomRow}>
+                      <span className={styles.threadPreview}>
+                        {formatThreadPreview(thread.lastMessagePreview)}
+                      </span>
+
+                      {hasUnread ? (
+                        <span className={styles.unreadBadge}>
+                          {thread.unreadCount}
+                        </span>
+                      ) : null}
+                    </div>
+                  </button>
+                );
+              })
+            ) : (
+              <div className={styles.noThreadsFound}>
+                По вашему запросу чаты не найдены.
+              </div>
+            )}
           </div>
         </aside>
 
@@ -750,9 +780,9 @@ export const MessagesSection = observer(() => {
                 <div>
                   <h2 className={styles.chatTitle}>{activeThread.title}</h2>
                   <p className={styles.chatSubtitle}>
-                    {activeThread.kind === 'support'
-                      ? 'Чат поддержки'
-                      : 'Личный чат'}
+                    {activeThread.kind === "support"
+                      ? "Чат поддержки"
+                      : "Личный чат"}
                   </p>
                 </div>
               </header>
@@ -761,12 +791,18 @@ export const MessagesSection = observer(() => {
                 <div ref={messagesAreaRef} className={styles.messagesArea}>
                   {activeMessages.length > 0 ? (
                     activeMessages.map((message) => {
-                      const isOwnMessage = isOwnMessageForViewer(message, viewer);
-                      const isUnread = isUnreadMessageForViewer(message, viewer);
+                      const isOwnMessage = isOwnMessageForViewer(
+                        message,
+                        viewer
+                      );
+                      const isUnread = isUnreadMessageForViewer(
+                        message,
+                        viewer
+                      );
 
                       const shouldShowSupportAgentName =
-                        activeThread.kind === 'support' &&
-                        message.authorRole === 'support' &&
+                        activeThread.kind === "support" &&
+                        message.authorRole === "support" &&
                         Boolean(message.authorSupportAgentName);
 
                       const isHighlighted =
@@ -777,18 +813,23 @@ export const MessagesSection = observer(() => {
                           key={message.id}
                           ref={(element) => {
                             if (element) {
-                              messageElementsRef.current.set(message.id, element);
+                              messageElementsRef.current.set(
+                                message.id,
+                                element
+                              );
                             } else {
                               messageElementsRef.current.delete(message.id);
                             }
                           }}
                           data-message-id={message.id}
                           className={
-                            isOwnMessage ? styles.messageOwn : styles.messageOther
+                            isOwnMessage
+                              ? styles.messageOwn
+                              : styles.messageOther
                           }
                           onDoubleClick={() => {
                             if (
-                              typeof window !== 'undefined' &&
+                              typeof window !== "undefined" &&
                               window.innerWidth > DESKTOP_DOUBLE_CLICK_MAX_WIDTH
                             ) {
                               handleReplySelect(message);
@@ -806,8 +847,8 @@ export const MessagesSection = observer(() => {
                               isHighlighted
                                 ? `${styles.messageBubble} ${styles.messageBubbleHighlighted}`
                                 : isUnread
-                                  ? `${styles.messageBubble} ${styles.messageBubbleUnread}`
-                                  : styles.messageBubble
+                                ? `${styles.messageBubble} ${styles.messageBubbleUnread}`
+                                : styles.messageBubble
                             }
                           >
                             {shouldShowSupportAgentName ? (
@@ -821,7 +862,9 @@ export const MessagesSection = observer(() => {
                                 type="button"
                                 className={styles.replyReference}
                                 onClick={() =>
-                                  handleSentReplyClick(message.replyTo!.messageId)
+                                  handleSentReplyClick(
+                                    message.replyTo!.messageId
+                                  )
                                 }
                               >
                                 <span className={styles.replyReferenceAuthor}>
@@ -841,29 +884,36 @@ export const MessagesSection = observer(() => {
                                     : styles.attachmentsGrid
                                 }
                               >
-                                {message.attachments.map((attachment, index) => (
-                                  <button
-                                    key={attachment.id}
-                                    type="button"
-                                    className={styles.attachmentButton}
-                                    onClick={() =>
-                                      openLightbox(message.attachments, index)
-                                    }
-                                    aria-label={`Открыть фото ${attachment.name}`}
-                                  >
-                                    <img
-                                      className={styles.attachmentImage}
-                                      src={attachment.thumbnailUrl || attachment.url}
-                                      alt={attachment.name}
-                                      loading="lazy"
-                                    />
-                                  </button>
-                                ))}
+                                {message.attachments.map(
+                                  (attachment, index) => (
+                                    <button
+                                      key={attachment.id}
+                                      type="button"
+                                      className={styles.attachmentButton}
+                                      onClick={() =>
+                                        openLightbox(message.attachments, index)
+                                      }
+                                      aria-label={`Открыть фото ${attachment.name}`}
+                                    >
+                                      <img
+                                        className={styles.attachmentImage}
+                                        src={
+                                          attachment.thumbnailUrl ||
+                                          attachment.url
+                                        }
+                                        alt={attachment.name}
+                                        loading="lazy"
+                                      />
+                                    </button>
+                                  )
+                                )}
                               </div>
                             ) : null}
 
                             {message.text ? (
-                              <p className={styles.messageText}>{message.text}</p>
+                              <p className={styles.messageText}>
+                                {message.text}
+                              </p>
                             ) : null}
 
                             <div className={styles.messageMeta}>
@@ -979,9 +1029,11 @@ export const MessagesSection = observer(() => {
                   onChange={(event) =>
                     messagesStore.setDraftMessage(event.target.value)
                   }
-                  onKeyDown={(event: ReactKeyboardEvent<HTMLTextAreaElement>) => {
+                  onKeyDown={(
+                    event: ReactKeyboardEvent<HTMLTextAreaElement>
+                  ) => {
                     if (
-                      event.key === 'Enter' &&
+                      event.key === "Enter" &&
                       !event.shiftKey &&
                       !event.nativeEvent.isComposing
                     ) {
@@ -1001,7 +1053,7 @@ export const MessagesSection = observer(() => {
                   onChange={(event) => {
                     const files = Array.from(event.target.files ?? []);
                     void messagesStore.addDraftAttachments(files);
-                    event.target.value = '';
+                    event.target.value = "";
                   }}
                 />
 
@@ -1013,7 +1065,7 @@ export const MessagesSection = observer(() => {
                       onClick={() => fileInputRef.current?.click()}
                       disabled={loading || attachmentsLoading}
                     >
-                      {attachmentsLoading ? 'Загрузка...' : 'Добавить фото'}
+                      {attachmentsLoading ? "Загрузка..." : "Добавить фото"}
                     </button>
 
                     {draftAttachments.length > 0 ? (
