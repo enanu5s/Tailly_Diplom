@@ -1,6 +1,6 @@
 // src/features/admin-password-recovery/api/adminPasswordRecoveryApi.ts
 import { request } from '@/shared/api/http';
-import { getOptionalApiBaseUrl, isMockApiMode } from '@/shared/config/env';
+import { isMockApiMode } from '@/shared/config/env';
 
 import { mockAdminPasswordRecovery } from './adminPasswordRecoveryApi.mock';
 
@@ -9,12 +9,10 @@ import type {
   AdminPasswordRecoveryResponse,
 } from '../model/types';
 
-const API_BASE_URL = getOptionalApiBaseUrl();
-
 async function realAdminPasswordRecovery(
   payload: AdminPasswordRecoveryRequest,
 ): Promise<AdminPasswordRecoveryResponse> {
-  return request(`${API_BASE_URL}/admin/password-recovery`, {
+  return request('/admin/password-recovery', {
     method: 'POST',
     body: payload,
   });

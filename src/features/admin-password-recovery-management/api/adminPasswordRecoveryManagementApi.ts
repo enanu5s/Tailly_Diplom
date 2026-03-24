@@ -1,6 +1,6 @@
 // src/features/admin-password-recovery-management/api/adminPasswordRecoveryManagementApi.ts
 import { request } from '@/shared/api/http';
-import { getOptionalApiBaseUrl, isMockApiMode } from '@/shared/config/env';
+import { isMockApiMode } from '@/shared/config/env';
 
 import {
   mockGetAdminPasswordRecoveryRequests,
@@ -13,13 +13,11 @@ import type {
   ProcessAdminPasswordRecoveryResponse,
 } from '../model/types';
 
-const API_BASE_URL = getOptionalApiBaseUrl();
-
 async function realGetAdminPasswordRecoveryRequests(): Promise<
   AdminPasswordRecoveryRequestItem[]
 > {
   return request<AdminPasswordRecoveryRequestItem[]>(
-    `${API_BASE_URL}/super-admin/password-recovery-requests`,
+    '/super-admin/password-recovery-requests',
   );
 }
 
@@ -27,7 +25,7 @@ async function realProcessAdminPasswordRecoveryRequest(
   payload: ProcessAdminPasswordRecoveryPayload,
 ): Promise<ProcessAdminPasswordRecoveryResponse> {
   return request<ProcessAdminPasswordRecoveryResponse>(
-    `${API_BASE_URL}/super-admin/password-recovery-requests/${payload.requestId}/process`,
+    `/super-admin/password-recovery-requests/${encodeURIComponent(payload.requestId)}/process`,
     {
       method: 'POST',
     },

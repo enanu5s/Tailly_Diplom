@@ -1,7 +1,7 @@
 // src/features/admin-users-management/api/adminUsersManagementApi.ts
 
 import { request } from '@/shared/api/http';
-import { getOptionalApiBaseUrl, isMockApiMode } from '@/shared/config/env';
+import { isMockApiMode } from '@/shared/config/env';
 
 import {
   mockGetManagedUsers,
@@ -17,17 +17,15 @@ import type {
   UpdateUserBlockStatusPayload,
 } from '../model/types';
 
-const API_BASE_URL = getOptionalApiBaseUrl();
-
 async function realGetManagedUsers(): Promise<ManagedUser[]> {
-  return request<ManagedUser[]>(`${API_BASE_URL}/admin/users`);
+  return request<ManagedUser[]>('/admin/users');
 }
 
 async function realUpdateManagedUserBlockedStatus(
   payload: UpdateUserBlockStatusPayload,
 ): Promise<ManagedUser> {
   return request<ManagedUser>(
-    `${API_BASE_URL}/admin/users/${payload.userId}/block-status`,
+    `/admin/users/${encodeURIComponent(payload.userId)}/block-status`,
     {
       method: 'PATCH',
       body: {
@@ -43,7 +41,7 @@ async function realUpdateManagedUserBlockedStatus(
 async function realUpdateManagedUserProfile(
   payload: UpdateManagedUserProfilePayload,
 ): Promise<ManagedUser> {
-  return request<ManagedUser>(`${API_BASE_URL}/admin/users/${payload.userId}/profile`, {
+  return request<ManagedUser>(`/admin/users/${encodeURIComponent(payload.userId)}/profile`, {
     method: 'PATCH',
     body: {
       firstName: payload.firstName,
@@ -58,7 +56,7 @@ async function realRestoreManagedUserFromDeletion(
   payload: RestoreManagedUserFromDeletionPayload,
 ): Promise<ManagedUser> {
   return request<ManagedUser>(
-    `${API_BASE_URL}/admin/users/${payload.userId}/restore-from-deletion`,
+    `/admin/users/${encodeURIComponent(payload.userId)}/restore-from-deletion`,
     {
       method: 'POST',
     },

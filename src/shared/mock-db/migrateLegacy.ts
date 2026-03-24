@@ -1,7 +1,7 @@
 // src/shared/mock-db/migrateLegacy.ts
 
 import { cloneDeep } from './cloneDeep';
-import { LEGACY_KEYS, MOCK_DB_VERSION } from './constants';
+import { LEGACY_KEYS } from './constants';
 
 import type { MockDbSnapshot } from './types';
 
@@ -93,19 +93,37 @@ export function mergeLegacyLocalStorageIfNeeded(db: MockDbSnapshot): MockDbSnaps
     }
   }
 
+  const adminPostsRaw = localStorage.getItem(LEGACY_KEYS.adminPosts);
+  if (adminPostsRaw) {
+    const parsed = safeParse<unknown[]>(adminPostsRaw, []);
+    if (Array.isArray(parsed) && parsed.length > 0) {
+      next.cms.posts = parsed as MockDbSnapshot['cms']['posts'];
+    }
+  }
+
+  const adminBannersRaw = localStorage.getItem(LEGACY_KEYS.adminBanners);
+  if (adminBannersRaw) {
+    const parsed = safeParse<unknown[]>(adminBannersRaw, []);
+    if (Array.isArray(parsed) && parsed.length > 0) {
+      next.cms.banners = parsed as MockDbSnapshot['cms']['banners'];
+    }
+  }
+
+  const msgThreadsRaw = localStorage.getItem(LEGACY_KEYS.messageThreads);
+  if (msgThreadsRaw) {
+    const parsed = safeParse<unknown[]>(msgThreadsRaw, []);
+    if (Array.isArray(parsed) && parsed.length > 0) {
+      next.messages.threads = parsed as MockDbSnapshot['messages']['threads'];
+    }
+  }
+
+  const msgItemsRaw = localStorage.getItem(LEGACY_KEYS.messageItems);
+  if (msgItemsRaw) {
+    const parsed = safeParse<unknown[]>(msgItemsRaw, []);
+    if (Array.isArray(parsed) && parsed.length > 0) {
+      next.messages.items = parsed as MockDbSnapshot['messages']['items'];
+    }
+  }
+
   return next;
-}
-
-export function normalizeSnapshotVersion(raw: unknown): MockDbSnapshot | null {
-  if (!raw || typeof raw !== 'object') {
-    return null;
-  }
-
-  const obj = raw as MockDbSnapshot;
-
-  if (obj.version !== MOCK_DB_VERSION) {
-    return null;
-  }
-
-  return obj;
 }

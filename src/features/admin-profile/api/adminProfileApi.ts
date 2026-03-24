@@ -1,6 +1,6 @@
 // src/features/admin-profile/api/adminProfileApi.ts
 import { request } from '@/shared/api/http';
-import { getOptionalApiBaseUrl, isMockApiMode } from '@/shared/config/env';
+import { isMockApiMode } from '@/shared/config/env';
 
 import {
   mockCancelSuperAdminEmailChangeApi,
@@ -19,16 +19,14 @@ import type {
   UpdateAdminProfilePayload,
 } from '../model/types';
 
-const API_BASE_URL = getOptionalApiBaseUrl();
-
 async function realGetAdminProfile(): Promise<AdminProfile> {
-  return request<AdminProfile>(`${API_BASE_URL}/admin/profile`);
+  return request<AdminProfile>('/admin/profile');
 }
 
 async function realUpdateAdminProfile(
   payload: UpdateAdminProfilePayload,
 ): Promise<AdminProfile> {
-  return request<AdminProfile>(`${API_BASE_URL}/admin/profile`, {
+  return request<AdminProfile>('/admin/profile', {
     method: 'PATCH',
     body: payload,
   });
@@ -38,7 +36,7 @@ async function realRequestSuperAdminEmailChange(
   payload: RequestSuperAdminEmailChangePayload,
 ): Promise<RequestSuperAdminEmailChangeResponse> {
   return request<RequestSuperAdminEmailChangeResponse>(
-    `${API_BASE_URL}/admin/profile/email-change/request`,
+    '/admin/profile/email-change/request',
     {
       method: 'POST',
       body: payload,
@@ -49,20 +47,20 @@ async function realRequestSuperAdminEmailChange(
 async function realConfirmSuperAdminEmailChange(
   payload: ConfirmSuperAdminEmailChangePayload,
 ): Promise<AdminProfile> {
-  return request<AdminProfile>(`${API_BASE_URL}/admin/profile/email-change/confirm`, {
+  return request<AdminProfile>('/admin/profile/email-change/confirm', {
     method: 'POST',
     body: payload,
   });
 }
 
 async function realCancelSuperAdminEmailChange(): Promise<void> {
-  await request<void>(`${API_BASE_URL}/admin/profile/email-change`, {
+  await request<void>('/admin/profile/email-change', {
     method: 'DELETE',
   });
 }
 
 async function realClearPasswordAttemptsLock(): Promise<AdminProfile> {
-  return request<AdminProfile>(`${API_BASE_URL}/admin/profile/password-attempts-lock`, {
+  return request<AdminProfile>('/admin/profile/password-attempts-lock', {
     method: 'DELETE',
   });
 }

@@ -1,31 +1,11 @@
 // src/features/admin-posts-banners-management/data/adminPostsBannersStorage.ts
-import { INITIAL_ADMIN_MANAGED_BANNERS } from './mockAdminBanners';
-import { INITIAL_ADMIN_MANAGED_POSTS } from './mockAdminPosts';
+import {
+  ensureMockDatabaseLoaded,
+  patchMockDatabase,
+  unsafeMutableMockDb,
+} from '@/shared/mock-db/store';
 
 import type { AdminManagedBanner, AdminManagedPost } from '../model/types';
-
-const POSTS_STORAGE_KEY = 'tailly_admin_managed_posts';
-const BANNERS_STORAGE_KEY = 'tailly_admin_managed_banners';
-
-/** Увеличивайте при изменении INITIAL_ADMIN_MANAGED_POSTS / INITIAL_ADMIN_MANAGED_BANNERS, чтобы старые данные в браузере подтянули актуальные моки. */
-const ADMIN_SEED_VERSION_KEY = 'tailly_admin_mock_seed_version';
-const CURRENT_ADMIN_SEED_VERSION = 2;
-
-const POSTS_IDB_NAME = 'tailly_admin_posts';
-const POSTS_IDB_VERSION = 1;
-const POSTS_IDB_STORE = 'kv';
-
-function safeParseJson<T>(value: string | null, fallback: T): T {
-  if (!value) {
-    return fallback;
-  }
-
-  try {
-    return JSON.parse(value) as T;
-  } catch {
-    return fallback;
-  }
-}
 
 function normalizePost(post: AdminManagedPost): AdminManagedPost {
   const imageUrls = Array.isArray(post.imageUrls)
@@ -75,10 +55,63 @@ function sortBanners(banners: AdminManagedBanner[]): AdminManagedBanner[] {
   );
 }
 
+export async function readAdminManagedPosts(): Promise<AdminManagedPost[]> {
+  ensureMockDatabaseLoaded();
+  const raw = unsafeMutableMockDb().cms.posts;
+  return sortPosts(raw.map(normalizePost));
+}
+
+export async function writeAdminManagedPosts(posts: AdminManagedPost[]): Promise<void> {
+  const payload = sortPosts(posts.map(normalizePost));
+
+  try {
+    patchMockDatabase((db) => {
+      db.cms.posts = payload;
+    });
+  } catch (error) {
+    const message =
+      error instanceof DOMException && error.name === 'QuotaExceededError'
+        ? 'Недостаточно места в браузере для сохранения публикаций. Очистите данные сайта или уменьшите объём изображений.'
+        : error instanceof Error
+          ? error.message
+          : 'Не удалось сохранить публикации.';
+    throw new Error(message);
+  }
+}
+
+export function readAdminManagedBanners(): AdminManagedBanner[] {
+  ensureMockDatabaseLoaded();
+  const raw = unsafeMutableMockDb().cms.banners;
+  return sortBanners(raw.map(normalizeBanner));
+}
+
+export function writeAdminManagedBanners(banners: AdminManagedBanner[]): void {
+  const payload = sortBanners(banners.map(normalizeBanner));
+
+  try {
+    patchMockDatabase((db) => {
+      db.cms.banners = payload;
+    });
+  } catch (error) {
+    const message =
+      error instanceof DOMException && error.name === 'QuotaExceededError'
+        ? 'Недостаточно места в браузере для сохранения баннеров.'
+        : error instanceof Error
+          ? error.message
+          : 'Не удалось сохранить баннеры.';
+    throw new Error(message);
+  }
+}
+
+const POSTS_IDB_NAME = 'tailly_admin_posts';
+const POSTS_IDB_VERSION = 1;
+const POSTS_IDB_STORE = 'kv';
+const POSTS_LEGACY_STORAGE_KEY = 'tailly_admin_managed_posts';
+
 function openPostsIdb(): Promise<IDBDatabase> {
   return new Promise((resolve, reject) => {
     if (typeof indexedDB === 'undefined') {
-      reject(new Error('IndexedDB недоступен в этом окружении.'));
+      reject(new Error('IndexedDB недоступен.'));
       return;
     }
 
@@ -106,175 +139,53 @@ function idbGetPosts(db: IDBDatabase): Promise<AdminManagedPost[] | undefined> {
   return new Promise((resolve, reject) => {
     const transaction = db.transaction(POSTS_IDB_STORE, 'readonly');
     const store = transaction.objectStore(POSTS_IDB_STORE);
-    const request = store.get(POSTS_STORAGE_KEY);
+    const request = store.get(POSTS_LEGACY_STORAGE_KEY);
 
     request.onerror = () => {
-      reject(request.error ?? new Error('Не удалось прочитать посты.'));
+      reject(request.error ?? new Error('Не удалось прочитать посты из IDB.'));
     };
 
     request.onsuccess = () => {
-      const value = request.result as AdminManagedPost[] | undefined;
-      resolve(value);
+      resolve(request.result as AdminManagedPost[] | undefined);
     };
   });
 }
 
-function idbPutPosts(db: IDBDatabase, posts: AdminManagedPost[]): Promise<void> {
-  return new Promise((resolve, reject) => {
-    const transaction = db.transaction(POSTS_IDB_STORE, 'readwrite');
-    const store = transaction.objectStore(POSTS_IDB_STORE);
-
-    transaction.onerror = () => {
-      reject(transaction.error ?? new Error('Не удалось сохранить посты.'));
-    };
-
-    transaction.oncomplete = () => {
-      resolve();
-    };
-
-    store.put(posts, POSTS_STORAGE_KEY);
-  });
-}
-
-function clearLegacyPostsLocalStorage(): void {
-  try {
-    localStorage.removeItem(POSTS_STORAGE_KEY);
-  } catch {
-    /* ignore */
-  }
-}
-
-function getStoredSeedVersion(): number {
-  try {
-    const raw = localStorage.getItem(ADMIN_SEED_VERSION_KEY);
-    if (raw == null) return 0;
-    const n = parseInt(raw, 10);
-    return Number.isFinite(n) ? n : 0;
-  } catch {
-    return 0;
-  }
-}
-
-let seedEnsuring: Promise<void> | null = null;
-
-/**
- * Синхронизирует локальные мок-данные с версией из кода (устраняет «пустые» или устаревшие IDB/localStorage в одном браузере).
- */
-async function ensureAdminMockSeedMatches(): Promise<void> {
-  if (getStoredSeedVersion() === CURRENT_ADMIN_SEED_VERSION) return;
-
-  if (!seedEnsuring) {
-    seedEnsuring = (async () => {
-      try {
-        await writeAdminManagedPosts(INITIAL_ADMIN_MANAGED_POSTS);
-        writeAdminManagedBanners(INITIAL_ADMIN_MANAGED_BANNERS);
-        localStorage.setItem(ADMIN_SEED_VERSION_KEY, String(CURRENT_ADMIN_SEED_VERSION));
-      } finally {
-        seedEnsuring = null;
-      }
-    })();
+/** Однократный перенос постов из старого IndexedDB в общую mock-db (до этого посты жили только в IDB). */
+export async function migrateAdminPostsFromIndexedDbOnce(): Promise<void> {
+  if (typeof window === 'undefined' || typeof indexedDB === 'undefined') {
+    return;
   }
 
-  await seedEnsuring;
-}
-
-export async function readAdminManagedPosts(): Promise<AdminManagedPost[]> {
-  await ensureAdminMockSeedMatches();
+  ensureMockDatabaseLoaded();
 
   let db: IDBDatabase;
 
   try {
     db = await openPostsIdb();
   } catch {
-    const legacy = safeParseJson<AdminManagedPost[]>(
-      localStorage.getItem(POSTS_STORAGE_KEY),
-      INITIAL_ADMIN_MANAGED_POSTS,
-    );
-
-    return sortPosts(legacy.map(normalizePost));
+    return;
   }
 
   try {
     const fromIdb = await idbGetPosts(db);
 
-    if (fromIdb !== undefined) {
-      clearLegacyPostsLocalStorage();
-      return sortPosts(fromIdb.map(normalizePost));
+    if (!fromIdb || fromIdb.length === 0) {
+      return;
     }
 
-    const legacyRaw = localStorage.getItem(POSTS_STORAGE_KEY);
+    patchMockDatabase((snap) => {
+      snap.cms.posts = sortPosts(fromIdb.map(normalizePost));
+    });
 
-    if (legacyRaw) {
-      const legacy = safeParseJson<AdminManagedPost[]>(
-        legacyRaw,
-        INITIAL_ADMIN_MANAGED_POSTS,
-      );
-      const normalized = sortPosts(legacy.map(normalizePost));
-
-      await idbPutPosts(db, normalized);
-      clearLegacyPostsLocalStorage();
-      return normalized;
-    }
-
-    return sortPosts(INITIAL_ADMIN_MANAGED_POSTS.map(normalizePost));
-  } finally {
-    db.close();
-  }
-}
-
-export async function writeAdminManagedPosts(posts: AdminManagedPost[]): Promise<void> {
-  const payload = sortPosts(posts.map(normalizePost));
-  let db: IDBDatabase;
-
-  try {
-    db = await openPostsIdb();
-  } catch {
     try {
-      localStorage.setItem(POSTS_STORAGE_KEY, JSON.stringify(payload));
-    } catch (error) {
-      const message =
-        error instanceof DOMException && error.name === 'QuotaExceededError'
-          ? 'Недостаточно места в браузере для сохранения публикаций с изображениями. Очистите данные сайта или используйте ссылки на картинки вместо загрузки файлов.'
-          : 'Не удалось сохранить публикации в локальном хранилище.';
-      throw new Error(message);
+      localStorage.removeItem(POSTS_LEGACY_STORAGE_KEY);
+    } catch {
+      /* ignore */
     }
-
-    return;
-  }
-
-  try {
-    await idbPutPosts(db, payload);
-    clearLegacyPostsLocalStorage();
-  } catch (error) {
-    const message =
-      error instanceof DOMException && error.name === 'QuotaExceededError'
-        ? 'Недостаточно места в браузере для сохранения публикаций.'
-        : error instanceof Error
-          ? error.message
-          : 'Не удалось сохранить публикации.';
-    throw new Error(message);
+  } catch {
+    /* чтение IDB не удалось */
   } finally {
     db.close();
   }
-}
-
-export function readAdminManagedBanners(): AdminManagedBanner[] {
-  if (getStoredSeedVersion() !== CURRENT_ADMIN_SEED_VERSION) {
-    void ensureAdminMockSeedMatches();
-    return sortBanners(INITIAL_ADMIN_MANAGED_BANNERS.map(normalizeBanner));
-  }
-
-  const banners = safeParseJson<AdminManagedBanner[]>(
-    localStorage.getItem(BANNERS_STORAGE_KEY),
-    INITIAL_ADMIN_MANAGED_BANNERS,
-  );
-
-  return sortBanners(banners.map(normalizeBanner));
-}
-
-export function writeAdminManagedBanners(banners: AdminManagedBanner[]): void {
-  localStorage.setItem(
-    BANNERS_STORAGE_KEY,
-    JSON.stringify(sortBanners(banners.map(normalizeBanner))),
-  );
 }

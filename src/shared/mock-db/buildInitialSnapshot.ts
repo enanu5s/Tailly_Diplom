@@ -17,6 +17,7 @@ import { SEED_AUTH_BASE_ACCOUNTS } from './seed/authBaseAccounts.seed';
 import { buildExtraClientProfilesAndPets } from './seed/demoDataset.seed';
 import { SEED_MANAGED_SPECIALISTS } from './seed/managedSpecialists.seed';
 import { SEED_PICKUP_POINTS } from './seed/pickupPoints.seed';
+import { SEED_CMS_BANNERS, SEED_CMS_POSTS } from './seed/cms.seed';
 import { SEED_SUPER_ADMIN_ADMINS } from './seed/superAdminAdmins.seed';
 
 import type { MockDbSnapshot } from './types';
@@ -154,5 +155,13 @@ export function buildInitialSnapshot(): MockDbSnapshot {
       ],
     },
     legacyProductOrders: cloneDeep(MOCK_PRODUCT_ORDERS_SEED),
+    cms: {
+      posts: cloneDeep(SEED_CMS_POSTS),
+      banners: cloneDeep(SEED_CMS_BANNERS),
+    },
+    messages: {
+      threads: [],
+      items: [],
+    },
   };
 }

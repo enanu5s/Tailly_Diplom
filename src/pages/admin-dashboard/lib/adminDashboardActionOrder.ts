@@ -179,6 +179,6 @@ export function sortAdminDashboardActions<T extends { id: AdminDashboardActionId
   return scored.map((item) => {
     const { _score, ...rest } = item;
     void _score;
-    return rest as T;
+    return rest as unknown as T;
   });
 }

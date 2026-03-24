@@ -20,6 +20,8 @@ import type {
   Product,
   ProductCategory,
 } from '@/features/shop/model/types';
+import type { AdminManagedBanner, AdminManagedPost } from '@/features/admin-posts-banners-management/model/types';
+import type { ChatMessage, StoredMessageThread } from '@/features/messages/model/types';
 import type { SpecialistApplication } from '@/features/specialist-applications/model/types';
 import type { MockAdminRecord } from '@/features/super-admin-admins-management/data/mockAdminsManagement';
 import type { ManagedSpecialistMockAccount } from '@/shared/lib/mock/specialistAccountsStorage';
@@ -88,6 +90,16 @@ export type MockDbSnapshot = {
   register: MockRegisterSlice;
   /** Статические товарные заказы (легаси-виджеты); синхронизируются с заказами магазина по смыслу */
   legacyProductOrders: ProductOrder[];
+  /** Посты и баннеры админки (раньше — отдельные LS/IDB) */
+  cms: {
+    posts: AdminManagedPost[];
+    banners: AdminManagedBanner[];
+  };
+  /** Чаты: потоки и сообщения (раньше — отдельные ключи LS) */
+  messages: {
+    threads: StoredMessageThread[];
+    items: ChatMessage[];
+  };
 };
 
 export type { MockAttemptState, MockAuthAccount };

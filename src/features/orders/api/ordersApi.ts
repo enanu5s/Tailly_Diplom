@@ -37,9 +37,9 @@ import type {
 /* ---------------- REAL ---------------- */
 
 async function realGetServiceOrders(filter: ServicesFilter): Promise<ServiceOrder[]> {
-  const query = filter === 'all' ? '' : `?status=${encodeURIComponent(filter)}`;
-
-  return request<ServiceOrder[]>(`/me/orders/services${query}`);
+  return request<ServiceOrder[]>('/me/orders/services', {
+    query: filter === 'all' ? undefined : { status: filter },
+  });
 }
 
 async function realGetServiceOrderById(orderId: string): Promise<ServiceOrder> {

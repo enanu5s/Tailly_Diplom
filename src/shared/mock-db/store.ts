@@ -3,10 +3,8 @@
 import { buildInitialSnapshot } from './buildInitialSnapshot';
 import { cloneDeep } from './cloneDeep';
 import { MOCK_DB_STORAGE_KEY, MOCK_DB_VERSION } from './constants';
-import {
-  mergeLegacyLocalStorageIfNeeded,
-  normalizeSnapshotVersion,
-} from './migrateLegacy';
+import { mergeLegacyLocalStorageIfNeeded } from './migrateLegacy';
+import { normalizeSnapshotVersion } from './snapshotVersion';
 
 import type { MockDbSnapshot } from './types';
 
@@ -14,15 +12,30 @@ let internal: MockDbSnapshot | null = null;
 
 const listeners = new Set<() => void>();
 
+const MOCK_DB_STORAGE_SOFT_LIMIT = 4_500_000;
+
 function persistSnapshot(snapshot: MockDbSnapshot): void {
   if (typeof window === 'undefined') {
     return;
   }
 
+  const serialized = JSON.stringify(snapshot);
+
+  if (serialized.length > MOCK_DB_STORAGE_SOFT_LIMIT) {
+    const err = new DOMException(
+      'Превышен лимит размера mock-базы в localStorage.',
+      'QuotaExceededError',
+    );
+    throw err;
+  }
+
   try {
-    localStorage.setItem(MOCK_DB_STORAGE_KEY, JSON.stringify(snapshot));
-  } catch {
-    /* квота / приватный режим */
+    localStorage.setItem(MOCK_DB_STORAGE_KEY, serialized);
+  } catch (error) {
+    if (error instanceof DOMException && error.name === 'QuotaExceededError') {
+      throw error;
+    }
+    /* приватный режим и прочие ошибки записи */
   }
 }
 

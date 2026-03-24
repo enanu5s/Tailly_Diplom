@@ -1,7 +1,14 @@
 .page {
   min-height: calc(100vh - 160px);
   background: #f9fafb;
-  padding: 40px 20px 80px;
+  padding: 24px 16px 56px;
+  box-sizing: border-box;
+}
+
+@media (min-width: 640px) {
+  .page {
+    padding: 40px 20px 80px;
+  }
 }
 
 .container {
@@ -11,9 +18,10 @@
 
 .h1 {
   margin: 0 0 16px;
-  font-size: 34px;
-  line-height: 1.1;
+  font-size: clamp(24px, 5vw, 34px);
+  line-height: 1.15;
   color: #111827;
+  word-break: break-word;
 }
 
 .back {

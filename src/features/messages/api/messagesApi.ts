@@ -1,5 +1,6 @@
 // src/features/messages/api/messagesApi.ts
-import { getOptionalApiBaseUrl, isMockApiMode } from '@/shared/config/env';
+import { request } from '@/shared/api/http';
+import { isMockApiMode } from '@/shared/config/env';
 
 import {
   ensureClientThread as ensureClientThreadInStorage,
@@ -22,12 +23,63 @@ import type {
   SendMessagePayload,
 } from '../model/types';
 
-const API_BASE_URL = getOptionalApiBaseUrl();
+/* ---------------- REAL (контракт для будущего backend; тело — те же DTO, что и в mock-слое) ---------------- */
 
-async function notImplemented(): Promise<never> {
-  throw new Error(
-    `Messages real API is not implemented yet. API_BASE_URL="${API_BASE_URL}"`,
-  );
+async function realGetSnapshot(viewer: MessagesViewer): Promise<MessagesSnapshot> {
+  return request<MessagesSnapshot>('/me/messages/snapshot', {
+    method: 'POST',
+    body: { viewer },
+  });
+}
+
+async function realGetUnreadSummary(viewer: MessagesViewer): Promise<MessagesUnreadSummary> {
+  return request<MessagesUnreadSummary>('/me/messages/unread-summary', {
+    method: 'POST',
+    body: { viewer },
+  });
+}
+
+async function realEnsureSupportThread(
+  payload: EnsureSupportThreadPayload,
+): Promise<MessagesSnapshot> {
+  return request<MessagesSnapshot>('/me/messages/threads/support', {
+    method: 'POST',
+    body: payload,
+  });
+}
+
+async function realEnsureSpecialistThread(
+  payload: EnsureSpecialistThreadPayload,
+): Promise<MessagesSnapshot> {
+  return request<MessagesSnapshot>('/me/messages/threads/specialist-direct', {
+    method: 'POST',
+    body: payload,
+  });
+}
+
+async function realEnsureClientThread(
+  payload: EnsureClientThreadPayload,
+): Promise<MessagesSnapshot> {
+  return request<MessagesSnapshot>('/me/messages/threads/client-direct', {
+    method: 'POST',
+    body: payload,
+  });
+}
+
+async function realMarkMessagesAsRead(
+  payload: MarkMessagesAsReadPayload,
+): Promise<MessagesSnapshot> {
+  return request<MessagesSnapshot>('/me/messages/read', {
+    method: 'POST',
+    body: payload,
+  });
+}
+
+async function realSendMessage(payload: SendMessagePayload): Promise<MessagesSnapshot> {
+  return request<MessagesSnapshot>('/me/messages/send', {
+    method: 'POST',
+    body: payload,
+  });
 }
 
 export const messagesApi = {
@@ -36,7 +88,7 @@ export const messagesApi = {
       return Promise.resolve(getMessagesSnapshotFromStorage(viewer));
     }
 
-    return notImplemented();
+    return realGetSnapshot(viewer);
   },
 
   async getUnreadSummary(viewer: MessagesViewer): Promise<MessagesUnreadSummary> {
@@ -44,7 +96,7 @@ export const messagesApi = {
       return Promise.resolve(getUnreadSummaryFromStorage(viewer));
     }
 
-    return notImplemented();
+    return realGetUnreadSummary(viewer);
   },
 
   async ensureSupportThread(
@@ -54,7 +106,7 @@ export const messagesApi = {
       return Promise.resolve(ensureSupportThreadInStorage(payload));
     }
 
-    return notImplemented();
+    return realEnsureSupportThread(payload);
   },
 
   async ensureSpecialistThread(
@@ -64,7 +116,7 @@ export const messagesApi = {
       return Promise.resolve(ensureSpecialistThreadInStorage(payload));
     }
 
-    return notImplemented();
+    return realEnsureSpecialistThread(payload);
   },
 
   async ensureClientThread(
@@ -74,7 +126,7 @@ export const messagesApi = {
       return Promise.resolve(ensureClientThreadInStorage(payload));
     }
 
-    return notImplemented();
+    return realEnsureClientThread(payload);
   },
 
   async markMessagesAsRead(
@@ -84,7 +136,7 @@ export const messagesApi = {
       return Promise.resolve(markMessagesAsReadInStorage(payload));
     }
 
-    return notImplemented();
+    return realMarkMessagesAsRead(payload);
   },
 
   async sendMessage(payload: SendMessagePayload): Promise<MessagesSnapshot> {
@@ -92,6 +144,6 @@ export const messagesApi = {
       return Promise.resolve(sendMessageInStorage(payload));
     }
 
-    return notImplemented();
+    return realSendMessage(payload);
   },
 };

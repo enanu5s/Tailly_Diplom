@@ -1,4 +1,10 @@
 // src/features/messages/data/messagesStorage.storage.ts
+import {
+  ensureMockDatabaseLoaded,
+  persistMockDatabase,
+  unsafeMutableMockDb,
+} from '@/shared/mock-db/store';
+
 import type {
   ChatMessage,
   MessageImageAttachment,
@@ -8,10 +14,10 @@ import type {
   StoredMessageThread,
 } from '../model/types';
 
+/** Легаси-ключи (миграция в `mergeLegacyLocalStorageIfNeeded` общей mock-db). */
 export const THREADS_STORAGE_KEY = 'tailly_messages_threads';
 export const MESSAGES_STORAGE_KEY = 'tailly_messages_messages';
 export const SUPPORT_TEAM_READ_KEY = 'support-team';
-const STORAGE_SOFT_LIMIT = 4_500_000;
 
 type UnknownRecord = Record<string, unknown>;
 
@@ -41,19 +47,6 @@ export function createId(prefix: string): string {
   return `${prefix}_${Math.random().toString(36).slice(2, 10)}_${Date.now()}`;
 }
 
-function safeJsonParse(value: string | null): unknown[] {
-  if (!value) {
-    return [];
-  }
-
-  try {
-    const parsed = JSON.parse(value) as unknown;
-    return Array.isArray(parsed) ? parsed : [];
-  } catch {
-    return [];
-  }
-}
-
 function isQuotaExceededError(error: unknown): boolean {
   if (!(error instanceof DOMException)) {
     return false;
@@ -64,35 +57,9 @@ function isQuotaExceededError(error: unknown): boolean {
   );
 }
 
-function estimateLocalStorageUsage(): number {
-  let total = 0;
-
-  for (let index = 0; index < localStorage.length; index += 1) {
-    const key = localStorage.key(index);
-
-    if (!key) {
-      continue;
-    }
-
-    const value = localStorage.getItem(key) ?? '';
-    total += key.length + value.length;
-  }
-
-  return total;
-}
-
-function safeSetStorageItem(key: string, value: string): void {
-  const currentValue = localStorage.getItem(key) ?? '';
-  const projectedUsage = estimateLocalStorageUsage() - currentValue.length + value.length;
-
-  if (projectedUsage > STORAGE_SOFT_LIMIT) {
-    throw new Error(
-      'Сообщение с фото слишком тяжёлое для mock-хранилища. Попробуй фото меньшего размера или удали старые сообщения с изображениями.',
-    );
-  }
-
+function persistMessagesDb(): void {
   try {
-    localStorage.setItem(key, value);
+    persistMockDatabase();
   } catch (error) {
     if (isQuotaExceededError(error)) {
       throw new Error(
@@ -313,21 +280,27 @@ function normalizeMessage(value: unknown): ChatMessage | null {
 }
 
 export function readThreads(): StoredMessageThread[] {
-  return safeJsonParse(localStorage.getItem(THREADS_STORAGE_KEY))
-    .map(normalizeStoredThread)
+  ensureMockDatabaseLoaded();
+  return unsafeMutableMockDb()
+    .messages.threads.map((row) => normalizeStoredThread(row))
     .filter((thread): thread is StoredMessageThread => thread !== null);
 }
 
 export function readMessages(): ChatMessage[] {
-  return safeJsonParse(localStorage.getItem(MESSAGES_STORAGE_KEY))
-    .map(normalizeMessage)
+  ensureMockDatabaseLoaded();
+  return unsafeMutableMockDb()
+    .messages.items.map((row) => normalizeMessage(row))
     .filter((message): message is ChatMessage => message !== null);
 }
 
 export function writeThreads(threads: StoredMessageThread[]): void {
-  safeSetStorageItem(THREADS_STORAGE_KEY, JSON.stringify(threads));
+  ensureMockDatabaseLoaded();
+  unsafeMutableMockDb().messages.threads = threads;
+  persistMessagesDb();
 }
 
 export function writeMessages(messages: ChatMessage[]): void {
-  safeSetStorageItem(MESSAGES_STORAGE_KEY, JSON.stringify(messages));
+  ensureMockDatabaseLoaded();
+  unsafeMutableMockDb().messages.items = messages;
+  persistMessagesDb();
 }

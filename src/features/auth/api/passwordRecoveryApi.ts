@@ -1,7 +1,7 @@
 // src/features/auth/api/passwordRecoveryApi.ts
 
 import { request } from '@/shared/api/http';
-import { getOptionalApiBaseUrl, isMockApiMode } from '@/shared/config/env';
+import { isMockApiMode } from '@/shared/config/env';
 
 import { passwordRecoveryMockApi } from './passwordRecoveryApi.mock';
 
@@ -13,8 +13,6 @@ import type {
   VerifyRecoveryCodePayload,
 } from '../model/types';
 
-const API_BASE_URL = getOptionalApiBaseUrl();
-
 export const passwordRecoveryApi = {
   async startRecovery(
     payload: StartPasswordRecoveryPayload,
@@ -23,13 +21,10 @@ export const passwordRecoveryApi = {
       return passwordRecoveryMockApi.startRecovery(payload);
     }
 
-    return request<StartPasswordRecoveryResponse>(
-      `${API_BASE_URL}/auth/password-recovery/start`,
-      {
-        method: 'POST',
-        body: payload,
-      },
-    );
+    return request<StartPasswordRecoveryResponse>('/auth/password-recovery/start', {
+      method: 'POST',
+      body: payload,
+    });
   },
 
   async sendCode(payload: SendRecoveryCodePayload): Promise<void> {
@@ -37,7 +32,7 @@ export const passwordRecoveryApi = {
       return passwordRecoveryMockApi.sendCode(payload);
     }
 
-    return request(`${API_BASE_URL}/auth/password-recovery/send-code`, {
+    return request('/auth/password-recovery/send-code', {
       method: 'POST',
       body: payload,
     });
@@ -48,7 +43,7 @@ export const passwordRecoveryApi = {
       return passwordRecoveryMockApi.verifyCode(payload);
     }
 
-    return request(`${API_BASE_URL}/auth/password-recovery/verify-code`, {
+    return request('/auth/password-recovery/verify-code', {
       method: 'POST',
       body: payload,
     });
@@ -59,7 +54,7 @@ export const passwordRecoveryApi = {
       return passwordRecoveryMockApi.resetPassword(payload);
     }
 
-    return request(`${API_BASE_URL}/auth/password-recovery/reset`, {
+    return request('/auth/password-recovery/reset', {
       method: 'POST',
       body: payload,
     });

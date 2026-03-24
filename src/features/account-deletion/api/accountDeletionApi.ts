@@ -1,7 +1,7 @@
 // src/features/account-deletion/api/accountDeletionApi.ts
 
 import { request } from '@/shared/api/http';
-import { getOptionalApiBaseUrl, isMockApiMode } from '@/shared/config/env';
+import { isMockApiMode } from '@/shared/config/env';
 
 import {
   mockGetAccountRestorePreview,
@@ -11,13 +11,11 @@ import {
 
 import type { AccountDeletionRestorePreview } from '../model/types';
 
-const API_BASE_URL = getOptionalApiBaseUrl();
-
 async function realRequestAccountDeletion(payload: {
   userId: string;
   password: string;
 }): Promise<{ ok: true; restoreDeadlineIso: string }> {
-  return request(`${API_BASE_URL}/account/deletion/request`, {
+  return request('/account/deletion/request', {
     method: 'POST',
     body: payload,
   });
@@ -26,13 +24,13 @@ async function realRequestAccountDeletion(payload: {
 async function realGetRestorePreview(
   token: string,
 ): Promise<AccountDeletionRestorePreview> {
-  return request(
-    `${API_BASE_URL}/account/deletion/restore-preview?token=${encodeURIComponent(token)}`,
-  );
+  return request('/account/deletion/restore-preview', {
+    query: { token },
+  });
 }
 
 async function realRestoreByToken(token: string): Promise<void> {
-  await request(`${API_BASE_URL}/account/deletion/restore`, {
+  await request('/account/deletion/restore', {
     method: 'POST',
     body: { token },
   });

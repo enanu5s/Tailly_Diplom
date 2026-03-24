@@ -6,6 +6,7 @@ import { RouterProvider, createBrowserRouter } from 'react-router-dom';
 import { routes } from '@/app/router/routes';
 import { authService } from '@/features/auth/model/authService';
 import { authStore } from '@/features/auth/model/authStore';
+import { migrateAdminPostsFromIndexedDbOnce } from '@/features/admin-posts-banners-management/data/adminPostsBannersStorage';
 import { seedDemoMessagesIfEmpty } from '@/features/messages/data/messagesStorage';
 import { configureHttpClient } from '@/shared/api/http';
 import { isMockApiMode } from '@/shared/config/env';
@@ -25,6 +26,7 @@ export function getUnauthorizedRedirectPath(pathname: string): string {
 function bootstrap() {
   if (isMockApiMode) {
     ensureMockDatabaseLoaded();
+    void migrateAdminPostsFromIndexedDbOnce();
     refreshAllMockSpecialistListingStatsFromOrders();
     seedDemoMessagesIfEmpty();
   }
