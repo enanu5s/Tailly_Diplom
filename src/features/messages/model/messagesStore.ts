@@ -6,10 +6,24 @@ import { messagesUnreadStore } from './messagesUnreadStore';
 
 import type {
   ChatMessage,
+  DraftMessageImageAttachment,
+  MessageReplyPreview,
   MessageThread,
   MessagesSnapshot,
   MessagesViewer,
 } from './types';
+
+function buildReplyPreview(message: ChatMessage): MessageReplyPreview {
+  return {
+    messageId: message.id,
+    authorName:
+      message.authorSupportAgentName?.trim() ||
+      message.authorName.trim() ||
+      'Пользователь',
+    text: message.text.trim(),
+    attachmentsCount: message.attachments.length,
+  };
+}
 
 class MessagesStore {
   threads: MessageThread[] = [];
@@ -19,6 +33,9 @@ class MessagesStore {
   initializedForUserId: string | null = null;
   error: string | null = null;
   draftMessage = '';
+  draftAttachments: DraftMessageImageAttachment[] = [];
+  attachmentsLoading = false;
+  replyTo: MessageReplyPreview | null = null;
 
   constructor() {
     makeAutoObservable(this, {}, { autoBind: true });
@@ -46,12 +63,70 @@ class MessagesStore {
     );
   }
 
+  get canSendDraft(): boolean {
+    return Boolean(this.draftMessage.trim()) || this.draftAttachments.length > 0;
+  }
+
   setDraftMessage(value: string): void {
     this.draftMessage = value;
   }
 
+  clearError(): void {
+    this.error = null;
+  }
+
+  setReplyTarget(message: ChatMessage): void {
+    this.replyTo = buildReplyPreview(message);
+  }
+
+  clearReplyTarget(): void {
+    this.replyTo = null;
+  }
+
+  async addDraftAttachments(files: File[]): Promise<void> {
+    if (files.length === 0) {
+      return;
+    }
+
+    this.attachmentsLoading = true;
+    this.error = null;
+
+    try {
+      const nextAttachments = await messagesService.prepareDraftImageAttachments(
+        files,
+        this.draftAttachments.length,
+      );
+
+      runInAction(() => {
+        this.draftAttachments = [...this.draftAttachments, ...nextAttachments];
+      });
+    } catch (error) {
+      runInAction(() => {
+        this.error =
+          error instanceof Error
+            ? error.message
+            : 'Не удалось загрузить фотографии.';
+      });
+    } finally {
+      runInAction(() => {
+        this.attachmentsLoading = false;
+      });
+    }
+  }
+
+  removeDraftAttachment(attachmentId: string): void {
+    this.draftAttachments = this.draftAttachments.filter(
+      (attachment) => attachment.id !== attachmentId,
+    );
+  }
+
+  clearDraftAttachments(): void {
+    this.draftAttachments = [];
+  }
+
   setActiveThread(threadId: string): void {
     this.activeThreadId = threadId;
+    this.replyTo = null;
   }
 
   reset(): void {
@@ -62,6 +137,9 @@ class MessagesStore {
     this.initializedForUserId = null;
     this.error = null;
     this.draftMessage = '';
+    this.draftAttachments = [];
+    this.attachmentsLoading = false;
+    this.replyTo = null;
     messagesUnreadStore.reset();
   }
 
@@ -230,8 +308,16 @@ class MessagesStore {
   async sendActiveMessage(params: { viewer: MessagesViewer }): Promise<void> {
     const text = this.draftMessage.trim();
     const activeThread = this.activeThread;
+    const attachments = messagesService.stripDraftAttachmentFiles(
+      this.draftAttachments,
+    );
+    const replyTo = this.replyTo ?? undefined;
 
-    if (!params.viewer.userId.trim() || !activeThread || !text) {
+    if (
+      !params.viewer.userId.trim() ||
+      !activeThread ||
+      (!text && attachments.length === 0)
+    ) {
       return;
     }
 
@@ -243,11 +329,15 @@ class MessagesStore {
         viewer: params.viewer,
         threadId: activeThread.id,
         text,
+        attachments,
+        replyTo,
       });
 
       runInAction(() => {
         this.applySnapshot(params.viewer, snapshot, activeThread.id);
         this.draftMessage = '';
+        this.draftAttachments = [];
+        this.replyTo = null;
       });
 
       await this.syncUnread(params.viewer);

@@ -5,8 +5,10 @@ import type {
   EnsureSpecialistThreadPayload,
   EnsureSupportThreadPayload,
   MarkMessagesAsReadPayload,
+  MessageImageAttachment,
   MessageParticipant,
   MessageParticipantRole,
+  MessageReplyPreview,
   MessageThread,
   MessagesSnapshot,
   MessagesUnreadSummary,
@@ -18,6 +20,7 @@ import type {
 const THREADS_STORAGE_KEY = 'tailly_messages_threads';
 const MESSAGES_STORAGE_KEY = 'tailly_messages_messages';
 const SUPPORT_TEAM_READ_KEY = 'support-team';
+const STORAGE_SOFT_LIMIT = 4_500_000;
 
 type UnknownRecord = Record<string, unknown>;
 
@@ -27,6 +30,10 @@ function isRecord(value: unknown): value is UnknownRecord {
 
 function asString(value: unknown): string | undefined {
   return typeof value === 'string' ? value : undefined;
+}
+
+function asNumber(value: unknown): number | undefined {
+  return typeof value === 'number' && Number.isFinite(value) ? value : undefined;
 }
 
 function isParticipantRole(value: unknown): value is MessageParticipantRole {
@@ -53,6 +60,58 @@ function safeJsonParse(value: string | null): unknown[] {
     return Array.isArray(parsed) ? parsed : [];
   } catch {
     return [];
+  }
+}
+
+function isQuotaExceededError(error: unknown): boolean {
+  if (!(error instanceof DOMException)) {
+    return false;
+  }
+
+  return (
+    error.name === 'QuotaExceededError' ||
+    error.name === 'NS_ERROR_DOM_QUOTA_REACHED'
+  );
+}
+
+function estimateLocalStorageUsage(): number {
+  let total = 0;
+
+  for (let index = 0; index < localStorage.length; index += 1) {
+    const key = localStorage.key(index);
+
+    if (!key) {
+      continue;
+    }
+
+    const value = localStorage.getItem(key) ?? '';
+    total += key.length + value.length;
+  }
+
+  return total;
+}
+
+function safeSetStorageItem(key: string, value: string): void {
+  const currentValue = localStorage.getItem(key) ?? '';
+  const projectedUsage =
+    estimateLocalStorageUsage() - currentValue.length + value.length;
+
+  if (projectedUsage > STORAGE_SOFT_LIMIT) {
+    throw new Error(
+      'Сообщение с фото слишком тяжёлое для mock-хранилища. Попробуй фото меньшего размера или удали старые сообщения с изображениями.',
+    );
+  }
+
+  try {
+    localStorage.setItem(key, value);
+  } catch (error) {
+    if (isQuotaExceededError(error)) {
+      throw new Error(
+        'Хранилище сообщений переполнено. Удали старые сообщения с фото или прикрепи изображение меньшего размера.',
+      );
+    }
+
+    throw error;
   }
 }
 
@@ -145,6 +204,67 @@ function normalizeReadKeys(
   return [...new Set(normalized)];
 }
 
+function normalizeAttachment(value: unknown): MessageImageAttachment | null {
+  if (!isRecord(value)) {
+    return null;
+  }
+
+  const id = asString(value.id)?.trim();
+  const kind = asString(value.kind);
+  const name = asString(value.name)?.trim();
+  const mimeType = asString(value.mimeType)?.trim();
+  const url = asString(value.url)?.trim();
+  const thumbnailUrl = asString(value.thumbnailUrl)?.trim() || undefined;
+  const sizeBytes = asNumber(value.sizeBytes);
+  const width = asNumber(value.width);
+  const height = asNumber(value.height);
+
+  if (
+    !id ||
+    kind !== 'image' ||
+    !name ||
+    !mimeType ||
+    !url ||
+    sizeBytes === undefined
+  ) {
+    return null;
+  }
+
+  return {
+    id,
+    kind: 'image',
+    name,
+    mimeType,
+    url,
+    thumbnailUrl,
+    width,
+    height,
+    sizeBytes,
+  };
+}
+
+function normalizeReplyPreview(value: unknown): MessageReplyPreview | undefined {
+  if (!isRecord(value)) {
+    return undefined;
+  }
+
+  const messageId = asString(value.messageId)?.trim();
+  const authorName = asString(value.authorName)?.trim();
+  const text = asString(value.text)?.trim() ?? '';
+  const attachmentsCount = asNumber(value.attachmentsCount);
+
+  if (!messageId || !authorName || attachmentsCount === undefined) {
+    return undefined;
+  }
+
+  return {
+    messageId,
+    authorName,
+    text,
+    attachmentsCount: Math.max(0, Math.floor(attachmentsCount)),
+  };
+}
+
 function normalizeMessage(value: unknown): ChatMessage | null {
   if (!isRecord(value)) {
     return null;
@@ -154,16 +274,23 @@ function normalizeMessage(value: unknown): ChatMessage | null {
   const threadId = asString(value.threadId)?.trim();
   const authorId = asString(value.authorId)?.trim();
   const authorRole = value.authorRole;
-  const text = asString(value.text)?.trim();
+  const text = asString(value.text)?.trim() ?? '';
   const createdAt = asString(value.createdAt)?.trim();
+
+  const rawAttachments = Array.isArray(value.attachments) ? value.attachments : [];
+  const attachments = rawAttachments
+    .map(normalizeAttachment)
+    .filter(
+      (attachment): attachment is MessageImageAttachment => attachment !== null,
+    );
 
   if (
     !id ||
     !threadId ||
     !authorId ||
-    !text ||
     !createdAt ||
-    !isParticipantRole(authorRole)
+    !isParticipantRole(authorRole) ||
+    (!text && attachments.length === 0)
   ) {
     return null;
   }
@@ -195,6 +322,8 @@ function normalizeMessage(value: unknown): ChatMessage | null {
         ? [authorId]
         : [];
 
+  const replyTo = normalizeReplyPreview(value.replyTo);
+
   return {
     id,
     threadId,
@@ -203,6 +332,8 @@ function normalizeMessage(value: unknown): ChatMessage | null {
     authorName,
     authorSupportAgentName,
     text,
+    attachments,
+    replyTo,
     createdAt,
     readByUserIds,
   };
@@ -221,11 +352,11 @@ function readMessages(): ChatMessage[] {
 }
 
 function writeThreads(threads: StoredMessageThread[]): void {
-  localStorage.setItem(THREADS_STORAGE_KEY, JSON.stringify(threads));
+  safeSetStorageItem(THREADS_STORAGE_KEY, JSON.stringify(threads));
 }
 
 function writeMessages(messages: ChatMessage[]): void {
-  localStorage.setItem(MESSAGES_STORAGE_KEY, JSON.stringify(messages));
+  safeSetStorageItem(MESSAGES_STORAGE_KEY, JSON.stringify(messages));
 }
 
 function isAdminViewer(viewer: MessagesViewer): boolean {
@@ -474,9 +605,35 @@ function seedSupportWelcomeMessage(threadId: string): ChatMessage {
     authorName: 'Поддержка Tailly',
     authorSupportAgentName: 'Система',
     text: 'Здравствуйте! Это чат поддержки Tailly. Напишите ваш вопрос, и мы постараемся помочь.',
+    attachments: [],
     createdAt: new Date().toISOString(),
     readByUserIds: [],
   };
+}
+
+function buildMessagePreview(
+  text: string,
+  attachments: MessageImageAttachment[],
+): string {
+  const trimmedText = text.trim();
+
+  if (trimmedText && attachments.length > 0) {
+    return `${trimmedText} · Фото: ${attachments.length}`;
+  }
+
+  if (trimmedText) {
+    return trimmedText;
+  }
+
+  if (attachments.length === 1) {
+    return 'Фото';
+  }
+
+  if (attachments.length > 1) {
+    return `Фото: ${attachments.length}`;
+  }
+
+  return '';
 }
 
 function buildSnapshot(
@@ -681,9 +838,17 @@ export function markMessagesAsRead(
 
 export function sendMessage(payload: SendMessagePayload): MessagesSnapshot {
   const text = payload.text.trim();
+  const attachments = Array.isArray(payload.attachments)
+    ? payload.attachments.filter((attachment) => attachment.kind === 'image')
+    : [];
   const viewer = payload.viewer;
+  const replyTo = payload.replyTo;
 
-  if (!text || viewer.role === 'guest' || !viewer.userId.trim()) {
+  if (
+    (!text && attachments.length === 0) ||
+    viewer.role === 'guest' ||
+    !viewer.userId.trim()
+  ) {
     return getMessagesSnapshot(viewer);
   }
 
@@ -717,15 +882,18 @@ export function sendMessage(payload: SendMessagePayload): MessagesSnapshot {
     authorName: resolveAuthorName(viewer, thread),
     authorSupportAgentName: resolveAuthorSupportAgentName(viewer, thread),
     text,
+    attachments,
+    replyTo,
     createdAt: nowIso,
     readByUserIds: readKey ? [readKey] : [],
   };
 
+  const preview = buildMessagePreview(text, attachments);
   const updatedThreads = [...allThreads];
   updatedThreads[threadIndex] = {
     ...thread,
     updatedAt: nowIso,
-    lastMessagePreview: text,
+    lastMessagePreview: preview,
   };
 
   const updatedMessages = [...allMessages, message];

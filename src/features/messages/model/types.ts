@@ -22,6 +22,29 @@ export type MessagesViewer = {
   avatarUrl?: string;
 };
 
+export type MessageImageAttachment = {
+  id: string;
+  kind: 'image';
+  name: string;
+  mimeType: string;
+  url: string;
+  thumbnailUrl?: string;
+  width?: number;
+  height?: number;
+  sizeBytes: number;
+};
+
+export type DraftMessageImageAttachment = MessageImageAttachment & {
+  file: File;
+};
+
+export type MessageReplyPreview = {
+  messageId: string;
+  authorName: string;
+  text: string;
+  attachmentsCount: number;
+};
+
 export type StoredMessageThread = {
   id: string;
   kind: MessageThreadKind;
@@ -52,6 +75,8 @@ export type ChatMessage = {
   authorName: string;
   authorSupportAgentName?: string;
   text: string;
+  attachments: MessageImageAttachment[];
+  replyTo?: MessageReplyPreview;
   createdAt: string;
   readByUserIds: string[];
 };
@@ -82,6 +107,8 @@ export type SendMessagePayload = {
   viewer: MessagesViewer;
   threadId: string;
   text: string;
+  attachments?: MessageImageAttachment[];
+  replyTo?: MessageReplyPreview;
 };
 
 export type MarkMessagesAsReadPayload = {
