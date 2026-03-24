@@ -225,7 +225,7 @@ export type ProductOrderDelivery = {
 };
 
 export type ProductOrderPayment = {
-  method: 'card' | 'cash_on_delivery';
+  method: 'card' | 'sbp' | 'cash_on_delivery';
   status: 'pending' | 'paid' | 'refunded';
 };
 

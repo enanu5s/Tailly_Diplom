@@ -324,7 +324,9 @@ function getDeliveryLabel(value?: string): string {
 function getPaymentLabel(value?: string): string {
   switch (value) {
     case 'card':
-      return 'Карта';
+      return 'Банковская карта';
+    case 'sbp':
+      return 'СБП';
     case 'cash_on_delivery':
       return 'Наличными при получении';
     default:

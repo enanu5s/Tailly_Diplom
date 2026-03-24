@@ -45,7 +45,12 @@ export function readProductOrdersFromShop(): ProductOrder[] {
               expectedAt,
             },
       payment: {
-        method: order.paymentMethod === 'cash' ? 'cash_on_delivery' : 'card',
+        method:
+          order.paymentMethod === 'cash'
+            ? 'cash_on_delivery'
+            : order.paymentMethod === 'sbp'
+              ? 'sbp'
+              : 'card',
         status:
           order.status === 'paid'
             ? 'paid'

@@ -39,6 +39,12 @@ const ShopOrderResultPage = lazy(() =>
   })),
 );
 
+const ShopPaymentPage = lazy(() =>
+  import('@/pages/shop').then((module) => ({
+    default: module.ShopPaymentPage,
+  })),
+);
+
 const ShopProductPage = lazy(() =>
   import('@/pages/shop').then((module) => ({
     default: module.ShopProductPage,
@@ -64,6 +70,10 @@ export const shopRoutes: RouteObject[] = [
       {
         path: '/shop/checkout',
         element: withSuspense(<ShopCheckoutPage />),
+      },
+      {
+        path: '/shop/order/:orderId/payment',
+        element: withSuspense(<ShopPaymentPage />),
       },
       {
         path: '/shop/order/:orderId',

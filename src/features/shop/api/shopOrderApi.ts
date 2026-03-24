@@ -7,6 +7,7 @@ import {
   mockCreateOrder,
   mockGetOrderById,
   mockGetPickupPoints,
+  mockPayShopOrder,
 } from './shopOrderApi.mock';
 
 import type {
@@ -57,6 +58,23 @@ async function cancelOrderReal(orderId: string): Promise<Order> {
   );
 }
 
+export type PayShopOrderPayload = {
+  paymentMethod: 'card' | 'sbp';
+};
+
+async function payShopOrderReal(
+  orderId: string,
+  payload: PayShopOrderPayload,
+): Promise<Order> {
+  return request<Order>(
+    `/shop/orders/${encodeURIComponent(orderId)}/pay`,
+    {
+      method: 'POST',
+      body: payload,
+    },
+  );
+}
+
 export const shopOrderApi = {
   async getPickupPoints(city?: string): Promise<PickupPoint[]> {
     if (USE_MOCK) {
@@ -88,5 +106,16 @@ export const shopOrderApi = {
     }
 
     return cancelOrderReal(orderId);
+  },
+
+  async payShopOrder(
+    orderId: string,
+    payload: PayShopOrderPayload,
+  ): Promise<Order> {
+    if (USE_MOCK) {
+      return mockPayShopOrder(orderId, payload.paymentMethod);
+    }
+
+    return payShopOrderReal(orderId, payload);
   },
 };

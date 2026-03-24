@@ -2,7 +2,11 @@
 import { authStore } from '@/features/auth/model/authStore';
 import { canOrderShopProducts } from '@/shared/lib/auth/roleAccess';
 
-import { shopOrderApi, type CreateOrderPayload } from '../api/shopOrderApi';
+import {
+  shopOrderApi,
+  type CreateOrderPayload,
+  type PayShopOrderPayload,
+} from '../api/shopOrderApi';
 
 import type { Order, PickupPoint } from '../model/types';
 
@@ -25,5 +29,20 @@ export const shopOrderService = {
 
     async getOrderById(orderId: string): Promise<Order | null> {
         return shopOrderApi.getOrderById(orderId);
+    },
+
+    async payShopOrder(
+        orderId: string,
+        payload: PayShopOrderPayload,
+    ): Promise<Order> {
+        const user = authStore.getState().user;
+
+        if (!canOrderShopProducts(user)) {
+            throw new Error(
+                'Оплата заказа доступна только клиентам и специалистам.',
+            );
+        }
+
+        return shopOrderApi.payShopOrder(orderId, payload);
     },
 };

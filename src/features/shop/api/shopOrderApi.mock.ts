@@ -77,11 +77,7 @@ export async function mockCreateOrder(
 
   const order: Order = {
     id: generateOrderId(),
-    status:
-      payload.form.paymentMethod === 'card' ||
-      payload.form.paymentMethod === 'sbp'
-        ? 'paid'
-        : 'created',
+    status: 'created',
     items: detailedItems,
     totalPrice,
     deliveryMethod: payload.form.deliveryMethod,
@@ -102,6 +98,43 @@ export async function mockGetOrderById(
 ): Promise<Order | null> {
   const orders = readStoredOrders();
   return orders.find((order) => order.id === orderId) ?? null;
+}
+
+export async function mockPayShopOrder(
+  orderId: string,
+  paymentMethod: 'card' | 'sbp',
+): Promise<Order> {
+  const orders = readStoredOrders();
+  const index = orders.findIndex((order) => order.id === orderId);
+
+  if (index === -1) {
+    throw new Error('Заказ не найден.');
+  }
+
+  const current = orders[index];
+
+  if (current.status === 'cancelled') {
+    throw new Error('Этот заказ отменён.');
+  }
+
+  if (current.status === 'paid') {
+    throw new Error('Заказ уже оплачен.');
+  }
+
+  if (current.paymentMethod === 'cash') {
+    throw new Error('Для этого заказа предусмотрена оплата при получении.');
+  }
+
+  const updated: Order = {
+    ...current,
+    status: 'paid',
+    paymentMethod,
+  };
+
+  orders[index] = updated;
+  writeStoredOrders(orders);
+
+  return updated;
 }
 
 export async function mockCancelOrder(

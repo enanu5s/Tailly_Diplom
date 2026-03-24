@@ -5,3 +5,4 @@ export * from './ui/ShopCartPage';
 export * from './ui/ShopFavoritesPage';
 export * from './ui/ShopCheckoutPage';
 export * from './ui/ShopOrderResultPage';
+export * from './ui/ShopPaymentPage';
