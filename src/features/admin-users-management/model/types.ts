@@ -26,6 +26,15 @@ export type UpdateUserBlockStatusPayload = {
   isPermanentBlock?: boolean;
 };
 
+/** Профиль: ФИО; slug — только для роли specialist (публичный адрес профиля). */
+export type UpdateManagedUserProfilePayload = {
+  userId: string;
+  firstName: string;
+  lastName: string;
+  middleName?: string;
+  specialistSlug?: string;
+};
+
 export class AdminUsersManagementError extends Error {
   constructor(message: string) {
     super(message);

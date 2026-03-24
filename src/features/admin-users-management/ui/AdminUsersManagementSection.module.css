@@ -96,6 +96,12 @@
   gap: 8px;
 }
 
+.fieldWide {
+  display: grid;
+  gap: 8px;
+  grid-column: 1 / -1;
+}
+
 .fieldLabel {
   font-size: 14px;
   font-weight: 700;
@@ -222,11 +228,23 @@
 
 .cardActions {
   display: flex;
-  justify-content: flex-end;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.cardActionsRisk {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  margin-left: auto;
 }
 
 .secondaryButton,
 .dangerButton,
+.editButton,
+.primaryButton,
 .modalClose,
 .quickButton {
   min-height: 44px;
@@ -240,10 +258,18 @@
   padding: 0 18px;
 }
 
-.secondaryButton {
+.secondaryButton,
+.editButton {
   border: 1px solid #cbd5e1;
   background: #ffffff;
   color: #0f172a;
+}
+
+.primaryButton {
+  border: none;
+  background: #6366f1;
+  color: #ffffff;
+  box-shadow: 0 14px 28px rgba(99, 102, 241, 0.22);
 }
 
 .dangerButton {
@@ -261,6 +287,8 @@
 
 .secondaryButton:disabled,
 .dangerButton:disabled,
+.editButton:disabled,
+.primaryButton:disabled,
 .modalClose:disabled,
 .quickButton:disabled {
   cursor: not-allowed;
@@ -343,6 +371,19 @@
   line-height: 1.55;
 }
 
+.modalHint {
+  margin: 8px 0 0;
+  font-size: 14px;
+  color: #64748b;
+  line-height: 1.5;
+}
+
+.fieldHelp {
+  font-size: 13px;
+  color: #64748b;
+  line-height: 1.45;
+}
+
 .formGrid {
   display: grid;
   grid-template-columns: repeat(2, minmax(0, 1fr));
@@ -367,6 +408,10 @@
   .metaGrid,
   .formGrid {
     grid-template-columns: 1fr;
+  }
+
+  .fieldWide {
+    grid-column: auto;
   }
 
   .badges {

@@ -3,8 +3,8 @@
 import { observer } from 'mobx-react-lite';
 import { useEffect } from 'react';
 
-import { adminUsersManagementStore } from '../model/adminUsersManagementStore';
 import styles from './AdminUsersManagementSection.module.css';
+import { adminUsersManagementStore } from '../model/adminUsersManagementStore';
 
 import type { ReactElement } from 'react';
 
@@ -64,8 +64,10 @@ export const AdminUsersManagementSection = observer(
 
             <p className={styles.subtitle}>
               Здесь можно просматривать клиентов и специалистов, искать
-              пользователей по данным аккаунта и управлять блокировкой с
-              указанием причины и срока.
+              пользователей по данным аккаунта, править ФИО и (для специалистов)
+              публичный slug профиля, а также управлять блокировкой с указанием
+              причины и срока. Email и роль меняются только через отдельные
+              процедуры.
             </p>
           </div>
 
@@ -117,7 +119,7 @@ export const AdminUsersManagementSection = observer(
           </div>
         </div>
 
-        {store.changeError ? (
+        {store.changeError && !store.isEditModalOpen ? (
           <div className={styles.errorBanner}>{store.changeError}</div>
         ) : null}
 
@@ -233,35 +235,170 @@ export const AdminUsersManagementSection = observer(
                     </div>
 
                     <div className={styles.cardActions}>
-                      {user.isBlocked ? (
-                        <button
-                          className={styles.secondaryButton}
-                          type="button"
-                          disabled={store.changingUserId === user.id}
-                          onClick={() => {
-                            void store.unblockUser(user);
-                          }}
-                        >
-                          {store.changingUserId === user.id
-                            ? 'Сохраняем...'
-                            : 'Разблокировать'}
-                        </button>
-                      ) : (
-                        <button
-                          className={styles.dangerButton}
-                          type="button"
-                          disabled={store.changingUserId === user.id}
-                          onClick={() => store.openBlockModal(user)}
-                        >
-                          Заблокировать
-                        </button>
-                      )}
+                      <button
+                        className={styles.editButton}
+                        type="button"
+                        disabled={
+                          store.changingUserId === user.id ||
+                          store.editingUserId === user.id
+                        }
+                        onClick={() => store.openEditModal(user)}
+                      >
+                        Редактировать
+                      </button>
+
+                      <div className={styles.cardActionsRisk}>
+                        {user.isBlocked ? (
+                          <button
+                            className={styles.secondaryButton}
+                            type="button"
+                            disabled={store.changingUserId === user.id}
+                            onClick={() => {
+                              void store.unblockUser(user);
+                            }}
+                          >
+                            {store.changingUserId === user.id
+                              ? 'Сохраняем...'
+                              : 'Разблокировать'}
+                          </button>
+                        ) : (
+                          <button
+                            className={styles.dangerButton}
+                            type="button"
+                            disabled={store.changingUserId === user.id}
+                            onClick={() => store.openBlockModal(user)}
+                          >
+                            Заблокировать
+                          </button>
+                        )}
+                      </div>
                     </div>
                   </article>
                 ))}
               </div>
             )}
           </>
+        ) : null}
+
+        {store.isEditModalOpen && store.editTargetUser ? (
+          <div className={styles.overlay}>
+            <div className={styles.modal}>
+              <div className={styles.modalHeader}>
+                <div>
+                  <h2 className={styles.modalTitle}>
+                    Редактирование пользователя
+                  </h2>
+
+                  <p className={styles.modalSubtitle}>
+                    {store.editTargetUser.email}
+                  </p>
+
+                  <p className={styles.modalHint}>
+                    Роль: {getRoleLabel(store.editTargetUser.role)}. Почту здесь
+                    изменить нельзя.
+                  </p>
+                </div>
+
+                <button
+                  className={styles.modalClose}
+                  type="button"
+                  onClick={() => store.closeEditModal()}
+                >
+                  Закрыть
+                </button>
+              </div>
+
+              {store.changeError ? (
+                <div className={styles.errorBanner}>{store.changeError}</div>
+              ) : null}
+
+              <div className={styles.formGrid}>
+                <label className={styles.field}>
+                  <span className={styles.fieldLabel}>Фамилия</span>
+
+                  <input
+                    className={styles.input}
+                    value={store.editLastName}
+                    onChange={(event) =>
+                      store.setEditLastName(event.target.value)
+                    }
+                    placeholder="Фамилия"
+                  />
+                </label>
+
+                <label className={styles.field}>
+                  <span className={styles.fieldLabel}>Имя</span>
+
+                  <input
+                    className={styles.input}
+                    value={store.editFirstName}
+                    onChange={(event) =>
+                      store.setEditFirstName(event.target.value)
+                    }
+                    placeholder="Имя"
+                  />
+                </label>
+
+                <label className={styles.fieldWide}>
+                  <span className={styles.fieldLabel}>Отчество</span>
+
+                  <input
+                    className={styles.input}
+                    value={store.editMiddleName}
+                    onChange={(event) =>
+                      store.setEditMiddleName(event.target.value)
+                    }
+                    placeholder="Необязательно"
+                  />
+                </label>
+
+                {store.editTargetUser.role === 'specialist' ? (
+                  <label className={styles.fieldWide}>
+                    <span className={styles.fieldLabel}>
+                      Slug профиля специалиста
+                    </span>
+
+                    <input
+                      className={styles.input}
+                      value={store.editSpecialistSlug}
+                      onChange={(event) =>
+                        store.setEditSpecialistSlug(event.target.value)
+                      }
+                      placeholder="например, maria-ivanova"
+                      autoComplete="off"
+                    />
+
+                    <span className={styles.fieldHelp}>
+                      Латиница в нижнем регистре, цифры и дефисы. Используется в
+                      URL публичной страницы специалиста.
+                    </span>
+                  </label>
+                ) : null}
+              </div>
+
+              <div className={styles.modalActions}>
+                <button
+                  className={styles.secondaryButton}
+                  type="button"
+                  onClick={() => store.closeEditModal()}
+                  disabled={Boolean(store.editingUserId)}
+                >
+                  Отмена
+                </button>
+
+                <button
+                  className={styles.primaryButton}
+                  type="button"
+                  onClick={() => {
+                    void store.saveEditedProfile();
+                  }}
+                  disabled={!store.canSubmitEdit}
+                >
+                  {store.editingUserId ? 'Сохраняем...' : 'Сохранить'}
+                </button>
+              </div>
+            </div>
+          </div>
         ) : null}
 
         {store.isBlockModalOpen && store.selectedUser ? (

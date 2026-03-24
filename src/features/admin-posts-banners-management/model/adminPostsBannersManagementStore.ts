@@ -14,6 +14,100 @@ import type {
 
 type ManagementTab = "posts" | "banners";
 
+export type AdminPostsListSort =
+  | "updated_desc"
+  | "updated_asc"
+  | "title_asc"
+  | "title_desc"
+  | "published_desc";
+
+export type AdminBannersListSort =
+  | "updated_desc"
+  | "updated_asc"
+  | "title_asc"
+  | "title_desc"
+  | "starts_desc"
+  | "starts_asc";
+
+type PostStatusFilter = "all" | AdminPostStatus;
+type BannerStatusFilter = "all" | AdminBannerStatus;
+type BannerPlacementFilter = "all" | BannerPlacement;
+
+function compareRu(a: string, b: string): number {
+  return a.localeCompare(b, "ru", { sensitivity: "base" });
+}
+
+function sortPostsList(
+  list: AdminManagedPost[],
+  sort: AdminPostsListSort
+): AdminManagedPost[] {
+  const next = [...list];
+
+  switch (sort) {
+    case "updated_asc":
+      return next.sort(
+        (a, b) =>
+          new Date(a.updatedAt).getTime() - new Date(b.updatedAt).getTime()
+      );
+    case "title_asc":
+      return next.sort((a, b) => compareRu(a.title, b.title));
+    case "title_desc":
+      return next.sort((a, b) => compareRu(b.title, a.title));
+    case "published_desc":
+      return next.sort((a, b) => {
+        const ta = a.publishedAt ? new Date(a.publishedAt).getTime() : 0;
+        const tb = b.publishedAt ? new Date(b.publishedAt).getTime() : 0;
+
+        return tb - ta;
+      });
+    case "updated_desc":
+    default:
+      return next.sort(
+        (a, b) =>
+          new Date(b.updatedAt).getTime() - new Date(a.updatedAt).getTime()
+      );
+  }
+}
+
+function sortBannersList(
+  list: AdminManagedBanner[],
+  sort: AdminBannersListSort
+): AdminManagedBanner[] {
+  const next = [...list];
+
+  switch (sort) {
+    case "updated_asc":
+      return next.sort(
+        (a, b) =>
+          new Date(a.updatedAt).getTime() - new Date(b.updatedAt).getTime()
+      );
+    case "title_asc":
+      return next.sort((a, b) => compareRu(a.title, b.title));
+    case "title_desc":
+      return next.sort((a, b) => compareRu(b.title, a.title));
+    case "starts_asc":
+      return next.sort((a, b) => {
+        const ta = a.startsAt ? new Date(a.startsAt).getTime() : 0;
+        const tb = b.startsAt ? new Date(b.startsAt).getTime() : 0;
+
+        return ta - tb;
+      });
+    case "starts_desc":
+      return next.sort((a, b) => {
+        const ta = a.startsAt ? new Date(a.startsAt).getTime() : 0;
+        const tb = b.startsAt ? new Date(b.startsAt).getTime() : 0;
+
+        return tb - ta;
+      });
+    case "updated_desc":
+    default:
+      return next.sort(
+        (a, b) =>
+          new Date(b.updatedAt).getTime() - new Date(a.updatedAt).getTime()
+      );
+  }
+}
+
 type PostFormState = {
   id?: string;
   title: string;
@@ -117,6 +211,13 @@ class AdminPostsBannersManagementStore {
   activeTab: ManagementTab = "posts";
   search = "";
 
+  postStatusFilter: PostStatusFilter = "all";
+  postSort: AdminPostsListSort = "updated_desc";
+
+  bannerStatusFilter: BannerStatusFilter = "all";
+  bannerPlacementFilter: BannerPlacementFilter = "all";
+  bannerSort: AdminBannersListSort = "updated_desc";
+
   isSavingPost = false;
   isSavingBanner = false;
   isUploadingPostImages = false;
@@ -143,6 +244,26 @@ class AdminPostsBannersManagementStore {
     this.search = value;
   }
 
+  setPostStatusFilter(value: PostStatusFilter): void {
+    this.postStatusFilter = value;
+  }
+
+  setPostSort(value: AdminPostsListSort): void {
+    this.postSort = value;
+  }
+
+  setBannerStatusFilter(value: BannerStatusFilter): void {
+    this.bannerStatusFilter = value;
+  }
+
+  setBannerPlacementFilter(value: BannerPlacementFilter): void {
+    this.bannerPlacementFilter = value;
+  }
+
+  setBannerSort(value: AdminBannersListSort): void {
+    this.bannerSort = value;
+  }
+
   resetFeedback(): void {
     this.actionError = "";
     this.successMessage = "";
@@ -151,31 +272,56 @@ class AdminPostsBannersManagementStore {
   get filteredPosts(): AdminManagedPost[] {
     const query = this.search.trim().toLowerCase();
 
-    if (!query) {
-      return this.posts;
-    }
+    const base = this.posts.filter((post) => {
+      if (
+        this.postStatusFilter !== "all" &&
+        post.status !== this.postStatusFilter
+      ) {
+        return false;
+      }
 
-    return this.posts.filter((post) =>
-      `${post.title} ${post.content} ${post.tags.join(" ")}`
+      if (!query) {
+        return true;
+      }
+
+      return `${post.title} ${post.content} ${post.tags.join(" ")}`
         .toLowerCase()
-        .includes(query)
-    );
+        .includes(query);
+    });
+
+    return sortPostsList(base, this.postSort);
   }
 
   get filteredBanners(): AdminManagedBanner[] {
     const query = this.search.trim().toLowerCase();
 
-    if (!query) {
-      return this.banners;
-    }
+    const base = this.banners.filter((banner) => {
+      if (
+        this.bannerStatusFilter !== "all" &&
+        banner.status !== this.bannerStatusFilter
+      ) {
+        return false;
+      }
 
-    return this.banners.filter((banner) =>
-      `${banner.title} ${banner.description} ${banner.placement} ${
-        banner.linkUrl ?? ""
-      }`
+      if (
+        this.bannerPlacementFilter !== "all" &&
+        banner.placement !== this.bannerPlacementFilter
+      ) {
+        return false;
+      }
+
+      if (!query) {
+        return true;
+      }
+
+      return `${banner.title} ${banner.description} ${banner.placement} ${
+        banner.linkTarget
+      } ${banner.linkUrl ?? ""} ${banner.linkedPostId ?? ""}`
         .toLowerCase()
-        .includes(query)
-    );
+        .includes(query);
+    });
+
+    return sortBannersList(base, this.bannerSort);
   }
 
   get publishedPostsCount(): number {

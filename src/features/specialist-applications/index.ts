@@ -2,6 +2,7 @@
 export { specialistApplicationsApi } from './api/specialistApplicationsApi';
 export { specialistApplicationsService } from './service/specialistApplicationsService';
 export { specialistApplicationsModerationStore } from './model/specialistApplicationsModerationStore';
+export type { SpecialistApplicationsStatusFilter } from './model/specialistApplicationsModerationStore';
 
 export type {
   ApproveSpecialistApplicationPayload,

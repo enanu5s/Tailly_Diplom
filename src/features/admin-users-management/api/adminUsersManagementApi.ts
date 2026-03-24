@@ -5,9 +5,12 @@ import { request } from '@/shared/api/http';
 import {
   mockGetManagedUsers,
   mockUpdateManagedUserBlockedStatus,
+  mockUpdateManagedUserProfile,
 } from './adminUsersManagementApi.mock';
+
 import type {
   ManagedUser,
+  UpdateManagedUserProfilePayload,
   UpdateUserBlockStatusPayload,
 } from '../model/types';
 
@@ -35,6 +38,23 @@ async function realUpdateManagedUserBlockedStatus(
   );
 }
 
+async function realUpdateManagedUserProfile(
+  payload: UpdateManagedUserProfilePayload,
+): Promise<ManagedUser> {
+  return request<ManagedUser>(
+    `${API_BASE_URL}/admin/users/${payload.userId}/profile`,
+    {
+      method: 'PATCH',
+      body: {
+        firstName: payload.firstName,
+        lastName: payload.lastName,
+        middleName: payload.middleName,
+        specialistSlug: payload.specialistSlug,
+      },
+    },
+  );
+}
+
 export const adminUsersManagementApi = {
   async getUsers(): Promise<ManagedUser[]> {
     if (USE_MOCK) {
@@ -52,5 +72,15 @@ export const adminUsersManagementApi = {
     }
 
     return realUpdateManagedUserBlockedStatus(payload);
+  },
+
+  async updateUserProfile(
+    payload: UpdateManagedUserProfilePayload,
+  ): Promise<ManagedUser> {
+    if (USE_MOCK) {
+      return mockUpdateManagedUserProfile(payload);
+    }
+
+    return realUpdateManagedUserProfile(payload);
   },
 };

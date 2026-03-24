@@ -10,8 +10,20 @@ import styles from './SpecialistApplicationsModerationSection.module.css';
 import { specialistApplicationsModerationStore } from '../model/specialistApplicationsModerationStore';
 import { createEmptySpecialistApplicationQuestionnaire } from '../model/types';
 
-import type { ReactElement } from 'react';
+import type { SpecialistApplicationsStatusFilter } from '../model/specialistApplicationsModerationStore';
 import type { SpecialistApplication } from '../model/types';
+import type { ReactElement } from 'react';
+
+const STATUS_FILTER_OPTIONS: {
+  value: SpecialistApplicationsStatusFilter;
+  label: string;
+}[] = [
+  { value: 'all', label: 'Все статусы' },
+  { value: 'pending_review', label: 'На проверке' },
+  { value: 'interview_assigned', label: 'Собеседование назначено' },
+  { value: 'approved', label: 'Одобрено' },
+  { value: 'rejected', label: 'Отклонено' },
+];
 
 function formatDate(value?: string | null): string {
   if (!value) {
@@ -108,7 +120,8 @@ export const SpecialistApplicationsModerationSection = observer(
             <p className={styles.subtitle}>
               Здесь отображаются заявки, отправленные с публичной страницы “Стать
               специалистом”. Администратор проверяет анкету, назначает
-              собеседование, одобряет или отклоняет заявку.
+              собеседование, одобряет или отклоняет заявку. Список можно сузить
+              поиском и фильтром по статусу.
             </p>
           </div>
 
@@ -144,11 +157,61 @@ export const SpecialistApplicationsModerationSection = observer(
                 <h2 className={styles.sectionTitle}>Очередь заявок</h2>
               </div>
 
-              {store.sortedApplications.length === 0 ? (
+              {store.applications.length > 0 ? (
+                <>
+                  <div className={styles.filters}>
+                    <label className={styles.searchField}>
+                      <span className={styles.filterLabel}>Поиск</span>
+                      <input
+                        className={styles.searchInput}
+                        type="search"
+                        value={store.searchQuery}
+                        onChange={(event) => {
+                          store.setSearchQuery(event.target.value);
+                        }}
+                        placeholder="Имя, email, телефон, город…"
+                        autoComplete="off"
+                      />
+                    </label>
+
+                    <label className={styles.filterField}>
+                      <span className={styles.filterLabel}>Статус</span>
+                      <select
+                        className={styles.filterSelect}
+                        value={store.statusFilter}
+                        onChange={(event) => {
+                          store.setStatusFilter(
+                            event.target.value as SpecialistApplicationsStatusFilter,
+                          );
+                        }}
+                      >
+                        {STATUS_FILTER_OPTIONS.map((option) => (
+                          <option key={option.value} value={option.value}>
+                            {option.label}
+                          </option>
+                        ))}
+                      </select>
+                    </label>
+                  </div>
+
+                  <p className={styles.filterHint}>
+                    {store.filteredSortedApplications.length ===
+                    store.applications.length
+                      ? `${store.applications.length} заявок`
+                      : `Показано: ${store.filteredSortedApplications.length} из ${store.applications.length}`}
+                  </p>
+                </>
+              ) : null}
+
+              {store.applications.length === 0 ? (
                 <div className={styles.emptyCard}>Пока нет новых заявок.</div>
+              ) : store.filteredSortedApplications.length === 0 ? (
+                <div className={styles.emptyCard}>
+                  Нет заявок по заданным условиям поиска и фильтра.
+                </div>
               ) : (
                 <div className={styles.applicationList}>
-                  {store.sortedApplications.map((item) => (
+                  {store.filteredSortedApplications.map((item) => (
                     <button
                       key={item.id}
                       type="button"

@@ -144,9 +144,12 @@ class AdminProfileStore {
         lastName: this.form.lastName.trim(),
         middleName: this.form.middleName.trim() || undefined,
         phone: this.form.phone.trim() || undefined,
-        position: this.form.position.trim() || undefined,
-        department: this.form.department.trim() || undefined,
       };
+
+      if (this.profile.role === 'super_admin') {
+        payload.position = this.form.position.trim() || undefined;
+        payload.department = this.form.department.trim() || undefined;
+      }
 
       const updatedProfile = await adminProfileService.updateProfile(payload);
 

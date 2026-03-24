@@ -70,7 +70,8 @@ export const AdminProfileSection = observer((): ReactElement => {
           <p className={styles.subtitle}>
             Здесь можно просматривать и редактировать персональные данные
             администратора. Email, дата рождения и роль заполняются системой и
-            не редактируются в этом разделе.
+            не редактируются в этом разделе. Изменить должность и отдел может
+            только главный администратор.
           </p>
         </div>
 
@@ -208,29 +209,33 @@ export const AdminProfileSection = observer((): ReactElement => {
               />
             </label>
 
-            <label className={styles.field}>
-              <span className={styles.fieldLabel}>Должность</span>
-              <input
-                className={styles.input}
-                value={store.form.position}
-                onChange={(event) =>
-                  store.setFormField('position', event.target.value)
-                }
-                placeholder="Администратор поддержки"
-              />
-            </label>
+            {profile.role === 'super_admin' ? (
+              <>
+                <label className={styles.field}>
+                  <span className={styles.fieldLabel}>Должность</span>
+                  <input
+                    className={styles.input}
+                    value={store.form.position}
+                    onChange={(event) =>
+                      store.setFormField('position', event.target.value)
+                    }
+                    placeholder="Администратор поддержки"
+                  />
+                </label>
 
-            <label className={styles.field}>
-              <span className={styles.fieldLabel}>Отдел</span>
-              <input
-                className={styles.input}
-                value={store.form.department}
-                onChange={(event) =>
-                  store.setFormField('department', event.target.value)
-                }
-                placeholder="Поддержка"
-              />
-            </label>
+                <label className={styles.field}>
+                  <span className={styles.fieldLabel}>Отдел</span>
+                  <input
+                    className={styles.input}
+                    value={store.form.department}
+                    onChange={(event) =>
+                      store.setFormField('department', event.target.value)
+                    }
+                    placeholder="Поддержка"
+                  />
+                </label>
+              </>
+            ) : null}
           </div>
 
           {store.saveError ? (

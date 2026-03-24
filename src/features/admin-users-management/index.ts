@@ -5,5 +5,6 @@ export { adminUsersManagementStore } from './model/adminUsersManagementStore';
 export type {
   ManagedUser,
   ManagedUserRole,
+  UpdateManagedUserProfilePayload,
   UpdateUserBlockStatusPayload,
 } from './model/types';

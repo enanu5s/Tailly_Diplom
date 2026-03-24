@@ -2,6 +2,10 @@
 export { AdminPostsBannersManagementSection } from './ui/AdminPostsBannersManagementSection';
 export { adminPostsBannersManagementStore } from './model/adminPostsBannersManagementStore';
 export type {
+  AdminBannersListSort,
+  AdminPostsListSort,
+} from './model/adminPostsBannersManagementStore';
+export type {
   AdminManagedBanner,
   AdminManagedPost,
   AdminBannerStatus,

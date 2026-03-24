@@ -2,9 +2,13 @@
 import { observer } from "mobx-react-lite";
 import { useEffect, type ChangeEvent, type ReactElement } from "react";
 
-import { adminPostsBannersManagementStore } from "../model/adminPostsBannersManagementStore";
-
 import styles from "./AdminPostsBannersManagementSection.module.css";
+import {
+  adminPostsBannersManagementStore,
+  type AdminBannersListSort,
+  type AdminPostsListSort,
+} from "../model/adminPostsBannersManagementStore";
+
 
 import type {
   AdminBannerStatus,
@@ -74,6 +78,23 @@ function getPlacementLabel(placement: BannerPlacement): string {
   }
 }
 
+const POST_SORT_OPTIONS: { value: AdminPostsListSort; label: string }[] = [
+  { value: "updated_desc", label: "Сначала недавно обновлённые" },
+  { value: "updated_asc", label: "Сначала давно обновлённые" },
+  { value: "title_asc", label: "Заголовок А → Я" },
+  { value: "title_desc", label: "Заголовок Я → А" },
+  { value: "published_desc", label: "По дате публикации (новые)" },
+];
+
+const BANNER_SORT_OPTIONS: { value: AdminBannersListSort; label: string }[] = [
+  { value: "updated_desc", label: "Сначала недавно обновлённые" },
+  { value: "updated_asc", label: "Сначала давно обновлённые" },
+  { value: "title_asc", label: "Название А → Я" },
+  { value: "title_desc", label: "Название Я → А" },
+  { value: "starts_desc", label: "По началу показа (сначала поздние)" },
+  { value: "starts_asc", label: "По началу показа (сначала ранние)" },
+];
+
 function getBannerLinkTargetLabel(linkTarget: BannerLinkTarget): string {
   switch (linkTarget) {
     case "home":
@@ -91,12 +112,351 @@ function getBannerLinkTargetLabel(linkTarget: BannerLinkTarget): string {
   }
 }
 
+const PostEditorPanel = observer(
+  ({
+    onPostFilesChange,
+  }: {
+    onPostFilesChange: (event: ChangeEvent<HTMLInputElement>) => void;
+  }): ReactElement => {
+    const store = adminPostsBannersManagementStore;
+
+    return (
+      <div className={styles.editorPanel}>
+        <h2 className={styles.editorTitle}>
+          {store.postForm.id ? "Редактирование публикации" : "Новая публикация"}
+        </h2>
+
+        <label className={styles.field}>
+          <span>Заголовок</span>
+          <input
+            value={store.postForm.title}
+            onChange={(event) =>
+              store.setPostFormField("title", event.target.value)
+            }
+            placeholder="Введите заголовок публикации"
+          />
+        </label>
+
+        <label className={styles.field}>
+          <span>Текст</span>
+          <textarea
+            value={store.postForm.content}
+            onChange={(event) =>
+              store.setPostFormField("content", event.target.value)
+            }
+            rows={10}
+            placeholder="Введите текст публикации"
+          />
+        </label>
+
+        <div className={styles.fieldGroup}>
+          <label className={styles.field}>
+            <span>Загрузить изображения с устройства</span>
+            <input
+              type="file"
+              accept="image/*"
+              multiple
+              onChange={onPostFilesChange}
+            />
+          </label>
+
+          <label className={styles.field}>
+            <span>Добавить изображение по ссылке</span>
+            <div className={styles.inlineField}>
+              <input
+                value={store.postForm.imageUrlInput}
+                onChange={(event) =>
+                  store.setPostFormField("imageUrlInput", event.target.value)
+                }
+                placeholder="https://example.com/image.jpg"
+              />
+              <button
+                type="button"
+                className={styles.secondaryButton}
+                onClick={() => store.addPostImageUrlFromInput()}
+              >
+                Добавить
+              </button>
+            </div>
+          </label>
+        </div>
+
+        {store.isUploadingPostImages ? (
+          <div className={styles.infoBox}>Загрузка изображений...</div>
+        ) : null}
+
+        {store.postForm.imageUrls.length > 0 ? (
+          <div className={styles.galleryEditor}>
+            <span className={styles.previewLabel}>
+              Изображения публикации
+            </span>
+
+            <div className={styles.galleryGrid}>
+              {store.postForm.imageUrls.map((imageUrl) => {
+                const isCover = store.postForm.coverImageUrl === imageUrl;
+
+                return (
+                  <div key={imageUrl} className={styles.galleryCard}>
+                    <img
+                      className={styles.galleryImage}
+                      src={imageUrl}
+                      alt="Изображение публикации"
+                    />
+
+                    <div className={styles.galleryActions}>
+                      <button
+                        type="button"
+                        className={
+                          isCover
+                            ? `${styles.secondaryButton} ${styles.coverButtonActive}`
+                            : styles.secondaryButton
+                        }
+                        onClick={() => store.setPostCoverImage(imageUrl)}
+                      >
+                        {isCover ? "Обложка" : "Сделать обложкой"}
+                      </button>
+
+                      <button
+                        type="button"
+                        className={styles.dangerButton}
+                        onClick={() => store.removePostImage(imageUrl)}
+                      >
+                        Удалить
+                      </button>
+                    </div>
+                  </div>
+                );
+              })}
+            </div>
+          </div>
+        ) : null}
+
+        <label className={styles.field}>
+          <span>Теги</span>
+          <input
+            value={store.postForm.tags}
+            onChange={(event) =>
+              store.setPostFormField("tags", event.target.value)
+            }
+            placeholder="советы, уход, новости"
+          />
+        </label>
+
+        <label className={styles.field}>
+          <span>Статус</span>
+          <select
+            value={store.postForm.status}
+            onChange={(event) =>
+              store.setPostFormField(
+                "status",
+                event.target.value as AdminPostStatus
+              )
+            }
+          >
+            <option value="draft">Черновик</option>
+            <option value="published">Опубликовать</option>
+            <option value="archived">В архив</option>
+          </select>
+        </label>
+
+        <div className={styles.editorActions}>
+          <button
+            type="button"
+            className={styles.secondaryButton}
+            onClick={() => store.closePostEditor()}
+            disabled={store.isSavingPost}
+          >
+            Отмена
+          </button>
+
+          <button
+            type="button"
+            className={styles.primaryButton}
+            onClick={() => {
+              void store.savePost();
+            }}
+            disabled={store.isSavingPost}
+          >
+            {store.isSavingPost ? "Сохранение..." : "Сохранить"}
+          </button>
+        </div>
+      </div>
+    );
+  }
+);
+
+const BannerEditorPanel = observer((): ReactElement => {
+    const store = adminPostsBannersManagementStore;
+
+    return (
+      <div className={styles.editorPanel}>
+        <h2 className={styles.editorTitle}>
+          {store.bannerForm.id ? "Редактирование баннера" : "Новый баннер"}
+        </h2>
+
+        <label className={styles.field}>
+          <span>Название</span>
+          <input
+            value={store.bannerForm.title}
+            onChange={(event) =>
+              store.setBannerFormField("title", event.target.value)
+            }
+            placeholder="Введите название баннера"
+          />
+        </label>
+
+        <label className={styles.field}>
+          <span>Описание</span>
+          <textarea
+            value={store.bannerForm.description}
+            onChange={(event) =>
+              store.setBannerFormField("description", event.target.value)
+            }
+            rows={7}
+            placeholder="Короткое описание назначения баннера"
+          />
+        </label>
+
+        <label className={styles.field}>
+          <span>Изображение</span>
+          <input
+            value={store.bannerForm.imageUrl}
+            onChange={(event) =>
+              store.setBannerFormField("imageUrl", event.target.value)
+            }
+            placeholder="/images/banner-home.png"
+          />
+        </label>
+
+        <label className={styles.field}>
+          <span>Размещение</span>
+          <select
+            value={store.bannerForm.placement}
+            onChange={(event) =>
+              store.setBannerFormField(
+                "placement",
+                event.target.value as BannerPlacement
+              )
+            }
+          >
+            <option value="home_hero">Главная</option>
+            <option value="posts">Посты</option>
+            <option value="specialists">Специалисты</option>
+            <option value="shop">Магазин</option>
+          </select>
+        </label>
+
+        <label className={styles.field}>
+          <span>Куда ведёт баннер</span>
+          <select
+            value={store.bannerForm.linkTarget}
+            onChange={(event) =>
+              store.setBannerFormField(
+                "linkTarget",
+                event.target.value as BannerLinkTarget | ""
+              )
+            }
+          >
+            <option value="">Выберите страницу</option>
+            <option value="home">Главная страница</option>
+            <option value="posts">Конкретный пост</option>
+            <option value="specialists">Каталог специалистов</option>
+            <option value="shop">Магазин</option>
+            <option value="profile">Профиль пользователя</option>
+          </select>
+        </label>
+
+        {store.bannerForm.linkTarget === "posts" ? (
+          <label className={styles.field}>
+            <span>Пост для баннера</span>
+            <select
+              value={store.bannerForm.linkedPostId}
+              onChange={(event) =>
+                store.setBannerFormField("linkedPostId", event.target.value)
+              }
+            >
+              <option value="">Выберите опубликованный пост</option>
+              {store.posts
+                .filter((post) => post.status === "published")
+                .map((post) => (
+                  <option key={post.id} value={post.id}>
+                    {post.title}
+                  </option>
+                ))}
+            </select>
+          </label>
+        ) : null}
+
+        <label className={styles.field}>
+          <span>Статус</span>
+          <select
+            value={store.bannerForm.status}
+            onChange={(event) =>
+              store.setBannerFormField(
+                "status",
+                event.target.value as AdminBannerStatus
+              )
+            }
+          >
+            <option value="draft">Черновик</option>
+            <option value="published">Активный</option>
+            <option value="archived">В архив</option>
+          </select>
+        </label>
+
+        <label className={styles.field}>
+          <span>Начало показа</span>
+          <input
+            type="datetime-local"
+            value={store.bannerForm.startsAt}
+            onChange={(event) =>
+              store.setBannerFormField("startsAt", event.target.value)
+            }
+          />
+        </label>
+
+        <label className={styles.field}>
+          <span>Окончание показа</span>
+          <input
+            type="datetime-local"
+            value={store.bannerForm.endsAt}
+            onChange={(event) =>
+              store.setBannerFormField("endsAt", event.target.value)
+            }
+          />
+        </label>
+
+        <div className={styles.editorActions}>
+          <button
+            type="button"
+            className={styles.secondaryButton}
+            onClick={() => store.closeBannerEditor()}
+            disabled={store.isSavingBanner}
+          >
+            Отмена
+          </button>
+
+          <button
+            type="button"
+            className={styles.primaryButton}
+            onClick={() => {
+              void store.saveBanner();
+            }}
+            disabled={store.isSavingBanner}
+          >
+            {store.isSavingBanner ? "Сохранение..." : "Сохранить"}
+          </button>
+        </div>
+      </div>
+    );
+});
+
 export const AdminPostsBannersManagementSection = observer((): ReactElement => {
   const store = adminPostsBannersManagementStore;
 
   useEffect(() => {
     void store.load();
-  }, []);
+  }, [store]);
 
   const handlePostFilesChange = (
     event: ChangeEvent<HTMLInputElement>
@@ -104,6 +464,22 @@ export const AdminPostsBannersManagementSection = observer((): ReactElement => {
     void store.addPostImagesFromFiles(event.target.files);
     event.target.value = "";
   };
+
+  const editingPostInFilteredList =
+    Boolean(store.postForm.id) &&
+    store.filteredPosts.some((p) => p.id === store.postForm.id);
+
+  const showPostEditorFloating =
+    store.isPostEditorOpen &&
+    (!store.postForm.id || !editingPostInFilteredList);
+
+  const editingBannerInFilteredList =
+    Boolean(store.bannerForm.id) &&
+    store.filteredBanners.some((b) => b.id === store.bannerForm.id);
+
+  const showBannerEditorFloating =
+    store.isBannerEditorOpen &&
+    (!store.bannerForm.id || !editingBannerInFilteredList);
 
   return (
     <section className={styles.section}>
@@ -114,7 +490,8 @@ export const AdminPostsBannersManagementSection = observer((): ReactElement => {
           <p className={styles.description}>
             Здесь можно управлять публикациями и баннерами: создавать новые
             материалы, редактировать текущие, переводить их в черновики или
-            архив.
+            архив. Список можно сузить поиском, фильтрами по статусу и размещению
+            (для баннеров) и изменить порядок сортировки.
           </p>
         </div>
 
@@ -163,44 +540,153 @@ export const AdminPostsBannersManagementSection = observer((): ReactElement => {
       </div>
 
       <div className={styles.toolbar}>
-        <div className={styles.tabs}>
-          <button
-            type="button"
-            className={
-              store.activeTab === "posts"
-                ? `${styles.tabButton} ${styles.tabButtonActive}`
-                : styles.tabButton
-            }
-            onClick={() => store.setActiveTab("posts")}
-          >
-            Публикации
-          </button>
+        <div className={styles.toolbarTop}>
+          <div className={styles.tabs}>
+            <button
+              type="button"
+              className={
+                store.activeTab === "posts"
+                  ? `${styles.tabButton} ${styles.tabButtonActive}`
+                  : styles.tabButton
+              }
+              onClick={() => store.setActiveTab("posts")}
+            >
+              Публикации
+            </button>
 
-          <button
-            type="button"
-            className={
-              store.activeTab === "banners"
-                ? `${styles.tabButton} ${styles.tabButtonActive}`
-                : styles.tabButton
-            }
-            onClick={() => store.setActiveTab("banners")}
-          >
-            Баннеры
-          </button>
+            <button
+              type="button"
+              className={
+                store.activeTab === "banners"
+                  ? `${styles.tabButton} ${styles.tabButtonActive}`
+                  : styles.tabButton
+              }
+              onClick={() => store.setActiveTab("banners")}
+            >
+              Баннеры
+            </button>
+          </div>
+
+          <label className={styles.searchField}>
+            <span>Поиск</span>
+            <input
+              value={store.search}
+              onChange={(event) => store.setSearch(event.target.value)}
+              placeholder={
+                store.activeTab === "posts"
+                  ? "Заголовок, текст, теги"
+                  : "Название, описание, размещение, ссылка"
+              }
+              type="search"
+              autoComplete="off"
+            />
+          </label>
         </div>
 
-        <label className={styles.searchField}>
-          <span>Поиск</span>
-          <input
-            value={store.search}
-            onChange={(event) => store.setSearch(event.target.value)}
-            placeholder={
-              store.activeTab === "posts"
-                ? "Поиск по заголовку, тексту или тегам"
-                : "Поиск по названию, описанию или размещению"
-            }
-          />
-        </label>
+        {store.activeTab === "posts" ? (
+          <div className={styles.filterRow}>
+            <label className={styles.filterField}>
+              <span>Статус</span>
+              <select
+                className={styles.filterSelect}
+                value={store.postStatusFilter}
+                onChange={(event) =>
+                  store.setPostStatusFilter(
+                    event.target.value as
+                      | "all"
+                      | AdminPostStatus
+                  )
+                }
+              >
+                <option value="all">Все</option>
+                <option value="draft">Черновик</option>
+                <option value="published">Опубликован</option>
+                <option value="archived">В архиве</option>
+              </select>
+            </label>
+
+            <label className={styles.filterField}>
+              <span>Сортировка</span>
+              <select
+                className={styles.filterSelect}
+                value={store.postSort}
+                onChange={(event) =>
+                  store.setPostSort(event.target.value as AdminPostsListSort)
+                }
+              >
+                {POST_SORT_OPTIONS.map((opt) => (
+                  <option key={opt.value} value={opt.value}>
+                    {opt.label}
+                  </option>
+                ))}
+              </select>
+            </label>
+          </div>
+        ) : (
+          <div className={styles.filterRow}>
+            <label className={styles.filterField}>
+              <span>Статус</span>
+              <select
+                className={styles.filterSelect}
+                value={store.bannerStatusFilter}
+                onChange={(event) =>
+                  store.setBannerStatusFilter(
+                    event.target.value as "all" | AdminBannerStatus
+                  )
+                }
+              >
+                <option value="all">Все</option>
+                <option value="draft">Черновик</option>
+                <option value="published">Активен</option>
+                <option value="archived">В архиве</option>
+              </select>
+            </label>
+
+            <label className={styles.filterField}>
+              <span>Размещение</span>
+              <select
+                className={styles.filterSelect}
+                value={store.bannerPlacementFilter}
+                onChange={(event) =>
+                  store.setBannerPlacementFilter(
+                    event.target.value as "all" | BannerPlacement
+                  )
+                }
+              >
+                <option value="all">Все площадки</option>
+                <option value="home_hero">{getPlacementLabel("home_hero")}</option>
+                <option value="posts">{getPlacementLabel("posts")}</option>
+                <option value="specialists">
+                  {getPlacementLabel("specialists")}
+                </option>
+                <option value="shop">{getPlacementLabel("shop")}</option>
+              </select>
+            </label>
+
+            <label className={styles.filterField}>
+              <span>Сортировка</span>
+              <select
+                className={styles.filterSelect}
+                value={store.bannerSort}
+                onChange={(event) =>
+                  store.setBannerSort(event.target.value as AdminBannersListSort)
+                }
+              >
+                {BANNER_SORT_OPTIONS.map((opt) => (
+                  <option key={opt.value} value={opt.value}>
+                    {opt.label}
+                  </option>
+                ))}
+              </select>
+            </label>
+          </div>
+        )}
+
+        <p className={styles.filterMeta}>
+          {store.activeTab === "posts"
+            ? `Показано публикаций: ${store.filteredPosts.length} из ${store.posts.length}`
+            : `Показано баннеров: ${store.filteredBanners.length} из ${store.banners.length}`}
+        </p>
       </div>
 
       {store.actionError ? (
@@ -221,14 +707,50 @@ export const AdminPostsBannersManagementSection = observer((): ReactElement => {
 
       {!store.isLoading && !store.loadError && store.activeTab === "posts" ? (
         <div className={styles.contentGrid}>
-          <div className={styles.listColumn}>
-            {store.filteredPosts.length === 0 ? (
-              <div className={styles.emptyState}>
-                Публикации по текущему фильтру не найдены.
+          {showPostEditorFloating ? (
+            <div className={styles.gridRow}>
+              <div className={styles.cardColumn}>
+                {store.postForm.id ? (
+                  <div className={styles.editorRowPlaceholder}>
+                    <span className={styles.editorRowPlaceholderTitle}>
+                      Редактирование
+                    </span>
+                    <p className={styles.editorRowPlaceholderText}>
+                      Эта публикация сейчас не попадает под фильтры списка.
+                      Карточка скрыта — форма справа относится к выбранной
+                      записи.
+                    </p>
+                  </div>
+                ) : (
+                  <div className={styles.editorRowPlaceholder}>
+                    <span className={styles.editorRowPlaceholderTitle}>
+                      Новая публикация
+                    </span>
+                    <p className={styles.editorRowPlaceholderText}>
+                      Заполните форму справа. После сохранения материал
+                      появится в списке.
+                    </p>
+                  </div>
+                )}
               </div>
-            ) : (
-              store.filteredPosts.map((post: AdminManagedPost) => (
-                <article key={post.id} className={styles.card}>
+              <div className={styles.editorColumn}>
+                <PostEditorPanel
+                  onPostFilesChange={handlePostFilesChange}
+                />
+              </div>
+            </div>
+          ) : null}
+
+          {store.filteredPosts.length === 0 && !store.isPostEditorOpen ? (
+            <div className={styles.emptyStateFull}>
+              Публикации по текущему фильтру не найдены.
+            </div>
+          ) : null}
+
+          {store.filteredPosts.map((post: AdminManagedPost) => (
+            <div key={post.id} className={styles.gridRow}>
+              <div className={styles.cardColumn}>
+                <article className={styles.card}>
                   <div className={styles.cardHeader}>
                     <div>
                       <h2 className={styles.cardTitle}>{post.title}</h2>
@@ -290,190 +812,61 @@ export const AdminPostsBannersManagementSection = observer((): ReactElement => {
                     </div>
                   ) : null}
                 </article>
-              ))
-            )}
-          </div>
-
-          {store.isPostEditorOpen ? (
-            <aside className={styles.editorPanel}>
-              <h2 className={styles.editorTitle}>
-                {store.postForm.id
-                  ? "Редактирование публикации"
-                  : "Новая публикация"}
-              </h2>
-
-              <label className={styles.field}>
-                <span>Заголовок</span>
-                <input
-                  value={store.postForm.title}
-                  onChange={(event) =>
-                    store.setPostFormField("title", event.target.value)
-                  }
-                  placeholder="Введите заголовок публикации"
-                />
-              </label>
-
-              <label className={styles.field}>
-                <span>Текст</span>
-                <textarea
-                  value={store.postForm.content}
-                  onChange={(event) =>
-                    store.setPostFormField("content", event.target.value)
-                  }
-                  rows={10}
-                  placeholder="Введите текст публикации"
-                />
-              </label>
-
-              <div className={styles.fieldGroup}>
-                <label className={styles.field}>
-                  <span>Загрузить изображения с устройства</span>
-                  <input
-                    type="file"
-                    accept="image/*"
-                    multiple
-                    onChange={handlePostFilesChange}
+              </div>
+              <div className={styles.editorColumn}>
+                {store.isPostEditorOpen && store.postForm.id === post.id ? (
+                  <PostEditorPanel
+                    onPostFilesChange={handlePostFilesChange}
                   />
-                </label>
-
-                <label className={styles.field}>
-                  <span>Добавить изображение по ссылке</span>
-                  <div className={styles.inlineField}>
-                    <input
-                      value={store.postForm.imageUrlInput}
-                      onChange={(event) =>
-                        store.setPostFormField(
-                          "imageUrlInput",
-                          event.target.value
-                        )
-                      }
-                      placeholder="https://example.com/image.jpg"
-                    />
-                    <button
-                      type="button"
-                      className={styles.secondaryButton}
-                      onClick={() => store.addPostImageUrlFromInput()}
-                    >
-                      Добавить
-                    </button>
-                  </div>
-                </label>
+                ) : null}
               </div>
-
-              {store.isUploadingPostImages ? (
-                <div className={styles.infoBox}>Загрузка изображений...</div>
-              ) : null}
-
-              {store.postForm.imageUrls.length > 0 ? (
-                <div className={styles.galleryEditor}>
-                  <span className={styles.previewLabel}>
-                    Изображения публикации
-                  </span>
-
-                  <div className={styles.galleryGrid}>
-                    {store.postForm.imageUrls.map((imageUrl) => {
-                      const isCover = store.postForm.coverImageUrl === imageUrl;
-
-                      return (
-                        <div key={imageUrl} className={styles.galleryCard}>
-                          <img
-                            className={styles.galleryImage}
-                            src={imageUrl}
-                            alt="Изображение публикации"
-                          />
-
-                          <div className={styles.galleryActions}>
-                            <button
-                              type="button"
-                              className={
-                                isCover
-                                  ? `${styles.secondaryButton} ${styles.coverButtonActive}`
-                                  : styles.secondaryButton
-                              }
-                              onClick={() => store.setPostCoverImage(imageUrl)}
-                            >
-                              {isCover ? "Обложка" : "Сделать обложкой"}
-                            </button>
-
-                            <button
-                              type="button"
-                              className={styles.dangerButton}
-                              onClick={() => store.removePostImage(imageUrl)}
-                            >
-                              Удалить
-                            </button>
-                          </div>
-                        </div>
-                      );
-                    })}
-                  </div>
-                </div>
-              ) : null}
-
-              <label className={styles.field}>
-                <span>Теги</span>
-                <input
-                  value={store.postForm.tags}
-                  onChange={(event) =>
-                    store.setPostFormField("tags", event.target.value)
-                  }
-                  placeholder="советы, уход, новости"
-                />
-              </label>
-
-              <label className={styles.field}>
-                <span>Статус</span>
-                <select
-                  value={store.postForm.status}
-                  onChange={(event) =>
-                    store.setPostFormField(
-                      "status",
-                      event.target.value as AdminPostStatus
-                    )
-                  }
-                >
-                  <option value="draft">Черновик</option>
-                  <option value="published">Опубликовать</option>
-                  <option value="archived">В архив</option>
-                </select>
-              </label>
-
-              <div className={styles.editorActions}>
-                <button
-                  type="button"
-                  className={styles.secondaryButton}
-                  onClick={() => store.closePostEditor()}
-                  disabled={store.isSavingPost}
-                >
-                  Отмена
-                </button>
-
-                <button
-                  type="button"
-                  className={styles.primaryButton}
-                  onClick={() => {
-                    void store.savePost();
-                  }}
-                  disabled={store.isSavingPost}
-                >
-                  {store.isSavingPost ? "Сохранение..." : "Сохранить"}
-                </button>
-              </div>
-            </aside>
-          ) : null}
+            </div>
+          ))}
         </div>
       ) : null}
 
       {!store.isLoading && !store.loadError && store.activeTab === "banners" ? (
         <div className={styles.contentGrid}>
-          <div className={styles.listColumn}>
-            {store.filteredBanners.length === 0 ? (
-              <div className={styles.emptyState}>
-                Баннеры по текущему фильтру не найдены.
+          {showBannerEditorFloating ? (
+            <div className={styles.gridRow}>
+              <div className={styles.cardColumn}>
+                {store.bannerForm.id ? (
+                  <div className={styles.editorRowPlaceholder}>
+                    <span className={styles.editorRowPlaceholderTitle}>
+                      Редактирование
+                    </span>
+                    <p className={styles.editorRowPlaceholderText}>
+                      Этот баннер сейчас не попадает под фильтры списка. Форма
+                      справа относится к выбранной записи.
+                    </p>
+                  </div>
+                ) : (
+                  <div className={styles.editorRowPlaceholder}>
+                    <span className={styles.editorRowPlaceholderTitle}>
+                      Новый баннер
+                    </span>
+                    <p className={styles.editorRowPlaceholderText}>
+                      Заполните форму справа.
+                    </p>
+                  </div>
+                )}
               </div>
-            ) : (
-              store.filteredBanners.map((banner: AdminManagedBanner) => (
-                <article key={banner.id} className={styles.card}>
+              <div className={styles.editorColumn}>
+                <BannerEditorPanel />
+              </div>
+            </div>
+          ) : null}
+
+          {store.filteredBanners.length === 0 && !store.isBannerEditorOpen ? (
+            <div className={styles.emptyStateFull}>
+              Баннеры по текущему фильтру не найдены.
+            </div>
+          ) : null}
+
+          {store.filteredBanners.map((banner: AdminManagedBanner) => (
+            <div key={banner.id} className={styles.gridRow}>
+              <div className={styles.cardColumn}>
+                <article className={styles.card}>
                   <div className={styles.cardHeader}>
                     <div>
                       <h2 className={styles.cardTitle}>{banner.title}</h2>
@@ -546,176 +939,15 @@ export const AdminPostsBannersManagementSection = observer((): ReactElement => {
                     </div>
                   ) : null}
                 </article>
-              ))
-            )}
-          </div>
-
-          {store.isBannerEditorOpen ? (
-            <aside className={styles.editorPanel}>
-              <h2 className={styles.editorTitle}>
-                {store.bannerForm.id
-                  ? "Редактирование баннера"
-                  : "Новый баннер"}
-              </h2>
-
-              <label className={styles.field}>
-                <span>Название</span>
-                <input
-                  value={store.bannerForm.title}
-                  onChange={(event) =>
-                    store.setBannerFormField("title", event.target.value)
-                  }
-                  placeholder="Введите название баннера"
-                />
-              </label>
-
-              <label className={styles.field}>
-                <span>Описание</span>
-                <textarea
-                  value={store.bannerForm.description}
-                  onChange={(event) =>
-                    store.setBannerFormField("description", event.target.value)
-                  }
-                  rows={7}
-                  placeholder="Короткое описание назначения баннера"
-                />
-              </label>
-
-              <label className={styles.field}>
-                <span>Изображение</span>
-                <input
-                  value={store.bannerForm.imageUrl}
-                  onChange={(event) =>
-                    store.setBannerFormField("imageUrl", event.target.value)
-                  }
-                  placeholder="/images/banner-home.png"
-                />
-              </label>
-
-              <label className={styles.field}>
-                <span>Размещение</span>
-                <select
-                  value={store.bannerForm.placement}
-                  onChange={(event) =>
-                    store.setBannerFormField(
-                      "placement",
-                      event.target.value as BannerPlacement
-                    )
-                  }
-                >
-                  <option value="home_hero">Главная</option>
-                  <option value="posts">Посты</option>
-                  <option value="specialists">Специалисты</option>
-                  <option value="shop">Магазин</option>
-                </select>
-              </label>
-
-              <label className={styles.field}>
-                <span>Куда ведёт баннер</span>
-                <select
-                  value={store.bannerForm.linkTarget}
-                  onChange={(event) =>
-                    store.setBannerFormField(
-                      "linkTarget",
-                      event.target.value as BannerLinkTarget | ""
-                    )
-                  }
-                >
-                  <option value="">Выберите страницу</option>
-                  <option value="home">Главная страница</option>
-                  <option value="posts">Конкретный пост</option>
-                  <option value="specialists">Каталог специалистов</option>
-                  <option value="shop">Магазин</option>
-                  <option value="profile">Профиль пользователя</option>
-                </select>
-              </label>
-
-              {store.bannerForm.linkTarget === "posts" ? (
-                <label className={styles.field}>
-                  <span>Пост для баннера</span>
-                  <select
-                    value={store.bannerForm.linkedPostId}
-                    onChange={(event) =>
-                      store.setBannerFormField(
-                        "linkedPostId",
-                        event.target.value
-                      )
-                    }
-                  >
-                    <option value="">Выберите опубликованный пост</option>
-                    {store.posts
-                      .filter((post) => post.status === "published")
-                      .map((post) => (
-                        <option key={post.id} value={post.id}>
-                          {post.title}
-                        </option>
-                      ))}
-                  </select>
-                </label>
-              ) : null}
-
-              <label className={styles.field}>
-                <span>Статус</span>
-                <select
-                  value={store.bannerForm.status}
-                  onChange={(event) =>
-                    store.setBannerFormField(
-                      "status",
-                      event.target.value as AdminBannerStatus
-                    )
-                  }
-                >
-                  <option value="draft">Черновик</option>
-                  <option value="published">Активный</option>
-                  <option value="archived">В архив</option>
-                </select>
-              </label>
-
-              <label className={styles.field}>
-                <span>Начало показа</span>
-                <input
-                  type="datetime-local"
-                  value={store.bannerForm.startsAt}
-                  onChange={(event) =>
-                    store.setBannerFormField("startsAt", event.target.value)
-                  }
-                />
-              </label>
-
-              <label className={styles.field}>
-                <span>Окончание показа</span>
-                <input
-                  type="datetime-local"
-                  value={store.bannerForm.endsAt}
-                  onChange={(event) =>
-                    store.setBannerFormField("endsAt", event.target.value)
-                  }
-                />
-              </label>
-
-              <div className={styles.editorActions}>
-                <button
-                  type="button"
-                  className={styles.secondaryButton}
-                  onClick={() => store.closeBannerEditor()}
-                  disabled={store.isSavingBanner}
-                >
-                  Отмена
-                </button>
-
-                <button
-                  type="button"
-                  className={styles.primaryButton}
-                  onClick={() => {
-                    void store.saveBanner();
-                  }}
-                  disabled={store.isSavingBanner}
-                >
-                  {store.isSavingBanner ? "Сохранение..." : "Сохранить"}
-                </button>
               </div>
-            </aside>
-          ) : null}
+              <div className={styles.editorColumn}>
+                {store.isBannerEditorOpen &&
+                store.bannerForm.id === banner.id ? (
+                  <BannerEditorPanel />
+                ) : null}
+              </div>
+            </div>
+          ))}
         </div>
       ) : null}
     </section>

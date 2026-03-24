@@ -4,7 +4,14 @@ import { makeAutoObservable, runInAction } from 'mobx';
 
 import { specialistApplicationsService } from '../service/specialistApplicationsService';
 
-import type { SpecialistApplication } from './types';
+import type {
+    SpecialistApplication,
+    SpecialistApplicationStatus,
+} from './types';
+
+export type SpecialistApplicationsStatusFilter =
+    | 'all'
+    | SpecialistApplicationStatus;
 
 type ModerationDraft = {
     interviewDate: string;
@@ -22,6 +29,9 @@ class SpecialistApplicationsModerationStore {
     applications: SpecialistApplication[] = [];
     isLoading = false;
     loadError = '';
+
+    searchQuery = '';
+    statusFilter: SpecialistApplicationsStatusFilter = 'all';
 
     selectedApplicationId: string | null = null;
 
@@ -45,6 +55,36 @@ class SpecialistApplicationsModerationStore {
         });
     }
 
+    get filteredSortedApplications(): SpecialistApplication[] {
+        const normalizedQuery = this.searchQuery.trim().toLowerCase();
+
+        return this.sortedApplications.filter((item) => {
+            if (
+                this.statusFilter !== 'all' &&
+                item.status !== this.statusFilter
+            ) {
+                return false;
+            }
+
+            if (!normalizedQuery) {
+                return true;
+            }
+
+            const haystack = [
+                item.fullName,
+                item.email,
+                item.phone,
+                item.city,
+                item.about,
+                item.id,
+            ]
+                .join(' ')
+                .toLowerCase();
+
+            return haystack.includes(normalizedQuery);
+        });
+    }
+
     get pendingApplications(): SpecialistApplication[] {
         return this.sortedApplications.filter(
             (item) =>
@@ -62,7 +102,7 @@ class SpecialistApplicationsModerationStore {
 
     get selectedApplication(): SpecialistApplication | null {
         if (!this.selectedApplicationId) {
-            return this.pendingApplications[0] ?? this.sortedApplications[0] ?? null;
+            return null;
         }
 
         return (
@@ -70,6 +110,34 @@ class SpecialistApplicationsModerationStore {
                 (item) => item.id === this.selectedApplicationId,
             ) ?? null
         );
+    }
+
+    setSearchQuery(value: string): void {
+        this.searchQuery = value;
+        this.ensureSelectedInFilteredList();
+    }
+
+    setStatusFilter(value: SpecialistApplicationsStatusFilter): void {
+        this.statusFilter = value;
+        this.ensureSelectedInFilteredList();
+    }
+
+    ensureSelectedInFilteredList(): void {
+        const list = this.filteredSortedApplications;
+
+        if (list.length === 0) {
+            this.selectedApplicationId = null;
+            this.draft = createDraft();
+            return;
+        }
+
+        const stillVisible =
+            this.selectedApplicationId &&
+            list.some((item) => item.id === this.selectedApplicationId);
+
+        if (!stillVisible) {
+            this.selectApplication(list[0]!.id);
+        }
     }
 
     selectApplication(applicationId: string): void {
@@ -97,6 +165,7 @@ class SpecialistApplicationsModerationStore {
             item.id === updated.id ? updated : item,
         );
         this.selectApplication(updated.id);
+        this.ensureSelectedInFilteredList();
     }
 
     patchCreatedSpecialistAccount(params: {
@@ -119,6 +188,7 @@ class SpecialistApplicationsModerationStore {
         });
 
         this.selectApplication(params.applicationId);
+        this.ensureSelectedInFilteredList();
     }
 
     async load(): Promise<void> {
@@ -142,7 +212,7 @@ class SpecialistApplicationsModerationStore {
                                 (item) => item.id === this.selectedApplicationId,
                             )
                             ? this.selectedApplicationId
-                            : applications[0]?.id ?? null;
+                            : this.sortedApplications[0]?.id ?? null;
 
                     this.selectedApplicationId = nextSelectedId;
 
@@ -159,6 +229,8 @@ class SpecialistApplicationsModerationStore {
                     this.selectedApplicationId = null;
                     this.draft = createDraft();
                 }
+
+                this.ensureSelectedInFilteredList();
             });
         } catch (error) {
             runInAction(() => {

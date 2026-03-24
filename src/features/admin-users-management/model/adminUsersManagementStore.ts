@@ -3,6 +3,7 @@
 import { makeAutoObservable, runInAction } from 'mobx';
 
 import { adminUsersManagementService } from '../service/adminUsersManagementService';
+
 import type {
   ManagedUser,
   ManagedUserRole,
@@ -41,6 +42,14 @@ class AdminUsersManagementStore {
   blockedUntil = '';
   isPermanentBlock = false;
 
+  isEditModalOpen = false;
+  editTargetUser: ManagedUser | null = null;
+  editFirstName = '';
+  editLastName = '';
+  editMiddleName = '';
+  editSpecialistSlug = '';
+  editingUserId: string | null = null;
+
   constructor() {
     makeAutoObservable(this, {}, { autoBind: true });
   }
@@ -75,12 +84,68 @@ class AdminUsersManagementStore {
   }
 
   openBlockModal(user: ManagedUser): void {
+    this.closeEditModal();
     this.selectedUser = user;
     this.blockReason = '';
     this.blockedUntil = '';
     this.isPermanentBlock = false;
     this.changeError = '';
     this.isBlockModalOpen = true;
+  }
+
+  openEditModal(user: ManagedUser): void {
+    this.closeBlockModal();
+    this.editTargetUser = user;
+    this.editFirstName = user.firstName ?? '';
+    this.editLastName = user.lastName ?? '';
+    this.editMiddleName = user.middleName ?? '';
+    this.editSpecialistSlug = user.specialistSlug ?? '';
+    this.changeError = '';
+    this.isEditModalOpen = true;
+  }
+
+  closeEditModal(): void {
+    this.isEditModalOpen = false;
+    this.editTargetUser = null;
+    this.editFirstName = '';
+    this.editLastName = '';
+    this.editMiddleName = '';
+    this.editSpecialistSlug = '';
+  }
+
+  setEditFirstName(value: string): void {
+    this.editFirstName = value;
+  }
+
+  setEditLastName(value: string): void {
+    this.editLastName = value;
+  }
+
+  setEditMiddleName(value: string): void {
+    this.editMiddleName = value;
+  }
+
+  setEditSpecialistSlug(value: string): void {
+    this.editSpecialistSlug = value;
+  }
+
+  get canSubmitEdit(): boolean {
+    if (!this.editTargetUser || this.editingUserId) {
+      return false;
+    }
+
+    if (
+      !this.editFirstName.trim() ||
+      !this.editLastName.trim()
+    ) {
+      return false;
+    }
+
+    if (this.editTargetUser.role === 'specialist') {
+      return Boolean(this.editSpecialistSlug.trim());
+    }
+
+    return true;
   }
 
   closeBlockModal(): void {
@@ -209,6 +274,52 @@ class AdminUsersManagementStore {
     } finally {
       runInAction(() => {
         this.changingUserId = null;
+      });
+    }
+  }
+
+  async saveEditedProfile(): Promise<void> {
+    if (!this.editTargetUser || !this.canSubmitEdit) {
+      return;
+    }
+
+    const target = this.editTargetUser;
+
+    runInAction(() => {
+      this.editingUserId = target.id;
+      this.changeError = '';
+      this.successMessage = '';
+    });
+
+    try {
+      const updatedUser = await adminUsersManagementService.updateUserProfile({
+        userId: target.id,
+        firstName: this.editFirstName.trim(),
+        lastName: this.editLastName.trim(),
+        middleName: this.editMiddleName.trim() || undefined,
+        specialistSlug:
+          target.role === 'specialist'
+            ? this.editSpecialistSlug.trim()
+            : undefined,
+      });
+
+      runInAction(() => {
+        this.users = this.users.map((item) =>
+          item.id === updatedUser.id ? updatedUser : item,
+        );
+        this.successMessage = `Данные пользователя ${updatedUser.email} сохранены.`;
+        this.closeEditModal();
+      });
+    } catch (error) {
+      runInAction(() => {
+        this.changeError =
+          error instanceof Error
+            ? error.message
+            : 'Не удалось сохранить изменения.';
+      });
+    } finally {
+      runInAction(() => {
+        this.editingUserId = null;
       });
     }
   }

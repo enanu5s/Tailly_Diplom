@@ -100,15 +100,23 @@ export function updateMockAdminProfile(
     throw new AdminProfileError('Имя и фамилия обязательны для заполнения.');
   }
 
-  MOCK_ADMINS[recordIndex] = {
+  const nextRecord: MockAdminProfileRecord = {
     ...MOCK_ADMINS[recordIndex],
     firstName: nextFirstName,
     lastName: nextLastName,
     middleName: normalizeOptional(payload.middleName),
     phone: normalizeOptional(payload.phone),
-    position: normalizeOptional(payload.position),
-    department: normalizeOptional(payload.department),
   };
+
+  if (Object.prototype.hasOwnProperty.call(payload, 'position')) {
+    nextRecord.position = normalizeOptional(payload.position);
+  }
+
+  if (Object.prototype.hasOwnProperty.call(payload, 'department')) {
+    nextRecord.department = normalizeOptional(payload.department);
+  }
+
+  MOCK_ADMINS[recordIndex] = nextRecord;
 
   return mapRecordToProfile(MOCK_ADMINS[recordIndex]);
 }

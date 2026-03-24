@@ -3,10 +3,13 @@
 import {
   cloneManagedUsers,
   updateManagedUserBlockedStatus,
+  updateManagedUserProfile,
   wait,
 } from '../data/mockAdminUsersManagement';
+
 import type {
   ManagedUser,
+  UpdateManagedUserProfilePayload,
   UpdateUserBlockStatusPayload,
 } from '../model/types';
 
@@ -22,4 +25,12 @@ export async function mockUpdateManagedUserBlockedStatus(
   await wait();
 
   return updateManagedUserBlockedStatus(payload);
+}
+
+export async function mockUpdateManagedUserProfile(
+  payload: UpdateManagedUserProfilePayload,
+): Promise<ManagedUser> {
+  await wait();
+
+  return updateManagedUserProfile(payload);
 }
