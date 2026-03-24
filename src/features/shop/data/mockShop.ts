@@ -482,12 +482,42 @@ export function tokenize(value: string): string[] {
 }
 
 export function getSearchFields(product: Product): string[] {
-  return [
+  const fields: string[] = [
     product.title,
     product.shortDescription,
     product.description,
     product.categoryTitle,
   ];
+
+  const dc = product.descriptionContent;
+
+  if (dc) {
+    if (dc.summary) {
+      fields.push(dc.summary);
+    }
+
+    if (dc.suitableFor?.length) {
+      fields.push(...dc.suitableFor);
+    }
+
+    if (dc.benefits?.length) {
+      fields.push(...dc.benefits);
+    }
+
+    if (dc.features?.length) {
+      fields.push(...dc.features);
+    }
+
+    if (dc.usage) {
+      fields.push(dc.usage);
+    }
+
+    if (dc.composition) {
+      fields.push(dc.composition);
+    }
+  }
+
+  return fields;
 }
 
 export function levenshteinDistance(a: string, b: string): number {

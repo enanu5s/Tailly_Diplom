@@ -2,6 +2,8 @@
 import { observer } from 'mobx-react-lite';
 import { Link } from 'react-router-dom';
 
+import { LocalitySuggestInput } from '@/features/specialists-search/ui/LocalitySuggestInput/LocalitySuggestInput';
+
 import { SpecialistMiniCalendar } from './SpecialistMiniCalendar';
 import { SpecialistPhotoGallery } from './SpecialistPhotoGallery';
 import styles from './SpecialistProfileView.module.css';
@@ -729,11 +731,11 @@ export const SpecialistProfileView = observer(
                     <span className={styles.metaLabel}>Город</span>
                     {isEditingMain ? (
                       <div className={styles.inlineFieldBlock}>
-                        <input
-                          className={styles.inlineValueInput}
+                        <LocalitySuggestInput
                           value={mainForm?.city ?? ''}
-                          onChange={(event) => onSetMainField('city', event.target.value)}
-                          placeholder="Город"
+                          onChange={(next) => onSetMainField('city', next)}
+                          placeholder="Начните вводить город или ПГТ…"
+                          inputClassName={styles.inlineValueInput}
                         />
                         {mainFormErrors.city ? (
                           <span className={styles.fieldError}>{mainFormErrors.city}</span>

@@ -61,6 +61,9 @@ export class ShopCartPageStore {
     quantity: number;
     lineTotal: number;
   }> {
+    // Явная подписка на состав корзины, чтобы строки исчезали сразу после remove / clear
+    void shopCartStore.items;
+
     return this.products
       .map((product) => {
         const quantity = shopCartStore.getQuantity(product.id);

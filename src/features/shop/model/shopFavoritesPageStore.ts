@@ -56,6 +56,16 @@ export class ShopFavoritesPageStore {
     return shopFavoritesStore.productIds.length === 0;
   }
 
+  /** Товары, которые ещё в избранном — `products` с сервера не очищается при remove/clear в сторе */
+  get displayProducts(): Product[] {
+    if (shopFavoritesStore.productIds.length === 0) {
+      return [];
+    }
+
+    const allowed = new Set(shopFavoritesStore.productIds);
+    return this.products.filter((product) => allowed.has(product.id));
+  }
+
   reset(): void {
     this.products = [];
     this.isLoading = false;

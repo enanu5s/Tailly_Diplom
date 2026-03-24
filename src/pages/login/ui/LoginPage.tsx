@@ -2,7 +2,7 @@
 
 import { observer } from 'mobx-react-lite';
 import { useEffect, useMemo, useSyncExternalStore } from 'react';
-import { Link, useLocation, useSearchParams } from 'react-router-dom';
+import { Link, useLocation, useSearchParams, type Location } from 'react-router-dom';
 
 import { authStore, loginStore } from '@/features/auth';
 import { getDefaultAuthorizedRoute } from '@/shared/lib/auth';
@@ -12,9 +12,39 @@ import styles from './LoginPage.module.css';
 
 import type { FormEvent, ReactElement } from 'react';
 
-type LocationState = {
-  from?: string;
-};
+/**
+ * Куда увести после входа: `?from=` (надёжно при потере state), строка `state.from`,
+ * либо объект (как в ShopPurchaseRouteGuard: `state={{ from: location }}`).
+ */
+function resolvePostLoginRedirect(location: Location): string | null {
+  const fromQuery = getRedirectFromQuery(location.search);
+
+  if (fromQuery) {
+    return fromQuery;
+  }
+
+  const raw = location.state;
+
+  if (!raw || typeof raw !== 'object') {
+    return null;
+  }
+
+  const candidate = (raw as { from?: unknown }).from;
+
+  if (typeof candidate === 'string' && candidate.trim().startsWith('/')) {
+    return candidate.trim();
+  }
+
+  if (candidate && typeof candidate === 'object' && 'pathname' in candidate) {
+    const loc = candidate as { pathname?: string; search?: string; hash?: string };
+
+    if (typeof loc.pathname === 'string' && loc.pathname.startsWith('/')) {
+      return `${loc.pathname}${loc.search ?? ''}${loc.hash ?? ''}`;
+    }
+  }
+
+  return null;
+}
 
 function getRedirectFromQuery(search: string): string | null {
   const searchParams = new URLSearchParams(search);
@@ -39,12 +69,6 @@ export const LoginPage = observer((): ReactElement => {
   const [searchParams] = useSearchParams();
   const authState = useSyncExternalStore(authStore.subscribe, authStore.getState);
 
-  const state = (location.state ?? null) as LocationState | null;
-
-  const redirectFromQuery = useMemo<string | null>(() => {
-    return getRedirectFromQuery(location.search);
-  }, [location.search]);
-
   const accountFlowNotice = useMemo(() => {
     if (searchParams.get('accountDeletion') === 'scheduled') {
       return 'Аккаунт запланирован к удалению. Проверьте почту: там ссылка для восстановления до указанной даты.';
@@ -57,13 +81,28 @@ export const LoginPage = observer((): ReactElement => {
     return null;
   }, [searchParams]);
 
+  /**
+   * Если пользователь уже вошёл и открыл /login (или только что вошёл — MobX обновился до конца submit),
+   * уводим с формы входа. Сначала учитываем `state.from` / `?from=` (например возврат в корзину после входа),
+   * иначе редирект на профиль перезапишет нужный маршрут.
+   */
   useEffect(() => {
-    if (authState.user) {
-      navigate(getDefaultAuthorizedRoute(authState.user), {
-        replace: true,
-      });
+    if (!authState.user) {
+      return;
     }
-  }, [authState.user, navigate]);
+
+    const redirectTarget = resolvePostLoginRedirect(location);
+
+    if (redirectTarget) {
+      navigate(redirectTarget, { replace: true, preserveRouteMemory: false });
+      return;
+    }
+
+    navigate(getDefaultAuthorizedRoute(authState.user), {
+      replace: true,
+      preserveRouteMemory: false,
+    });
+  }, [authState.user, navigate, location]);
 
   const handleSubmit = async (event: FormEvent<HTMLFormElement>): Promise<void> => {
     event.preventDefault();
@@ -88,10 +127,17 @@ export const LoginPage = observer((): ReactElement => {
       return;
     }
 
-    const redirectPath =
-      state?.from ?? redirectFromQuery ?? getDefaultAuthorizedRoute(nextUser);
+    const redirectTarget = resolvePostLoginRedirect(location);
 
-    navigate(redirectPath, { replace: true });
+    if (redirectTarget) {
+      navigate(redirectTarget, { replace: true, preserveRouteMemory: false });
+      return;
+    }
+
+    navigate(getDefaultAuthorizedRoute(nextUser!), {
+      replace: true,
+      preserveRouteMemory: false,
+    });
   };
 
   return (

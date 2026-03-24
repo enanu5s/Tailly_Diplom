@@ -10,6 +10,9 @@ import {
 } from './types';
 import { shopService } from '../service/shopService';
 
+/** Защита от гонки: при быстром вводе в поиск несколько load() завершаются не по порядку */
+let catalogLoadGeneration = 0;
+
 export class ShopCatalogStore {
   filters: CatalogFilterState = JSON.parse(JSON.stringify(DEFAULT_CATALOG_FILTERS));
   products: Product[] = [];
@@ -138,8 +141,12 @@ export class ShopCatalogStore {
   }
 
   async load(): Promise<void> {
-    this.isLoading = true;
-    this.error = null;
+    const generation = ++catalogLoadGeneration;
+
+    runInAction(() => {
+      this.isLoading = true;
+      this.error = null;
+    });
 
     const plainFilters: CatalogFilterState = JSON.parse(JSON.stringify(this.filters));
 
@@ -147,6 +154,10 @@ export class ShopCatalogStore {
 
     try {
       const response = await shopService.getCatalogProducts(plainFilters);
+
+      if (generation !== catalogLoadGeneration) {
+        return;
+      }
 
       runInAction(() => {
         this.products = response.items;
@@ -161,6 +172,10 @@ export class ShopCatalogStore {
         productTitles: response.items.map((item) => item.title),
       });
     } catch (error) {
+      if (generation !== catalogLoadGeneration) {
+        return;
+      }
+
       runInAction(() => {
         this.error =
           error instanceof Error ? error.message : 'Не удалось загрузить каталог.';
@@ -168,9 +183,11 @@ export class ShopCatalogStore {
 
       console.error('[ShopCatalogStore] load failed:', error);
     } finally {
-      runInAction(() => {
-        this.isLoading = false;
-      });
+      if (generation === catalogLoadGeneration) {
+        runInAction(() => {
+          this.isLoading = false;
+        });
+      }
     }
   }
 

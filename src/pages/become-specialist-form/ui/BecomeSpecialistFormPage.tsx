@@ -5,6 +5,7 @@ import { Link } from 'react-router-dom';
 
 import { specialistApplicationsService } from '@/features/specialist-applications';
 import type { SpecialistApplicationQuestionnaire } from '@/features/specialist-applications/model/types';
+import { LocalitySuggestInput } from '@/features/specialists-search/ui/LocalitySuggestInput/LocalitySuggestInput';
 import { BackButton } from '@/shared/ui/back-button';
 
 import styles from './BecomeSpecialistFormPage.module.css';
@@ -87,6 +88,26 @@ export const BecomeSpecialistFormPage = (): ReactElement => {
       return 'Нужно согласие на обработку персональных данных.';
     }
 
+    if (!name.trim()) {
+      return 'Укажи ФИО.';
+    }
+
+    if (!email.trim()) {
+      return 'Укажи email.';
+    }
+
+    if (!phone.trim()) {
+      return 'Укажи телефон.';
+    }
+
+    if (!city.trim()) {
+      return 'Укажи город.';
+    }
+
+    if (!about.trim()) {
+      return 'Заполни поле «Кратко о себе».';
+    }
+
     if (!questionnaire.experienceYears.trim()) {
       return 'Укажи опыт работы с животными.';
     }
@@ -114,15 +135,18 @@ export const BecomeSpecialistFormPage = (): ReactElement => {
     return null;
   };
 
+  const validationError = validateForm();
+  const canSubmit = validationError === null;
+
   const handleSubmit = async (event: FormEvent): Promise<void> => {
     event.preventDefault();
     setError('');
     setSuccess(false);
 
-    const validationError = validateForm();
+    const submitValidationError = validateForm();
 
-    if (validationError) {
-      setError(validationError);
+    if (submitValidationError) {
+      setError(submitValidationError);
       return;
     }
 
@@ -224,16 +248,19 @@ export const BecomeSpecialistFormPage = (): ReactElement => {
                   />
                 </label>
 
-                <label className={styles.field}>
-                  <span className={styles.label}>Город</span>
-                  <input
-                    className={styles.input}
+                <div className={styles.field}>
+                  <label className={styles.label} htmlFor="become-specialist-city">
+                    Город
+                  </label>
+                  <LocalitySuggestInput
+                    id="become-specialist-city"
                     value={city}
-                    onChange={(event) => setCity(event.target.value)}
-                    placeholder="Москва"
+                    onChange={setCity}
+                    placeholder="Начните вводить город или ПГТ…"
+                    inputClassName={styles.input}
                     required
                   />
-                </label>
+                </div>
 
                 <label className={styles.fieldWide}>
                   <span className={styles.label}>Кратко о себе</span>
@@ -504,7 +531,11 @@ export const BecomeSpecialistFormPage = (): ReactElement => {
               </div>
             ) : null}
 
-            <button className={styles.submitButton} type="submit" disabled={loading}>
+            <button
+              className={styles.submitButton}
+              type="submit"
+              disabled={loading || !canSubmit}
+            >
               {loading ? 'Отправляем...' : 'Отправить заявку'}
             </button>
           </form>

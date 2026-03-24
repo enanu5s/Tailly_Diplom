@@ -47,7 +47,8 @@ export const ShopFavoritesPage = observer(() => {
     };
   }, [showConsumerUi]);
 
-  const { products, error, isEmpty, isInitialized, isLoading } = shopFavoritesPageStore;
+  const { displayProducts, error, isEmpty, isInitialized, isLoading } =
+    shopFavoritesPageStore;
 
   if (!showConsumerUi) {
     return <Navigate to="/shop" replace />;
@@ -131,9 +132,9 @@ export const ShopFavoritesPage = observer(() => {
           </div>
         ) : null}
 
-        {!error && products.length > 0 ? (
+        {!error && displayProducts.length > 0 ? (
           <section className={styles.items}>
-            {products.map((product) => (
+            {displayProducts.map((product) => (
               <FavoriteItemCard key={product.id} product={product} />
             ))}
           </section>

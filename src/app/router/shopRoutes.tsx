@@ -60,12 +60,12 @@ export const shopRoutes: RouteObject[] = [
     element: withSuspense(<ShopFavoritesPage />),
   },
   {
+    path: '/shop/cart',
+    element: withSuspense(<ShopCartPage />),
+  },
+  {
     element: <ShopPurchaseRouteGuard />,
     children: [
-      {
-        path: '/shop/cart',
-        element: withSuspense(<ShopCartPage />),
-      },
       {
         path: '/shop/checkout',
         element: withSuspense(<ShopCheckoutPage />),

@@ -7,6 +7,10 @@ import type { AdminManagedBanner, AdminManagedPost } from '../model/types';
 const POSTS_STORAGE_KEY = 'tailly_admin_managed_posts';
 const BANNERS_STORAGE_KEY = 'tailly_admin_managed_banners';
 
+/** Увеличивайте при изменении INITIAL_ADMIN_MANAGED_POSTS / INITIAL_ADMIN_MANAGED_BANNERS, чтобы старые данные в браузере подтянули актуальные моки. */
+const ADMIN_SEED_VERSION_KEY = 'tailly_admin_mock_seed_version';
+const CURRENT_ADMIN_SEED_VERSION = 2;
+
 const POSTS_IDB_NAME = 'tailly_admin_posts';
 const POSTS_IDB_VERSION = 1;
 const POSTS_IDB_STORE = 'kv';
@@ -140,7 +144,43 @@ function clearLegacyPostsLocalStorage(): void {
   }
 }
 
+function getStoredSeedVersion(): number {
+  try {
+    const raw = localStorage.getItem(ADMIN_SEED_VERSION_KEY);
+    if (raw == null) return 0;
+    const n = parseInt(raw, 10);
+    return Number.isFinite(n) ? n : 0;
+  } catch {
+    return 0;
+  }
+}
+
+let seedEnsuring: Promise<void> | null = null;
+
+/**
+ * Синхронизирует локальные мок-данные с версией из кода (устраняет «пустые» или устаревшие IDB/localStorage в одном браузере).
+ */
+async function ensureAdminMockSeedMatches(): Promise<void> {
+  if (getStoredSeedVersion() === CURRENT_ADMIN_SEED_VERSION) return;
+
+  if (!seedEnsuring) {
+    seedEnsuring = (async () => {
+      try {
+        await writeAdminManagedPosts(INITIAL_ADMIN_MANAGED_POSTS);
+        writeAdminManagedBanners(INITIAL_ADMIN_MANAGED_BANNERS);
+        localStorage.setItem(ADMIN_SEED_VERSION_KEY, String(CURRENT_ADMIN_SEED_VERSION));
+      } finally {
+        seedEnsuring = null;
+      }
+    })();
+  }
+
+  await seedEnsuring;
+}
+
 export async function readAdminManagedPosts(): Promise<AdminManagedPost[]> {
+  await ensureAdminMockSeedMatches();
+
   let db: IDBDatabase;
 
   try {
@@ -219,6 +259,11 @@ export async function writeAdminManagedPosts(posts: AdminManagedPost[]): Promise
 }
 
 export function readAdminManagedBanners(): AdminManagedBanner[] {
+  if (getStoredSeedVersion() !== CURRENT_ADMIN_SEED_VERSION) {
+    void ensureAdminMockSeedMatches();
+    return sortBanners(INITIAL_ADMIN_MANAGED_BANNERS.map(normalizeBanner));
+  }
+
   const banners = safeParseJson<AdminManagedBanner[]>(
     localStorage.getItem(BANNERS_STORAGE_KEY),
     INITIAL_ADMIN_MANAGED_BANNERS,

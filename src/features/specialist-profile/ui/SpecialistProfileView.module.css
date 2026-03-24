@@ -250,6 +250,12 @@
   align-items: start;
 }
 
+/* Выпадающий список 2GIS absolute — без z-index следующая строка («Район») перекрывает подсказки */
+.metaItem:has([data-suggestions-open]) {
+  position: relative;
+  z-index: 20;
+}
+
 .metaLabel {
   font-size: 14px;
   line-height: 1.5;

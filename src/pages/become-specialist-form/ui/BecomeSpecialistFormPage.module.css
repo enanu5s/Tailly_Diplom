@@ -101,6 +101,12 @@
   grid-column: 1 / -1;
 }
 
+/* Подсказки 2GIS absolute — без z-index следующая строка сетки перекрывает список */
+.field:has([data-suggestions-open]) {
+  position: relative;
+  z-index: 30;
+}
+
 .label {
   color: #334155;
   font-size: 0.95rem;

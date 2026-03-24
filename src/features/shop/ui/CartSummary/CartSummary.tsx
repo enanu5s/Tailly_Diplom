@@ -1,6 +1,9 @@
 // src/features/shop/ui/CartSummary/CartSummary.tsx
 import { Link } from 'react-router-dom';
 
+import { useAuth } from '@/features/auth/model/useAuth';
+import { canOrderShopProducts } from '@/shared/lib/auth/roleAccess';
+
 import styles from './CartSummary.module.css';
 
 type Props = {
@@ -18,6 +21,9 @@ type Props = {
 };
 
 export const CartSummary = ({ itemsCount, totalPrice, checkoutLinkState }: Props) => {
+  const { user } = useAuth();
+  const canCheckout = canOrderShopProducts(user);
+
   return (
     <aside className={styles.card}>
       <h2 className={styles.title}>Ваш заказ</h2>
@@ -34,13 +40,36 @@ export const CartSummary = ({ itemsCount, totalPrice, checkoutLinkState }: Props
         </div>
       </div>
 
-      <Link
-        to="/shop/checkout"
-        state={checkoutLinkState}
-        className={styles.checkoutButton}
-      >
-        Перейти к оформлению
-      </Link>
+      {canCheckout ? (
+        <Link
+          to="/shop/checkout"
+          state={checkoutLinkState}
+          className={styles.checkoutButton}
+        >
+          Перейти к оформлению
+        </Link>
+      ) : null}
+
+      {!user ? (
+        <>
+          <Link
+            to={`/login?from=${encodeURIComponent('/shop/cart')}`}
+            className={styles.checkoutButton}
+          >
+            Войти для оформления заказа
+          </Link>
+          <p className={styles.hint}>
+            После входа вы вернётесь в корзину; оттуда можно перейти к оформлению (нужен аккаунт
+            клиента или специалиста).
+          </p>
+        </>
+      ) : null}
+
+      {user && !canCheckout ? (
+        <p className={styles.hint}>
+          Оформление заказов в магазине доступно с аккаунта клиента или специалиста.
+        </p>
+      ) : null}
     </aside>
   );
 };
