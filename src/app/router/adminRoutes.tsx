@@ -53,6 +53,12 @@ const AdminPostsPage = lazy(() =>
   })),
 );
 
+const AdminChangePasswordPage = lazy(() =>
+  import('@/pages/admin-change-password').then((module) => ({
+    default: module.AdminChangePasswordPage,
+  })),
+);
+
 export const adminRoutes: RouteObject[] = [
   {
     path: '/admin/forgot-password',
@@ -71,6 +77,14 @@ export const adminRoutes: RouteObject[] = [
     element: (
       <AdminRouteGuard>
         {withSuspense(<AdminProfilePage />)}
+      </AdminRouteGuard>
+    ),
+  },
+  {
+    path: '/admin/profile/security/password',
+    element: (
+      <AdminRouteGuard>
+        {withSuspense(<AdminChangePasswordPage />)}
       </AdminRouteGuard>
     ),
   },

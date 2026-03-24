@@ -88,7 +88,7 @@ export const AdminProfileSection = observer((): ReactElement => {
           <button
             className={styles.secondaryButton}
             type="button"
-            onClick={() => navigate('/profile/security/password')}
+            onClick={() => navigate('/admin/profile/security/password')}
           >
             Сменить пароль
           </button>
