@@ -1,15 +1,17 @@
-//src/features/posts/ui/PostsList.tsx
-import { observer } from "mobx-react-lite";
-import { useEffect } from "react";
+// src/features/posts/ui/PostsList.tsx
+
+import { observer } from 'mobx-react-lite';
+import { useEffect } from 'react';
 import { useAppNavigate } from '@/shared/lib/navigation/useAppNavigate';
 
-import { saveScrollPosition } from "@/shared/lib/scroll";
+import { saveScrollPosition } from '@/shared/lib/scroll';
 
-import styles from "./PostsList.module.css";
-import { postsStore } from "../model/postsStore";
+import styles from './PostsList.module.css';
+import { postsStore } from '../model/postsStore';
 
 export const PostsList = observer(() => {
   const navigate = useAppNavigate();
+
   useEffect(() => {
     void postsStore.loadList();
   }, []);
@@ -36,10 +38,10 @@ export const PostsList = observer(() => {
           onChange={(e) =>
             postsStore.setSort(
               e.target.value as
-                | "newest"
-                | "oldest"
-                | "title_asc"
-                | "title_desc",
+                | 'newest'
+                | 'oldest'
+                | 'title_asc'
+                | 'title_desc',
             )
           }
         >
@@ -54,7 +56,7 @@ export const PostsList = observer(() => {
           type="submit"
           disabled={postsStore.list.loading}
         >
-          {postsStore.list.loading ? "Ищем..." : "Найти"}
+          {postsStore.list.loading ? 'Ищем...' : 'Найти'}
         </button>
       </form>
 
@@ -73,16 +75,16 @@ export const PostsList = observer(() => {
                 type="button"
                 className={styles.card}
                 onClick={() => {
-                  saveScrollPosition("/posts"); // сохраняем текущий скролл списка
+                  saveScrollPosition('/posts');
                   navigate(`/posts/${p.id}`);
                 }}
               >
                 <div className={styles.cardTitle}>{p.title}</div>
                 <div className={styles.cardDate}>
-                  {new Date(p.publishedAt).toLocaleDateString("ru-RU", {
-                    year: "numeric",
-                    month: "long",
-                    day: "2-digit",
+                  {new Date(p.publishedAt).toLocaleDateString('ru-RU', {
+                    year: 'numeric',
+                    month: 'long',
+                    day: '2-digit',
                   })}
                 </div>
                 <div className={styles.cardTextWrap}>

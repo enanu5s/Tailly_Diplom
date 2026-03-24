@@ -1,4 +1,4 @@
-//src/features/posts/model/postsStore.ts
+// src/features/posts/model/postsStore.ts
 
 import { makeAutoObservable, runInAction } from 'mobx';
 
@@ -31,6 +31,7 @@ type DetailsState = {
 
 export class PostsStore {
   latest: LatestState = { items: [], loading: false, error: null };
+
   list: ListState = {
     items: [],
     total: 0,
@@ -41,7 +42,15 @@ export class PostsStore {
     loading: false,
     error: null,
   };
-  details: DetailsState = { post: null, loading: false, error: null };
+
+  details: DetailsState = {
+    post: null,
+    loading: false,
+    error: null,
+  };
+
+  private searchDebounceTimer: ReturnType<typeof setTimeout> | null = null;
+  private listRequestId = 0;
 
   constructor() {
     makeAutoObservable(this);
@@ -51,44 +60,66 @@ export class PostsStore {
     return Math.max(1, Math.ceil(this.list.total / this.list.pageSize));
   }
 
-  setListPage(page: number) {
+  setListPage(page: number): void {
     this.list.page = Math.min(Math.max(1, page), this.totalPages);
   }
 
-  setSearch(value: string) {
+  setSearch(value: string): void {
     this.list.search = value;
     this.list.page = 1;
+    this.scheduleSearch();
   }
 
-  setSort(value: PostsSort) {
+  setSort(value: PostsSort): void {
     this.list.sort = value;
     this.list.page = 1;
   }
 
-  async loadLatest(limit = 5) {
+  private clearSearchDebounce(): void {
+    if (this.searchDebounceTimer !== null) {
+      clearTimeout(this.searchDebounceTimer);
+      this.searchDebounceTimer = null;
+    }
+  }
+
+  private scheduleSearch(): void {
+    this.clearSearchDebounce();
+
+    this.searchDebounceTimer = window.setTimeout(() => {
+      void this.loadList();
+    }, 350);
+  }
+
+  async loadLatest(limit = 5): Promise<void> {
     this.latest.loading = true;
     this.latest.error = null;
 
     try {
       const items = await postsApi.getLatestPosts(limit);
+
       runInAction(() => {
         this.latest.items = items;
         this.latest.loading = false;
       });
-    } catch (e) {
+    } catch (error) {
       runInAction(() => {
-        this.latest.error = e instanceof Error ? e.message : 'Не удалось загрузить посты';
+        this.latest.error =
+          error instanceof Error ? error.message : 'Не удалось загрузить посты';
         this.latest.loading = false;
       });
     }
   }
 
-  async loadList() {
+  async loadList(): Promise<void> {
+    this.clearSearchDebounce();
+
+    const requestId = ++this.listRequestId;
+
     this.list.loading = true;
     this.list.error = null;
 
     try {
-      const res: PostsListResponse = await postsApi.getPostsList({
+      const response: PostsListResponse = await postsApi.getPostsList({
         page: this.list.page,
         pageSize: this.list.pageSize,
         search: this.list.search.trim() || undefined,
@@ -96,40 +127,53 @@ export class PostsStore {
       });
 
       runInAction(() => {
-        this.list.items = res.items;
-        this.list.total = res.total;
-        this.list.page = res.page;
-        this.list.pageSize = res.pageSize;
+        if (requestId !== this.listRequestId) {
+          return;
+        }
+
+        this.list.items = response.items;
+        this.list.total = response.total;
+        this.list.page = response.page;
+        this.list.pageSize = response.pageSize;
         this.list.loading = false;
       });
-    } catch (e) {
+    } catch (error) {
       runInAction(() => {
-        this.list.error = e instanceof Error ? e.message : 'Не удалось загрузить список постов';
+        if (requestId !== this.listRequestId) {
+          return;
+        }
+
+        this.list.error =
+          error instanceof Error
+            ? error.message
+            : 'Не удалось загрузить список постов';
         this.list.loading = false;
       });
     }
   }
 
-  async loadPostById(id: string) {
+  async loadPostById(id: string): Promise<void> {
     this.details.loading = true;
     this.details.error = null;
     this.details.post = null;
 
     try {
       const post = await postsApi.getPostById(id);
+
       runInAction(() => {
         this.details.post = post;
         this.details.loading = false;
       });
-    } catch (e) {
+    } catch (error) {
       runInAction(() => {
-        this.details.error = e instanceof Error ? e.message : 'Не удалось загрузить пост';
+        this.details.error =
+          error instanceof Error ? error.message : 'Не удалось загрузить пост';
         this.details.loading = false;
       });
     }
   }
 
-  resetDetails() {
+  resetDetails(): void {
     this.details.post = null;
     this.details.loading = false;
     this.details.error = null;
