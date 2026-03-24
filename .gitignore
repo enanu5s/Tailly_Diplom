@@ -26,7 +26,7 @@ dist-ssr
 *.sln
 *.sw?
 
-# Env files
+# Секреты и локальные переменные (в т.ч. VITE_2GIS_API_KEY) — только в .env, не коммитить
 .env
 .env.*
 !.env.example

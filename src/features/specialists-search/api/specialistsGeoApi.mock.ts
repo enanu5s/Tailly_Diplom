@@ -6,6 +6,7 @@ import {
   dedupeSuggestItems,
   type GeoPoint,
   type GeoSuggestItem,
+  isLocalitySuggestItem,
   normalizeSuggestItems,
   type SuggestResponse,
 } from '../data/mockSpecialistsGeo';
@@ -25,13 +26,31 @@ async function requestJson<T>(url: string): Promise<T> {
   return (await response.json()) as T;
 }
 
+const SUGGEST_FIELDS =
+  'items.point,items.name,items.full_name,items.type,items.subtype,items.id';
+
 async function requestSuggest(query: string): Promise<SuggestResponse> {
   const params = new URLSearchParams({
     q: query.trim(),
     suggest_type: 'address',
-    fields: 'items.point,items.name,items.full_name,items.type',
+    fields: SUGGEST_FIELDS,
     key: MAPS_API_KEY,
     locale: 'ru_RU',
+  });
+
+  const url = buildDirect2GisUrl('/3.0/suggests', params);
+
+  return requestJson<SuggestResponse>(url);
+}
+
+async function requestSuggestLocalities(query: string): Promise<SuggestResponse> {
+  const params = new URLSearchParams({
+    q: query.trim(),
+    suggest_type: 'address',
+    fields: SUGGEST_FIELDS,
+    key: MAPS_API_KEY,
+    locale: 'ru_RU',
+    type: 'adm_div.city,adm_div.settlement,adm_div.place',
   });
 
   const url = buildDirect2GisUrl('/3.0/suggests', params);
@@ -74,6 +93,35 @@ export const specialistsGeoMockApi = {
     const normalized = normalizeSuggestItems(data.result.items);
 
     return dedupeSuggestItems(normalized).slice(0, 8);
+  },
+
+  async suggestLocalities(query: string): Promise<GeoSuggestItem[]> {
+    const normalizedQuery = query.trim();
+
+    if (normalizedQuery.length < 2) {
+      return [];
+    }
+
+    if (!MAPS_API_KEY) {
+      throw new Error('VITE_2GIS_API_KEY is not set');
+    }
+
+    let data: SuggestResponse;
+
+    try {
+      data = await requestSuggestLocalities(normalizedQuery);
+    } catch {
+      data = await requestSuggest(normalizedQuery);
+    }
+
+    if (data?.meta?.code !== 200 || !Array.isArray(data?.result?.items)) {
+      return [];
+    }
+
+    const normalized = normalizeSuggestItems(data.result.items);
+    const localities = normalized.filter(isLocalitySuggestItem);
+
+    return dedupeSuggestItems(localities).slice(0, 12);
   },
 
   async geocodeLocation(query: string): Promise<GeoPoint | null> {

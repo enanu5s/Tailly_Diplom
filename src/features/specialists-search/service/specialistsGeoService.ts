@@ -1,4 +1,5 @@
 //src/features/specialists-search/service/specialistsGeoService.ts
+import { buildLocalityFallbackId } from '../data/mockSpecialistsGeo';
 import {
     specialistsGeoApi,
     type GeoPoint,
@@ -8,6 +9,14 @@ import {
 export const specialistsGeoService = {
     async suggestCities(query: string): Promise<GeoSuggestItem[]> {
         return specialistsGeoApi.suggestCities(query);
+    },
+
+    async suggestLocalities(query: string): Promise<GeoSuggestItem[]> {
+        return specialistsGeoApi.suggestLocalities(query);
+    },
+
+    localityToCityId(item: GeoSuggestItem): string {
+        return buildLocalityFallbackId(item);
     },
 
     async suggestDistricts(

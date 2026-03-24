@@ -30,12 +30,14 @@ export const registerService = {
     verificationToken: string,
     firstName: string,
     lastName: string,
+    middleName: string,
     cityId: string,
   ) {
     const res = await registerApi.completeProfile({
       verificationToken,
       firstName,
       lastName,
+      middleName: middleName.trim() || undefined,
       cityId,
     });
 

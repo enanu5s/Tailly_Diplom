@@ -56,7 +56,8 @@ export async function mockCompleteProfile(
 
   const firstName = dto.firstName.trim();
   const lastName = dto.lastName.trim();
-  const fullName = `${firstName} ${lastName}`.trim();
+  const middleName = dto.middleName?.trim() ?? '';
+  const fullName = [lastName, firstName, middleName].filter(Boolean).join(' ').trim();
 
   return {
     accessToken: 'mock-access-token-client',
@@ -67,6 +68,7 @@ export async function mockCompleteProfile(
       name: fullName || 'Новый пользователь',
       firstName: firstName || undefined,
       lastName: lastName || undefined,
+      middleName: middleName || undefined,
       cityId: dto.cityId,
     },
   };

@@ -11,6 +11,10 @@ async function realSuggestCities(query: string): Promise<GeoSuggestItem[]> {
   return specialistsGeoMockApi.suggestCities(query);
 }
 
+async function realSuggestLocalities(query: string): Promise<GeoSuggestItem[]> {
+  return specialistsGeoMockApi.suggestLocalities(query);
+}
+
 async function realGeocodeLocation(query: string): Promise<GeoPoint | null> {
   return specialistsGeoMockApi.geocodeLocation(query);
 }
@@ -43,6 +47,24 @@ export const specialistsGeoApi = {
     }
 
     return realSuggestCities(normalizedQuery);
+  },
+
+  async suggestLocalities(query: string): Promise<GeoSuggestItem[]> {
+    const normalizedQuery = query.trim();
+
+    if (normalizedQuery.length < 2) {
+      return [];
+    }
+
+    if (!MAPS_API_KEY) {
+      throw new Error('VITE_2GIS_API_KEY is not set');
+    }
+
+    if (USE_MOCK) {
+      return specialistsGeoMockApi.suggestLocalities(normalizedQuery);
+    }
+
+    return realSuggestLocalities(normalizedQuery);
   },
 
   async geocodeLocation(query: string): Promise<GeoPoint | null> {

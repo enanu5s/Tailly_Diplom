@@ -41,6 +41,7 @@ export type CompleteProfileRequest = {
   verificationToken: string;
   firstName: string;
   lastName: string;
+  middleName?: string;
   cityId: string;
 };
 
