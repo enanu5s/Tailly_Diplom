@@ -1,42 +1,41 @@
 // src/features/profile/api/profileApi.mock.ts
 
 import { cloneDeep } from '@/shared/mock-db/cloneDeep';
-import {
-  ensureMockDatabaseLoaded,
-  patchMockDatabase,
-  unsafeMutableMockDb,
-} from '@/shared/mock-db/store';
+import { resolveMutableClientProfile } from '@/shared/mock-db/resolveCurrentClientProfile';
+import { patchMockDatabase } from '@/shared/mock-db/store';
 
 import type { UserProfile } from '../model/types';
 
-function getDefaultProfileRef(): UserProfile {
-  ensureMockDatabaseLoaded();
-
-  const db = unsafeMutableMockDb();
-
-  return db.client.profiles[db.client.defaultUserId];
-}
-
 export async function mockGetProfile(): Promise<UserProfile> {
-  return cloneDeep(getDefaultProfileRef());
+  let profile: UserProfile | null = null;
+
+  patchMockDatabase((db) => {
+    profile = resolveMutableClientProfile(db);
+  });
+
+  return cloneDeep(profile!);
 }
 
 export async function mockUpdateContacts(
   payload: Pick<UserProfile, 'city' | 'phone'>,
 ): Promise<UserProfile> {
+  let profile: UserProfile | null = null;
+
   patchMockDatabase((db) => {
-    const profile = db.client.profiles[db.client.defaultUserId];
+    profile = resolveMutableClientProfile(db);
     Object.assign(profile, payload);
   });
 
-  return cloneDeep(getDefaultProfileRef());
+  return cloneDeep(profile!);
 }
 
 export async function mockUpdateMain(
   payload: Pick<UserProfile, 'firstName' | 'lastName' | 'middleName' | 'avatarUrl'>,
 ): Promise<UserProfile> {
+  let profile: UserProfile | null = null;
+
   patchMockDatabase((db) => {
-    const profile = db.client.profiles[db.client.defaultUserId];
+    profile = resolveMutableClientProfile(db);
     Object.assign(profile, payload);
 
     if (!payload.middleName) {
@@ -48,5 +47,5 @@ export async function mockUpdateMain(
     }
   });
 
-  return cloneDeep(getDefaultProfileRef());
+  return cloneDeep(profile!);
 }

@@ -41,6 +41,8 @@ export type CompleteProfileRequest = {
   lastName: string;
   middleName?: string;
   cityId: string;
+  /** Название НП для отображения (2GIS cityId часто числовой) */
+  cityName?: string;
 };
 
 export type CompleteProfileResponse = {

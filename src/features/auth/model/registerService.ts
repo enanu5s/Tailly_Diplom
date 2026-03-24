@@ -31,6 +31,7 @@ export const registerService = {
     lastName: string,
     middleName: string,
     cityId: string,
+    cityName?: string,
   ) {
     const res = await registerApi.completeProfile({
       verificationToken,
@@ -38,6 +39,7 @@ export const registerService = {
       lastName,
       middleName: middleName.trim() || undefined,
       cityId,
+      cityName: cityName?.trim() || undefined,
     });
 
     authStore.setAuth(res.accessToken, res.user);

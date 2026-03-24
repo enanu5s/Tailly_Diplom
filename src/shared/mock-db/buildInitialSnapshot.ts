@@ -144,6 +144,7 @@ export function buildInitialSnapshot(): MockDbSnapshot {
       registrationId: 'reg_1',
       verificationToken: 'verif_1',
       email: '',
+      password: '',
       cities: [
         { id: 'msk', name: 'Москва' },
         { id: 'spb', name: 'Санкт-Петербург' },

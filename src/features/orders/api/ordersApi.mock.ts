@@ -1,5 +1,6 @@
 // src/features/orders/api/ordersApi.mock.ts
 
+import { authStore } from '@/features/auth/model/authStore';
 import { assertCurrentUserOwnsMockShopOrder } from '@/features/shop/api/shopOrderApi.mock';
 import { readStoredOrders, writeStoredOrders } from '@/features/shop/data/mockShopOrders';
 import {
@@ -97,6 +98,90 @@ function isSlotInsideWindow(
   const windowEndMinutes = timeToMinutes(windowEnd);
 
   return slotStartMinutes >= windowStartMinutes && slotEndMinutes <= windowEndMinutes;
+}
+
+function filterServiceOrdersForViewer(list: ServiceOrder[]): ServiceOrder[] {
+  const user = authStore.getState().user;
+
+  if (!user) {
+    return [];
+  }
+
+  if (user.role === 'client') {
+    return list.filter((o) => o.clientId === user.id);
+  }
+
+  if (user.role === 'specialist') {
+    const sid = user.specialistId?.trim();
+
+    if (sid) {
+      return list.filter((o) => o.sitterId === sid);
+    }
+
+    const slug = user.specialistSlug?.trim();
+
+    if (slug) {
+      return list.filter((o) => o.specialistSlug === slug);
+    }
+
+    return [];
+  }
+
+  return [];
+}
+
+function assertClientOwnsServiceOrder(order: ServiceOrder): void {
+  const user = authStore.getState().user;
+
+  if (!user || user.role !== 'client' || order.clientId !== user.id) {
+    throw new Error('Заказ не найден.');
+  }
+}
+
+function assertSpecialistOwnsServiceOrder(order: ServiceOrder): void {
+  const user = authStore.getState().user;
+
+  if (!user || user.role !== 'specialist') {
+    throw new Error('Заказ не найден.');
+  }
+
+  const sid = user.specialistId?.trim();
+
+  if (sid && order.sitterId === sid) {
+    return;
+  }
+
+  const slug = user.specialistSlug?.trim();
+
+  if (slug && order.specialistSlug === slug) {
+    return;
+  }
+
+  throw new Error('Заказ не найден.');
+}
+
+function assertViewerCanViewServiceOrder(order: ServiceOrder): void {
+  const user = authStore.getState().user;
+
+  if (!user) {
+    throw new Error('Заказ не найден.');
+  }
+
+  if (user.role === 'client') {
+    if (order.clientId !== user.id) {
+      throw new Error('Заказ не найден.');
+    }
+
+    return;
+  }
+
+  if (user.role === 'specialist') {
+    assertSpecialistOwnsServiceOrder(order);
+
+    return;
+  }
+
+  throw new Error('Заказ не найден.');
 }
 
 function normalizeUpcomingFilter(
@@ -753,7 +838,7 @@ export async function mockGetServiceOrders(
 ): Promise<ServiceOrder[]> {
   await wait();
 
-  const sorted = [...readMockServiceOrders()].sort(
+  const sorted = [...filterServiceOrdersForViewer(readMockServiceOrders())].sort(
     (a, b) => +new Date(b.dateFrom) - +new Date(a.dateFrom),
   );
 
@@ -769,6 +854,8 @@ export async function mockGetServiceOrderById(orderId: string): Promise<ServiceO
     throw new Error('Заказ не найден.');
   }
 
+  assertViewerCanViewServiceOrder(order);
+
   return order;
 }
 
@@ -778,6 +865,12 @@ export async function mockCreateServiceOrder(
   await wait();
 
   validateByMode(payload);
+
+  const user = authStore.getState().user;
+
+  if (!user || user.role !== 'client' || user.id !== payload.clientId.trim()) {
+    throw new Error('Не удалось определить клиента для заказа.');
+  }
 
   const created = createMockServiceOrder(payload);
   syncBookedSlotsForOrder(created);
@@ -797,6 +890,8 @@ export async function mockConfirmServiceOrder(
   if (!existing) {
     throw new Error('Заказ не найден.');
   }
+
+  assertSpecialistOwnsServiceOrder(existing);
 
   ensureAllowedTransition(existing, 'confirmed');
 
@@ -819,6 +914,8 @@ export async function mockStartServiceOrder(orderId: string): Promise<StartOrder
   if (!existing) {
     throw new Error('Заказ не найден.');
   }
+
+  assertSpecialistOwnsServiceOrder(existing);
 
   ensureAllowedTransition(existing, 'active');
 
@@ -844,6 +941,8 @@ export async function mockCompleteServiceOrder(
     throw new Error('Заказ не найден.');
   }
 
+  assertSpecialistOwnsServiceOrder(existing);
+
   ensureAllowedTransition(existing, 'completed');
 
   const previousStatus = existing.status;
@@ -867,6 +966,8 @@ export async function mockCancelServiceOrder(
   if (!existing) {
     throw new Error('Заказ не найден.');
   }
+
+  assertClientOwnsServiceOrder(existing);
 
   ensureAllowedTransition(existing, 'canceled');
 
@@ -953,6 +1054,8 @@ export async function mockRepeatServiceOrder(orderId: string): Promise<RepeatRes
     throw new Error('Заказ не найден.');
   }
 
+  assertClientOwnsServiceOrder(existing);
+
   return {
     ok: true,
     draftPayload: {
@@ -1021,6 +1124,8 @@ export async function mockLeaveServiceReview(
   if (!existing) {
     throw new Error('Заказ не найден.');
   }
+
+  assertClientOwnsServiceOrder(existing);
 
   if (existing.status !== 'completed') {
     throw new Error('Оставить отзыв можно только по завершённому заказу.');

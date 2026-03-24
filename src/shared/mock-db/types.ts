@@ -37,6 +37,8 @@ export type MockRegisterSlice = {
   registrationId: string;
   verificationToken: string;
   email: string;
+  /** Пароль текущей сессии регистрации (только для мока) */
+  password: string;
   cities: City[];
 };
 

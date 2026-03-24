@@ -19,6 +19,7 @@ export function getMockRegisterState(): {
   registrationId: string;
   verificationToken: string;
   email: string;
+  password: string;
   cities: City[];
 } {
   ensureMockDatabaseLoaded();
@@ -38,6 +39,7 @@ export function patchMockRegisterState(
     registrationId: string;
     verificationToken: string;
     email: string;
+    password: string;
     cities: City[];
   }) => void,
 ): void {

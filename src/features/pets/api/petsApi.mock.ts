@@ -1,6 +1,7 @@
 // src/features/pets/api/petsApi.mock.ts
 
 import { cloneDeep } from '@/shared/mock-db/cloneDeep';
+import { requireMockSessionUserId } from '@/shared/mock-db/resolveCurrentClientProfile';
 import {
   ensureMockDatabaseLoaded,
   patchMockDatabase,
@@ -9,18 +10,17 @@ import {
 
 import type { Breed, Pet } from '../model/types';
 
-function defaultUserPets(): Pet[] {
+function currentUserPets(): Pet[] {
   ensureMockDatabaseLoaded();
 
   const db = unsafeMutableMockDb();
-  const uid = db.client.defaultUserId;
-  
+  const uid = requireMockSessionUserId();
 
   return db.client.petsByUserId[uid] ?? [];
 }
 
 export async function mockGetPets(): Promise<Pet[]> {
-  return cloneDeep(defaultUserPets());
+  return cloneDeep(currentUserPets());
 }
 
 export async function mockGetBreeds(): Promise<Breed[]> {
@@ -33,7 +33,7 @@ export async function mockUpsertPet(pet: Pet): Promise<Pet> {
   const next = cloneDeep(pet);
 
   patchMockDatabase((db) => {
-    const uid = db.client.defaultUserId;
+    const uid = requireMockSessionUserId();
     const list = [...(db.client.petsByUserId[uid] ?? [])];
     const idx = list.findIndex((item) => item.id === next.id);
 
@@ -52,8 +52,8 @@ export async function mockUpsertPet(pet: Pet): Promise<Pet> {
 export async function mockDeletePet(id: string): Promise<{ id: string }> {
   ensureMockDatabaseLoaded();
 
+  const uid = requireMockSessionUserId();
   const db = unsafeMutableMockDb();
-  const uid = db.client.defaultUserId;
   const list = db.client.petsByUserId[uid] ?? [];
 
   if (!list.some((p) => p.id === id)) {
@@ -61,8 +61,7 @@ export async function mockDeletePet(id: string): Promise<{ id: string }> {
   }
 
   patchMockDatabase((next) => {
-    const u = next.client.defaultUserId;
-    next.client.petsByUserId[u] = (next.client.petsByUserId[u] ?? []).filter(
+    next.client.petsByUserId[uid] = (next.client.petsByUserId[uid] ?? []).filter(
       (p) => p.id !== id,
     );
   });

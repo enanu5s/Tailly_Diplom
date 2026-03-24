@@ -174,6 +174,11 @@ export const RegisterClientProfilePage = () => {
     }
 
     const cityId = specialistsGeoService.localityToCityId(selectedLocality);
+    const cityLabel = (
+      selectedLocality.fullName ||
+      selectedLocality.name ||
+      ''
+    ).trim();
 
     setLoading(true);
     try {
@@ -183,6 +188,7 @@ export const RegisterClientProfilePage = () => {
         lastName.trim(),
         middleName,
         cityId,
+        cityLabel,
       );
       navigate('/', { replace: true });
     } catch (err: unknown) {

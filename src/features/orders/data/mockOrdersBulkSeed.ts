@@ -196,6 +196,39 @@ function buildSchedule(
   };
 }
 
+/** Совпадает с `buildExtraClientProfilesAndPets` (питомцы client-2…20) */
+const DEMO_PET_NAMES = ['Барсик', 'Мурзик', 'Шарик', 'Рыжик', 'Снежок', 'Пушок'];
+
+function petIdNameForBulkOrder(
+  clientNum: number,
+  orderIndex: number,
+): { petId: string; petName: string } {
+  if (clientNum === 1) {
+    const cycle = [
+      { petId: 'pet-1', petName: 'Марта' },
+      { petId: 'pet-2', petName: 'Пушок' },
+      { petId: 'pet-3', petName: 'Снежок' },
+    ];
+
+    return cycle[orderIndex % 3];
+  }
+
+  const clientId = `client-${clientNum}`;
+  const useDog = orderIndex % 2 === 0;
+
+  if (useDog) {
+    return {
+      petId: `${clientId}-pet-dog`,
+      petName: DEMO_PET_NAMES[(clientNum + 1) % DEMO_PET_NAMES.length],
+    };
+  }
+
+  return {
+    petId: `${clientId}-pet-cat`,
+    petName: DEMO_PET_NAMES[clientNum % DEMO_PET_NAMES.length],
+  };
+}
+
 /** ~70 дополнительных заказов между клиентами client-1…20 и специалистами specialist-1…14 */
 export function buildBulkSyntheticServiceOrders(now: Date): ServiceOrder[] {
   const sitters = specialistRows();
@@ -221,8 +254,7 @@ export function buildBulkSyntheticServiceOrders(now: Date): ServiceOrder[] {
     const offsetDays = -30 + (i % 45);
     const { dateFrom, dateTo, schedule } = buildSchedule(now, offsetDays, svc);
 
-    const petId = `pet-client-${clientNum}-${(i % 3) + 1}`;
-    const petName = ['Барсик', 'Шарик', 'Мурка'][(i + clientNum) % 3];
+    const { petId, petName } = petIdNameForBulkOrder(clientNum, i);
     const createdAt = atTime(addDays(now, offsetDays - 1), 9 + (i % 8), 0);
 
     const orderId = `bulk-service-order-${i + 1}`;
