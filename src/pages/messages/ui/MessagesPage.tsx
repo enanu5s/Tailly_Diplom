@@ -1,7 +1,9 @@
 // src/pages/messages/ui/MessagesPage.tsx
-import type { ReactElement } from 'react';
 import { MessagesSection } from '@/features/messages';
+
 import styles from './MessagesPage.module.css';
+
+import type { ReactElement } from 'react';
 
 export const MessagesPage = (): ReactElement => {
   return (

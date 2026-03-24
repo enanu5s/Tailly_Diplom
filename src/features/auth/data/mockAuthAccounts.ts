@@ -1,20 +1,21 @@
 //src/features/auth/data/mockAuthAccounts.ts
 
 import {
+  readManagedSpecialistAccounts,
+  type ManagedSpecialistMockAccount,
+} from '@/shared/lib/mock/specialistAccountsStorage';
+import {
   ensureMockDatabaseLoaded,
   patchMockDatabase,
   persistMockDatabase,
   unsafeMutableMockDb,
 } from '@/shared/mock-db/store';
+
 import {
   getActiveSoftDeleteRecord,
   getPermanentDeletedIds,
   purgeExpiredSoftDeletes,
 } from './mockAccountDeletionStorage';
-import {
-  readManagedSpecialistAccounts,
-  type ManagedSpecialistMockAccount,
-} from '@/shared/lib/mock/specialistAccountsStorage';
 
 import type { UserRole } from '../model/authStore';
 import type { LoginSuccessResponse } from '../model/types';
@@ -87,7 +88,7 @@ export function getAdminAttemptState(email: string): MockAttemptState {
 
   const normalizedEmail = normalizeEmail(email);
   const db = unsafeMutableMockDb();
-  let current = db.auth.adminAttempts[normalizedEmail];
+  const current = db.auth.adminAttempts[normalizedEmail];
 
   if (current) {
     return current;

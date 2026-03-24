@@ -1,14 +1,15 @@
 import { observer } from 'mobx-react-lite';
 import { useEffect } from 'react';
 import { Link, useLocation } from 'react-router-dom';
-import { useAppNavigate } from '@/shared/lib/navigation/useAppNavigate';
 
+import type { RepeatableProductOrder } from '@/features/orders/model/productOrderRepeat';
 import { shopCheckoutStore } from '@/features/shop/model/shopCheckoutStore';
 import { ProductBackButton } from '@/features/shop/ui';
+import { useAppNavigate } from '@/shared/lib/navigation/useAppNavigate';
+
 
 import styles from './ShopCheckoutPage.module.css';
 
-import type { RepeatableProductOrder } from '@/features/orders/model/productOrderRepeat';
 
 type ShopCheckoutPageLocationState = {
   from?: {

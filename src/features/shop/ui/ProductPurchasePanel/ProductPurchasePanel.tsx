@@ -5,12 +5,12 @@ import { observer } from 'mobx-react-lite';
 import { useAuth } from '@/features/auth/model/useAuth';
 import { shouldShowShopConsumerControls } from '@/shared/lib/auth/roleAccess';
 
+import styles from './ProductPurchasePanel.module.css';
 import { shopCartStore } from '../../model/shopCartStore';
 import { shopFavoritesStore } from '../../model/shopFavoritesStore';
 
 import type { Product } from '../../model/types';
 
-import styles from './ProductPurchasePanel.module.css';
 
 type Props = {
   product: Product;

@@ -8,6 +8,7 @@ import {
   mockRequestSuperAdminEmailChangeApi,
   mockUpdateAdminProfile,
 } from './adminProfileApi.mock';
+
 import type {
   AdminProfile,
   ConfirmSuperAdminEmailChangePayload,

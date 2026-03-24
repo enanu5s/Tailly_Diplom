@@ -1,11 +1,12 @@
 // src/features/admin-profile/ui/AdminProfileSection.tsx
 import { observer } from 'mobx-react-lite';
 import { useEffect } from 'react';
+
 import { useAppNavigate } from '@/shared/lib/navigation/useAppNavigate';
 
+import styles from './AdminProfileSection.module.css';
 import { adminProfileStore } from '../model/adminProfileStore';
 
-import styles from './AdminProfileSection.module.css';
 
 import type { ReactElement } from 'react';
 

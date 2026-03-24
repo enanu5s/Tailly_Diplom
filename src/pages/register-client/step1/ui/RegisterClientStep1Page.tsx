@@ -1,8 +1,9 @@
 //src/pages/register-client/step1/ui/RegisterClientStep1Page.tsx
 import { useState } from "react";
-import { useAppNavigate } from '@/shared/lib/navigation/useAppNavigate';
 
 import { registerService } from "@/features/auth/model/registerService";
+import { useAppNavigate } from '@/shared/lib/navigation/useAppNavigate';
+
 
 import styles from "../../RegisterClient.module.css";
 

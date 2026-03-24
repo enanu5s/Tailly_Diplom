@@ -1,7 +1,6 @@
 //src/pages/become-specialist/ui/BecomeSpecialistPage.tsx
 
 import { useAppNavigate } from '@/shared/lib/navigation/useAppNavigate';
-
 import { FeedbackSection } from '@/shared/ui/feedback';
 
 import styles from './BecomeSpecialistPage.module.css';

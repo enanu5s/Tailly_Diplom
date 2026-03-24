@@ -14,12 +14,13 @@ import {
   syncBlockedState,
   wait,
 } from '../data/mockAuthAccounts';
-import type { UserRole } from '../model/authStore';
 import {
   LoginError,
   type LoginPayload,
   type LoginSuccessResponse,
 } from '../model/types';
+
+import type { UserRole } from '../model/authStore';
 
 function resolveAdminSessionRole(roles: UserRole[]): 'admin' | 'super_admin' {
   return roles.includes('super_admin') ? 'super_admin' : 'admin';

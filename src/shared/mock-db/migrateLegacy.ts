@@ -1,7 +1,7 @@
 // src/shared/mock-db/migrateLegacy.ts
 
-import { LEGACY_KEYS, MOCK_DB_VERSION } from './constants';
 import { cloneDeep } from './cloneDeep';
+import { LEGACY_KEYS, MOCK_DB_VERSION } from './constants';
 
 import type { MockDbSnapshot } from './types';
 

@@ -1,7 +1,8 @@
 // src/shared/ui/static-page/StaticPageLayout.tsx
+import styles from "./StaticPageLayout.module.css";
+
 import type { ReactNode } from "react";
 
-import styles from "./StaticPageLayout.module.css";
 
 type StaticPageLayoutProps = {
   title: string;

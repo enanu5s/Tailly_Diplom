@@ -3,11 +3,12 @@
 import { observer } from "mobx-react-lite";
 import { useEffect, useSyncExternalStore } from "react";
 import { useLocation } from "react-router-dom";
-import { useAppNavigate } from "@/shared/lib/navigation/useAppNavigate";
+
 
 import { adminLoginStore } from "@/features/admin-auth/model/adminLoginStore";
 import { authStore } from "@/features/auth/model/authStore";
 import { canAccessAdminArea } from "@/shared/lib/auth/roleAccess";
+import { useAppNavigate } from "@/shared/lib/navigation/useAppNavigate";
 
 import styles from "./AdminLoginPage.module.css";
 

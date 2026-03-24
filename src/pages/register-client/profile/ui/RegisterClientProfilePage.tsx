@@ -1,12 +1,13 @@
 //src/pages/register-client/profile/ui/RegisterClientProfilePage.tsx
 
 import { useEffect, useRef, useState } from "react";
-import { useAppNavigate } from '@/shared/lib/navigation/useAppNavigate';
 
-import type { GeoSuggestItem } from "@/features/specialists-search/api/specialistsGeoApi";
-import { specialistsGeoService } from "@/features/specialists-search/service/specialistsGeoService";
+
 import { registerService } from "@/features/auth/model/registerService";
 import { useRegisterFlow } from "@/features/auth/model/useRegisterFlow";
+import type { GeoSuggestItem } from "@/features/specialists-search/api/specialistsGeoApi";
+import { specialistsGeoService } from "@/features/specialists-search/service/specialistsGeoService";
+import { useAppNavigate } from '@/shared/lib/navigation/useAppNavigate';
 
 import styles from "../../RegisterClient.module.css";
 

@@ -1,5 +1,5 @@
 import { readAdminManagedBanners } from '@/features/admin-posts-banners-management/data/adminPostsBannersStorage';
-
+import type { AdminManagedBanner } from '@/features/admin-posts-banners-management/model/types';
 import { SERVICES } from '@/shared/config/services';
 import type { ServiceConfig } from '@/shared/config/services';
 
@@ -7,8 +7,7 @@ import { deepCopy, MOCK_REVIEWS } from '../data/mockHome';
 
 import type { HomeBanner, HomeReview } from '../model/types';
 
-// 👉 маппинг admin banner → home banner
-function mapAdminBannerToHomeBanner(banner: any): HomeBanner {
+function mapAdminBannerToHomeBanner(banner: AdminManagedBanner): HomeBanner {
   return {
     id: banner.id,
     title: banner.title,
@@ -25,11 +24,11 @@ export async function mockGetLatestBanners(): Promise<HomeBanner[]> {
 
   const filtered = allBanners
     .filter(
-      (b: any) =>
+      (b) =>
         b.status === 'published' &&
         b.placement === 'home_hero',
     )
-    .sort((a: any, b: any) =>
+    .sort((a, b) =>
       a.createdAt < b.createdAt ? 1 : -1,
     )
     .slice(0, 5)

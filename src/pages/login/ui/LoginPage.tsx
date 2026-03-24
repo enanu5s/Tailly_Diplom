@@ -3,10 +3,11 @@
 import { observer } from "mobx-react-lite";
 import { useEffect, useMemo, useSyncExternalStore } from "react";
 import { Link, useLocation, useSearchParams } from "react-router-dom";
-import { useAppNavigate } from "@/shared/lib/navigation/useAppNavigate";
+
 
 import { authStore, loginStore } from "@/features/auth";
 import { getDefaultAuthorizedRoute } from "@/shared/lib/auth";
+import { useAppNavigate } from "@/shared/lib/navigation/useAppNavigate";
 
 import styles from "./LoginPage.module.css";
 

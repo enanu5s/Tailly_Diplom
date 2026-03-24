@@ -1,11 +1,12 @@
 // src/features/auth/data/mockRegister.ts
 
-import type { City } from '../api/registerApi';
 import {
   ensureMockDatabaseLoaded,
   patchMockDatabase,
   unsafeMutableMockDb,
 } from '@/shared/mock-db/store';
+
+import type { City } from '../api/registerApi';
 
 export function wait(delay = 400): Promise<void> {
   return new Promise((resolve) => {

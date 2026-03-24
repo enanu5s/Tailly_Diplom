@@ -1,9 +1,10 @@
 // src/pages/admin-dashboard/ui/AdminDashboardPage.tsx
 import { useMemo, useSyncExternalStore } from "react";
-import { useAppNavigate } from '@/shared/lib/navigation/useAppNavigate';
+
 
 import { adminProfileStore } from "@/features/admin-profile";
 import { authStore } from "@/features/auth/model/authStore";
+import { useAppNavigate } from '@/shared/lib/navigation/useAppNavigate';
 
 import styles from "./AdminDashboardPage.module.css";
 

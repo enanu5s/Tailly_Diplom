@@ -1,7 +1,7 @@
 // src/pages/admin-specialist-applications/ui/AdminSpecialistApplicationsPage.tsx
 
-import { BackButton } from "@/shared/ui/back-button";
 import { SpecialistApplicationsModerationSection } from "@/features/specialist-applications/ui/SpecialistApplicationsModerationSection";
+import { BackButton } from "@/shared/ui/back-button";
 
 import styles from "./AdminSpecialistApplicationsPage.module.css";
 

@@ -5,8 +5,8 @@ import { useEffect, useMemo } from "react";
 import { Link, useParams } from "react-router-dom";
 
 import { useAuth } from "@/features/auth/model/useAuth";
-import { getMessagesViewerFromUser } from "@/features/messages/model/messagesViewer";
 import { messagesStore } from "@/features/messages/model/messagesStore";
+import { getMessagesViewerFromUser } from "@/features/messages/model/messagesViewer";
 import { ordersStore } from "@/features/orders/model/ordersStore";
 import { useAppNavigate } from "@/shared/lib/navigation/useAppNavigate";
 
@@ -31,12 +31,10 @@ export const SpecialistClientProfilePage = observer((): ReactElement => {
     void ordersStore.loadServices();
   }, []);
 
-  const clientOrders = useMemo(() => {
-    return ordersStore.serviceOrders.filter(
-      (order) =>
-        order.clientId === clientId && order.specialistSlug === slug,
-    );
-  }, [clientId, ordersStore.serviceOrders, slug]);
+  const clientOrders = ordersStore.serviceOrders.filter(
+    (order) =>
+      order.clientId === clientId && order.specialistSlug === slug,
+  );
 
   const clientName =
     clientOrders[0]?.clientName?.trim() ||

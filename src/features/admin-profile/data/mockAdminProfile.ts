@@ -4,11 +4,11 @@ import {
   normalizeEmail,
 } from '@/features/admin-auth/data/mockAdminAccounts';
 import { authStore } from '@/features/auth/model/authStore';
-import { patchMockDatabase } from '@/shared/mock-db/store';
 import {
   getSuperAdminAdminsMutable,
   type MockAdminRecord,
 } from '@/features/super-admin-admins-management/data/mockAdminsManagement';
+import { patchMockDatabase } from '@/shared/mock-db/store';
 
 import {
   AdminProfileError,

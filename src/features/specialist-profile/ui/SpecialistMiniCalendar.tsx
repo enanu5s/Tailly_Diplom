@@ -1,7 +1,8 @@
 // src/features/specialist-profile/ui/SpecialistMiniCalendar.tsx
 
-import { useAppNavigate } from '@/shared/lib/navigation/useAppNavigate';
 import { useState } from "react";
+
+import { useAppNavigate } from '@/shared/lib/navigation/useAppNavigate';
 
 import styles from "./SpecialistMiniCalendar.module.css";
 import {

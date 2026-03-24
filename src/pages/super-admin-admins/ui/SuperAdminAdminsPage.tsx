@@ -1,8 +1,8 @@
 // src/pages/super-admin-admins/ui/SuperAdminAdminsPage.tsx
 
+import { SuperAdminAdminsManagementSection } from '@/features/super-admin-admins-management';
 import { useAppNavigate } from '@/shared/lib/navigation/useAppNavigate';
 
-import { SuperAdminAdminsManagementSection } from '@/features/super-admin-admins-management';
 
 import styles from './SuperAdminAdminsPage.module.css';
 

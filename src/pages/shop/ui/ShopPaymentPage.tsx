@@ -3,11 +3,11 @@
 import { useCallback, useEffect, useState } from 'react';
 import { Link, useNavigate, useParams } from 'react-router-dom';
 
+import type { Order, PaymentMethod } from '@/features/shop/model/types';
 import { shopOrderService } from '@/features/shop/service/shopOrderService';
 
 import styles from './ShopPaymentPage.module.css';
 
-import type { Order, PaymentMethod } from '@/features/shop/model/types';
 
 type PayTab = 'card' | 'sbp';
 

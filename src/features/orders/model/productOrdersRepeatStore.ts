@@ -4,8 +4,8 @@ import { makeAutoObservable, runInAction } from 'mobx';
 
 import { productOrderRepeatService } from '../service/productOrderRepeatService';
 
-import type { NavigateFunction } from 'react-router-dom';
 import type { RepeatableProductOrder } from './productOrderRepeat';
+import type { NavigateFunction } from 'react-router-dom';
 
 class ProductOrdersRepeatStore {
   private loadingOrderIds = new Set<string>();

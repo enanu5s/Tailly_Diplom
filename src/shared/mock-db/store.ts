@@ -1,8 +1,8 @@
 // src/shared/mock-db/store.ts
 
 import { buildInitialSnapshot } from './buildInitialSnapshot';
-import { MOCK_DB_STORAGE_KEY, MOCK_DB_VERSION } from './constants';
 import { cloneDeep } from './cloneDeep';
+import { MOCK_DB_STORAGE_KEY, MOCK_DB_VERSION } from './constants';
 import {
   mergeLegacyLocalStorageIfNeeded,
   normalizeSnapshotVersion,

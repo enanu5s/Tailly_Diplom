@@ -3,10 +3,11 @@
 import { observer } from "mobx-react-lite";
 import { useEffect, useMemo } from "react";
 import { useSearchParams } from "react-router-dom";
-import { useAppNavigate } from '@/shared/lib/navigation/useAppNavigate';
+
 
 import { SERVICES } from "@/shared/config/services";
 import type { ServiceId } from "@/shared/config/services";
+import { useAppNavigate } from '@/shared/lib/navigation/useAppNavigate';
 
 import { SpecialistsSearchStore } from "../model/specialistsSearchStore";
 import { FiltersPanel } from "./FiltersPanel/FiltersPanel";

@@ -1,9 +1,9 @@
 import { observer } from 'mobx-react-lite';
 import { useEffect, type ChangeEvent, type ReactElement } from 'react';
 
+import styles from './PetsSection.module.css';
 import { petsStore } from '../model/petsStore';
 
-import styles from './PetsSection.module.css';
 
 import type {
   Pet,

@@ -5,9 +5,9 @@ import { RouterProvider, createBrowserRouter } from "react-router-dom";
 
 import { routes } from "@/app/router/routes";
 import { authStore } from "@/features/auth/model/authStore";
+import { seedDemoMessagesIfEmpty } from "@/features/messages/data/messagesStorage";
 import { configureHttpClient } from "@/shared/api/http";
 import { runEmailNotificationScheduler } from "@/shared/lib/emailNotifications";
-import { seedDemoMessagesIfEmpty } from "@/features/messages/data/messagesStorage";
 import { ensureMockDatabaseLoaded } from "@/shared/mock-db/store";
 
 const router = createBrowserRouter(routes);

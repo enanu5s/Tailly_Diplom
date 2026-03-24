@@ -1,24 +1,24 @@
 // src/features/orders/ui/OrdersServicesSection.tsx
 
 import { observer } from "mobx-react-lite";
-import { useEffect, useMemo, useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { useLocation, useParams } from "react-router-dom";
-import { useAppNavigate } from '@/shared/lib/navigation/useAppNavigate';
 
 import { useAuth } from "@/features/auth/model/useAuth";
-import { getMessagesViewerFromUser } from "@/features/messages/model/messagesViewer";
 import { messagesStore } from "@/features/messages/model/messagesStore";
+import { getMessagesViewerFromUser } from "@/features/messages/model/messagesViewer";
+import { useAppNavigate } from "@/shared/lib/navigation/useAppNavigate";
 
+
+import styles from "./OrdersServicesSection.module.css";
 import { ordersStore } from "../model/ordersStore";
+
 import type {
   LeaveServiceReviewPayload,
   OrderStatus,
   ServiceOrder,
   ServicesFilter,
 } from "../model/types";
-
-import styles from "./OrdersServicesSection.module.css";
-
 import type { ChangeEvent, ReactElement } from "react";
 
 type ViewerRole = "client" | "specialist" | "admin" | "super_admin";
@@ -315,6 +315,7 @@ export const OrdersServicesSection = observer(
     );
 
     const orderRefs = useRef<Record<string, HTMLElement | null>>({});
+    const serviceOrdersLength = ordersStore.serviceOrders.length;
 
     useEffect(() => {
       void ordersStore.loadServices();
@@ -366,7 +367,7 @@ export const OrdersServicesSection = observer(
       location.key,
       locationState?.highlightedOrderId,
       locationState?.justCreatedOrderId,
-      ordersStore.serviceOrders.length,
+      serviceOrdersLength,
     ]);
 
     useEffect(() => {
@@ -380,9 +381,7 @@ export const OrdersServicesSection = observer(
       });
     }, [location.pathname, locationState, navigate]);
 
-    const serviceOrders = useMemo(() => {
-      return ordersStore.serviceOrders;
-    }, [ordersStore.serviceOrders]);
+    const serviceOrders = ordersStore.serviceOrders;
 
     const handleSetFilter = (filter: ServicesFilter): void => {
       ordersStore.setServicesFilter(filter);

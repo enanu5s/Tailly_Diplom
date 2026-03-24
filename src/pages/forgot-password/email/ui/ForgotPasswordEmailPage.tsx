@@ -2,9 +2,10 @@
 
 import { useState } from 'react';
 import { Link } from 'react-router-dom';
-import { useAppNavigate } from '@/shared/lib/navigation/useAppNavigate';
 
 import { passwordRecoveryService } from '@/features/auth/model/passwordRecoveryService';
+import { useAppNavigate } from '@/shared/lib/navigation/useAppNavigate';
+
 
 import styles from '../../ForgotPassword.module.css';
 

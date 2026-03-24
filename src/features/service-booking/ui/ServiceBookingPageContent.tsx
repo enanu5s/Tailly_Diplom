@@ -2,16 +2,16 @@
 
 import { observer } from "mobx-react-lite";
 import { useEffect } from "react";
+import { useLocation, useSearchParams } from "react-router-dom";
 
 import { useAuth } from "@/features/auth/model/useAuth";
 import { useAppNavigate } from "@/shared/lib/navigation/useAppNavigate";
-import { useLocation, useSearchParams } from "react-router-dom";
 
 
-import { serviceBookingStore } from "../model/serviceBookingStore";
-import type { ServiceBookingLocationState } from "../model/types";
 import styles from "./ServiceBookingPageContent.module.css";
+import { serviceBookingStore } from "../model/serviceBookingStore";
 
+import type { ServiceBookingLocationState } from "../model/types";
 import type { ReactElement } from "react";
 
 function formatPriceUnit(unit: string): string {

@@ -4,8 +4,8 @@ import { observer } from 'mobx-react-lite';
 import { useAuth } from '@/features/auth/model/useAuth';
 import { shouldShowShopConsumerControls } from '@/shared/lib/auth/roleAccess';
 
-import { shopCartStore } from '../model/shopCartStore';
 import styles from './ShopCartMergePrompt.module.css';
+import { shopCartStore } from '../model/shopCartStore';
 
 import type { ReactElement } from 'react';
 

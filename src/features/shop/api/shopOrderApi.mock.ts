@@ -2,6 +2,7 @@
 
 import { notifyShopOrderEvent } from '@/shared/lib/emailNotifications';
 
+import { getShopProductsSnapshot } from '../data/mockShopCatalogDb';
 import {
   addDays,
   generateOrderId,
@@ -9,7 +10,6 @@ import {
   readStoredOrders,
   writeStoredOrders,
 } from '../data/mockShopOrders';
-import { getShopProductsSnapshot } from '../data/mockShopCatalogDb';
 
 import type { CreateOrderPayload } from './shopOrderApi';
 import type {

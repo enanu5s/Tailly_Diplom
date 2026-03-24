@@ -1,7 +1,7 @@
 // src/pages/admin-users/ui/AdminUsersPage.tsx
 
-import { BackButton } from "@/shared/ui/back-button";
 import { AdminUsersManagementSection } from "@/features/admin-users-management";
+import { BackButton } from "@/shared/ui/back-button";
 
 import styles from "./AdminUsersPage.module.css";
 

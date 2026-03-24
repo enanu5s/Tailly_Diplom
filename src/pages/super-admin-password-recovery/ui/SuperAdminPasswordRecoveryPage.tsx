@@ -1,7 +1,7 @@
 // src/pages/super-admin-password-recovery/ui/SuperAdminPasswordRecoveryPage.tsx
+import { AdminPasswordRecoveryManagementSection } from '@/features/admin-password-recovery-management';
 import { useAppNavigate } from '@/shared/lib/navigation/useAppNavigate';
 
-import { AdminPasswordRecoveryManagementSection } from '@/features/admin-password-recovery-management';
 
 import styles from './SuperAdminPasswordRecoveryPage.module.css';
 

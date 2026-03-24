@@ -4,12 +4,12 @@ import { useState } from "react";
 import { Link } from "react-router-dom";
 
 import { specialistApplicationsService } from "@/features/specialist-applications";
+import type { SpecialistApplicationQuestionnaire } from "@/features/specialist-applications/model/types";
 import { BackButton } from "@/shared/ui/back-button";
 
 import styles from "./BecomeSpecialistFormPage.module.css";
 
 import type { FormEvent, ReactElement } from "react";
-import type { SpecialistApplicationQuestionnaire } from "@/features/specialist-applications/model/types";
 
 const ANIMAL_TYPE_OPTIONS = [
   "Собаки",

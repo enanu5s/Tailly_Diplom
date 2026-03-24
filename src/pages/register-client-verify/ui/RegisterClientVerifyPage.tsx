@@ -1,9 +1,10 @@
 // src/pages/register-client/verify/ui/RegisterClientVerifyPage.tsx
 import { useEffect, useState } from 'react';
-import { useAppNavigate } from '@/shared/lib/navigation/useAppNavigate';
+
 
 import { registerService } from '@/features/auth/model/registerService';
 import { useRegisterFlow } from '@/features/auth/model/useRegisterFlow';
+import { useAppNavigate } from '@/shared/lib/navigation/useAppNavigate';
 
 import styles from '../../RegisterClient.module.css';
 

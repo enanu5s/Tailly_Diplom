@@ -18,6 +18,7 @@ import {
   mockStartServiceOrder,
 } from './ordersApi.mock';
 
+import type { ProductOrderRepeatCheckoutDraft } from '../model/productOrderRepeatCheckout';
 import type {
   CancelOrderResult,
   CompleteOrderResult,
@@ -31,7 +32,6 @@ import type {
   ServicesFilter,
   StartOrderResult,
 } from '../model/types';
-import type { ProductOrderRepeatCheckoutDraft } from '../model/productOrderRepeatCheckout';
 
 const USE_MOCK = (import.meta.env.VITE_USE_MOCK_API ?? 'true') === 'true';
 

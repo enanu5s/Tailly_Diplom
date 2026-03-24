@@ -2,6 +2,7 @@ import { makeAutoObservable, runInAction } from "mobx";
 
 import { ordersService } from "../service/ordersService";
 
+import type { ProductOrderRepeatCheckoutDraft } from "./productOrderRepeatCheckout";
 import type {
   LeaveServiceReviewPayload,
   OrderStatus,
@@ -9,7 +10,6 @@ import type {
   ServiceOrder,
   ServicesFilter,
 } from "./types";
-import type { ProductOrderRepeatCheckoutDraft } from "./productOrderRepeatCheckout";
 
 export class OrdersStore {
   servicesFilter: ServicesFilter = "all";

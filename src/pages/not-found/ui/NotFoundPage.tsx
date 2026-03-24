@@ -2,6 +2,7 @@
 
 import { useMemo } from 'react';
 import { Link, useLocation } from 'react-router-dom';
+
 import { useAppNavigate } from '@/shared/lib/navigation/useAppNavigate';
 
 import styles from './NotFoundPage.module.css';

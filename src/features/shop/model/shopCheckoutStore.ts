@@ -1,13 +1,13 @@
 import { makeAutoObservable, runInAction } from 'mobx';
 
 import { authStore } from '@/features/auth/model/authStore';
+import type { RepeatableProductOrder } from '@/features/orders/model/productOrderRepeat';
 import { profileService } from '@/features/profile/service/profileService';
 
 import { shopCartStore } from './shopCartStore';
 import { shopOrderService } from '../service/shopOrderService';
 import { shopService } from '../service/shopService';
 
-import type { RepeatableProductOrder } from '@/features/orders/model/productOrderRepeat';
 import type { CheckoutForm, PickupPoint, Product, Order } from './types';
 
 type CheckoutValidationErrors = Partial<

@@ -2,6 +2,7 @@
 import { makeAutoObservable, runInAction } from 'mobx';
 
 import { adminPasswordRecoveryManagementService } from '../service/adminPasswordRecoveryManagementService';
+
 import type { AdminPasswordRecoveryRequestItem } from './types';
 
 class AdminPasswordRecoveryManagementStore {

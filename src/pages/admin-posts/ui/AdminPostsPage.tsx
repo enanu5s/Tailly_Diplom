@@ -1,7 +1,7 @@
 // src/pages/admin-posts/ui/AdminPostsPage.tsx
+import { AdminPostsBannersManagementSection } from "@/features/admin-posts-banners-management";
 import { BackButton } from "@/shared/ui/back-button";
 
-import { AdminPostsBannersManagementSection } from "@/features/admin-posts-banners-management";
 
 import styles from "./AdminPostsPage.module.css";
 

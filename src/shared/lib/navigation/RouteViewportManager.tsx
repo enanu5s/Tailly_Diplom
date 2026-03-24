@@ -13,10 +13,7 @@ export function RouteViewportManager(): null {
   const location = useLocation();
   const navigationType = useNavigationType();
 
-  const routeKey = useMemo(
-    () => buildRouteKey(location),
-    [location.pathname, location.search, location.hash],
-  );
+  const routeKey = useMemo(() => buildRouteKey(location), [location]);
 
   useEffect(() => {
     if (typeof window === 'undefined' || !('scrollRestoration' in window.history)) {

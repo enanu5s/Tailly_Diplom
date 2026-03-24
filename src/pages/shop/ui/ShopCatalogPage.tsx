@@ -1,11 +1,10 @@
 // src/pages/shop/ui/ShopCatalogPage.tsx
 
 import { observer } from "mobx-react-lite";
-import { useEffect, useMemo, useRef } from "react";
+import { useEffect, useRef } from "react";
 import { Link, useLocation } from "react-router-dom";
-import { useAuth } from "@/features/auth/model/useAuth";
-import { useAppNavigate } from "@/shared/lib/navigation/useAppNavigate";
 
+import { useAuth } from "@/features/auth/model/useAuth";
 import { ordersStore } from "@/features/orders/model/ordersStore";
 import { shouldOpenProductOrderDetails } from "@/features/orders/model/types";
 import { shopCartStore } from "@/features/shop/model/shopCartStore";
@@ -17,6 +16,7 @@ import {
   ProductCard,
 } from "@/features/shop/ui";
 import { shouldShowShopConsumerControls } from "@/shared/lib/auth/roleAccess";
+import { useAppNavigate } from "@/shared/lib/navigation/useAppNavigate";
 
 import styles from "./ShopCatalogPage.module.css";
 
@@ -170,9 +170,8 @@ export const ShopCatalogPage = observer(() => {
     },
   };
 
-  const activeOrders = useMemo(
-    () => ordersStore.productOrders.filter(shouldOpenProductOrderDetails),
-    [ordersStore.productOrders]
+  const activeOrders = ordersStore.productOrders.filter(
+    shouldOpenProductOrderDetails,
   );
 
   return (

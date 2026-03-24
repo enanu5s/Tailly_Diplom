@@ -3,8 +3,8 @@
 import { observer } from 'mobx-react-lite';
 import { useEffect, useState } from 'react';
 
-import { adminPasswordRecoveryManagementStore } from '../model/adminPasswordRecoveryManagementStore';
 import styles from './AdminPasswordRecoveryManagementSection.module.css';
+import { adminPasswordRecoveryManagementStore } from '../model/adminPasswordRecoveryManagementStore';
 
 import type { ReactElement } from 'react';
 

@@ -19,7 +19,7 @@ export function useAppNavigate(): AppNavigateFunction {
   const location = useLocation();
 
   return useCallback(
-    ((to: To | number, options?: AppNavigateOptions) => {
+    (to: To | number, options?: AppNavigateOptions) => {
       if (typeof to === 'number') {
         navigate(to);
         return;
@@ -33,7 +33,7 @@ export function useAppNavigate(): AppNavigateFunction {
           ? createNavigationState(location, options?.state)
           : options?.state,
       });
-    }) as AppNavigateFunction,
+    },
     [location, navigate],
-  );
+  ) as AppNavigateFunction;
 }

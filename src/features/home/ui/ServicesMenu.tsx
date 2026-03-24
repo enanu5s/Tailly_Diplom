@@ -1,8 +1,8 @@
 // src/features/home/ui/ServicesMenu.tsx
 
+import type { ServiceConfig } from '@/shared/config/services';
 import { useAppNavigate } from '@/shared/lib/navigation/useAppNavigate';
 
-import type { ServiceConfig } from '@/shared/config/services';
 
 import styles from './ServicesMenu.module.css';
 

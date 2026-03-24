@@ -1,7 +1,7 @@
 // src/pages/shop-orders/ui/ShopOrdersPage.tsx
 
 import { observer } from "mobx-react-lite";
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 
 import { ordersStore } from "@/features/orders/model/ordersStore";
@@ -85,35 +85,30 @@ export const ShopOrdersPage = observer(() => {
     }
   }, []);
 
-  const filteredOrders = useMemo(() => {
-    const normalizedSearch = search.trim().toLowerCase();
+  const normalizedSearch = search.trim().toLowerCase();
+  const filteredOrders = ordersStore.productOrders.filter((order) => {
+    const matchesSearch =
+      normalizedSearch.length === 0 ||
+      order.number.toLowerCase().includes(normalizedSearch) ||
+      order.id.toLowerCase().includes(normalizedSearch);
 
-    return ordersStore.productOrders.filter((order) => {
-      const matchesSearch =
-        normalizedSearch.length === 0 ||
-        order.number.toLowerCase().includes(normalizedSearch) ||
-        order.id.toLowerCase().includes(normalizedSearch);
+    const matchesStatus = matchesShopOrdersFilter(order.status, filter);
 
-      const matchesStatus = matchesShopOrdersFilter(order.status, filter);
+    return matchesSearch && matchesStatus;
+  });
 
-      return matchesSearch && matchesStatus;
-    });
-  }, [filter, search, ordersStore.productOrders]);
-
-  const counts = useMemo(() => {
-    return {
-      all: ordersStore.productOrders.length,
-      active: ordersStore.productOrders.filter((order) =>
-        matchesShopOrdersFilter(order.status, "active")
-      ).length,
-      completed: ordersStore.productOrders.filter((order) =>
-        matchesShopOrdersFilter(order.status, "completed")
-      ).length,
-      cancelled: ordersStore.productOrders.filter((order) =>
-        matchesShopOrdersFilter(order.status, "cancelled")
-      ).length,
-    };
-  }, [ordersStore.productOrders]);
+  const counts = {
+    all: ordersStore.productOrders.length,
+    active: ordersStore.productOrders.filter((order) =>
+      matchesShopOrdersFilter(order.status, "active")
+    ).length,
+    completed: ordersStore.productOrders.filter((order) =>
+      matchesShopOrdersFilter(order.status, "completed")
+    ).length,
+    cancelled: ordersStore.productOrders.filter((order) =>
+      matchesShopOrdersFilter(order.status, "cancelled")
+    ).length,
+  };
 
   return (
     <div className={styles.page}>

@@ -1,12 +1,13 @@
 //src/features/orders/ui/RepeatProductOrderButton.tsx
 
 import { observer } from 'mobx-react-lite';
+
 import { useAppNavigate } from '@/shared/lib/navigation/useAppNavigate';
 
+import styles from './RepeatProductOrderButton.module.css';
 import { canRepeatProductOrder } from '../model/productOrderRepeat';
 import { productOrdersRepeatStore } from '../model/productOrdersRepeatStore';
 
-import styles from './RepeatProductOrderButton.module.css';
 
 import type { RepeatableProductOrder } from '../model/productOrderRepeat';
 

@@ -3,13 +3,13 @@
 import { observer } from 'mobx-react-lite';
 import { useEffect } from 'react';
 
+import styles from './SuperAdminAdminsManagementSection.module.css';
 import {
     ADMIN_DEPARTMENT_OPTIONS,
     ADMIN_POSITION_OPTIONS,
     mergeWithCurrentOption,
 } from '../data/adminOrganizationOptions';
 import { superAdminAdminsManagementStore } from '../model/superAdminAdminsManagementStore';
-import styles from './SuperAdminAdminsManagementSection.module.css';
 
 import type { ReactElement } from 'react';
 

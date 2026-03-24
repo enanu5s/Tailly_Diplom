@@ -13,11 +13,12 @@ import { useLocation, useSearchParams } from "react-router-dom";
 import { useAuth } from "@/features/auth/model/useAuth";
 import { useAppNavigate } from "@/shared/lib/navigation/useAppNavigate";
 
-import { getMessagesViewerFromUser } from "../model/messagesViewer";
+import styles from "./MessagesSection.module.css";
 import { messagesStore } from "../model/messagesStore";
+import { getMessagesViewerFromUser } from "../model/messagesViewer";
+
 import type { ChatMessage, MessageImageAttachment } from "../model/types";
 
-import styles from "./MessagesSection.module.css";
 
 type LightboxState = {
   attachments: MessageImageAttachment[];
@@ -272,6 +273,7 @@ export const MessagesSection = observer(() => {
   const {
     threads,
     activeThread,
+    activeThreadId,
     activeMessages,
     loading,
     error,
@@ -315,15 +317,14 @@ export const MessagesSection = observer(() => {
   }, [unreadMessageIds]);
 
   useEffect(() => {
-    const currentThreadId = messagesStore.activeThreadId;
     const previousThreadId = previousThreadIdRef.current;
-    const isThreadChanged = currentThreadId !== previousThreadId;
+    const isThreadChanged = activeThreadId !== previousThreadId;
 
     if (!isThreadChanged) {
       return;
     }
 
-    previousThreadIdRef.current = currentThreadId;
+    previousThreadIdRef.current = activeThreadId;
     previousMessagesLengthRef.current = activeMessages.length;
     pendingReadIdsRef.current.clear();
     pointerStartRef.current = null;
@@ -362,12 +363,12 @@ export const MessagesSection = observer(() => {
 
       scrollToBottom(messagesArea);
     });
-  }, [messagesStore.activeThreadId, activeMessages.length]);
+  }, [activeThreadId, activeMessages.length]);
 
   useEffect(() => {
     const element = messagesAreaRef.current;
 
-    if (!element || !messagesStore.activeThreadId) {
+    if (!element || !activeThreadId) {
       previousMessagesLengthRef.current = activeMessages.length;
       return;
     }
@@ -406,11 +407,10 @@ export const MessagesSection = observer(() => {
         scrollToBottom(target);
       });
     }
-  }, [activeMessages, viewer, messagesStore.activeThreadId]);
+  }, [activeMessages, viewer, activeThreadId]);
 
   useEffect(() => {
     const root = messagesAreaRef.current;
-    const activeThreadId = messagesStore.activeThreadId;
 
     if (!root || !activeThreadId || unreadMessageIds.length === 0) {
       return;
@@ -490,7 +490,7 @@ export const MessagesSection = observer(() => {
         readTimerRef.current = null;
       }
     };
-  }, [messagesStore.activeThreadId, unreadMessageIds, viewer]);
+  }, [activeThreadId, unreadMessageIds, viewer]);
 
   useEffect(() => {
     const root = messagesAreaRef.current;
@@ -512,7 +512,7 @@ export const MessagesSection = observer(() => {
     return () => {
       root.removeEventListener("scroll", handleScroll);
     };
-  }, [messagesStore.activeThreadId, activeMessages.length]);
+  }, [activeThreadId, activeMessages.length]);
 
   useEffect(() => {
     if (!lightbox) {

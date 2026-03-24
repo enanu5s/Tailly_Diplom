@@ -7,12 +7,13 @@ import {
   unsafeMutableMockDb,
 } from '@/shared/mock-db/store';
 
+import {
+  createEmptySpecialistApplicationQuestionnaire,
+} from '../model/types';
+
 import type {
   SpecialistApplication,
   SpecialistApplicationStatus,
-} from '../model/types';
-import {
-  createEmptySpecialistApplicationQuestionnaire,
 } from '../model/types';
 
 const BULK_APPLICANT_NAMES: [string, string][] = [

@@ -1,8 +1,8 @@
 // src/app/router/AllowedRolesRoute.tsx
 import { Navigate, Outlet, useLocation } from 'react-router-dom';
 
-import { useAuth } from '@/features/auth/model/useAuth';
 import type { UserRole } from '@/features/auth/model/authStore';
+import { useAuth } from '@/features/auth/model/useAuth';
 
 type AllowedRolesRouteProps = {
   roles: UserRole[];

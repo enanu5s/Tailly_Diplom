@@ -4,9 +4,9 @@ import { observer } from 'mobx-react-lite';
 import { useEffect, type ChangeEvent, type ReactElement } from 'react';
 import { Link } from 'react-router-dom';
 
+import styles from './ProfileMainCard.module.css';
 import { profileStore } from '../model/profileStore';
 
-import styles from './ProfileMainCard.module.css';
 
 function buildFullName(params: {
   lastName?: string;

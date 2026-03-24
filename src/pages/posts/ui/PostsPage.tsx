@@ -1,7 +1,7 @@
 import { useEffect } from 'react';
-import { useAppNavigate } from '@/shared/lib/navigation/useAppNavigate';
 
 import { PostsList } from '@/features/posts/ui/PostsList';
+import { useAppNavigate } from '@/shared/lib/navigation/useAppNavigate';
 import { consumeScrollPosition } from '@/shared/lib/scroll';
 
 import styles from './PostsPage.module.css';

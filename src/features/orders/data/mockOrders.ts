@@ -1,7 +1,13 @@
 // src/features/orders/data/mockOrders.ts
 
-import { MOCK_PRODUCT_ORDERS_SEED } from "./mockProductOrdersSeed";
+import {
+  ensureMockDatabaseLoaded,
+  patchMockDatabase,
+  unsafeMutableMockDb,
+} from "@/shared/mock-db/store";
+
 import { buildBulkSyntheticServiceOrders } from "./mockOrdersBulkSeed";
+import { MOCK_PRODUCT_ORDERS_SEED } from "./mockProductOrdersSeed";
 
 import type {
   CreateServiceOrderPayload,
@@ -12,11 +18,6 @@ import type {
   ServicePriceUnit,
 } from "../model/types";
 
-import {
-  ensureMockDatabaseLoaded,
-  patchMockDatabase,
-  unsafeMutableMockDb,
-} from "@/shared/mock-db/store";
 
 const DEFAULT_CLIENT_ID = "client-1";
 const DEFAULT_CLIENT_NAME = "Елена Смирнова";

@@ -2,11 +2,11 @@
 
 import { makeAutoObservable, runInAction } from "mobx";
 
-import { ordersService } from "@/features/orders/service/ordersService";
 import type {
   ServiceBookingMode,
   ServiceOrder,
 } from "@/features/orders/model/types";
+import { ordersService } from "@/features/orders/service/ordersService";
 import type { Pet } from "@/features/pets/model/types";
 import { petsService } from "@/features/pets/service/petsService";
 import type {

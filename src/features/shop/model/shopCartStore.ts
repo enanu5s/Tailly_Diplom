@@ -2,9 +2,9 @@
 import { makeAutoObservable } from "mobx";
 
 import { authStore } from "@/features/auth";
+import type { AuthUser } from "@/features/auth/model/authStore";
 
 import type { Product } from "./types";
-import type { AuthUser } from "@/features/auth/model/authStore";
 
 type StoredCartItem = {
   productId: string;

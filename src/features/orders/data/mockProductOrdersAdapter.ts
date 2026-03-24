@@ -1,8 +1,8 @@
 // src/features/orders/data/mockProductOrdersAdapter.ts
 
+import { readStoredOrders } from '@/features/shop/data/mockShopOrders';
 import { cloneDeep } from '@/shared/mock-db/cloneDeep';
 import { ensureMockDatabaseLoaded, unsafeMutableMockDb } from '@/shared/mock-db/store';
-import { readStoredOrders } from '@/features/shop/data/mockShopOrders';
 
 import type { ProductOrder } from '../model/types';
 

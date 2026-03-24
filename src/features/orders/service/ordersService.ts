@@ -5,6 +5,7 @@ import { canClientBookService } from '@/shared/lib/auth/roleAccess';
 
 import { ordersApi } from '../api/ordersApi';
 
+import type { ProductOrderRepeatCheckoutDraft } from '../model/productOrderRepeatCheckout';
 import type {
   CancelOrderResult,
   CompleteOrderResult,
@@ -18,7 +19,6 @@ import type {
   ServicesFilter,
   StartOrderResult,
 } from '../model/types';
-import type { ProductOrderRepeatCheckoutDraft } from '../model/productOrderRepeatCheckout';
 
 export const ordersService = {
   getServiceOrders(filter: ServicesFilter): Promise<ServiceOrder[]> {

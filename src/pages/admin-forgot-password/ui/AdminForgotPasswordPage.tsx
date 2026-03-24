@@ -1,8 +1,9 @@
 // src/pages/admin-forgot-password/ui/AdminForgotPasswordPage.tsx
 import { observer } from "mobx-react-lite";
-import { useAppNavigate } from "@/shared/lib/navigation/useAppNavigate";
 
 import { adminPasswordRecoveryStore } from "@/features/admin-password-recovery/model/adminPasswordRecoveryStore";
+import { useAppNavigate } from "@/shared/lib/navigation/useAppNavigate";
+
 
 import styles from "./AdminForgotPasswordPage.module.css";
 

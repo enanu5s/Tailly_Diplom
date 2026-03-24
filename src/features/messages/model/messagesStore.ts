@@ -1,8 +1,8 @@
 // src/features/messages/model/messagesStore.ts
 import { makeAutoObservable, runInAction } from 'mobx';
 
-import { messagesService } from '../service/messagesService';
 import { messagesUnreadStore } from './messagesUnreadStore';
+import { messagesService } from '../service/messagesService';
 
 import type {
   ChatMessage,

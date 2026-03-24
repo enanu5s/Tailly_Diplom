@@ -4,16 +4,16 @@ import { observer } from 'mobx-react-lite';
 import { useEffect } from 'react';
 import { Link } from 'react-router-dom';
 
+import { getProfileOrdersPreview } from '@/features/shop/service/profileOrdersPreview';
+import { useAppNavigate } from '@/shared/lib/navigation/useAppNavigate';
+
+import styles from './OrdersProductsSection.module.css';
 import { ordersStore } from '../model/ordersStore';
 import {
   canRepeatProductOrder,
   getProductOrderStatusLabel,
   getProductOrderStatusTone,
 } from '../service/productOrderPresentation';
-import { getProfileOrdersPreview } from '@/features/shop/service/profileOrdersPreview';
-import { useAppNavigate } from '@/shared/lib/navigation/useAppNavigate';
-
-import styles from './OrdersProductsSection.module.css';
 
 function formatPrice(value: number): string {
   return new Intl.NumberFormat('ru-RU').format(value);

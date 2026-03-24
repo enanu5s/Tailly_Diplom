@@ -3,7 +3,7 @@ import clsx from 'clsx';
 import { observer } from 'mobx-react-lite';
 import { useEffect, useMemo, useState } from 'react';
 import { Link, useLocation } from 'react-router-dom';
-import { useAppNavigate } from '@/shared/lib/navigation/useAppNavigate';
+
 
 import { authService } from '@/features/auth/model/authService';
 import { useAuth } from '@/features/auth/model/useAuth';
@@ -11,10 +11,11 @@ import {
   getMessagesViewerFromUser,
   messagesUnreadStore,
 } from '@/features/messages';
-import { shopCartStore } from '@/features/shop';
 import { MESSAGES_UPDATED_EVENT } from '@/features/messages/model/messagesEvents';
+import { shopCartStore } from '@/features/shop';
 import { mainNav } from '@/shared/config/navigation';
 import { shouldShowShopConsumerControls } from '@/shared/lib/auth/roleAccess';
+import { useAppNavigate } from '@/shared/lib/navigation/useAppNavigate';
 
 import styles from './Header.module.css';
 import { DropdownMenu } from '../dropdown/DropdownMenu.tsx';

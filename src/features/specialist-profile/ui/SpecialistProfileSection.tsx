@@ -3,12 +3,13 @@
 import { observer } from "mobx-react-lite";
 import { useEffect } from "react";
 import { useParams } from "react-router-dom";
-import { useAuth } from "@/features/auth/model/useAuth";
-import { useAppNavigate } from "@/shared/lib/navigation/useAppNavigate";
-import { canClientBookService } from "@/shared/lib/auth/roleAccess";
 
-import { specialistProfileStore } from "../model/specialistProfileStore";
+import { useAuth } from "@/features/auth/model/useAuth";
+import { canClientBookService } from "@/shared/lib/auth/roleAccess";
+import { useAppNavigate } from "@/shared/lib/navigation/useAppNavigate";
+
 import { SpecialistProfileView } from "./SpecialistProfileView";
+import { specialistProfileStore } from "../model/specialistProfileStore";
 
 import type { ReactElement } from "react";
 

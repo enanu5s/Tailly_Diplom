@@ -4,6 +4,7 @@ import { makeAutoObservable, runInAction } from 'mobx';
 import { authStore } from '@/features/auth/model/authStore';
 
 import { adminProfileService } from '../service/adminProfileService';
+
 import type {
   AdminProfile,
   UpdateAdminProfilePayload,

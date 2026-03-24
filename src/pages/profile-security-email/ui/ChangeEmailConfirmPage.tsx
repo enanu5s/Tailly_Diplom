@@ -1,9 +1,10 @@
 //src/pages/profile-security-email/ui/ChangeEmailConfirmPage.tsx
 import { observer } from 'mobx-react-lite';
 import { useEffect, useState } from 'react';
-import { useAppNavigate } from '@/shared/lib/navigation/useAppNavigate';
 
 import { emailChangeFlowStore } from '@/features/profileSecurity';
+import { useAppNavigate } from '@/shared/lib/navigation/useAppNavigate';
+
 
 import styles from './ChangeEmailPage.module.css';
 

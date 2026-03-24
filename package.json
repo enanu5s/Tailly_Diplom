@@ -11,7 +11,9 @@
     "lint:fix": "eslint . --fix",
     "check": "npm run lint && npm run typecheck && npm run build",
     "preview": "vite preview",
-    "test:e2e": "python -m pytest tests/e2e -v"
+    "test:e2e": "python -m pytest tests/e2e -v",
+    "test:e2e:functional": "python -m pytest tests/e2e -v -m \"not nonfunctional\"",
+    "test:e2e:nonfunctional": "python -m pytest tests/e2e -v -m nonfunctional"
   },
   "dependencies": {
     "@2gis/mapgl": "^1.70.1",

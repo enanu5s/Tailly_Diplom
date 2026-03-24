@@ -1,6 +1,7 @@
 // src/features/home/ui/BannerCarousel.tsx
 
 import { useMemo, useState } from 'react';
+
 import { useAppNavigate } from '@/shared/lib/navigation/useAppNavigate';
 
 import styles from './BannerCarousel.module.css';

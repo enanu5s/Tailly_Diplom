@@ -1,6 +1,6 @@
 // src/pages/admin-profile/ui/AdminProfilePage.tsx
-import { BackButton } from '@/shared/ui/back-button';
 import { AdminProfileSection } from "@/features/admin-profile";
+import { BackButton } from '@/shared/ui/back-button';
 
 import styles from "./AdminProfilePage.module.css";
 

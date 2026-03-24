@@ -1,5 +1,6 @@
 // src/pages/app-error/AppErrorPage.tsx
 import { isRouteErrorResponse, useRouteError } from "react-router-dom";
+
 import { useAppNavigate } from '@/shared/lib/navigation/useAppNavigate';
 
 import styles from "./AppErrorPage.module.css";

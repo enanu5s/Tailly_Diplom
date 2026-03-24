@@ -1,7 +1,6 @@
 // src/features/shop/ui/ProductDescription/ProductDescription.tsx
 
 import styles from './ProductDescription.module.css';
-
 import { buildProductDescriptionViewModel } from '../../service/productDescriptionViewModel';
 
 import type { Product } from '../../model/types';

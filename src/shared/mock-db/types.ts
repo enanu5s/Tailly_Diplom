@@ -1,28 +1,28 @@
 // src/shared/mock-db/types.ts
 
 import type { City } from '@/features/auth/api/registerApi';
+import type {
+  AccountSoftDeleteRecord,
+  MockAccountDeletionEmail,
+} from '@/features/auth/data/mockAccountDeletionStorage';
 import type { MockAdminPasswordRecoveryRequest } from '@/features/auth/data/mockAdminPasswordRecoveryRequests';
 import type {
   MockAuthAccount,
   MockAttemptState,
 } from '@/features/auth/data/mockAuthAccounts';
-import type {
-  AccountSoftDeleteRecord,
-  MockAccountDeletionEmail,
-} from '@/features/auth/data/mockAccountDeletionStorage';
-import type { ManagedSpecialistMockAccount } from '@/shared/lib/mock/specialistAccountsStorage';
 import type { ProductOrder, ServiceOrder } from '@/features/orders/model/types';
+import type { Breed, Pet } from '@/features/pets/model/types';
+import type { UserProfile } from '@/features/profile/model/types';
+import type { Review, ReviewContext } from '@/features/reviews/model/types';
 import type {
   Order,
   PickupPoint,
   Product,
   ProductCategory,
 } from '@/features/shop/model/types';
-import type { UserProfile } from '@/features/profile/model/types';
-import type { Breed, Pet } from '@/features/pets/model/types';
-import type { Review, ReviewContext } from '@/features/reviews/model/types';
 import type { SpecialistApplication } from '@/features/specialist-applications/model/types';
 import type { MockAdminRecord } from '@/features/super-admin-admins-management/data/mockAdminsManagement';
+import type { ManagedSpecialistMockAccount } from '@/shared/lib/mock/specialistAccountsStorage';
 
 import type { MOCK_DB_VERSION } from './constants';
 
