@@ -4,7 +4,8 @@ export type UserProfile = {
   id: string;
   firstName: string;
   lastName: string;
-  avatarUrl?: string; // "/images/..."
+  middleName?: string;
+  avatarUrl?: string;
   city: string;
   phone: string;
   email: string;

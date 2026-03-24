@@ -14,6 +14,7 @@ export const MOCK_SPECIALIST_PROFILES: SpecialistProfileResponse[] = [
       avatarUrl: '/images/specialists/maria-ivanova.jpg',
       firstName: 'Мария',
       lastName: 'Иванова',
+      middleName: 'Сергеевна',
       city: 'Москва',
       district: 'Пресненский район',
       phone: '+7 (999) 123-45-67',

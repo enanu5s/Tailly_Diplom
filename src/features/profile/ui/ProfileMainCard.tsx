@@ -1,3 +1,5 @@
+//src/features/profile/ui/ProfileMainCard.tsx
+
 import { observer } from 'mobx-react-lite';
 import { useEffect, type ChangeEvent, type ReactElement } from 'react';
 import { Link } from 'react-router-dom';
@@ -5,6 +7,18 @@ import { Link } from 'react-router-dom';
 import { profileStore } from '../model/profileStore';
 
 import styles from './ProfileMainCard.module.css';
+
+function buildFullName(params: {
+  lastName?: string;
+  firstName?: string;
+  middleName?: string;
+}): string {
+  return [params.lastName, params.firstName, params.middleName]
+    .map((part) => (part ?? '').trim())
+    .filter(Boolean)
+    .join(' ')
+    .trim();
+}
 
 export const ProfileMainCard = observer((): ReactElement => {
   useEffect(() => {
@@ -21,11 +35,16 @@ export const ProfileMainCard = observer((): ReactElement => {
     : (profile?.avatarUrl ?? '').trim();
 
   const fullName = isEditing
-    ? `${profileStore.draftFirstName} ${profileStore.draftLastName}`.trim() ||
-      'Профиль'
-    : profile
-      ? `${profile.firstName} ${profile.lastName}`.trim() || 'Профиль'
-      : 'Профиль';
+    ? buildFullName({
+        lastName: profileStore.draftLastName,
+        firstName: profileStore.draftFirstName,
+        middleName: profileStore.draftMiddleName,
+      }) || 'Профиль'
+    : buildFullName({
+        lastName: profile?.lastName,
+        firstName: profile?.firstName,
+        middleName: profile?.middleName,
+      }) || 'Профиль';
 
   const handleAvatarChange = (event: ChangeEvent<HTMLInputElement>): void => {
     const file = event.target.files?.[0];
@@ -101,10 +120,20 @@ export const ProfileMainCard = observer((): ReactElement => {
 
           <div className={styles.fieldsCol}>
             <div>
-              <div className={styles.label}>Имя и фамилия</div>
+              <div className={styles.label}>ФИО</div>
 
               {isEditing ? (
                 <div className={styles.nameRow}>
+                  <input
+                    className={styles.input}
+                    value={profileStore.draftLastName}
+                    onChange={(event) =>
+                      profileStore.setDraftLastName(event.target.value)
+                    }
+                    placeholder="Фамилия"
+                    required
+                  />
+
                   <input
                     className={styles.input}
                     value={profileStore.draftFirstName}
@@ -117,18 +146,15 @@ export const ProfileMainCard = observer((): ReactElement => {
 
                   <input
                     className={styles.input}
-                    value={profileStore.draftLastName}
+                    value={profileStore.draftMiddleName}
                     onChange={(event) =>
-                      profileStore.setDraftLastName(event.target.value)
+                      profileStore.setDraftMiddleName(event.target.value)
                     }
-                    placeholder="Фамилия"
-                    required
+                    placeholder="Отчество"
                   />
                 </div>
               ) : (
-                <div className={styles.value}>
-                  {`${profile.firstName} ${profile.lastName}`.trim() || '—'}
-                </div>
+                <div className={styles.value}>{fullName || '—'}</div>
               )}
             </div>
 

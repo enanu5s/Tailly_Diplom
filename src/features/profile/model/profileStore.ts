@@ -1,3 +1,5 @@
+//src/features/profile/model/profileStore.ts
+
 import { makeAutoObservable, runInAction } from 'mobx';
 
 import { profileService } from '../service/profileService';
@@ -11,12 +13,11 @@ export class ProfileStore {
 
   editing = false;
 
-  // drafts: main
   draftFirstName = '';
   draftLastName = '';
+  draftMiddleName = '';
   draftAvatarUrl = '';
 
-  // drafts: contacts
   draftCity = '';
   draftPhone = '';
 
@@ -28,101 +29,124 @@ export class ProfileStore {
     makeAutoObservable(this);
   }
 
-  async load() {
+  async load(): Promise<void> {
     this.loading = true;
     this.error = null;
+
     try {
-      const p = await profileService.getProfile();
+      const profile = await profileService.getProfile();
+
       runInAction(() => {
-        this.profile = p;
+        this.profile = profile;
 
-        this.draftFirstName = p.firstName;
-        this.draftLastName = p.lastName;
-        this.draftAvatarUrl = p.avatarUrl ?? '';
+        this.draftFirstName = profile.firstName;
+        this.draftLastName = profile.lastName;
+        this.draftMiddleName = profile.middleName ?? '';
+        this.draftAvatarUrl = profile.avatarUrl ?? '';
 
-        this.draftCity = p.city;
-        this.draftPhone = p.phone;
+        this.draftCity = profile.city;
+        this.draftPhone = profile.phone;
 
         this.loading = false;
       });
-    } catch (e) {
+    } catch (error) {
       runInAction(() => {
-        this.error = e instanceof Error ? e.message : 'Не удалось загрузить профиль';
+        this.error =
+          error instanceof Error ? error.message : 'Не удалось загрузить профиль';
         this.loading = false;
       });
     }
   }
 
-  startEdit() {
-    if (!this.profile) return;
+  startEdit(): void {
+    if (!this.profile) {
+      return;
+    }
+
     this.editing = true;
     this.saveError = null;
     this.saveSuccess = false;
 
     this.draftFirstName = this.profile.firstName;
     this.draftLastName = this.profile.lastName;
+    this.draftMiddleName = this.profile.middleName ?? '';
     this.draftAvatarUrl = this.profile.avatarUrl ?? '';
 
     this.draftCity = this.profile.city;
     this.draftPhone = this.profile.phone;
   }
 
-  cancelEdit() {
-    if (!this.profile) return;
+  cancelEdit(): void {
+    if (!this.profile) {
+      return;
+    }
+
     this.editing = false;
     this.saveError = null;
     this.saveSuccess = false;
 
     this.draftFirstName = this.profile.firstName;
     this.draftLastName = this.profile.lastName;
+    this.draftMiddleName = this.profile.middleName ?? '';
     this.draftAvatarUrl = this.profile.avatarUrl ?? '';
 
     this.draftCity = this.profile.city;
     this.draftPhone = this.profile.phone;
   }
 
-  setDraftFirstName(v: string) {
-    this.draftFirstName = v;
-  }
-  setDraftLastName(v: string) {
-    this.draftLastName = v;
+  setDraftFirstName(value: string): void {
+    this.draftFirstName = value;
   }
 
-  // локальный preview, потом backend заменит на upload
-  setAvatarFromFile(file: File) {
+  setDraftLastName(value: string): void {
+    this.draftLastName = value;
+  }
+
+  setDraftMiddleName(value: string): void {
+    this.draftMiddleName = value;
+  }
+
+  setAvatarFromFile(file: File): void {
     const url = URL.createObjectURL(file);
     this.draftAvatarUrl = url;
   }
 
-  setDraftCity(v: string) {
-    this.draftCity = v;
-  }
-  setDraftPhone(v: string) {
-    this.draftPhone = v;
+  setDraftCity(value: string): void {
+    this.draftCity = value;
   }
 
-  async save() {
-    if (!this.profile) return;
+  setDraftPhone(value: string): void {
+    this.draftPhone = value;
+  }
+
+  async save(): Promise<void> {
+    if (!this.profile) {
+      return;
+    }
 
     const firstName = this.draftFirstName.trim();
     const lastName = this.draftLastName.trim();
-    const avatarUrl = (this.draftAvatarUrl ?? '').trim();
+    const middleName = this.draftMiddleName.trim();
+    const avatarUrl = this.draftAvatarUrl.trim();
 
     const city = this.draftCity.trim();
     const phone = this.draftPhone.trim();
+
+    if (!lastName) {
+      this.saveError = 'Укажите фамилию';
+      return;
+    }
 
     if (!firstName) {
       this.saveError = 'Укажите имя';
       return;
     }
-    if (!lastName) {
-      this.saveError = 'Укажите фамилию';
-      return;
-    }
+
     if (!city) {
       this.saveError = 'Укажите город';
       return;
     }
+
     if (!phone) {
       this.saveError = 'Укажите телефон';
       return;
@@ -134,27 +158,41 @@ export class ProfileStore {
 
     try {
       const [updatedMain, updatedContacts] = await Promise.all([
-        profileService.updateMain({ firstName, lastName, avatarUrl }),
+        profileService.updateMain({
+          firstName,
+          lastName,
+          middleName: middleName || undefined,
+          avatarUrl: avatarUrl || undefined,
+        }),
         profileService.updateContacts({ city, phone }),
       ]);
 
-      // собираем итоговый профиль (contacts+main)
       const merged: UserProfile = {
         ...updatedContacts,
         firstName: updatedMain.firstName,
         lastName: updatedMain.lastName,
+        middleName: updatedMain.middleName,
         avatarUrl: updatedMain.avatarUrl,
       };
 
       runInAction(() => {
         this.profile = merged;
+
+        this.draftFirstName = merged.firstName;
+        this.draftLastName = merged.lastName;
+        this.draftMiddleName = merged.middleName ?? '';
+        this.draftAvatarUrl = merged.avatarUrl ?? '';
+        this.draftCity = merged.city;
+        this.draftPhone = merged.phone;
+
         this.editing = false;
         this.saveLoading = false;
         this.saveSuccess = true;
       });
-    } catch (e) {
+    } catch (error) {
       runInAction(() => {
-        this.saveError = e instanceof Error ? e.message : 'Не удалось сохранить данные';
+        this.saveError =
+          error instanceof Error ? error.message : 'Не удалось сохранить данные';
         this.saveLoading = false;
       });
     }

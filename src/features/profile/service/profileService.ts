@@ -4,11 +4,13 @@ import { profileApi } from '../api/profileApi';
 import type { UserProfile } from '../model/types';
 
 export const profileService = {
-  getProfile: () => profileApi.getProfile(),
+  getProfile: (): Promise<UserProfile> => profileApi.getProfile(),
 
-  updateContacts: (payload: Pick<UserProfile, 'city' | 'phone'>) =>
-    profileApi.updateContacts(payload),
+  updateContacts: (
+    payload: Pick<UserProfile, 'city' | 'phone'>,
+  ): Promise<UserProfile> => profileApi.updateContacts(payload),
 
-  updateMain: (payload: Pick<UserProfile, 'firstName' | 'lastName' | 'avatarUrl'>) =>
-    profileApi.updateMain(payload),
+  updateMain: (
+    payload: Pick<UserProfile, 'firstName' | 'lastName' | 'middleName' | 'avatarUrl'>,
+  ): Promise<UserProfile> => profileApi.updateMain(payload),
 };

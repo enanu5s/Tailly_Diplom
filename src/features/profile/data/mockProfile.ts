@@ -10,6 +10,7 @@ export const MOCK_PROFILE: UserProfile = {
   id: 'u-1',
   firstName: 'Иван',
   lastName: 'Петров',
+  middleName: 'Сергеевич',
   city: 'Москва',
   phone: '+7 (999) 123-45-67',
   email: 'ivan.petrov@mail.ru',

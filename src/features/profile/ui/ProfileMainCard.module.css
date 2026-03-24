@@ -115,7 +115,7 @@
 
 .nameRow {
   display: grid;
-  grid-template-columns: 1fr 1fr;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
   gap: 10px;
 }
 
@@ -206,6 +206,10 @@
     width: 140px;
     height: 140px;
   }
+
+  .nameRow {
+    grid-template-columns: 1fr;
+  }
 }
 
 @media (max-width: 640px) {
@@ -216,10 +220,6 @@
   .headerRow {
     flex-direction: column;
     align-items: stretch;
-  }
-
-  .nameRow {
-    grid-template-columns: 1fr;
   }
 
   .actions,

@@ -67,6 +67,7 @@ export async function mockUpdateMainInfo(
       avatarUrl: payload.avatarUrl?.trim() || undefined,
       firstName: payload.firstName.trim(),
       lastName: payload.lastName.trim(),
+      middleName: payload.middleName?.trim() || undefined,
       city: payload.city.trim(),
       district: payload.district.trim(),
       phone: payload.phone.trim(),

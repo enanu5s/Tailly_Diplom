@@ -12,7 +12,6 @@ import type { UserProfile } from '../model/types';
 
 const USE_MOCK = (import.meta.env.VITE_USE_MOCK_API ?? 'true') === 'true';
 
-/* REAL */
 async function realGetProfile(): Promise<UserProfile> {
   return request<UserProfile>('/me/profile');
 }
@@ -27,7 +26,7 @@ async function realUpdateContacts(
 }
 
 async function realUpdateMain(
-  payload: Pick<UserProfile, 'firstName' | 'lastName' | 'avatarUrl'>,
+  payload: Pick<UserProfile, 'firstName' | 'lastName' | 'middleName' | 'avatarUrl'>,
 ): Promise<UserProfile> {
   return request<UserProfile>('/me/profile/main', {
     method: 'PUT',
@@ -36,12 +35,16 @@ async function realUpdateMain(
 }
 
 export const profileApi = {
-  getProfile: () => (USE_MOCK ? mockGetProfile() : realGetProfile()),
+  getProfile: (): Promise<UserProfile> =>
+    USE_MOCK ? mockGetProfile() : realGetProfile(),
 
-  updateContacts: (payload: Pick<UserProfile, 'city' | 'phone'>) =>
+  updateContacts: (
+    payload: Pick<UserProfile, 'city' | 'phone'>,
+  ): Promise<UserProfile> =>
     USE_MOCK ? mockUpdateContacts(payload) : realUpdateContacts(payload),
 
   updateMain: (
-    payload: Pick<UserProfile, 'firstName' | 'lastName' | 'avatarUrl'>,
-  ) => (USE_MOCK ? mockUpdateMain(payload) : realUpdateMain(payload)),
+    payload: Pick<UserProfile, 'firstName' | 'lastName' | 'middleName' | 'avatarUrl'>,
+  ): Promise<UserProfile> =>
+    USE_MOCK ? mockUpdateMain(payload) : realUpdateMain(payload),
 };

@@ -37,6 +37,7 @@ type MainForm = {
   avatarUrl: string;
   firstName: string;
   lastName: string;
+  middleName: string;
   city: string;
   district: string;
   phone: string;
@@ -127,6 +128,7 @@ function createMainForm(main: SpecialistMainInfo): MainForm {
     avatarUrl: main.avatarUrl ?? '',
     firstName: main.firstName,
     lastName: main.lastName,
+    middleName: main.middleName ?? '',
     city: main.city,
     district: main.district,
     phone: main.phone,
@@ -586,12 +588,12 @@ export class SpecialistProfileStore {
 
     const errors: MainFormErrors = {};
 
-    if (!this.mainForm.firstName.trim()) {
-      errors.firstName = 'Укажи имя.';
-    }
-
     if (!this.mainForm.lastName.trim()) {
       errors.lastName = 'Укажи фамилию.';
+    }
+
+    if (!this.mainForm.firstName.trim()) {
+      errors.firstName = 'Укажи имя.';
     }
 
     if (!this.mainForm.city.trim()) {
@@ -627,6 +629,7 @@ export class SpecialistProfileStore {
       avatarUrl: this.mainForm.avatarUrl.trim() || undefined,
       firstName: this.mainForm.firstName.trim(),
       lastName: this.mainForm.lastName.trim(),
+      middleName: this.mainForm.middleName.trim() || undefined,
       city: this.mainForm.city.trim(),
       district: this.mainForm.district.trim(),
       phone: this.mainForm.phone.trim(),
@@ -834,10 +837,7 @@ export class SpecialistProfileStore {
       service.priceUnit = value as SpecialistServicePriceUnit;
     } else if (field === 'price') {
       service.price = clampPriceString(value);
-    } else if (
-      field === 'name' ||
-      field === 'locationLabel'
-    ) {
+    } else if (field === 'name' || field === 'locationLabel') {
       service[field] = value;
     }
 

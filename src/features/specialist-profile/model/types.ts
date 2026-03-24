@@ -1,4 +1,4 @@
-// src/features/specialist-profile/model/types.ts
+//src/features/specialist-profile/model/types.ts
 
 export type SpecialistHousingType =
   | 'apartment'
@@ -62,6 +62,7 @@ export type SpecialistMainInfo = {
   avatarUrl?: string;
   firstName: string;
   lastName: string;
+  middleName?: string;
   city: string;
   district: string;
   phone: string;
@@ -268,6 +269,7 @@ export type SpecialistMainInfoUpdatePayload = {
   avatarUrl?: string;
   firstName: string;
   lastName: string;
+  middleName?: string;
   city: string;
   district: string;
   phone: string;

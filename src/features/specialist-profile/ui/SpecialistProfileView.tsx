@@ -34,6 +34,7 @@ type MainForm = {
   avatarUrl: string;
   firstName: string;
   lastName: string;
+  middleName: string;
   city: string;
   district: string;
   phone: string;
@@ -305,6 +306,26 @@ function formatBookingModeLabel(
   return "Фиксированный слот";
 }
 
+function buildFullName(params: {
+  lastName?: string;
+  firstName?: string;
+  middleName?: string;
+}): string {
+  return [params.lastName, params.firstName, params.middleName]
+    .map((part) => (part ?? "").trim())
+    .filter(Boolean)
+    .join(" ");
+}
+
+function buildInitials(params: {
+  firstName?: string;
+  lastName?: string;
+}): string {
+  return `${(params.firstName ?? "").trim().charAt(0)}${(params.lastName ?? "")
+    .trim()
+    .charAt(0)}`.trim();
+}
+
 function buildServiceBookingSummary(service: SpecialistService): string[] {
   const summary: string[] = [];
 
@@ -527,8 +548,11 @@ export const SpecialistProfileView = observer(
       ? currentDetails.specialistGallery
       : (profile.specialistGallery ?? []);
 
-    const currentName =
-      `${currentMain.firstName} ${currentMain.lastName}`.trim();
+    const currentName = buildFullName({
+      lastName: currentMain.lastName,
+      firstName: currentMain.firstName,
+      middleName: currentMain.middleName,
+    });
     const currentAvatarUrl = currentMain.avatarUrl?.trim() ?? "";
     const currentCity = currentMain.city.trim();
     const currentDistrict = currentMain.district.trim();
@@ -642,8 +666,10 @@ export const SpecialistProfileView = observer(
                   />
                 ) : (
                   <div className={styles.avatarPlaceholder}>
-                    {(currentMain.firstName || "").charAt(0)}
-                    {(currentMain.lastName || "").charAt(0)}
+                    {buildInitials({
+                      firstName: currentMain.firstName,
+                      lastName: currentMain.lastName,
+                    })}
                   </div>
                 )}
 
@@ -680,6 +706,22 @@ export const SpecialistProfileView = observer(
                     <div className={styles.inlineFieldBlock}>
                       <input
                         className={styles.inlineTitleInput}
+                        value={mainForm?.lastName ?? ""}
+                        onChange={(event) =>
+                          onSetMainField("lastName", event.target.value)
+                        }
+                        placeholder="Фамилия"
+                      />
+                      {mainFormErrors.lastName ? (
+                        <span className={styles.fieldError}>
+                          {mainFormErrors.lastName}
+                        </span>
+                      ) : null}
+                    </div>
+
+                    <div className={styles.inlineFieldBlock}>
+                      <input
+                        className={styles.inlineTitleInput}
                         value={mainForm?.firstName ?? ""}
                         onChange={(event) =>
                           onSetMainField("firstName", event.target.value)
@@ -696,15 +738,15 @@ export const SpecialistProfileView = observer(
                     <div className={styles.inlineFieldBlock}>
                       <input
                         className={styles.inlineTitleInput}
-                        value={mainForm?.lastName ?? ""}
+                        value={mainForm?.middleName ?? ""}
                         onChange={(event) =>
-                          onSetMainField("lastName", event.target.value)
+                          onSetMainField("middleName", event.target.value)
                         }
-                        placeholder="Фамилия"
+                        placeholder="Отчество"
                       />
-                      {mainFormErrors.lastName ? (
+                      {mainFormErrors.middleName ? (
                         <span className={styles.fieldError}>
-                          {mainFormErrors.lastName}
+                          {mainFormErrors.middleName}
                         </span>
                       ) : null}
                     </div>
