@@ -1,5 +1,6 @@
 // src/features/shop/api/shopOrderApi.mock.ts
 
+import { authStore } from '@/features/auth/model/authStore';
 import { notifyShopOrderEvent } from '@/shared/lib/emailNotifications';
 
 import { getShopProductsSnapshot } from '../data/mockShopCatalogDb';
@@ -13,6 +14,29 @@ import {
 
 import type { CreateOrderPayload } from './shopOrderApi';
 import type { CartDetailedItem, Order, PickupPoint, Product } from '../model/types';
+
+const MOCK_UNSCOPED_SHOP_ORDER_FALLBACK_USER_ID = 'client-1';
+
+export function assertCurrentUserOwnsMockShopOrder(order: Order): void {
+  const user = authStore.getState().user;
+  const uid = user?.id;
+
+  if (!uid) {
+    throw new Error('Нужна авторизация.');
+  }
+
+  if (!order.ownerUserId) {
+    if (uid !== MOCK_UNSCOPED_SHOP_ORDER_FALLBACK_USER_ID) {
+      throw new Error('Заказ не найден.');
+    }
+
+    return;
+  }
+
+  if (order.ownerUserId !== uid) {
+    throw new Error('Заказ не найден.');
+  }
+}
 
 type OrderLineInput = {
   productId: string;
@@ -68,6 +92,8 @@ export async function mockCreateOrder(payload: CreateOrderPayload): Promise<Orde
   const recipientName =
     `${payload.form.recipient.firstName} ${payload.form.recipient.lastName}`.trim();
 
+  const ownerUserId = authStore.getState().user?.id;
+
   const order: Order = {
     id: generateOrderId(),
     status: 'created',
@@ -78,6 +104,7 @@ export async function mockCreateOrder(payload: CreateOrderPayload): Promise<Orde
     estimatedDeliveryDate,
     createdAt: new Date().toISOString(),
     canBeCancelled: true,
+    ownerUserId,
     recipientEmail: payload.form.recipient.email.trim().toLowerCase(),
     recipientName: recipientName || undefined,
   };
@@ -92,7 +119,19 @@ export async function mockCreateOrder(payload: CreateOrderPayload): Promise<Orde
 
 export async function mockGetOrderById(orderId: string): Promise<Order | null> {
   const orders = readStoredOrders();
-  return orders.find((order) => order.id === orderId) ?? null;
+  const order = orders.find((item) => item.id === orderId) ?? null;
+
+  if (!order) {
+    return null;
+  }
+
+  try {
+    assertCurrentUserOwnsMockShopOrder(order);
+  } catch {
+    return null;
+  }
+
+  return order;
 }
 
 export async function mockPayShopOrder(
@@ -107,6 +146,8 @@ export async function mockPayShopOrder(
   }
 
   const current = orders[index];
+
+  assertCurrentUserOwnsMockShopOrder(current);
 
   if (current.status === 'cancelled') {
     throw new Error('Этот заказ отменён.');
@@ -143,6 +184,8 @@ export async function mockCancelOrder(orderId: string): Promise<Order> {
   }
 
   const current = orders[index];
+
+  assertCurrentUserOwnsMockShopOrder(current);
 
   if (!current.canBeCancelled) {
     throw new Error('Этот заказ уже нельзя отменить.');

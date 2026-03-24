@@ -239,6 +239,8 @@ export type ProductOrder = {
   currency: 'RUB';
   itemsCount: number;
   productThumbs?: string[];
+  /** В mock — для фильтрации списка по текущему пользователю */
+  ownerUserId?: string;
 
   items: ProductOrderItem[];
 

@@ -165,6 +165,8 @@ export type Order = {
   estimatedDeliveryDate: string | null;
   createdAt: string;
   canBeCancelled: boolean;
+  /** Владелец заказа в mock (совпадает с AuthUser.id клиента/специалиста) */
+  ownerUserId?: string;
   /** Для писем о статусе заказа (mock / бэкенд) */
   recipientEmail?: string;
   recipientName?: string;

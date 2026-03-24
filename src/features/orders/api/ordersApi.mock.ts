@@ -1,5 +1,6 @@
 // src/features/orders/api/ordersApi.mock.ts
 
+import { assertCurrentUserOwnsMockShopOrder } from '@/features/shop/api/shopOrderApi.mock';
 import { readStoredOrders, writeStoredOrders } from '@/features/shop/data/mockShopOrders';
 import {
   MOCK_SPECIALIST_PROFILES,
@@ -22,7 +23,10 @@ import {
   readMockServiceOrders,
   updateMockServiceOrder,
 } from '../data/mockOrders';
-import { readProductOrdersFromShop } from '../data/mockProductOrdersAdapter';
+import {
+  filterMockProductOrdersForCurrentViewer,
+  readProductOrdersFromShop,
+} from '../data/mockProductOrdersAdapter';
 
 import type { ProductOrderRepeatCheckoutDraft } from '../model/productOrderRepeatCheckout';
 import type {
@@ -884,7 +888,7 @@ export async function mockCancelServiceOrder(
 export async function mockGetProductOrders(): Promise<ProductOrder[]> {
   await wait();
 
-  return readProductOrdersFromShop().sort(
+  return filterMockProductOrdersForCurrentViewer(readProductOrdersFromShop()).sort(
     (a, b) => +new Date(b.createdAt) - +new Date(a.createdAt),
   );
 }
@@ -892,7 +896,9 @@ export async function mockGetProductOrders(): Promise<ProductOrder[]> {
 export async function mockGetProductOrderById(orderId: string): Promise<ProductOrder> {
   await wait();
 
-  const order = readProductOrdersFromShop().find((item) => item.id === orderId);
+  const order = filterMockProductOrdersForCurrentViewer(readProductOrdersFromShop()).find(
+    (item) => item.id === orderId,
+  );
 
   if (!order) {
     throw new Error('Заказ не найден.');
@@ -914,6 +920,12 @@ export async function mockCancelProductOrder(
   }
 
   const current = orders[index];
+
+  assertCurrentUserOwnsMockShopOrder(current);
+
+  if (!current.canBeCancelled) {
+    throw new Error('Этот заказ уже нельзя отменить.');
+  }
 
   if (current.status !== 'created' && current.status !== 'paid') {
     throw new Error('Этот заказ уже нельзя отменить.');
@@ -966,7 +978,9 @@ export async function mockRepeatProductOrder(
 ): Promise<ProductOrderRepeatCheckoutDraft> {
   await wait();
 
-  const existing = readProductOrdersFromShop().find((item) => item.id === orderId);
+  const existing = filterMockProductOrdersForCurrentViewer(readProductOrdersFromShop()).find(
+    (item) => item.id === orderId,
+  );
 
   if (!existing) {
     throw new Error('Заказ не найден.');

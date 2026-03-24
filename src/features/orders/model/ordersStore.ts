@@ -44,6 +44,14 @@ export class OrdersStore {
     this.selectedProductLoading = false;
   }
 
+  /** Сброс кэша товарных заказов при смене пользователя (гость / другой аккаунт). */
+  resetSessionProductOrders(): void {
+    this.productOrders = [];
+    this.productsError = null;
+    this.productsLoading = false;
+    this.clearSelectedProductOrder();
+  }
+
   private updateLocalOrder(orderId: string, patch: Partial<ServiceOrder>): void {
     const index = this.serviceOrders.findIndex((item) => item.id === orderId);
 

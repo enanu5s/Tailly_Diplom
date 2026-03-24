@@ -1,10 +1,50 @@
 // src/features/orders/data/mockProductOrdersAdapter.ts
 
+import { authStore } from '@/features/auth/model/authStore';
 import { readStoredOrders } from '@/features/shop/data/mockShopOrders';
+import { canOrderShopProducts } from '@/shared/lib/auth/roleAccess';
 import { cloneDeep } from '@/shared/mock-db/cloneDeep';
 import { ensureMockDatabaseLoaded, unsafeMutableMockDb } from '@/shared/mock-db/store';
 
 import type { ProductOrder } from '../model/types';
+
+/** Заказы без owner (старые данные) в демо показываем только этому аккаунту */
+const MOCK_UNSCOPED_ORDERS_FALLBACK_USER_ID = 'client-1';
+
+export function getMockProductOrdersViewerId(): string | null {
+  const user = authStore.getState().user;
+
+  if (!canOrderShopProducts(user)) {
+    return null;
+  }
+
+  return user?.id ?? null;
+}
+
+export function isMockProductOrderVisibleToViewer(
+  order: ProductOrder,
+  viewerId: string,
+): boolean {
+  if (order.ownerUserId === viewerId) {
+    return true;
+  }
+
+  return (
+    order.ownerUserId === undefined && viewerId === MOCK_UNSCOPED_ORDERS_FALLBACK_USER_ID
+  );
+}
+
+export function filterMockProductOrdersForCurrentViewer(
+  orders: ProductOrder[],
+): ProductOrder[] {
+  const viewerId = getMockProductOrdersViewerId();
+
+  if (!viewerId) {
+    return [];
+  }
+
+  return orders.filter((order) => isMockProductOrderVisibleToViewer(order, viewerId));
+}
 
 export function readProductOrdersFromShop(): ProductOrder[] {
   const shopOrders = readStoredOrders();
@@ -24,6 +64,7 @@ export function readProductOrdersFromShop(): ProductOrder[] {
       price: order.totalPrice,
       currency: 'RUB',
       itemsCount: order.items.length,
+      ownerUserId: order.ownerUserId,
       productThumbs: order.items
         .map((item) => item.product.images[0]?.url ?? '')
         .filter((value): value is string => value.length > 0),

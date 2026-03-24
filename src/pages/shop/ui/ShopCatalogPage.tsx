@@ -11,7 +11,10 @@ import { shopCartStore } from '@/features/shop/model/shopCartStore';
 import { shopCatalogStore } from '@/features/shop/model/shopCatalogStore';
 import { shopFavoritesStore } from '@/features/shop/model/shopFavoritesStore';
 import { CatalogFilters, CatalogPagination, ProductCard } from '@/features/shop/ui';
-import { shouldShowShopConsumerControls } from '@/shared/lib/auth/roleAccess';
+import {
+  canOrderShopProducts,
+  shouldShowShopConsumerControls,
+} from '@/shared/lib/auth/roleAccess';
 import { useAppNavigate } from '@/shared/lib/navigation/useAppNavigate';
 
 import styles from './ShopCatalogPage.module.css';
@@ -27,20 +30,21 @@ export const ShopCatalogPage = observer(() => {
   const restoredRef = useRef(false);
   const { user } = useAuth();
   const showShopConsumerUi = shouldShowShopConsumerControls(user);
+  const canSeeOwnShopOrders = canOrderShopProducts(user);
 
   const { filters, products, total, error, isLoading, isInitialized } = shopCatalogStore;
 
   const categoryIdsKey = filters.categoryIds.join('|');
 
   useEffect(() => {
-    if (!showShopConsumerUi) {
+    if (!canSeeOwnShopOrders) {
       return;
     }
 
     if (ordersStore.productOrders.length === 0 && !ordersStore.productsLoading) {
       void ordersStore.loadProducts();
     }
-  }, [showShopConsumerUi]);
+  }, [canSeeOwnShopOrders]);
 
   useEffect(() => {
     if (!shopCatalogStore.isMetaInitialized && !shopCatalogStore.isMetaLoading) {
@@ -171,7 +175,7 @@ export const ShopCatalogPage = observer(() => {
           <span className={styles.breadcrumbCurrent}>Магазин</span>
         </div>
 
-        {showShopConsumerUi && !ordersStore.productsLoading && activeOrders.length > 0 ? (
+        {canSeeOwnShopOrders && !ordersStore.productsLoading && activeOrders.length > 0 ? (
           <section className={styles.activeOrdersBanner}>
             <div className={styles.activeOrdersHeader}>
               <div>

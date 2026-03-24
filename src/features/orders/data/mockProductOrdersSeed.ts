@@ -18,6 +18,8 @@ function buildSyntheticProductOrders(): ProductOrder[] {
     const day = String(1 + (i % 27)).padStart(2, '0');
     const hour = String(8 + (i % 10)).padStart(2, '0');
 
+    const ownerNum = ((i - 2) % 20) + 1;
+
     rows.push({
       id: `product-order-${i}`,
       number: `№ T-${1000 + i}`,
@@ -26,6 +28,7 @@ function buildSyntheticProductOrders(): ProductOrder[] {
       price: 890 + i * 211,
       currency: 'RUB',
       itemsCount: 1 + (i % 4),
+      ownerUserId: `client-${ownerNum}`,
       productThumbs: ['/images/shop/product-1.jpg', '/images/shop/product-2.jpg'],
       items: [
         {
@@ -51,6 +54,7 @@ export const MOCK_PRODUCT_ORDERS_SEED: ProductOrder[] = [
     price: 2590,
     currency: 'RUB',
     itemsCount: 2,
+    ownerUserId: 'client-1',
     productThumbs: ['/images/shop/product-1.jpg', '/images/shop/product-2.jpg'],
     items: [
       {

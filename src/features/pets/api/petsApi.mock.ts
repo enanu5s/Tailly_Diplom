@@ -14,6 +14,7 @@ function defaultUserPets(): Pet[] {
 
   const db = unsafeMutableMockDb();
   const uid = db.client.defaultUserId;
+  
 
   return db.client.petsByUserId[uid] ?? [];
 }

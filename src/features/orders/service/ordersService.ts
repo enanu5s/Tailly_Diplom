@@ -1,7 +1,7 @@
 // src/features/orders/service/ordersService.ts
 
 import { authStore } from '@/features/auth/model/authStore';
-import { canClientBookService } from '@/shared/lib/auth/roleAccess';
+import { canClientBookService, canOrderShopProducts } from '@/shared/lib/auth/roleAccess';
 
 import { ordersApi } from '../api/ordersApi';
 
@@ -56,14 +56,32 @@ export const ordersService = {
   },
 
   getProductOrders(): Promise<ProductOrder[]> {
+    const user = authStore.getState().user;
+
+    if (!canOrderShopProducts(user)) {
+      return Promise.resolve([]);
+    }
+
     return ordersApi.getProductOrders();
   },
 
   getProductOrderById(orderId: string): Promise<ProductOrder> {
+    const user = authStore.getState().user;
+
+    if (!canOrderShopProducts(user)) {
+      return Promise.reject(new Error('Заказ не найден.'));
+    }
+
     return ordersApi.getProductOrderById(orderId);
   },
 
   cancelProductOrder(orderId: string): Promise<CancelOrderResult> {
+    const user = authStore.getState().user;
+
+    if (!canOrderShopProducts(user)) {
+      return Promise.reject(new Error('Заказ не найден.'));
+    }
+
     return ordersApi.cancelProductOrder(orderId);
   },
 
@@ -72,6 +90,12 @@ export const ordersService = {
   },
 
   repeatProductOrder(orderId: string): Promise<ProductOrderRepeatCheckoutDraft> {
+    const user = authStore.getState().user;
+
+    if (!canOrderShopProducts(user)) {
+      return Promise.reject(new Error('Заказ не найден.'));
+    }
+
     return ordersApi.repeatProductOrder(orderId);
   },
 
