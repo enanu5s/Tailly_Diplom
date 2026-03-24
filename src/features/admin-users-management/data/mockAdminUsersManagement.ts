@@ -5,6 +5,7 @@ import {
   removeSoftDeleteRecord,
 } from '@/features/auth/data/mockAccountDeletionStorage';
 import { getMockAuthAccounts } from '@/features/auth/data/mockAuthAccounts';
+import { notifyAccountBlocked } from '@/shared/lib/emailNotifications';
 import {
   updateManagedSpecialistAccount,
   type ManagedSpecialistMockAccount,
@@ -271,6 +272,22 @@ export function updateManagedUserBlockedStatus(
       ? undefined
       : normalizedBlockedUntil;
     account.isPermanentBlock = isPermanentBlock;
+
+    const userName =
+      `${account.firstName ?? ''} ${account.lastName ?? ''}`.trim() || 'пользователь';
+    const blockedUntilLabel = isPermanentBlock
+      ? 'бессрочно (до решения администрации)'
+      : new Date(normalizedBlockedUntil!).toLocaleString('ru-RU', {
+          dateStyle: 'long',
+          timeStyle: 'short',
+        });
+
+    notifyAccountBlocked({
+      email: account.email,
+      userName,
+      reason: normalizedReason,
+      blockedUntilLabel,
+    });
   } else {
     account.isBlocked = false;
     account.blockReason = undefined;

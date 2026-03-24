@@ -139,7 +139,7 @@ export const SpecialistProfilePage = observer((): ReactElement => {
       return;
     }
 
-    navigate("/orders/create", {
+    navigate("/service-booking", {
       state: {
         specialistSlug: store.profile.slug,
       },

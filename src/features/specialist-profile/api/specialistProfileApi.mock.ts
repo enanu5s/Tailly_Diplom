@@ -1,6 +1,7 @@
 // src/features/specialist-profile/api/specialistProfileApi.mock.ts
 
 import { getMockServiceOrderById, updateMockServiceOrder } from '@/features/orders/data/mockOrders';
+import { notifySpecialistServicesChanged } from '@/shared/lib/emailNotifications';
 
 import {
   delay,
@@ -15,6 +16,7 @@ import type {
   SpecialistMainInfoUpdatePayload,
   SpecialistProfileResponse,
   SpecialistReviewReplyUpsertPayload,
+  SpecialistService,
 } from '../model/types';
 
 function normalizeTime(value: string, fallback: string): string {
@@ -94,6 +96,15 @@ export async function mockUpdateDetails(
 
   const currentProfile = MOCK_SPECIALIST_PROFILES[profileIndex];
 
+  const snapshotService = (service: SpecialistService) => ({
+    id: service.id,
+    name: service.name,
+    locationLabel: service.locationLabel,
+    price: service.price,
+    priceUnit: service.priceUnit,
+  });
+  const previousServices = currentProfile.services.map(snapshotService);
+
   Object.assign(currentProfile, {
     ...currentProfile,
     specialistGallery: (payload.specialistGallery ?? []).map((item, index) => ({
@@ -126,6 +137,47 @@ export async function mockUpdateDetails(
       priceUnit: service.priceUnit,
     })),
   });
+
+  const nextServices = currentProfile.services.map(snapshotService);
+  const prevById = new Map(previousServices.map((s) => [s.id, s]));
+  const nextById = new Map(nextServices.map((s) => [s.id, s]));
+  const lines: string[] = [];
+
+  for (const [id, prev] of prevById) {
+    if (!nextById.has(id)) {
+      lines.push(`Услуга «${prev.name}» удалена из профиля.`);
+    }
+  }
+
+  for (const [svcId, next] of nextById) {
+    const prev = prevById.get(svcId);
+    if (!prev) {
+      lines.push(
+        `Добавлена услуга «${next.name}» — ${next.price} ₽ (${next.locationLabel}).`,
+      );
+    } else if (
+      prev.name !== next.name ||
+      prev.price !== next.price ||
+      prev.locationLabel !== next.locationLabel ||
+      prev.priceUnit !== next.priceUnit
+    ) {
+      lines.push(
+        `Обновлена услуга «${next.name}» (изменились название, цена, локация или единица расчёта).`,
+      );
+    }
+  }
+
+  if (lines.length > 0) {
+    const email = currentProfile.main.email?.trim().toLowerCase();
+    if (email?.includes('@')) {
+      notifySpecialistServicesChanged({
+        specialistEmail: email,
+        specialistName:
+          `${currentProfile.main.firstName} ${currentProfile.main.lastName}`.trim(),
+        lines,
+      });
+    }
+  }
 
   return cloneProfile(currentProfile);
 }

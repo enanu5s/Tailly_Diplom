@@ -165,6 +165,9 @@ export type Order = {
   estimatedDeliveryDate: string | null;
   createdAt: string;
   canBeCancelled: boolean;
+  /** Для писем о статусе заказа (mock / бэкенд) */
+  recipientEmail?: string;
+  recipientName?: string;
 };
 
 export const DEFAULT_CATALOG_FILTERS: CatalogFilterState = {

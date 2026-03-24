@@ -1,5 +1,7 @@
 // src/features/shop/api/shopOrderApi.mock.ts
 
+import { notifyShopOrderEvent } from '@/shared/lib/emailNotifications';
+
 import { SHOP_PRODUCTS_MOCK } from './mockData';
 import {
   addDays,
@@ -75,6 +77,9 @@ export async function mockCreateOrder(
       ? addDays(new Date(), 1)
       : addDays(new Date(), 2);
 
+  const recipientName =
+    `${payload.form.recipient.firstName} ${payload.form.recipient.lastName}`.trim();
+
   const order: Order = {
     id: generateOrderId(),
     status: 'created',
@@ -85,10 +90,14 @@ export async function mockCreateOrder(
     estimatedDeliveryDate,
     createdAt: new Date().toISOString(),
     canBeCancelled: true,
+    recipientEmail: payload.form.recipient.email.trim().toLowerCase(),
+    recipientName: recipientName || undefined,
   };
 
   const existingOrders = readStoredOrders();
   writeStoredOrders([order, ...existingOrders]);
+
+  notifyShopOrderEvent({ order, event: 'created' });
 
   return order;
 }
@@ -134,6 +143,8 @@ export async function mockPayShopOrder(
   orders[index] = updated;
   writeStoredOrders(orders);
 
+  notifyShopOrderEvent({ order: updated, event: 'paid' });
+
   return updated;
 }
 
@@ -165,6 +176,8 @@ export async function mockCancelOrder(
 
   orders[index] = updated;
   writeStoredOrders(orders);
+
+  notifyShopOrderEvent({ order: updated, event: 'cancelled' });
 
   return updated;
 }

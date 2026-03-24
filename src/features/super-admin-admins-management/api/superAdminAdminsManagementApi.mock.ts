@@ -1,5 +1,7 @@
 // src/features/super-admin-admins-management/api/superAdminAdminsManagementApi.mock.ts
 
+import { notifyNewAdminPasswordFromSuperAdmin } from '@/shared/lib/emailNotifications';
+
 import {
   buildAdminId,
   buildTemporaryPassword,
@@ -71,6 +73,13 @@ export async function mockCreateAdmin(
   };
 
   MOCK_ADMINS.unshift(createdAdmin);
+
+  notifyNewAdminPasswordFromSuperAdmin({
+    adminEmail: normalizedEmail,
+    adminName:
+      `${payload.firstName.trim()} ${payload.lastName.trim()}`.trim(),
+    temporaryPassword,
+  });
 
   return {
     admin: JSON.parse(JSON.stringify(createdAdmin)),

@@ -1,5 +1,21 @@
 // src/features/orders/api/ordersApi.mock.ts
 
+import { readStoredOrders, writeStoredOrders } from '@/features/shop/data/mockShopOrders';
+import {
+  MOCK_SPECIALIST_PROFILES,
+  findProfileIndexBySlug,
+} from '@/features/specialist-profile/data/mockSpecialistProfiles';
+import type {
+  SpecialistCalendarBookedSlot,
+  SpecialistReview,
+  SpecialistService,
+} from '@/features/specialist-profile/model/types';
+import {
+  notifyServiceOrderCreated,
+  notifyServiceOrderStatusChanged,
+  notifyShopOrderEvent,
+} from '@/shared/lib/emailNotifications';
+
 import {
   createMockServiceOrder,
   getMockServiceOrderById,
@@ -8,6 +24,7 @@ import {
 } from '../data/mockOrders';
 import { readProductOrdersFromShop } from '../data/mockProductOrdersAdapter';
 
+import type { ProductOrderRepeatCheckoutDraft } from '../model/productOrderRepeatCheckout';
 import type {
   CancelOrderResult,
   CompleteOrderResult,
@@ -22,19 +39,6 @@ import type {
   ServicesFilter,
   StartOrderResult,
 } from '../model/types';
-import type { ProductOrderRepeatCheckoutDraft } from '../model/productOrderRepeatCheckout';
-
-import {
-  MOCK_SPECIALIST_PROFILES,
-  findProfileIndexBySlug,
-} from '@/features/specialist-profile/data/mockSpecialistProfiles';
-import { readStoredOrders, writeStoredOrders } from '@/features/shop/data/mockShopOrders';
-
-import type {
-  SpecialistCalendarBookedSlot,
-  SpecialistReview,
-  SpecialistService,
-} from '@/features/specialist-profile/model/types';
 
 function wait(delay = 300): Promise<void> {
   return new Promise((resolve) => {
@@ -825,6 +829,8 @@ export async function mockCreateServiceOrder(
   const created = createMockServiceOrder(payload);
   syncBookedSlotsForOrder(created);
 
+  notifyServiceOrderCreated(created);
+
   return created;
 }
 
@@ -841,11 +847,13 @@ export async function mockConfirmServiceOrder(
 
   ensureAllowedTransition(existing, 'confirmed');
 
-  updateMockServiceOrder(orderId, {
+  const previousStatus = existing.status;
+  const updated = updateMockServiceOrder(orderId, {
     status: 'confirmed',
     confirmedAt: new Date().toISOString(),
     lifecycle: appendLifecycleStatus(existing, 'confirmed'),
   });
+  notifyServiceOrderStatusChanged(updated, previousStatus);
 
   return { ok: true };
 }
@@ -863,11 +871,13 @@ export async function mockStartServiceOrder(
 
   ensureAllowedTransition(existing, 'active');
 
-  updateMockServiceOrder(orderId, {
+  const previousStatus = existing.status;
+  const updated = updateMockServiceOrder(orderId, {
     status: 'active',
     startedAt: new Date().toISOString(),
     lifecycle: appendLifecycleStatus(existing, 'active'),
   });
+  notifyServiceOrderStatusChanged(updated, previousStatus);
 
   return { ok: true };
 }
@@ -885,11 +895,13 @@ export async function mockCompleteServiceOrder(
 
   ensureAllowedTransition(existing, 'completed');
 
-  updateMockServiceOrder(orderId, {
+  const previousStatus = existing.status;
+  const updated = updateMockServiceOrder(orderId, {
     status: 'completed',
     completedAt: new Date().toISOString(),
     lifecycle: appendLifecycleStatus(existing, 'completed'),
   });
+  notifyServiceOrderStatusChanged(updated, previousStatus);
 
   return { ok: true };
 }
@@ -907,11 +919,13 @@ export async function mockCancelServiceOrder(
 
   ensureAllowedTransition(existing, 'canceled');
 
-  updateMockServiceOrder(orderId, {
+  const previousStatus = existing.status;
+  const updated = updateMockServiceOrder(orderId, {
     status: 'canceled',
     canceledAt: new Date().toISOString(),
     lifecycle: appendLifecycleStatus(existing, 'canceled'),
   });
+  notifyServiceOrderStatusChanged(updated, previousStatus);
 
   removeBookedSlotsForOrder(existing);
 
@@ -967,6 +981,8 @@ export async function mockCancelProductOrder(
   };
 
   writeStoredOrders(orders);
+
+  notifyShopOrderEvent({ order: orders[index], event: 'cancelled' });
 
   return { ok: true };
 }

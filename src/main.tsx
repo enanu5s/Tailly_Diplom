@@ -6,6 +6,7 @@ import { RouterProvider, createBrowserRouter } from "react-router-dom";
 import { routes } from "@/app/router/routes";
 import { authStore } from "@/features/auth/model/authStore";
 import { configureHttpClient } from "@/shared/api/http";
+import { runEmailNotificationScheduler } from "@/shared/lib/emailNotifications";
 
 const router = createBrowserRouter(routes);
 
@@ -41,6 +42,9 @@ function bootstrap() {
       <RouterProvider router={router} />
     </React.StrictMode>,
   );
+
+  runEmailNotificationScheduler();
+  window.setInterval(runEmailNotificationScheduler, 5 * 60 * 1000);
 }
 
 bootstrap();

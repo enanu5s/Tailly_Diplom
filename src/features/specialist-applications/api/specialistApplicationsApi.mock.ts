@@ -1,5 +1,7 @@
 // src/features/specialist-applications/api/specialistApplicationsApi.mock.ts
 
+import { notifyModerationApplicationStatus } from '@/shared/lib/emailNotifications';
+
 import {
   delay,
   ensureMockSeed,
@@ -51,6 +53,15 @@ export async function mockCreateApplication(
   applications.unshift(createdApplication);
   writeMockApplications(applications);
 
+  notifyModerationApplicationStatus({
+    email: createdApplication.email,
+    fullName: createdApplication.fullName,
+    applicationId: createdApplication.id,
+    status: createdApplication.status,
+    reviewComment: null,
+    interviewDate: null,
+  });
+
   return {
     ok: true,
     application: JSON.parse(
@@ -94,6 +105,15 @@ export async function mockAssignInterview(
   applications[index] = updated;
   writeMockApplications(applications);
 
+  notifyModerationApplicationStatus({
+    email: updated.email,
+    fullName: updated.fullName,
+    applicationId: updated.id,
+    status: updated.status,
+    reviewComment: updated.reviewComment,
+    interviewDate: updated.interviewDate,
+  });
+
   return JSON.parse(JSON.stringify(updated)) as SpecialistApplication;
 }
 
@@ -123,6 +143,15 @@ export async function mockRejectApplication(
   applications[index] = updated;
   writeMockApplications(applications);
 
+  notifyModerationApplicationStatus({
+    email: updated.email,
+    fullName: updated.fullName,
+    applicationId: updated.id,
+    status: updated.status,
+    reviewComment: updated.reviewComment,
+    interviewDate: updated.interviewDate,
+  });
+
   return JSON.parse(JSON.stringify(updated)) as SpecialistApplication;
 }
 
@@ -151,6 +180,15 @@ export async function mockApproveApplication(
 
   applications[index] = updated;
   writeMockApplications(applications);
+
+  notifyModerationApplicationStatus({
+    email: updated.email,
+    fullName: updated.fullName,
+    applicationId: updated.id,
+    status: updated.status,
+    reviewComment: updated.reviewComment,
+    interviewDate: updated.interviewDate,
+  });
 
   return JSON.parse(JSON.stringify(updated)) as SpecialistApplication;
 }
@@ -184,6 +222,15 @@ export async function mockAttachCreatedSpecialistAccount(
 
   applications[index] = updated;
   writeMockApplications(applications);
+
+  notifyModerationApplicationStatus({
+    email: updated.email,
+    fullName: updated.fullName,
+    applicationId: updated.id,
+    status: updated.status,
+    reviewComment: updated.reviewComment,
+    interviewDate: updated.interviewDate,
+  });
 
   return JSON.parse(JSON.stringify(updated)) as SpecialistApplication;
 }
