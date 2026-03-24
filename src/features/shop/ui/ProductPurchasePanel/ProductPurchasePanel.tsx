@@ -2,6 +2,9 @@
 
 import { observer } from 'mobx-react-lite';
 
+import { useAuth } from '@/features/auth/model/useAuth';
+import { shouldShowShopConsumerControls } from '@/shared/lib/auth/roleAccess';
+
 import { shopCartStore } from '../../model/shopCartStore';
 import { shopFavoritesStore } from '../../model/shopFavoritesStore';
 
@@ -16,6 +19,9 @@ type Props = {
 
 export const ProductPurchasePanel = observer(
   ({ product, onReviewsClick }: Props) => {
+    const { user } = useAuth();
+    const showConsumerControls = shouldShowShopConsumerControls(user);
+
     const isFavorite = shopFavoritesStore.has(product.id);
     const quantity = shopCartStore.getQuantity(product.id);
 
@@ -97,60 +103,62 @@ export const ProductPurchasePanel = observer(
           )}
         </div>
 
-        <div className={styles.actions}>
-          <button
-            className={[
-              styles.favoriteButton,
-              isFavorite ? styles.favoriteButtonActive : '',
-            ]
-              .filter(Boolean)
-              .join(' ')}
-            type="button"
-            onClick={handleToggleFavorite}
-          >
-            {isFavorite ? 'В избранном' : 'В избранное'}
-          </button>
-
-          {quantity > 0 ? (
-            <div className={styles.quantityControl}>
-              <button
-                className={styles.quantityButton}
-                type="button"
-                onClick={handleDecrement}
-                aria-label="Уменьшить количество"
-              >
-                −
-              </button>
-
-              <div className={styles.quantityValue}>{quantity}</div>
-
-              <button
-                className={styles.quantityButton}
-                type="button"
-                onClick={handleIncrement}
-                disabled={quantity >= product.stockQuantity}
-                aria-label="Увеличить количество"
-              >
-                +
-              </button>
-            </div>
-          ) : (
+        {showConsumerControls ? (
+          <div className={styles.actions}>
             <button
-              className={styles.cartButton}
+              className={[
+                styles.favoriteButton,
+                isFavorite ? styles.favoriteButtonActive : '',
+              ]
+                .filter(Boolean)
+                .join(' ')}
               type="button"
-              onClick={handleAddToCart}
-              disabled={!product.isAvailable}
+              onClick={handleToggleFavorite}
             >
-              В корзину
+              {isFavorite ? 'В избранном' : 'В избранное'}
             </button>
-          )}
 
-          {quantity > 0 ? (
-            <div className={styles.cartHint}>
-              Товар уже добавлен в корзину. Количество можно изменить здесь.
-            </div>
-          ) : null}
-        </div>
+            {quantity > 0 ? (
+              <div className={styles.quantityControl}>
+                <button
+                  className={styles.quantityButton}
+                  type="button"
+                  onClick={handleDecrement}
+                  aria-label="Уменьшить количество"
+                >
+                  −
+                </button>
+
+                <div className={styles.quantityValue}>{quantity}</div>
+
+                <button
+                  className={styles.quantityButton}
+                  type="button"
+                  onClick={handleIncrement}
+                  disabled={quantity >= product.stockQuantity}
+                  aria-label="Увеличить количество"
+                >
+                  +
+                </button>
+              </div>
+            ) : (
+              <button
+                className={styles.cartButton}
+                type="button"
+                onClick={handleAddToCart}
+                disabled={!product.isAvailable}
+              >
+                В корзину
+              </button>
+            )}
+
+            {quantity > 0 ? (
+              <div className={styles.cartHint}>
+                Товар уже добавлен в корзину. Количество можно изменить здесь.
+              </div>
+            ) : null}
+          </div>
+        ) : null}
       </section>
     );
   },

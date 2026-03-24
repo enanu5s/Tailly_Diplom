@@ -1,14 +1,16 @@
 // src/pages/shop/ui/ShopFavoritesPage.tsx
 import { observer } from 'mobx-react-lite';
 import { useEffect } from 'react';
-import { Link, useLocation } from 'react-router-dom';
+import { Link, Navigate, useLocation } from 'react-router-dom';
 
+import { useAuth } from '@/features/auth/model/useAuth';
 import { shopFavoritesPageStore } from '@/features/shop/model/shopFavoritesPageStore';
 import { shopFavoritesStore } from '@/features/shop/model/shopFavoritesStore';
 import {
     FavoriteItemCard,
     ProductBackButton,
 } from '@/features/shop/ui';
+import { shouldShowShopConsumerControls } from '@/shared/lib/auth/roleAccess';
 
 import styles from './ShopFavoritesPage.module.css';
 
@@ -24,8 +26,10 @@ type ShopFavoritesPageLocationState = {
 
 export const ShopFavoritesPage = observer(() => {
     const location = useLocation();
+    const { user } = useAuth();
     const state = (location.state ?? null) as ShopFavoritesPageLocationState | null;
     const from = state?.from;
+    const showConsumerUi = shouldShowShopConsumerControls(user);
 
     useEffect(() => {
         window.scrollTo({
@@ -35,14 +39,22 @@ export const ShopFavoritesPage = observer(() => {
     }, []);
 
     useEffect(() => {
+        if (!showConsumerUi) {
+            return;
+        }
+
         void shopFavoritesPageStore.load();
 
         return () => {
             shopFavoritesPageStore.reset();
         };
-    }, []);
+    }, [showConsumerUi]);
 
     const { products, error, isEmpty, isInitialized, isLoading } = shopFavoritesPageStore;
+
+    if (!showConsumerUi) {
+        return <Navigate to="/shop" replace />;
+    }
 
     return (
         <div className={styles.page}>

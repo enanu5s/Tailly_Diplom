@@ -2,6 +2,9 @@
 import { observer } from 'mobx-react-lite';
 import { Link, useLocation } from 'react-router-dom';
 
+import { useAuth } from '@/features/auth/model/useAuth';
+import { shouldShowShopConsumerControls } from '@/shared/lib/auth/roleAccess';
+
 import styles from './ProductCard.module.css';
 import { shopCartStore } from '../../model/shopCartStore';
 import { shopFavoritesStore } from '../../model/shopFavoritesStore';
@@ -25,6 +28,8 @@ type ProductPageNavigationState = {
 
 export const ProductCard = observer(({ product }: Props) => {
     const location = useLocation();
+    const { user } = useAuth();
+    const showConsumerControls = shouldShowShopConsumerControls(user);
 
     const isFavorite = shopFavoritesStore.has(product.id);
     const quantity = shopCartStore.getQuantity(product.id);
@@ -74,14 +79,16 @@ export const ProductCard = observer(({ product }: Props) => {
             data-shop-product-id={product.id}
             id={`shop-product-card-${product.id}`}
         >
-            <button
-                className={`${styles.favoriteButton} ${isFavorite ? styles.favoriteButtonActive : ''}`}
-                type="button"
-                onClick={handleToggleFavorite}
-                aria-label={isFavorite ? 'Убрать из избранного' : 'Добавить в избранное'}
-            >
-                {isFavorite ? '♥️' : '♡'}
-            </button>
+            {showConsumerControls ? (
+                <button
+                    className={`${styles.favoriteButton} ${isFavorite ? styles.favoriteButtonActive : ''}`}
+                    type="button"
+                    onClick={handleToggleFavorite}
+                    aria-label={isFavorite ? 'Убрать из избранного' : 'Добавить в избранное'}
+                >
+                    {isFavorite ? '♥️' : '♡'}
+                </button>
+            ) : null}
 
             <Link
                 to={`/shop/${product.slug}`}
@@ -131,40 +138,42 @@ export const ProductCard = observer(({ product }: Props) => {
                     )}
                 </div>
 
-                <div className={styles.actions}>
-                    {quantity > 0 ? (
-                        <div className={styles.quantityControl}>
-                            <button
-                                className={styles.quantityButton}
-                                type="button"
-                                onClick={handleDecrement}
-                                aria-label="Уменьшить количество"
-                            >
-                                −
-                            </button>
+                {showConsumerControls ? (
+                    <div className={styles.actions}>
+                        {quantity > 0 ? (
+                            <div className={styles.quantityControl}>
+                                <button
+                                    className={styles.quantityButton}
+                                    type="button"
+                                    onClick={handleDecrement}
+                                    aria-label="Уменьшить количество"
+                                >
+                                    −
+                                </button>
 
-                            <span className={styles.quantityValue}>{quantity}</span>
+                                <span className={styles.quantityValue}>{quantity}</span>
+                                <button
+                                    className={styles.quantityButton}
+                                    type="button"
+                                    onClick={handleIncrement}
+                                    aria-label="Увеличить количество"
+                                    disabled={quantity >= product.stockQuantity}
+                                >
+                                    +
+                                </button>
+                            </div>
+                        ) : (
                             <button
-                                className={styles.quantityButton}
+                                className={styles.cartButton}
                                 type="button"
-                                onClick={handleIncrement}
-                                aria-label="Увеличить количество"
-                                disabled={quantity >= product.stockQuantity}
+                                onClick={handleAddToCart}
+                                disabled={!product.isAvailable}
                             >
-                                +
+                                В корзину
                             </button>
-                        </div>
-                    ) : (
-                        <button
-                            className={styles.cartButton}
-                            type="button"
-                            onClick={handleAddToCart}
-                            disabled={!product.isAvailable}
-                        >
-                            В корзину
-                        </button>
-                    )}
-                </div>
+                        )}
+                    </div>
+                ) : null}
             </div>
         </article>
     );

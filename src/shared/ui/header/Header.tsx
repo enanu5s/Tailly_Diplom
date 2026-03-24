@@ -14,6 +14,7 @@ import {
 import { shopCartStore } from '@/features/shop';
 import { MESSAGES_UPDATED_EVENT } from '@/features/messages/model/messagesEvents';
 import { mainNav } from '@/shared/config/navigation';
+import { shouldShowShopConsumerControls } from '@/shared/lib/auth/roleAccess';
 
 import styles from './Header.module.css';
 import { DropdownMenu } from '../dropdown/DropdownMenu.tsx';
@@ -64,8 +65,9 @@ export const Header = observer(() => {
       ? messagesUnreadStore.unreadThreadsCount
       : messagesUnreadStore.unreadMessagesCount;
 
-  
-      const shopBadgeCount = shopCartStore.totalItems;
+  const shopBadgeCount = shouldShowShopConsumerControls(user)
+    ? shopCartStore.totalItems
+    : 0;
   const navItems = mainNav
     .filter((item) => (isAuth ? true : item.to !== '/messages'))
     .filter((item) => item.to !== '/login');

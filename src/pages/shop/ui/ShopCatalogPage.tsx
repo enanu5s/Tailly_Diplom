@@ -3,6 +3,7 @@
 import { observer } from "mobx-react-lite";
 import { useEffect, useMemo, useRef } from "react";
 import { Link, useLocation } from "react-router-dom";
+import { useAuth } from "@/features/auth/model/useAuth";
 import { useAppNavigate } from "@/shared/lib/navigation/useAppNavigate";
 
 import { ordersStore } from "@/features/orders/model/ordersStore";
@@ -15,6 +16,7 @@ import {
   CatalogPagination,
   ProductCard,
 } from "@/features/shop/ui";
+import { shouldShowShopConsumerControls } from "@/shared/lib/auth/roleAccess";
 
 import styles from "./ShopCatalogPage.module.css";
 
@@ -27,6 +29,8 @@ export const ShopCatalogPage = observer(() => {
   const location = useLocation();
   const navigate = useAppNavigate();
   const restoredRef = useRef(false);
+  const { user } = useAuth();
+  const showShopConsumerUi = shouldShowShopConsumerControls(user);
 
   const { filters, products, total, error, isLoading, isInitialized } =
     shopCatalogStore;
@@ -34,13 +38,17 @@ export const ShopCatalogPage = observer(() => {
   const categoryIdsKey = filters.categoryIds.join("|");
 
   useEffect(() => {
+    if (!showShopConsumerUi) {
+      return;
+    }
+
     if (
       ordersStore.productOrders.length === 0 &&
       !ordersStore.productsLoading
     ) {
       void ordersStore.loadProducts();
     }
-  }, []);
+  }, [showShopConsumerUi]);
 
   useEffect(() => {
     if (
@@ -178,7 +186,9 @@ export const ShopCatalogPage = observer(() => {
           <span className={styles.breadcrumbCurrent}>Магазин</span>
         </div>
 
-        {!ordersStore.productsLoading && activeOrders.length > 0 ? (
+        {showShopConsumerUi &&
+        !ordersStore.productsLoading &&
+        activeOrders.length > 0 ? (
           <section className={styles.activeOrdersBanner}>
             <div className={styles.activeOrdersHeader}>
               <div>
@@ -226,29 +236,31 @@ export const ShopCatalogPage = observer(() => {
             </p>
           </div>
 
-          <div className={styles.quickStats}>
-            <Link
-              to="/shop/favorites"
-              state={favoritesLinkState}
-              className={styles.quickCard}
-            >
-              <span className={styles.quickCardValue}>
-                {shopFavoritesStore.total}
-              </span>
-              <span className={styles.quickCardLabel}>В избранном</span>
-            </Link>
+          {showShopConsumerUi ? (
+            <div className={styles.quickStats}>
+              <Link
+                to="/shop/favorites"
+                state={favoritesLinkState}
+                className={styles.quickCard}
+              >
+                <span className={styles.quickCardValue}>
+                  {shopFavoritesStore.total}
+                </span>
+                <span className={styles.quickCardLabel}>В избранном</span>
+              </Link>
 
-            <Link
-              to="/shop/cart"
-              state={cartLinkState}
-              className={styles.quickCard}
-            >
-              <span className={styles.quickCardValue}>
-                {shopCartStore.totalItems}
-              </span>
-              <span className={styles.quickCardLabel}>В корзине</span>
-            </Link>
-          </div>
+              <Link
+                to="/shop/cart"
+                state={cartLinkState}
+                className={styles.quickCard}
+              >
+                <span className={styles.quickCardValue}>
+                  {shopCartStore.totalItems}
+                </span>
+                <span className={styles.quickCardLabel}>В корзине</span>
+              </Link>
+            </div>
+          ) : null}
         </header>
 
         <div className={styles.layout}>

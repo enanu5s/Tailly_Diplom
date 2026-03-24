@@ -4,6 +4,7 @@ import { observer } from "mobx-react-lite";
 import { useEffect } from "react";
 import { useParams } from "react-router-dom";
 import { useAppNavigate } from '@/shared/lib/navigation/useAppNavigate';
+import { canClientBookService } from '@/shared/lib/auth/roleAccess';
 
 import { useAuth } from "@/features/auth/model/useAuth";
 import { messagesStore } from "@/features/messages";
@@ -167,7 +168,7 @@ export const SpecialistProfilePage = observer((): ReactElement => {
   const canBookSpecialist = Boolean(
     isAuth &&
     user?.id &&
-    user?.role === "client" &&
+    canClientBookService(user) &&
     store.profile &&
     !canManageOwnProfile,
   );

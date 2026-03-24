@@ -1,15 +1,19 @@
 //src/features/shop/ui/ShopCartMergePrompt.tsx
 import { observer } from 'mobx-react-lite';
 
+import { useAuth } from '@/features/auth/model/useAuth';
+import { shouldShowShopConsumerControls } from '@/shared/lib/auth/roleAccess';
+
 import { shopCartStore } from '../model/shopCartStore';
 import styles from './ShopCartMergePrompt.module.css';
 
 import type { ReactElement } from 'react';
 
 export const ShopCartMergePrompt = observer((): ReactElement | null => {
+  const { user } = useAuth();
   const prompt = shopCartStore.pendingCartMergePrompt;
-  console.log('[CART] SHOW PROMPT');
-  if (!prompt) {
+
+  if (!shouldShowShopConsumerControls(user) || !prompt) {
     return null;
   }
 

@@ -3,7 +3,9 @@
 import { observer } from "mobx-react-lite";
 import { useEffect } from "react";
 import { useParams } from "react-router-dom";
+import { useAuth } from "@/features/auth/model/useAuth";
 import { useAppNavigate } from "@/shared/lib/navigation/useAppNavigate";
+import { canClientBookService } from "@/shared/lib/auth/roleAccess";
 
 import { specialistProfileStore } from "../model/specialistProfileStore";
 import { SpecialistProfileView } from "./SpecialistProfileView";
@@ -12,6 +14,7 @@ import type { ReactElement } from "react";
 
 export const SpecialistProfileSection = observer((): ReactElement => {
   const navigate = useAppNavigate();
+  const { user } = useAuth();
   const params = useParams<{ slug: string }>();
 
   const slug = params.slug?.trim() ?? "";
@@ -118,7 +121,11 @@ export const SpecialistProfileSection = observer((): ReactElement => {
         profile && !profile.isOwner ? handleContactSpecialist : undefined
       }
       onBookService={
-        profile && !profile.isOwner ? handleBookService : undefined
+        profile &&
+        !profile.isOwner &&
+        canClientBookService(user ?? null)
+          ? handleBookService
+          : undefined
       }
     />
   );

@@ -1,5 +1,8 @@
 // src/features/orders/service/ordersService.ts
 
+import { authStore } from '@/features/auth/model/authStore';
+import { canClientBookService } from '@/shared/lib/auth/roleAccess';
+
 import { ordersApi } from '../api/ordersApi';
 
 import type {
@@ -27,6 +30,14 @@ export const ordersService = {
   },
 
   createServiceOrder(payload: CreateServiceOrderPayload): Promise<ServiceOrder> {
+    const user = authStore.getState().user;
+
+    if (!canClientBookService(user)) {
+      return Promise.reject(
+        new Error('Заказывать услуги могут только клиенты.'),
+      );
+    }
+
     return ordersApi.createServiceOrder(payload);
   },
 

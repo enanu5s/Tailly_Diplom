@@ -46,6 +46,42 @@ export function canAccessSuperAdminArea(user: AuthUser | null): boolean {
   return isSuperAdminRole(user.role);
 }
 
+/** Заказ товаров в магазине: клиент и специалист; администраторы не могут. */
+export function canOrderShopProducts(user: AuthUser | null): boolean {
+  if (!user || user.isBlocked) {
+    return false;
+  }
+
+  return user.role === 'client' || user.role === 'specialist';
+}
+
+/** Заказ услуги у специалиста: только клиент. */
+export function canClientBookService(user: AuthUser | null): boolean {
+  if (!user || user.isBlocked) {
+    return false;
+  }
+
+  return user.role === 'client';
+}
+
+/**
+ * Избранное, корзина и связанные кнопки в магазине не показываем администраторам.
+ * У гостя (без user) — показываем.
+ */
+export function shouldShowShopConsumerControls(
+  user: AuthUser | null | undefined,
+): boolean {
+  if (!user) {
+    return true;
+  }
+
+  if (user.isBlocked) {
+    return false;
+  }
+
+  return !isAdminRole(user.role);
+}
+
 export function getDefaultAuthorizedRoute(user: AuthUser | null): string {
   if (!user) {
     return '/login';

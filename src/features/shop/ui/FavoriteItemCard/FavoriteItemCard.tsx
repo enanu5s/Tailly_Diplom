@@ -2,6 +2,9 @@
 import { observer } from 'mobx-react-lite';
 import { Link, useLocation } from 'react-router-dom';
 
+import { useAuth } from '@/features/auth/model/useAuth';
+import { shouldShowShopConsumerControls } from '@/shared/lib/auth/roleAccess';
+
 import styles from './FavoriteItemCard.module.css';
 import { shopCartStore } from '../../model/shopCartStore';
 import { shopFavoritesStore } from '../../model/shopFavoritesStore';
@@ -102,13 +105,15 @@ export const FavoriteItemCard = observer(({ product }: Props) => {
                         <p className={styles.description}>{product.shortDescription}</p>
                     </div>
 
-                    <button
-                        className={styles.removeButton}
-                        type="button"
-                        onClick={handleRemoveFromFavorites}
-                    >
-                        Удалить
-                    </button>
+                    {showConsumerControls ? (
+                        <button
+                            className={styles.removeButton}
+                            type="button"
+                            onClick={handleRemoveFromFavorites}
+                        >
+                            Удалить
+                        </button>
+                    ) : null}
                 </div>
 
                 <div className={styles.bottomRow}>
@@ -119,40 +124,42 @@ export const FavoriteItemCard = observer(({ product }: Props) => {
                         ) : null}
                     </div>
 
-                    <div className={styles.actions}>
-                        {quantity > 0 ? (
-                            <div className={styles.quantityControl}>
-                                <button
-                                    className={styles.quantityButton}
-                                    type="button"
-                                    onClick={handleDecrement}
-                                    aria-label="Уменьшить количество"
-                                >
-                                    −
-                                </button>
+                    {showConsumerControls ? (
+                        <div className={styles.actions}>
+                            {quantity > 0 ? (
+                                <div className={styles.quantityControl}>
+                                    <button
+                                        className={styles.quantityButton}
+                                        type="button"
+                                        onClick={handleDecrement}
+                                        aria-label="Уменьшить количество"
+                                    >
+                                        −
+                                    </button>
 
-                                <span className={styles.quantityValue}>{quantity}</span>
+                                    <span className={styles.quantityValue}>{quantity}</span>
+                                    <button
+                                        className={styles.quantityButton}
+                                        type="button"
+                                        onClick={handleIncrement}
+                                        aria-label="Увеличить количество"
+                                        disabled={quantity >= product.stockQuantity}
+                                    >
+                                        +
+                                    </button>
+                                </div>
+                            ) : (
                                 <button
-                                    className={styles.quantityButton}
+                                    className={styles.cartButton}
                                     type="button"
-                                    onClick={handleIncrement}
-                                    aria-label="Увеличить количество"
-                                    disabled={quantity >= product.stockQuantity}
+                                    onClick={handleAddToCart}
+                                    disabled={!product.isAvailable}
                                 >
-                                    +
+                                    В корзину
                                 </button>
-                            </div>
-                        ) : (
-                            <button
-                                className={styles.cartButton}
-                                type="button"
-                                onClick={handleAddToCart}
-                                disabled={!product.isAvailable}
-                            >
-                                В корзину
-                            </button>
-                        )}
-                    </div>
+                            )}
+                        </div>
+                    ) : null}
                 </div>
 
                 {
