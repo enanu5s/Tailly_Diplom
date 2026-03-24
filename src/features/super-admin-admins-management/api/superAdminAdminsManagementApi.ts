@@ -4,16 +4,20 @@ import { request } from '@/shared/api/http';
 import { isMockApiMode } from '@/shared/config/env';
 
 import {
+  mockClearAdminPasswordLock,
   mockCreateAdmin,
   mockDeleteAdmin,
   mockGetAdmins,
+  mockSetAdminBlockStatus,
   mockUpdateAdmin,
 } from './superAdminAdminsManagementApi.mock';
 import {
+  type ClearAdminPasswordLockPayload,
   type CreateAdminPayload,
   type CreateAdminResponse,
   type DeleteAdminPayload,
   type ManagedAdmin,
+  type UpdateAdminBlockStatusPayload,
   type UpdateAdminPayload,
 } from '../model/types';
 
@@ -42,6 +46,27 @@ async function realUpdateAdmin(payload: UpdateAdminPayload): Promise<ManagedAdmi
     method: 'PATCH',
     body,
   });
+}
+
+async function realSetAdminBlockStatus(
+  payload: UpdateAdminBlockStatusPayload,
+): Promise<ManagedAdmin> {
+  const { adminId, ...body } = payload;
+  return request<ManagedAdmin>(`/super-admin/admins/${adminId}/block`, {
+    method: 'PATCH',
+    body,
+  });
+}
+
+async function realClearAdminPasswordLock(
+  payload: ClearAdminPasswordLockPayload,
+): Promise<ManagedAdmin> {
+  return request<ManagedAdmin>(
+    `/super-admin/admins/${payload.adminId}/password-attempts-lock`,
+    {
+      method: 'DELETE',
+    },
+  );
 }
 
 export const superAdminAdminsManagementApi = {
@@ -75,5 +100,25 @@ export const superAdminAdminsManagementApi = {
     }
 
     return realUpdateAdmin(payload);
+  },
+
+  async setAdminBlockStatus(
+    payload: UpdateAdminBlockStatusPayload,
+  ): Promise<ManagedAdmin> {
+    if (isMockApiMode) {
+      return mockSetAdminBlockStatus(payload);
+    }
+
+    return realSetAdminBlockStatus(payload);
+  },
+
+  async clearAdminPasswordLock(
+    payload: ClearAdminPasswordLockPayload,
+  ): Promise<ManagedAdmin> {
+    if (isMockApiMode) {
+      return mockClearAdminPasswordLock(payload);
+    }
+
+    return realClearAdminPasswordLock(payload);
   },
 };

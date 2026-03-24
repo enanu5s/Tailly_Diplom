@@ -27,6 +27,26 @@ function formatBirthDate(value?: string): string {
   }).format(date);
 }
 
+function formatDateTime(value?: string | null): string {
+  if (!value) {
+    return '—';
+  }
+
+  const date = new Date(value);
+
+  if (Number.isNaN(date.getTime())) {
+    return value;
+  }
+
+  return new Intl.DateTimeFormat('ru-RU', {
+    day: '2-digit',
+    month: '2-digit',
+    year: 'numeric',
+    hour: '2-digit',
+    minute: '2-digit',
+  }).format(date);
+}
+
 export const AdminProfileSection = observer((): ReactElement => {
   const navigate = useAppNavigate();
   const store = adminProfileStore;
@@ -111,6 +131,58 @@ export const AdminProfileSection = observer((): ReactElement => {
           </button>
         </div>
       </div>
+
+      {isSuperAdmin && profile.loginSecurity ? (
+        <div className={styles.loginSecurityStack}>
+          {profile.loginSecurity.isManuallyBlocked ? (
+            <div className={styles.errorBanner}>
+              Вход в аккаунт заблокирован администратором. Причина:{' '}
+              <strong>{profile.loginSecurity.blockReason || 'не указана'}</strong>.{' '}
+              {profile.loginSecurity.isPermanentBlock ? (
+                <>Срок: без ограничения по времени.</>
+              ) : (
+                <>
+                  Блокировка до:{' '}
+                  <strong>{formatDateTime(profile.loginSecurity.blockedUntil)}</strong>.
+                </>
+              )}
+            </div>
+          ) : null}
+
+          {profile.loginSecurity.passwordAttemptsLockUntil ? (
+            <div className={styles.warningBanner}>
+              <p className={styles.warningBannerText}>
+                Вход временно заблокирован из-за превышения лимита неверных попыток ввода
+                пароля. Доступ будет восстановлен после{' '}
+                <strong>{formatDateTime(profile.loginSecurity.passwordAttemptsLockUntil)}</strong>
+                . Неудачных попыток подряд:{' '}
+                <strong>{profile.loginSecurity.failedPasswordAttempts}</strong>.
+              </p>
+
+              {isSuperAdmin ? (
+                <div className={styles.passwordLockActions}>
+                  <button
+                    className={styles.secondaryButton}
+                    type="button"
+                    disabled={store.isClearingPasswordLock}
+                    onClick={() => {
+                      void store.clearPasswordAttemptsLock();
+                    }}
+                  >
+                    {store.isClearingPasswordLock
+                      ? 'Снимаем...'
+                      : 'Снять временный лок входа'}
+                  </button>
+                </div>
+              ) : null}
+
+              {store.passwordLockClearError ? (
+                <div className={styles.passwordLockError}>{store.passwordLockClearError}</div>
+              ) : null}
+            </div>
+          ) : null}
+        </div>
+      ) : null}
 
       {!store.isEditing ? (
         <div className={styles.card}>

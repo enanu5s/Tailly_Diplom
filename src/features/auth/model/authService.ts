@@ -1,4 +1,6 @@
 // src/features/auth/service/authService.ts
+import { adminProfileStore } from '@/features/admin-profile';
+
 import { authStore } from './authStore';
 import { authApi } from '../api/authApi';
 
@@ -12,6 +14,7 @@ export const authService = {
   },
 
   logout() {
+    adminProfileStore.reset();
     authStore.logout();
   },
 

@@ -11,6 +11,7 @@ import {
 } from '../data/adminOrganizationOptions';
 import { superAdminAdminsManagementStore } from '../model/superAdminAdminsManagementStore';
 
+import type { ManagedAdmin } from '../model/types';
 import type { ReactElement } from 'react';
 
 function formatDate(value?: string | null): string {
@@ -29,6 +30,38 @@ function formatDate(value?: string | null): string {
     month: '2-digit',
     year: 'numeric',
   }).format(date);
+}
+
+function formatDateTime(value?: string | null): string {
+  if (!value) {
+    return '—';
+  }
+
+  const date = new Date(value);
+
+  if (Number.isNaN(date.getTime())) {
+    return '—';
+  }
+
+  return new Intl.DateTimeFormat('ru-RU', {
+    day: '2-digit',
+    month: '2-digit',
+    year: 'numeric',
+    hour: '2-digit',
+    minute: '2-digit',
+  }).format(date);
+}
+
+function getAccessStatusBadge(admin: ManagedAdmin): { label: string; className: string } {
+  if (admin.isBlocked) {
+    return { label: 'Заблокирован', className: styles.statusBlocked };
+  }
+
+  if (admin.passwordAttemptsLockUntil) {
+    return { label: 'Временный лок входа', className: styles.statusPasswordLock };
+  }
+
+  return { label: 'Активен', className: styles.statusActive };
 }
 
 export const SuperAdminAdminsManagementSection = observer((): ReactElement => {
@@ -61,6 +94,14 @@ export const SuperAdminAdminsManagementSection = observer((): ReactElement => {
         </button>
       </div>
 
+      {store.changeError && !store.isBlockModalOpen && !store.isEditModalOpen ? (
+        <div className={styles.errorBanner}>{store.changeError}</div>
+      ) : null}
+
+      {store.successMessage ? (
+        <div className={styles.successBanner}>{store.successMessage}</div>
+      ) : null}
+
       {store.deleteError ? (
         <div className={styles.errorBanner}>{store.deleteError}</div>
       ) : null}
@@ -85,7 +126,10 @@ export const SuperAdminAdminsManagementSection = observer((): ReactElement => {
               <div className={styles.emptyCard}>Пока нет активных администраторов.</div>
             ) : (
               <div className={styles.grid}>
-                {store.activeAdmins.map((admin) => (
+                {store.activeAdmins.map((admin) => {
+                  const accessBadge = getAccessStatusBadge(admin);
+
+                  return (
                   <article key={admin.adminId} className={styles.card}>
                     <div className={styles.cardTop}>
                       <div>
@@ -96,17 +140,20 @@ export const SuperAdminAdminsManagementSection = observer((): ReactElement => {
                         <div className={styles.cardEmail}>{admin.email}</div>
                       </div>
 
-                      <span
-                        className={
-                          admin.role === 'super_admin'
-                            ? styles.roleSuper
-                            : styles.roleAdmin
-                        }
-                      >
-                        {admin.role === 'super_admin'
-                          ? 'Главный администратор'
-                          : 'Администратор'}
-                      </span>
+                      <div className={styles.badges}>
+                        <span
+                          className={
+                            admin.role === 'super_admin'
+                              ? styles.roleSuper
+                              : styles.roleAdmin
+                          }
+                        >
+                          {admin.role === 'super_admin'
+                            ? 'Главный администратор'
+                            : 'Администратор'}
+                        </span>
+                        <span className={accessBadge.className}>{accessBadge.label}</span>
+                      </div>
                     </div>
 
                     <div className={styles.cardGrid}>
@@ -147,6 +194,29 @@ export const SuperAdminAdminsManagementSection = observer((): ReactElement => {
                           {formatDate(admin.lastLoginAt)}
                         </span>
                       </div>
+
+                      <div className={styles.metaItem}>
+                        <span className={styles.metaLabel}>Причина блокировки</span>
+                        <span className={styles.metaValue}>
+                          {admin.blockReason || '—'}
+                        </span>
+                      </div>
+
+                      <div className={styles.metaItem}>
+                        <span className={styles.metaLabel}>Блокировка до</span>
+                        <span className={styles.metaValue}>
+                          {admin.isPermanentBlock
+                            ? 'Навсегда'
+                            : formatDateTime(admin.blockedUntil)}
+                        </span>
+                      </div>
+
+                      <div className={styles.metaItem}>
+                        <span className={styles.metaLabel}>Временный лок входа (пароль)</span>
+                        <span className={styles.metaValue}>
+                          {formatDateTime(admin.passwordAttemptsLockUntil)}
+                        </span>
+                      </div>
                     </div>
 
                     <div className={styles.cardActions}>
@@ -155,7 +225,9 @@ export const SuperAdminAdminsManagementSection = observer((): ReactElement => {
                           className={styles.secondaryButton}
                           type="button"
                           disabled={
-                            store.isUpdating || store.deletingAdminId === admin.adminId
+                            store.isUpdating ||
+                            store.deletingAdminId === admin.adminId ||
+                            store.changingAdminId === admin.adminId
                           }
                           onClick={() => store.openEditModal(admin)}
                         >
@@ -163,24 +235,72 @@ export const SuperAdminAdminsManagementSection = observer((): ReactElement => {
                         </button>
                       ) : null}
 
-                      <button
-                        className={styles.dangerButton}
-                        type="button"
-                        disabled={
-                          admin.role === 'super_admin' ||
-                          store.deletingAdminId === admin.adminId
-                        }
-                        onClick={() => {
-                          void store.deleteAdmin(admin.adminId);
-                        }}
-                      >
-                        {store.deletingAdminId === admin.adminId
-                          ? 'Удаление...'
-                          : 'Удалить'}
-                      </button>
+                      <div className={styles.cardActionsRisk}>
+                        {admin.role === 'admin' && admin.passwordAttemptsLockUntil ? (
+                          <button
+                            className={styles.secondaryButton}
+                            type="button"
+                            disabled={store.changingAdminId === admin.adminId}
+                            onClick={() => {
+                              void store.clearAdminPasswordLock(admin);
+                            }}
+                          >
+                            {store.changingAdminId === admin.adminId
+                              ? 'Сохраняем...'
+                              : 'Снять временный лок'}
+                          </button>
+                        ) : null}
+
+                        {admin.role === 'admin' ? (
+                          admin.isBlocked ? (
+                            <button
+                              className={styles.secondaryButton}
+                              type="button"
+                              disabled={store.changingAdminId === admin.adminId}
+                              onClick={() => {
+                                void store.unblockAdmin(admin);
+                              }}
+                            >
+                              {store.changingAdminId === admin.adminId
+                                ? 'Сохраняем...'
+                                : 'Разблокировать'}
+                            </button>
+                          ) : (
+                            <button
+                              className={styles.dangerButton}
+                              type="button"
+                              disabled={
+                                store.changingAdminId === admin.adminId ||
+                                store.deletingAdminId === admin.adminId
+                              }
+                              onClick={() => store.openBlockModal(admin)}
+                            >
+                              Заблокировать
+                            </button>
+                          )
+                        ) : null}
+
+                        <button
+                          className={styles.dangerButton}
+                          type="button"
+                          disabled={
+                            admin.role === 'super_admin' ||
+                            store.deletingAdminId === admin.adminId ||
+                            store.changingAdminId === admin.adminId
+                          }
+                          onClick={() => {
+                            void store.deleteAdmin(admin.adminId);
+                          }}
+                        >
+                          {store.deletingAdminId === admin.adminId
+                            ? 'Удаление...'
+                            : 'Удалить'}
+                        </button>
+                      </div>
                     </div>
                   </article>
-                ))}
+                  );
+                })}
               </div>
             )}
           </section>
@@ -523,6 +643,115 @@ export const SuperAdminAdminsManagementSection = observer((): ReactElement => {
                 }}
               >
                 {store.isUpdating ? 'Сохранение...' : 'Сохранить'}
+              </button>
+            </div>
+          </div>
+        </div>
+      ) : null}
+
+      {store.isBlockModalOpen && store.selectedAdmin ? (
+        <div className={styles.overlay}>
+          <div className={styles.modal}>
+            <div className={styles.modalHeader}>
+              <div>
+                <h2 className={styles.modalTitle}>Блокировка администратора</h2>
+                <p className={styles.modalSubtitle}>{store.selectedAdmin.email}</p>
+              </div>
+
+              <button
+                className={styles.modalClose}
+                type="button"
+                disabled={Boolean(store.changingAdminId)}
+                onClick={() => store.closeBlockModal()}
+              >
+                Закрыть
+              </button>
+            </div>
+
+            {store.changeError ? (
+              <div className={styles.errorBanner}>{store.changeError}</div>
+            ) : null}
+
+            <div className={styles.formGrid}>
+              <label className={styles.field}>
+                <span className={styles.fieldLabel}>Причина блокировки</span>
+                <input
+                  className={styles.input}
+                  value={store.blockReason}
+                  onChange={(event) => store.setBlockReason(event.target.value)}
+                  placeholder="Например: нарушение регламента"
+                />
+              </label>
+
+              <label className={styles.checkboxRow}>
+                <input
+                  type="checkbox"
+                  checked={store.isPermanentBlock}
+                  onChange={(event) => store.setPermanentBlock(event.target.checked)}
+                />
+                <span>Заблокировать навсегда</span>
+              </label>
+            </div>
+
+            {!store.isPermanentBlock ? (
+              <>
+                <div className={styles.quickActions}>
+                  <button
+                    className={styles.quickButton}
+                    type="button"
+                    onClick={() => store.applyQuickBlockPeriod(1)}
+                  >
+                    На 1 день
+                  </button>
+
+                  <button
+                    className={styles.quickButton}
+                    type="button"
+                    onClick={() => store.applyQuickBlockPeriod(7)}
+                  >
+                    На 7 дней
+                  </button>
+
+                  <button
+                    className={styles.quickButton}
+                    type="button"
+                    onClick={() => store.applyQuickBlockPeriod(30)}
+                  >
+                    На месяц
+                  </button>
+                </div>
+
+                <label className={styles.field}>
+                  <span className={styles.fieldLabel}>Дата и время окончания</span>
+                  <input
+                    className={styles.input}
+                    type="datetime-local"
+                    value={store.blockedUntil}
+                    onChange={(event) => store.setBlockedUntil(event.target.value)}
+                  />
+                </label>
+              </>
+            ) : null}
+
+            <div className={styles.modalActions}>
+              <button
+                className={styles.secondaryButton}
+                type="button"
+                disabled={Boolean(store.changingAdminId)}
+                onClick={() => store.closeBlockModal()}
+              >
+                Отмена
+              </button>
+
+              <button
+                className={styles.dangerButton}
+                type="button"
+                onClick={() => {
+                  void store.confirmBlockAdmin();
+                }}
+                disabled={!store.canSubmitBlock}
+              >
+                {store.changingAdminId ? 'Сохраняем...' : 'Подтвердить блокировку'}
               </button>
             </div>
           </div>

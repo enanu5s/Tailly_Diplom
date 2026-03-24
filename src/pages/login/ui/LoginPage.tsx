@@ -1,12 +1,18 @@
 // src/pages/login/ui/LoginPage.tsx
 
 import { observer } from 'mobx-react-lite';
-import { useEffect, useMemo, useSyncExternalStore } from 'react';
+import { useEffect, useMemo, useState, useSyncExternalStore } from 'react';
 import { Link, useLocation, useSearchParams, type Location } from 'react-router-dom';
 
 import { authStore, loginStore } from '@/features/auth';
+import { isMockApiMode } from '@/shared/config/env';
+import {
+  getMockUnifiedLoginDemoRows,
+  type MockDemoCredentialRow,
+} from '@/shared/config/mockDemoCredentials';
 import { getDefaultAuthorizedRoute } from '@/shared/lib/auth';
 import { useAppNavigate } from '@/shared/lib/navigation/useAppNavigate';
+import { subscribeMockDatabase } from '@/shared/mock-db/store';
 
 import styles from './LoginPage.module.css';
 
@@ -68,6 +74,16 @@ export const LoginPage = observer((): ReactElement => {
   const location = useLocation();
   const [searchParams] = useSearchParams();
   const authState = useSyncExternalStore(authStore.subscribe, authStore.getState);
+
+  const [mockDemoRows, setMockDemoRows] = useState<MockDemoCredentialRow[]>(() =>
+    getMockUnifiedLoginDemoRows(),
+  );
+
+  useEffect(() => {
+    return subscribeMockDatabase(() => {
+      setMockDemoRows(getMockUnifiedLoginDemoRows());
+    });
+  }, []);
 
   const accountFlowNotice = useMemo(() => {
     if (searchParams.get('accountDeletion') === 'scheduled') {
@@ -236,19 +252,22 @@ export const LoginPage = observer((): ReactElement => {
             </div>
           </form>
 
-          <div className={styles.demoBlock}>
-            <div className={styles.demoTitle}>Тестовые аккаунты</div>
+          {isMockApiMode ? (
+            <div className={styles.demoBlock}>
+              <div className={styles.demoTitle}>Тестовые аккаунты (mock API)</div>
 
-            <div className={styles.demoList}>
-              <div className={styles.demoItem}>client@tailly.local / 123456</div>
-
-              <div className={styles.demoItem}>specialist@tailly.local / 123456</div>
-
-              <div className={styles.demoItem}>admin@tailly.local / 123456</div>
-
-              <div className={styles.demoItem}>superadmin@tailly.local / 123456</div>
+              <div className={styles.demoList}>
+                {mockDemoRows.map((row) => (
+                  <div key={row.email} className={styles.demoItem}>
+                    <span className={styles.demoCaption}>{row.caption}:</span>{' '}
+                    <code className={styles.demoCode}>{row.email}</code>
+                    {' / '}
+                    <code className={styles.demoCode}>{row.password}</code>
+                  </div>
+                ))}
+              </div>
             </div>
-          </div>
+          ) : null}
         </div>
       </div>
     </section>

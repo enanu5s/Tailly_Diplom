@@ -3,10 +3,12 @@
 import { superAdminAdminsManagementApi } from '../api/superAdminAdminsManagementApi';
 
 import type {
+  ClearAdminPasswordLockPayload,
   CreateAdminPayload,
   CreateAdminResponse,
   DeleteAdminPayload,
   ManagedAdmin,
+  UpdateAdminBlockStatusPayload,
   UpdateAdminPayload,
 } from '../model/types';
 
@@ -25,5 +27,15 @@ export const superAdminAdminsManagementService = {
 
   updateAdmin(payload: UpdateAdminPayload): Promise<ManagedAdmin> {
     return superAdminAdminsManagementApi.updateAdmin(payload);
+  },
+
+  setAdminBlockStatus(payload: UpdateAdminBlockStatusPayload): Promise<ManagedAdmin> {
+    return superAdminAdminsManagementApi.setAdminBlockStatus(payload);
+  },
+
+  clearAdminPasswordLock(
+    payload: ClearAdminPasswordLockPayload,
+  ): Promise<ManagedAdmin> {
+    return superAdminAdminsManagementApi.clearAdminPasswordLock(payload);
   },
 };

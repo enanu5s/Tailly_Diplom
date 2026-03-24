@@ -1,85 +1,60 @@
 //src/features/admin-auth/api/adminAuthApi.mock.ts
 
-import {
-  attemptsMap,
-  buildLockedUntilIso,
-  getAttemptState,
-  mapAccountToLoginSuccess,
-  MAX_LOGIN_ATTEMPTS,
-  MOCK_ADMIN_ACCOUNTS,
-  normalizeEmail,
-  resetAttempts,
-  wait,
-} from '../data/mockAdminAccounts';
+import { mockLogin } from '@/features/auth/api/authApi.mock';
+import { LoginError } from '@/features/auth/model/types';
+
 import {
   AdminLoginError,
   type AdminLoginPayload,
   type AdminLoginSuccessResponse,
 } from '../model/types';
 
+function mapLoginErrorToAdmin(error: LoginError): AdminLoginError {
+  if (error.code === 'TOO_MANY_ATTEMPTS') {
+    return new AdminLoginError({
+      code: 'TOO_MANY_ATTEMPTS',
+      message: error.message,
+      attemptsLeft: error.attemptsLeft,
+      lockUntil: error.lockUntil,
+    });
+  }
+
+  if (error.code === 'ACCOUNT_BLOCKED' || error.code === 'ACCOUNT_PENDING_DELETION') {
+    return new AdminLoginError({
+      code: 'ACCOUNT_BLOCKED',
+      message: error.message,
+    });
+  }
+
+  if (error.code === 'INVALID_ROLE') {
+    return new AdminLoginError({
+      code: 'INVALID_CREDENTIALS',
+      message: 'Учётная запись не найдена или не относится к администраторам.',
+    });
+  }
+
+  return new AdminLoginError({
+    code: 'INVALID_CREDENTIALS',
+    message: error.message,
+    attemptsLeft: error.attemptsLeft,
+    lockUntil: error.lockUntil,
+  });
+}
+
 export async function mockAdminLogin(
   payload: AdminLoginPayload,
 ): Promise<AdminLoginSuccessResponse> {
-  await wait();
-
-  const email = normalizeEmail(payload.email);
-  const password = payload.password;
-  const attempts = getAttemptState(email);
-
-  if (attempts.lockUntil && new Date(attempts.lockUntil).getTime() > Date.now()) {
-    throw new AdminLoginError({
-      code: 'TOO_MANY_ATTEMPTS',
-      message:
-        'Слишком много неверных попыток входа. Попробуйте позже или обратитесь к главному администратору.',
-      attemptsLeft: 0,
-      lockUntil: attempts.lockUntil,
+  try {
+    return await mockLogin({
+      email: payload.email,
+      password: payload.password,
+      requestedRole: 'client',
     });
-  }
-
-  const account =
-    MOCK_ADMIN_ACCOUNTS.find((item) => item.email.toLowerCase() === email) ?? null;
-
-  if (!account || account.password !== password) {
-    const nextFailedAttempts = attempts.failedAttempts + 1;
-    const attemptsLeft = Math.max(MAX_LOGIN_ATTEMPTS - nextFailedAttempts, 0);
-
-    if (attemptsLeft <= 0) {
-      const lockUntil = buildLockedUntilIso();
-
-      attemptsMap.set(email, {
-        failedAttempts: MAX_LOGIN_ATTEMPTS,
-        lockUntil,
-      });
-
-      throw new AdminLoginError({
-        code: 'TOO_MANY_ATTEMPTS',
-        message: 'Лимит попыток входа исчерпан. Вход временно заблокирован.',
-        attemptsLeft: 0,
-        lockUntil,
-      });
+  } catch (error) {
+    if (error instanceof LoginError) {
+      throw mapLoginErrorToAdmin(error);
     }
 
-    attemptsMap.set(email, {
-      failedAttempts: nextFailedAttempts,
-      lockUntil: null,
-    });
-
-    throw new AdminLoginError({
-      code: 'INVALID_CREDENTIALS',
-      message: 'Неверный логин или пароль.',
-      attemptsLeft,
-      lockUntil: null,
-    });
+    throw error;
   }
-
-  if (account.isBlocked) {
-    throw new AdminLoginError({
-      code: 'ACCOUNT_BLOCKED',
-      message: 'Аккаунт администратора заблокирован.',
-    });
-  }
-
-  resetAttempts(email);
-
-  return mapAccountToLoginSuccess(account);
 }

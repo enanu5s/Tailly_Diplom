@@ -1,6 +1,9 @@
 // src/features/specialist-applications/api/specialistApplicationsApi.mock.ts
 
-import { notifyModerationApplicationStatus } from '@/shared/lib/emailNotifications';
+import {
+  notifyInterviewAssigned,
+  notifyModerationApplicationStatus,
+} from '@/shared/lib/emailNotifications';
 
 import {
   delay,
@@ -10,6 +13,7 @@ import {
   readMockApplications,
   writeMockApplications,
 } from '../data/mockSpecialistApplications.ts';
+import { validateAdminInterviewSlot } from '../model/specialistApplicationsModerationValidation';
 import {
   SpecialistApplicationsError,
   type ApproveSpecialistApplicationPayload,
@@ -89,6 +93,17 @@ export async function mockAssignInterview(
     throw new SpecialistApplicationsError('Заявка не найдена.');
   }
 
+  const slotError = validateAdminInterviewSlot(
+    applications,
+    payload.reviewedBy,
+    payload.interviewDate,
+    payload.applicationId,
+  );
+
+  if (slotError) {
+    throw new SpecialistApplicationsError(slotError);
+  }
+
   const updated: SpecialistApplication = {
     ...applications[index],
     status: 'interview_assigned',
@@ -101,13 +116,12 @@ export async function mockAssignInterview(
   applications[index] = updated;
   writeMockApplications(applications);
 
-  notifyModerationApplicationStatus({
-    email: updated.email,
-    fullName: updated.fullName,
+  notifyInterviewAssigned({
+    specialistEmail: updated.email,
+    specialistName: updated.fullName,
     applicationId: updated.id,
-    status: updated.status,
+    interviewDateIso: payload.interviewDate,
     reviewComment: updated.reviewComment,
-    interviewDate: updated.interviewDate,
   });
 
   return JSON.parse(JSON.stringify(updated)) as SpecialistApplication;

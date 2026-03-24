@@ -6,8 +6,13 @@ import { adminSpecialistsManagementStore } from '@/features/admin-specialists-ma
 import { CreateSpecialistAccountModal } from '@/features/admin-specialists-management/ui/CreateSpecialistAccountModal';
 import { authStore } from '@/features/auth';
 
+import { AdminInterviewsCalendar } from './AdminInterviewsCalendar';
 import styles from './SpecialistApplicationsModerationSection.module.css';
 import { specialistApplicationsModerationStore } from '../model/specialistApplicationsModerationStore';
+import {
+  getMaxInterviewDateTimeLocalString,
+  getMinInterviewDateTimeLocalString,
+} from '../model/specialistApplicationsModerationValidation';
 import { createEmptySpecialistApplicationQuestionnaire } from '../model/types';
 
 import type { SpecialistApplicationsStatusFilter } from '../model/specialistApplicationsModerationStore';
@@ -102,6 +107,8 @@ export const SpecialistApplicationsModerationSection = observer((): ReactElement
     selected && selected.status === 'approved' && !selected.specialistAccountCreatedAt,
   );
 
+  const myScheduledInterviews = store.getScheduledInterviewsForReviewer(reviewedBy);
+
   const questionnaire =
     selected?.questionnaire ?? createEmptySpecialistApplicationQuestionnaire();
 
@@ -131,6 +138,12 @@ export const SpecialistApplicationsModerationSection = observer((): ReactElement
           </div>
         </div>
       </section>
+
+      {!store.isLoading && !store.loadError && myScheduledInterviews.length > 0 ? (
+        <div className={styles.calendarSection}>
+          <AdminInterviewsCalendar interviews={myScheduledInterviews} />
+        </div>
+      ) : null}
 
       {store.isLoading ? (
         <div className={styles.stateCard}>Загрузка заявок...</div>
@@ -396,12 +409,20 @@ export const SpecialistApplicationsModerationSection = observer((): ReactElement
               <div className={styles.formBlock}>
                 <h3 className={styles.blockTitle}>Решение по заявке</h3>
 
+                <p className={styles.formHints}>
+                  Собеседование — не раньше чем через час от текущего момента; у одного
+                  администратора слоты по 1 часу не должны пересекаться. При отклонении
+                  комментарий не короче 15 символов, с буквами и понятной причиной.
+                </p>
+
                 <div className={styles.formGrid}>
                   <label className={styles.field}>
                     <span className={styles.fieldLabel}>Дата и время собеседования</span>
                     <input
                       className={styles.input}
                       type="datetime-local"
+                      min={getMinInterviewDateTimeLocalString()}
+                      max={getMaxInterviewDateTimeLocalString()}
                       value={store.draft.interviewDate}
                       onChange={(event) => {
                         store.setDraftField('interviewDate', event.target.value);

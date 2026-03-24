@@ -1,8 +1,11 @@
 // src/features/admin-profile/data/mockAdminProfile.ts
+import { normalizeEmail } from '@/features/admin-auth/data/mockAdminAccounts';
+import { buildAdminLoginSecurityInfo } from '@/features/auth/data/adminMockLoginSecurity';
 import {
-  MOCK_ADMIN_ACCOUNTS,
-  normalizeEmail,
-} from '@/features/admin-auth/data/mockAdminAccounts';
+  getMockAuthAccounts,
+  hasAdminRole,
+  resetAdminAttempts,
+} from '@/features/auth/data/mockAuthAccounts';
 import { authStore } from '@/features/auth/model/authStore';
 import {
   getSuperAdminAdminsMutable,
@@ -64,6 +67,8 @@ function isValidEmailShape(value: string): boolean {
 }
 
 function mapRecordToProfile(record: MockAdminProfileRecord): AdminProfile {
+  const loginSecurity = buildAdminLoginSecurityInfo(record.email);
+
   return JSON.parse(
     JSON.stringify({
       id: record.id,
@@ -77,6 +82,7 @@ function mapRecordToProfile(record: MockAdminProfileRecord): AdminProfile {
       position: record.position,
       department: record.department,
       role: record.role,
+      loginSecurity,
     }),
   ) as AdminProfile;
 }
@@ -110,6 +116,22 @@ export function getMockAdminProfile(): AdminProfile {
   const record = getCurrentAdminRecord();
 
   return mapRecordToProfile(record);
+}
+
+export async function mockClearPasswordAttemptsLockForCurrentAdmin(): Promise<AdminProfile> {
+  await wait();
+
+  const record = getCurrentAdminRecord();
+
+  if (record.role !== 'super_admin') {
+    throw new AdminProfileError(
+      'Снятие временного лока входа в профиле доступно только главному администратору.',
+    );
+  }
+
+  resetAdminAttempts(record.email);
+
+  return getMockAdminProfile();
 }
 
 export function updateMockAdminProfile(payload: UpdateAdminProfilePayload): AdminProfile {
@@ -205,7 +227,9 @@ export function mockRequestSuperAdminEmailChange(
     throw new AdminProfileError('Этот email уже используется.');
   }
 
-  const account = MOCK_ADMIN_ACCOUNTS.find((item) => item.adminId === record.adminId);
+  const account = getMockAuthAccounts().find(
+    (item) => item.adminId === record.adminId && hasAdminRole(item.roles),
+  );
 
   if (!account || account.password !== payload.password) {
     throw new AdminProfileError('Неверный пароль.');
@@ -281,17 +305,6 @@ export function mockConfirmSuperAdminEmailChange(
       };
     }
   });
-
-  const accIndex = MOCK_ADMIN_ACCOUNTS.findIndex(
-    (item) => item.adminId === record.adminId,
-  );
-
-  if (accIndex !== -1) {
-    MOCK_ADMIN_ACCOUNTS[accIndex] = {
-      ...MOCK_ADMIN_ACCOUNTS[accIndex],
-      email: pending.newEmail,
-    };
-  }
 
   pendingSuperAdminEmailChangeByAdminId.delete(record.adminId);
 

@@ -2,6 +2,7 @@
 import {
   clearPendingSuperAdminEmailChange,
   getMockAdminProfile,
+  mockClearPasswordAttemptsLockForCurrentAdmin,
   mockConfirmSuperAdminEmailChange,
   mockRequestSuperAdminEmailChange,
   updateMockAdminProfile,
@@ -49,4 +50,8 @@ export async function mockConfirmSuperAdminEmailChangeApi(
 export async function mockCancelSuperAdminEmailChangeApi(): Promise<void> {
   await wait(0);
   clearPendingSuperAdminEmailChange();
+}
+
+export async function mockClearPasswordAttemptsLockApi(): Promise<AdminProfile> {
+  return mockClearPasswordAttemptsLockForCurrentAdmin();
 }

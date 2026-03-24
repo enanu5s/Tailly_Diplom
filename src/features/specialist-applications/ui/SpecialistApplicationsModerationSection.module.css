@@ -5,6 +5,10 @@
   gap: 24px;
 }
 
+.calendarSection {
+  width: 100%;
+}
+
 .hero {
   display: flex;
   align-items: flex-start;
@@ -307,6 +311,13 @@
   margin: 0;
   font-size: 20px;
   color: #0f172a;
+}
+
+.formHints {
+  margin: 0;
+  font-size: 14px;
+  line-height: 1.55;
+  color: #64748b;
 }
 
 .aboutText {

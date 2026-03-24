@@ -7,7 +7,7 @@ import {
   AccountDeletionError,
   accountDeletionService,
 } from '@/features/account-deletion';
-import { authStore } from '@/features/auth/model/authStore';
+import { authService } from '@/features/auth/model/authService';
 import { useAuth } from '@/features/auth/model/useAuth';
 import { useAppNavigate } from '@/shared/lib/navigation/useAppNavigate';
 
@@ -43,7 +43,7 @@ export function DeleteAccountPage() {
         password: password.trim(),
       });
 
-      authStore.logout();
+      authService.logout();
       navigate('/login?accountDeletion=scheduled', { replace: true });
     } catch (submissionError) {
       const message =

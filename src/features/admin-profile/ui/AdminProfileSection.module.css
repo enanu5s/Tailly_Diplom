@@ -153,12 +153,43 @@
   box-shadow: none;
 }
 
+.loginSecurityStack {
+  display: grid;
+  gap: 12px;
+}
+
 .errorBanner {
   margin-top: 16px;
   border-radius: 16px;
   padding: 14px 16px;
   line-height: 1.55;
   background: #fef2f2;
+  color: #b91c1c;
+}
+
+.loginSecurityStack .errorBanner {
+  margin-top: 0;
+}
+
+.warningBanner {
+  border-radius: 16px;
+  padding: 14px 16px;
+  line-height: 1.55;
+  background: #fffbeb;
+  color: #92400e;
+}
+
+.warningBannerText {
+  margin: 0;
+}
+
+.passwordLockActions {
+  margin-top: 14px;
+}
+
+.passwordLockError {
+  margin-top: 10px;
+  font-size: 14px;
   color: #b91c1c;
 }
 

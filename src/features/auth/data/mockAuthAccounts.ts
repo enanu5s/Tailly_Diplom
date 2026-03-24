@@ -35,6 +35,8 @@ export type MockAuthAccount = {
   isBlocked: boolean;
   blockReason?: string;
   blockedUntil?: string;
+  /** Бессрочная блокировка (mock, по аналогии с управлением пользователями) */
+  isPermanentBlock?: boolean;
   softDeletedAt?: string;
   softDeleteRestoreUntil?: string;
 };

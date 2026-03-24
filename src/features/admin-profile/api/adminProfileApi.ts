@@ -4,6 +4,7 @@ import { getOptionalApiBaseUrl, isMockApiMode } from '@/shared/config/env';
 
 import {
   mockCancelSuperAdminEmailChangeApi,
+  mockClearPasswordAttemptsLockApi,
   mockConfirmSuperAdminEmailChangeApi,
   mockGetAdminProfile,
   mockRequestSuperAdminEmailChangeApi,
@@ -60,6 +61,12 @@ async function realCancelSuperAdminEmailChange(): Promise<void> {
   });
 }
 
+async function realClearPasswordAttemptsLock(): Promise<AdminProfile> {
+  return request<AdminProfile>(`${API_BASE_URL}/admin/profile/password-attempts-lock`, {
+    method: 'DELETE',
+  });
+}
+
 export const adminProfileApi = {
   async getProfile(): Promise<AdminProfile> {
     if (isMockApiMode) {
@@ -103,5 +110,13 @@ export const adminProfileApi = {
     }
 
     return realCancelSuperAdminEmailChange();
+  },
+
+  async clearPasswordAttemptsLock(): Promise<AdminProfile> {
+    if (isMockApiMode) {
+      return mockClearPasswordAttemptsLockApi();
+    }
+
+    return realClearPasswordAttemptsLock();
   },
 };

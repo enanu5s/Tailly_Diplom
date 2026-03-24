@@ -14,6 +14,9 @@ export const DEMO_CLIENT_SPECIALIST_PASSWORD = '123456';
 /** Пароль для входа в админ-панель (страница логина администратора) */
 export const DEMO_ADMIN_PANEL_PASSWORD = 'Admin123!';
 
+/** Пароль главного администратора (админ-панель и общий /login с ролью super_admin) */
+export const DEMO_SUPER_ADMIN_PANEL_PASSWORD = 'SuperAdmin123!';
+
 const FIRST_NAMES = [
   'Алексей',
   'Ольга',
@@ -298,7 +301,7 @@ export function buildExtraAdminAuthAccounts(): MockAuthAccount[] {
     rows.push({
       id: `admin-${i}`,
       email: `admin${n}@tailly.local`,
-      password: DEMO_CLIENT_SPECIALIST_PASSWORD,
+      password: DEMO_ADMIN_PANEL_PASSWORD,
       roles: ['admin'],
       firstName: fn,
       lastName: ln,

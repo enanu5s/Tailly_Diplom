@@ -2,6 +2,11 @@
 
 import { makeAutoObservable, runInAction } from 'mobx';
 
+import {
+  validateAdminInterviewSlot,
+  validateOptionalAdminComment,
+  validateRejectComment,
+} from './specialistApplicationsModerationValidation';
 import { specialistApplicationsService } from '../service/specialistApplicationsService';
 
 import type { SpecialistApplication, SpecialistApplicationStatus } from './types';
@@ -84,6 +89,27 @@ class SpecialistApplicationsModerationStore {
     return this.sortedApplications.filter(
       (item) => item.status === 'approved' || item.status === 'rejected',
     );
+  }
+
+  /** Собеседования, назначенные этим администратором (по строке reviewedBy), по времени. */
+  getScheduledInterviewsForReviewer(adminKey: string): SpecialistApplication[] {
+    const norm = adminKey.trim().toLowerCase();
+
+    if (!norm) {
+      return [];
+    }
+
+    return this.sortedApplications
+      .filter(
+        (item) =>
+          item.status === 'interview_assigned' &&
+          Boolean(item.interviewDate) &&
+          (item.reviewedBy ?? '').trim().toLowerCase() === norm,
+      )
+      .sort(
+        (a, b) =>
+          new Date(a.interviewDate!).getTime() - new Date(b.interviewDate!).getTime(),
+      );
   }
 
   get selectedApplication(): SpecialistApplication | null {
@@ -230,8 +256,22 @@ class SpecialistApplicationsModerationStore {
       return;
     }
 
-    if (!this.draft.interviewDate.trim()) {
-      this.actionError = 'Укажи дату и время собеседования.';
+    const slotError = validateAdminInterviewSlot(
+      this.applications,
+      reviewedBy,
+      this.draft.interviewDate,
+      selected.id,
+    );
+
+    if (slotError) {
+      this.actionError = slotError;
+      return;
+    }
+
+    const commentError = validateOptionalAdminComment(this.draft.reviewComment);
+
+    if (commentError) {
+      this.actionError = commentError;
       return;
     }
 
@@ -270,8 +310,10 @@ class SpecialistApplicationsModerationStore {
       return;
     }
 
-    if (!this.draft.reviewComment.trim()) {
-      this.actionError = 'Для отклонения добавь комментарий.';
+    const rejectError = validateRejectComment(this.draft.reviewComment);
+
+    if (rejectError) {
+      this.actionError = rejectError;
       return;
     }
 
@@ -306,6 +348,13 @@ class SpecialistApplicationsModerationStore {
     const selected = this.selectedApplication;
 
     if (!selected) {
+      return;
+    }
+
+    const approveCommentError = validateOptionalAdminComment(this.draft.reviewComment);
+
+    if (approveCommentError) {
+      this.actionError = approveCommentError;
       return;
     }
 

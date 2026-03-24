@@ -20,6 +20,13 @@ export type ManagedAdmin = {
   createdAt: string;
   createdBy: string;
   lastLoginAt?: string | null;
+  /** Заполняется в mock из auth.baseAccounts и adminAttempts */
+  isBlocked?: boolean;
+  blockReason?: string;
+  blockedUntil?: string | null;
+  isPermanentBlock?: boolean;
+  passwordAttemptsLockUntil?: string | null;
+  failedPasswordAttempts?: number;
 };
 
 export type CreateAdminPayload = {
@@ -52,6 +59,18 @@ export type UpdateAdminPayload = {
   phone?: string;
   position?: string;
   department?: string;
+};
+
+export type UpdateAdminBlockStatusPayload = {
+  adminId: string;
+  isBlocked: boolean;
+  blockReason?: string;
+  blockedUntil?: string;
+  isPermanentBlock?: boolean;
+};
+
+export type ClearAdminPasswordLockPayload = {
+  adminId: string;
 };
 
 export class AdminManagementError extends Error {

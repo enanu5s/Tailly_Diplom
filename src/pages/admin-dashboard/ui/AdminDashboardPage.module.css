@@ -19,10 +19,30 @@
   align-items: flex-start;
   justify-content: space-between;
   gap: 20px;
+  flex-wrap: wrap;
   background: #ffffff;
   border-radius: 18px;
   box-shadow: 0 18px 50px rgba(15, 23, 42, 0.08);
   padding: 28px;
+}
+
+.profileLink {
+  flex-shrink: 0;
+  align-self: center;
+  margin-left: auto;
+  padding: 0;
+  border: none;
+  background: none;
+  color: #64748b;
+  font-size: 14px;
+  font-weight: 600;
+  text-decoration: underline;
+  text-underline-offset: 3px;
+  cursor: pointer;
+}
+
+.profileLink:hover {
+  color: #4f46e5;
 }
 
 .badge {
@@ -49,17 +69,6 @@
   margin: 0;
   color: #475569;
   line-height: 1.5;
-}
-
-.logoutButton {
-  min-height: 44px;
-  border: 1px solid #cbd5e1;
-  border-radius: 14px;
-  background: #ffffff;
-  color: #0f172a;
-  padding: 0 16px;
-  font-weight: 700;
-  cursor: pointer;
 }
 
 .grid {

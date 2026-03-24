@@ -6,6 +6,18 @@ import { superAdminAdminsManagementService } from '../service/superAdminAdminsMa
 
 import type { CreateAdminPayload, ManagedAdmin, UpdateAdminPayload } from './types';
 
+function buildBlockedUntilValue(days: number): string {
+  const targetDate = new Date(Date.now() + days * 24 * 60 * 60 * 1000);
+
+  const year = targetDate.getFullYear();
+  const month = String(targetDate.getMonth() + 1).padStart(2, '0');
+  const day = String(targetDate.getDate()).padStart(2, '0');
+  const hours = String(targetDate.getHours()).padStart(2, '0');
+  const minutes = String(targetDate.getMinutes()).padStart(2, '0');
+
+  return `${year}-${month}-${day}T${hours}:${minutes}`;
+}
+
 type CreateAdminForm = {
   email: string;
   firstName: string;
@@ -85,11 +97,22 @@ class SuperAdminAdminsManagementStore {
 
   form: CreateAdminForm = createInitialForm();
 
+  changingAdminId: string | null = null;
+  changeError = '';
+  successMessage = '';
+
+  isBlockModalOpen = false;
+  selectedAdmin: ManagedAdmin | null = null;
+  blockReason = '';
+  blockedUntil = '';
+  isPermanentBlock = false;
+
   constructor() {
     makeAutoObservable(this, {}, { autoBind: true });
   }
 
   openCreateModal(): void {
+    this.closeBlockModal();
     this.isCreateModalOpen = true;
     this.createError = '';
     this.createdTemporaryPassword = '';
@@ -113,6 +136,8 @@ class SuperAdminAdminsManagementStore {
     if (admin.role === 'super_admin') {
       return;
     }
+
+    this.closeBlockModal();
 
     this.isEditModalOpen = true;
     this.editingAdminId = admin.adminId;
@@ -152,11 +177,15 @@ class SuperAdminAdminsManagementStore {
   }
 
   get activeAdmins(): ManagedAdmin[] {
-    return this.admins.filter((admin) => admin.status === 'active');
+    return this.admins.filter(
+      (admin) => admin.status === 'active' && admin.role !== 'super_admin',
+    );
   }
 
   get inactiveAdmins(): ManagedAdmin[] {
-    return this.admins.filter((admin) => admin.status === 'inactive');
+    return this.admins.filter(
+      (admin) => admin.status === 'inactive' && admin.role !== 'super_admin',
+    );
   }
 
   get canSubmitCreateForm(): boolean {
@@ -170,6 +199,63 @@ class SuperAdminAdminsManagementStore {
     );
   }
 
+  setBlockReason(value: string): void {
+    this.blockReason = value;
+  }
+
+  setBlockedUntil(value: string): void {
+    this.blockedUntil = value;
+  }
+
+  setPermanentBlock(value: boolean): void {
+    this.isPermanentBlock = value;
+
+    if (value) {
+      this.blockedUntil = '';
+    }
+  }
+
+  applyQuickBlockPeriod(days: number): void {
+    this.isPermanentBlock = false;
+    this.blockedUntil = buildBlockedUntilValue(days);
+  }
+
+  openBlockModal(admin: ManagedAdmin): void {
+    if (admin.role === 'super_admin') {
+      return;
+    }
+
+    this.closeEditModal();
+    this.selectedAdmin = admin;
+    this.blockReason = '';
+    this.blockedUntil = '';
+    this.isPermanentBlock = false;
+    this.changeError = '';
+    this.isBlockModalOpen = true;
+  }
+
+  closeBlockModal(): void {
+    this.isBlockModalOpen = false;
+    this.selectedAdmin = null;
+    this.blockReason = '';
+    this.blockedUntil = '';
+    this.isPermanentBlock = false;
+  }
+
+  get canSubmitBlock(): boolean {
+    return (
+      Boolean(this.selectedAdmin) &&
+      !this.changingAdminId &&
+      this.blockReason.trim().length > 0 &&
+      (this.isPermanentBlock || this.blockedUntil.trim().length > 0)
+    );
+  }
+
+  resetFeedback(): void {
+    this.changeError = '';
+    this.successMessage = '';
+  }
+
   async load(): Promise<void> {
     runInAction(() => {
       this.isLoading = true;
@@ -181,6 +267,7 @@ class SuperAdminAdminsManagementStore {
 
       runInAction(() => {
         this.admins = admins;
+        this.successMessage = '';
       });
     } catch (error) {
       runInAction(() => {
@@ -279,6 +366,118 @@ class SuperAdminAdminsManagementStore {
     } finally {
       runInAction(() => {
         this.isUpdating = false;
+      });
+    }
+  }
+
+  async confirmBlockAdmin(): Promise<void> {
+    if (!this.selectedAdmin || !this.canSubmitBlock) {
+      return;
+    }
+
+    const target = this.selectedAdmin;
+
+    runInAction(() => {
+      this.changingAdminId = target.adminId;
+      this.changeError = '';
+      this.successMessage = '';
+    });
+
+    try {
+      const updated = await superAdminAdminsManagementService.setAdminBlockStatus({
+        adminId: target.adminId,
+        isBlocked: true,
+        blockReason: this.blockReason.trim(),
+        blockedUntil: this.isPermanentBlock ? undefined : this.blockedUntil,
+        isPermanentBlock: this.isPermanentBlock,
+      });
+
+      runInAction(() => {
+        this.admins = this.admins.map((admin) =>
+          admin.adminId === updated.adminId ? updated : admin,
+        );
+        this.successMessage = updated.isPermanentBlock
+          ? `Администратор ${updated.email} заблокирован без срока.`
+          : `Администратор ${updated.email} заблокирован до ${
+              updated.blockedUntil ?? 'указанной даты'
+            }.`;
+        this.closeBlockModal();
+      });
+    } catch (error) {
+      runInAction(() => {
+        this.changeError =
+          error instanceof Error
+            ? error.message
+            : 'Не удалось заблокировать администратора.';
+      });
+    } finally {
+      runInAction(() => {
+        this.changingAdminId = null;
+      });
+    }
+  }
+
+  async unblockAdmin(admin: ManagedAdmin): Promise<void> {
+    runInAction(() => {
+      this.changingAdminId = admin.adminId;
+      this.changeError = '';
+      this.successMessage = '';
+    });
+
+    try {
+      const updated = await superAdminAdminsManagementService.setAdminBlockStatus({
+        adminId: admin.adminId,
+        isBlocked: false,
+      });
+
+      runInAction(() => {
+        this.admins = this.admins.map((item) =>
+          item.adminId === updated.adminId ? updated : item,
+        );
+        this.successMessage = `Администратор ${updated.email} разблокирован (вход доступен).`;
+      });
+    } catch (error) {
+      runInAction(() => {
+        this.changeError =
+          error instanceof Error
+            ? error.message
+            : 'Не удалось разблокировать администратора.';
+      });
+    } finally {
+      runInAction(() => {
+        this.changingAdminId = null;
+      });
+    }
+  }
+
+  async clearAdminPasswordLock(admin: ManagedAdmin): Promise<void> {
+    runInAction(() => {
+      this.changingAdminId = admin.adminId;
+      this.changeError = '';
+      this.successMessage = '';
+    });
+
+    try {
+      const updated = await superAdminAdminsManagementService.clearAdminPasswordLock({
+        adminId: admin.adminId,
+      });
+
+      runInAction(() => {
+        this.admins = this.admins.map((item) =>
+          item.adminId === updated.adminId ? updated : item,
+        );
+        this.successMessage = `Временный лок входа для ${updated.email} снят.`;
+      });
+    } catch (error) {
+      runInAction(() => {
+        this.changeError =
+          error instanceof Error
+            ? error.message
+            : 'Не удалось снять временный лок входа.';
+      });
+    } finally {
+      runInAction(() => {
+        this.changingAdminId = null;
       });
     }
   }

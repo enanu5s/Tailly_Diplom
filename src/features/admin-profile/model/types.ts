@@ -1,6 +1,16 @@
 // src/features/admin-profile/model/types.ts
 export type AdminProfileRole = 'admin' | 'super_admin';
 
+/** Состояние входа в mock: ручная блокировка и/или временный лок после попыток пароля */
+export type AdminLoginSecurityInfo = {
+  isManuallyBlocked: boolean;
+  blockReason?: string;
+  blockedUntil?: string | null;
+  isPermanentBlock?: boolean;
+  passwordAttemptsLockUntil: string | null;
+  failedPasswordAttempts: number;
+};
+
 export type AdminProfile = {
   id: string;
   adminId: string;
@@ -13,6 +23,8 @@ export type AdminProfile = {
   position?: string;
   department?: string;
   role: AdminProfileRole;
+  /** Только mock: доступ к входу и лимит попыток */
+  loginSecurity?: AdminLoginSecurityInfo;
 };
 
 export type UpdateAdminProfilePayload = {

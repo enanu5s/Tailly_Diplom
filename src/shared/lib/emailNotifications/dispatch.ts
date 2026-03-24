@@ -1,6 +1,9 @@
 import type { OrderStatus, ServiceOrder } from '@/features/orders/model/types';
 import type { Order as ShopOrder } from '@/features/shop/model/types';
-import type { SpecialistApplicationStatus } from '@/features/specialist-applications/model/types';
+import type {
+  SpecialistApplication,
+  SpecialistApplicationStatus,
+} from '@/features/specialist-applications/model/types';
 
 import { getSupportEmail } from './config';
 import { sendMockMail } from './mockMailer';
@@ -259,6 +262,202 @@ export function notifyShopOrderEvent(params: {
       'С уважением, команда Tailly.',
     ].join('\n'),
   });
+}
+
+function formatInterviewWhen(iso: string): string {
+  const d = new Date(iso);
+
+  if (Number.isNaN(d.getTime())) {
+    return iso;
+  }
+
+  return new Intl.DateTimeFormat('ru-RU', {
+    day: '2-digit',
+    month: '2-digit',
+    year: 'numeric',
+    hour: '2-digit',
+    minute: '2-digit',
+  }).format(d);
+}
+
+/** Письмо кандидату при назначении собеседования (отдельно от смены статуса). */
+export function notifyInterviewAssigned(params: {
+  specialistEmail: string;
+  specialistName: string;
+  applicationId: string;
+  interviewDateIso: string;
+  reviewComment?: string | null;
+}): void {
+  const to = params.specialistEmail.trim().toLowerCase();
+  if (!to.includes('@')) {
+    return;
+  }
+
+  const when = formatInterviewWhen(params.interviewDateIso);
+  const extra: string[] = [];
+
+  if (params.reviewComment?.trim()) {
+    extra.push(`Комментарий модератора: ${params.reviewComment.trim()}`);
+  }
+
+  sendMockMail({
+    kind: 'specialist_interview_assigned',
+    to,
+    subject: 'Tailly: назначено собеседование',
+    body: [
+      `Здравствуйте, ${params.specialistName}!`,
+      '',
+      `Вам назначено собеседование по заявке на статус специалиста (ID ${params.applicationId}).`,
+      `Дата и время: ${when}.`,
+      ...extra,
+      '',
+      'Подробности — в личном кабинете. Если нужно перенести время, свяжитесь с нами.',
+      '',
+      `По вопросам: ${getSupportEmail()}.`,
+      '',
+      'С уважением, команда Tailly.',
+    ].join('\n'),
+  });
+}
+
+/** Напоминание кандидату за час до собеседования (mock: первый раз, когда до начала ≤ 1 ч). */
+export function notifyInterviewReminderSpecialist(params: {
+  specialistEmail: string;
+  specialistName: string;
+  applicationId: string;
+  interviewDateIso: string;
+}): void {
+  const to = params.specialistEmail.trim().toLowerCase();
+  if (!to.includes('@')) {
+    return;
+  }
+
+  const when = formatInterviewWhen(params.interviewDateIso);
+
+  sendMockMail({
+    kind: 'specialist_interview_reminder_specialist',
+    to,
+    subject: 'Tailly: напоминание — собеседование через час',
+    body: [
+      `Здравствуйте, ${params.specialistName}!`,
+      '',
+      `Напоминаем: до собеседования по заявке ${params.applicationId} остаётся примерно час.`,
+      `Начало: ${when}.`,
+      '',
+      'С уважением, команда Tailly.',
+    ].join('\n'),
+  });
+}
+
+/** Напоминание администратору, назначившему собеседование, за час до времени. */
+export function notifyInterviewReminderAdmin(params: {
+  adminEmail: string;
+  specialistName: string;
+  applicationId: string;
+  interviewDateIso: string;
+}): void {
+  const to = params.adminEmail.trim().toLowerCase();
+  if (!to.includes('@')) {
+    return;
+  }
+
+  const when = formatInterviewWhen(params.interviewDateIso);
+
+  sendMockMail({
+    kind: 'specialist_interview_reminder_admin',
+    to,
+    subject: 'Tailly: напоминание — собеседование с кандидатом через час',
+    body: [
+      'Здравствуйте!',
+      '',
+      `Напоминание: через примерно час собеседование с кандидатом ${params.specialistName} (заявка ${params.applicationId}).`,
+      `Время: ${when}.`,
+      '',
+      'С уважением, система уведомлений Tailly.',
+    ].join('\n'),
+  });
+}
+
+const INTERVIEW_1H_KEY_SPEC = 'tailly_interview_1h_reminder_specialist';
+const INTERVIEW_1H_KEY_ADM = 'tailly_interview_1h_reminder_admin';
+
+function interviewReminderSet(key: string): Set<string> {
+  try {
+    const raw = localStorage.getItem(key);
+    const parsed = raw ? (JSON.parse(raw) as unknown) : [];
+    const arr = Array.isArray(parsed) ? parsed : [];
+    return new Set(arr.filter((x): x is string => typeof x === 'string'));
+  } catch {
+    return new Set();
+  }
+}
+
+function interviewReminderAdd(key: string, applicationId: string): void {
+  const set = interviewReminderSet(key);
+  set.add(applicationId);
+
+  try {
+    localStorage.setItem(key, JSON.stringify([...set]));
+  } catch {
+    /* ignore */
+  }
+}
+
+/**
+ * Периодическая проверка (с интервалом из main): напоминания за час до собеседования
+ * специалисту и администратору, назначившему встречу.
+ */
+export function runScheduledInterviewEmails(applications: SpecialistApplication[]): void {
+  const now = Date.now();
+  const HOUR_MS = 60 * 60 * 1000;
+  const TWO_MIN_MS = 2 * 60 * 1000;
+
+  const sentSpec = interviewReminderSet(INTERVIEW_1H_KEY_SPEC);
+  const sentAdm = interviewReminderSet(INTERVIEW_1H_KEY_ADM);
+
+  for (const app of applications) {
+    if (app.status !== 'interview_assigned' || !app.interviewDate) {
+      continue;
+    }
+
+    const start = new Date(app.interviewDate);
+
+    if (Number.isNaN(start.getTime())) {
+      continue;
+    }
+
+    const msLeft = start.getTime() - now;
+
+    if (msLeft <= TWO_MIN_MS) {
+      continue;
+    }
+
+    if (msLeft > HOUR_MS) {
+      continue;
+    }
+
+    if (!sentSpec.has(app.id)) {
+      notifyInterviewReminderSpecialist({
+        specialistEmail: app.email,
+        specialistName: app.fullName,
+        applicationId: app.id,
+        interviewDateIso: app.interviewDate,
+      });
+      interviewReminderAdd(INTERVIEW_1H_KEY_SPEC, app.id);
+    }
+
+    const adminEmail = app.reviewedBy?.trim();
+
+    if (adminEmail && adminEmail.includes('@') && !sentAdm.has(app.id)) {
+      notifyInterviewReminderAdmin({
+        adminEmail,
+        specialistName: app.fullName,
+        applicationId: app.id,
+        interviewDateIso: app.interviewDate,
+      });
+      interviewReminderAdd(INTERVIEW_1H_KEY_ADM, app.id);
+    }
+  }
 }
 
 export function notifyModerationApplicationStatus(params: {

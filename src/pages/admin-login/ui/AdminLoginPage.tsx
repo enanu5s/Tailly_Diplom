@@ -1,13 +1,19 @@
 // src/pages/admin-login/ui/AdminLoginPage.tsx
 
 import { observer } from 'mobx-react-lite';
-import { useEffect, useSyncExternalStore } from 'react';
+import { useEffect, useState, useSyncExternalStore } from 'react';
 import { useLocation } from 'react-router-dom';
 
 import { adminLoginStore } from '@/features/admin-auth/model/adminLoginStore';
 import { authStore } from '@/features/auth/model/authStore';
+import { isMockApiMode } from '@/shared/config/env';
+import {
+  getMockAdminPanelLoginDemoRows,
+  type MockDemoCredentialRow,
+} from '@/shared/config/mockDemoCredentials';
 import { canAccessAdminArea } from '@/shared/lib/auth/roleAccess';
 import { useAppNavigate } from '@/shared/lib/navigation/useAppNavigate';
+import { subscribeMockDatabase } from '@/shared/mock-db/store';
 
 import styles from './AdminLoginPage.module.css';
 
@@ -23,6 +29,16 @@ export const AdminLoginPage = observer((): ReactElement => {
   const authState = useSyncExternalStore(authStore.subscribe, authStore.getState);
 
   const state = (location.state ?? null) as LocationState | null;
+
+  const [mockDemoRows, setMockDemoRows] = useState<MockDemoCredentialRow[]>(() =>
+    getMockAdminPanelLoginDemoRows(),
+  );
+
+  useEffect(() => {
+    return subscribeMockDatabase(() => {
+      setMockDemoRows(getMockAdminPanelLoginDemoRows());
+    });
+  }, []);
 
   useEffect(() => {
     if (canAccessAdminArea(authState.user)) {
@@ -111,6 +127,23 @@ export const AdminLoginPage = observer((): ReactElement => {
             Восстановить пароль
           </button>
         </form>
+
+        {isMockApiMode ? (
+          <div className={styles.demoBlock}>
+            <div className={styles.demoTitle}>Тестовые аккаунты (mock API)</div>
+
+            <div className={styles.demoList}>
+              {mockDemoRows.map((row) => (
+                <div key={row.email} className={styles.demoItem}>
+                  <span className={styles.demoCaption}>{row.caption}:</span>{' '}
+                  <code className={styles.demoCode}>{row.email}</code>
+                  {' / '}
+                  <code className={styles.demoCode}>{row.password}</code>
+                </div>
+              ))}
+            </div>
+          </div>
+        ) : null}
       </div>
     </section>
   );

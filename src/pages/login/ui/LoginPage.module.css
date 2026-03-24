@@ -195,3 +195,17 @@
   color: #475569;
   line-height: 1.5;
 }
+
+.demoCaption {
+  color: #64748b;
+}
+
+.demoCode {
+  font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, 'Liberation Mono',
+    'Courier New', monospace;
+  font-size: 13px;
+  color: #0f172a;
+  background: #e2e8f0;
+  padding: 2px 6px;
+  border-radius: 6px;
+}

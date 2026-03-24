@@ -3,6 +3,9 @@ export { sendMockMail, type MockMailEntry } from './mockMailer';
 export {
   notifyAccountBlocked,
   notifyClientServiceReminder,
+  notifyInterviewAssigned,
+  notifyInterviewReminderAdmin,
+  notifyInterviewReminderSpecialist,
   notifyModerationApplicationStatus,
   notifyNewAdminPasswordFromSuperAdmin,
   notifyServiceOrderCreated,
@@ -10,6 +13,7 @@ export {
   notifyShopOrderEvent,
   notifySpecialistServicesChanged,
   notifySpecialistTomorrowOrdersDigest,
+  runScheduledInterviewEmails,
   runScheduledServiceOrderEmails,
 } from './dispatch';
 export { runEmailNotificationScheduler } from './scheduledJobs';

@@ -14,6 +14,10 @@ import {
   syncBlockedState,
   wait,
 } from '../data/mockAuthAccounts';
+import {
+  recordMockAdminLastLoginAt,
+  recordMockSpecialistLastLoginAt,
+} from '../data/mockLastLogin';
 import { LoginError, type LoginPayload, type LoginSuccessResponse } from '../model/types';
 
 import type { UserRole } from '../model/authStore';
@@ -127,6 +131,10 @@ export async function mockLogin(payload: LoginPayload): Promise<LoginSuccessResp
 
   if (hasAdminRole(account.roles)) {
     resetAdminAttempts(email);
+    const at = new Date().toISOString();
+    if (account.adminId?.trim()) {
+      recordMockAdminLastLoginAt(account.adminId.trim(), at);
+    }
     return mapAccountToLoginSuccess(account, resolveAdminSessionRole(account.roles));
   }
 
@@ -138,6 +146,11 @@ export async function mockLogin(payload: LoginPayload): Promise<LoginSuccessResp
           ? 'Этот аккаунт не зарегистрирован как специалист.'
           : 'Этот аккаунт не зарегистрирован как клиент.',
     });
+  }
+
+  const at = new Date().toISOString();
+  if (requestedRole === 'specialist' && account.specialistId?.trim()) {
+    recordMockSpecialistLastLoginAt(account.specialistId.trim(), at);
   }
 
   return mapAccountToLoginSuccess(account, requestedRole);

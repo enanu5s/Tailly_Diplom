@@ -7,6 +7,8 @@ import {
   buildExtraAdminAuthAccounts,
   buildExtraClientAccounts,
   buildExtraSpecialistAuthAccounts,
+  DEMO_ADMIN_PANEL_PASSWORD,
+  DEMO_SUPER_ADMIN_PANEL_PASSWORD,
 } from './demoDataset.seed';
 
 /** Ключевые аккаунты (демо) + много клиентов и специалистов */
@@ -37,7 +39,7 @@ const CORE_AUTH_ACCOUNTS: MockAuthAccount[] = [
   {
     id: 'admin-1',
     email: 'admin@tailly.local',
-    password: '123456',
+    password: DEMO_ADMIN_PANEL_PASSWORD,
     roles: ['admin'],
     firstName: 'Анна',
     lastName: 'Иванова',
@@ -49,7 +51,7 @@ const CORE_AUTH_ACCOUNTS: MockAuthAccount[] = [
   {
     id: 'super-admin-1',
     email: 'superadmin@tailly.local',
-    password: '123456',
+    password: DEMO_SUPER_ADMIN_PANEL_PASSWORD,
     roles: ['super_admin'],
     firstName: 'Мария',
     lastName: 'Петрова',

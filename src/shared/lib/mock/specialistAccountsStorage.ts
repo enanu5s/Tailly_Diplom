@@ -29,6 +29,8 @@ export type ManagedSpecialistMockAccount = {
   blockReason?: string;
   blockedUntil?: string;
   isPermanentBlock?: boolean;
+  /** ISO; обновляется при успешном входе специалиста (mock) */
+  lastLoginAt?: string | null;
 };
 
 function cloneAccounts(

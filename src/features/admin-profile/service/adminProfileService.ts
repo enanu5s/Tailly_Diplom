@@ -33,4 +33,8 @@ export const adminProfileService = {
   cancelSuperAdminEmailChange(): Promise<void> {
     return adminProfileApi.cancelSuperAdminEmailChange();
   },
+
+  clearPasswordAttemptsLock(): Promise<AdminProfile> {
+    return adminProfileApi.clearPasswordAttemptsLock();
+  },
 };

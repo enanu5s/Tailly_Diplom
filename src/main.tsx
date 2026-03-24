@@ -4,6 +4,7 @@ import ReactDOM from 'react-dom/client';
 import { RouterProvider, createBrowserRouter } from 'react-router-dom';
 
 import { routes } from '@/app/router/routes';
+import { authService } from '@/features/auth/model/authService';
 import { authStore } from '@/features/auth/model/authStore';
 import { seedDemoMessagesIfEmpty } from '@/features/messages/data/messagesStorage';
 import { configureHttpClient } from '@/shared/api/http';
@@ -35,7 +36,7 @@ function bootstrap() {
       const currentSearch = window.location.search;
       const redirectPath = getUnauthorizedRedirectPath(currentPath);
 
-      authStore.logout();
+      authService.logout();
 
       if (currentPath === '/login') {
         return;

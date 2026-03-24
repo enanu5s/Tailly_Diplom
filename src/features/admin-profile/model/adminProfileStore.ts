@@ -77,6 +77,9 @@ class AdminProfileStore {
   isRequestingEmailChange = false;
   isConfirmingEmailChange = false;
 
+  isClearingPasswordLock = false;
+  passwordLockClearError = '';
+
   constructor() {
     makeAutoObservable(this, {}, { autoBind: true });
   }
@@ -143,6 +146,7 @@ class AdminProfileStore {
       runInAction(() => {
         this.profile = profile;
         this.form = mapProfileToForm(profile);
+        this.passwordLockClearError = '';
       });
 
       applyUpdatedProfileToAuth(profile);
@@ -292,6 +296,39 @@ class AdminProfileStore {
     }
   }
 
+  async clearPasswordAttemptsLock(): Promise<void> {
+    if (!this.profile || !this.isSuperAdmin) {
+      return;
+    }
+
+    runInAction(() => {
+      this.isClearingPasswordLock = true;
+      this.passwordLockClearError = '';
+    });
+
+    try {
+      const updatedProfile = await adminProfileService.clearPasswordAttemptsLock();
+
+      runInAction(() => {
+        this.profile = updatedProfile;
+        this.form = mapProfileToForm(updatedProfile);
+      });
+
+      applyUpdatedProfileToAuth(updatedProfile);
+    } catch (error) {
+      runInAction(() => {
+        this.passwordLockClearError =
+          error instanceof Error
+            ? error.message
+            : 'Не удалось снять временный лок входа.';
+      });
+    } finally {
+      runInAction(() => {
+        this.isClearingPasswordLock = false;
+      });
+    }
+  }
+
   async save(): Promise<void> {
     if (!this.profile || !this.canSubmit) {
       return;
@@ -356,6 +393,8 @@ class AdminProfileStore {
     this.emailChangeMockHint = '';
     this.isRequestingEmailChange = false;
     this.isConfirmingEmailChange = false;
+    this.isClearingPasswordLock = false;
+    this.passwordLockClearError = '';
   }
 }
 
