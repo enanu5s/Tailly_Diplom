@@ -8,6 +8,7 @@ import { useAuth } from '@/features/auth/model/useAuth';
 import { canClientBookService } from '@/shared/lib/auth/roleAccess';
 import { useAppNavigate } from '@/shared/lib/navigation/useAppNavigate';
 
+import { SpecialistProfileBookingCta } from './SpecialistProfileBookingCta';
 import { SpecialistProfileView } from './SpecialistProfileView';
 import { specialistProfileStore } from '../model/specialistProfileStore';
 
@@ -60,6 +61,22 @@ export const SpecialistProfileSection = observer((): ReactElement => {
     });
   };
 
+  const handleStartBooking = (): void => {
+    if (!profile) {
+      return;
+    }
+
+    navigate('/service-booking', {
+      state: {
+        specialistSlug: profile.slug,
+      },
+    });
+  };
+
+  const canShowBookingCta = Boolean(
+    profile && !profile.isOwner && canClientBookService(user ?? null),
+  );
+
   return (
     <SpecialistProfileView
       profile={specialistProfileStore.profile}
@@ -69,6 +86,13 @@ export const SpecialistProfileSection = observer((): ReactElement => {
       canLoadMoreReviews={specialistProfileStore.canLoadMoreReviews}
       onRetry={handleRetry}
       onLoadMoreReviews={specialistProfileStore.loadMoreReviews}
+      reviewsSearchQuery={specialistProfileStore.reviewsSearchQuery}
+      reviewsRatingFilter={specialistProfileStore.reviewsRatingFilter}
+      reviewsReplyFilter={specialistProfileStore.reviewsReplyFilter}
+      reviewsFilteredCount={specialistProfileStore.filteredReviews.length}
+      onSetReviewsSearchQuery={specialistProfileStore.setReviewsSearchQuery}
+      onSetReviewsRatingFilter={specialistProfileStore.setReviewsRatingFilter}
+      onSetReviewsReplyFilter={specialistProfileStore.setReviewsReplyFilter}
       isEditingMain={specialistProfileStore.isEditingMain}
       isSavingMain={specialistProfileStore.isSavingMain}
       mainSaveError={specialistProfileStore.mainSaveError}
@@ -117,6 +141,11 @@ export const SpecialistProfileSection = observer((): ReactElement => {
         profile && !profile.isOwner && canClientBookService(user ?? null)
           ? handleBookService
           : undefined
+      }
+      bookingCta={
+        canShowBookingCta ? (
+          <SpecialistProfileBookingCta onStartBooking={handleStartBooking} />
+        ) : null
       }
     />
   );

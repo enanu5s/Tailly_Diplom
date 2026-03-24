@@ -7,11 +7,11 @@ import { useParams } from 'react-router-dom';
 import { useAuth } from '@/features/auth/model/useAuth';
 import { messagesStore } from '@/features/messages';
 import { specialistProfileStore } from '@/features/specialist-profile/model/specialistProfileStore';
+import { SpecialistProfileBookingCta } from '@/features/specialist-profile/ui/SpecialistProfileBookingCta';
 import { SpecialistProfileView } from '@/features/specialist-profile/ui/SpecialistProfileView';
 import { canClientBookService } from '@/shared/lib/auth/roleAccess';
 import { useAppNavigate } from '@/shared/lib/navigation/useAppNavigate';
 
-import bookingCtaStyles from './SpecialistProfileBookingCta.module.css';
 import styles from './SpecialistProfilePage.module.css';
 
 import type { ReactElement } from 'react';
@@ -146,6 +146,19 @@ export const SpecialistProfilePage = observer((): ReactElement => {
     });
   };
 
+  const handleBookService = (serviceId: string): void => {
+    if (!store.profile) {
+      return;
+    }
+
+    navigate('/service-booking', {
+      state: {
+        specialistSlug: store.profile.slug,
+        serviceId,
+      },
+    });
+  };
+
   const isSameSlug =
     Boolean(user?.specialistSlug?.trim()) &&
     user!.specialistSlug!.trim() === (store.profile?.slug.trim() ?? '');
@@ -190,6 +203,13 @@ export const SpecialistProfilePage = observer((): ReactElement => {
           canLoadMoreReviews={store.canLoadMoreReviews}
           onRetry={handleRetry}
           onLoadMoreReviews={store.loadMoreReviews}
+          reviewsSearchQuery={store.reviewsSearchQuery}
+          reviewsRatingFilter={store.reviewsRatingFilter}
+          reviewsReplyFilter={store.reviewsReplyFilter}
+          reviewsFilteredCount={store.filteredReviews.length}
+          onSetReviewsSearchQuery={store.setReviewsSearchQuery}
+          onSetReviewsRatingFilter={store.setReviewsRatingFilter}
+          onSetReviewsReplyFilter={store.setReviewsReplyFilter}
           isEditingMain={store.isEditingMain}
           isSavingMain={store.isSavingMain}
           mainSaveError={store.mainSaveError}
@@ -240,6 +260,7 @@ export const SpecialistProfilePage = observer((): ReactElement => {
                 }
               : undefined
           }
+          onBookService={canBookSpecialist ? handleBookService : undefined}
           ownerWorkspace={
             canManageOwnProfile && store.profile
               ? {
@@ -249,31 +270,12 @@ export const SpecialistProfilePage = observer((): ReactElement => {
                 }
               : undefined
           }
+          bookingCta={
+            canBookSpecialist && store.profile ? (
+              <SpecialistProfileBookingCta onStartBooking={handleStartBooking} />
+            ) : null
+          }
         />
-
-        {canBookSpecialist && store.profile ? (
-          <section className={bookingCtaStyles.card}>
-            <div className={bookingCtaStyles.content}>
-              <div>
-                <h2 className={bookingCtaStyles.title}>Готовы оформить услугу?</h2>
-                <p className={bookingCtaStyles.description}>
-                  Выберите услугу, питомца, дату и время. После создания заказ сразу
-                  появится у вас в профиле.
-                </p>
-              </div>
-
-              <div className={bookingCtaStyles.actions}>
-                <button
-                  type="button"
-                  className={bookingCtaStyles.primaryButton}
-                  onClick={handleStartBooking}
-                >
-                  Оформить заказ
-                </button>
-              </div>
-            </div>
-          </section>
-        ) : null}
       </div>
     </div>
   );

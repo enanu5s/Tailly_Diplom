@@ -14,6 +14,18 @@
   gap: 24px;
 }
 
+.bookingCtaWrap {
+  margin: 0;
+}
+
+@media (min-width: 1101px) {
+  .bookingCtaWrap {
+    position: sticky;
+    top: 16px;
+    z-index: 2;
+  }
+}
+
 .card,
 .cardLarge,
 .stateCard {

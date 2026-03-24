@@ -6,6 +6,7 @@ import { LocalitySuggestInput } from '@/features/specialists-search/ui/LocalityS
 
 import { SpecialistMiniCalendar } from './SpecialistMiniCalendar';
 import { SpecialistPhotoGallery } from './SpecialistPhotoGallery';
+import { ReviewsFiltersToolbar } from './ReviewsFiltersToolbar/ReviewsFiltersToolbar';
 import styles from './SpecialistProfileView.module.css';
 import { SpecialistServicePolicyEditor } from './SpecialistServicePolicyEditor';
 import {
@@ -29,9 +30,13 @@ import type {
   SpecialistPetType,
   SpecialistProfile,
   SpecialistReview,
+  SpecialistReviewsRatingFilter,
+  SpecialistReviewsReplyFilter,
   SpecialistService,
   SpecialistServicePriceUnit,
 } from '../model/types';
+
+import type { ReactNode } from 'react';
 
 type MainForm = {
   avatarUrl: string;
@@ -114,6 +119,13 @@ type Props = {
   canLoadMoreReviews: boolean;
   onRetry: () => void;
   onLoadMoreReviews: () => void;
+  reviewsSearchQuery: string;
+  reviewsRatingFilter: SpecialistReviewsRatingFilter;
+  reviewsReplyFilter: SpecialistReviewsReplyFilter;
+  reviewsFilteredCount: number;
+  onSetReviewsSearchQuery: (value: string) => void;
+  onSetReviewsRatingFilter: (value: SpecialistReviewsRatingFilter) => void;
+  onSetReviewsReplyFilter: (value: SpecialistReviewsReplyFilter) => void;
 
   isEditingMain: boolean;
   isSavingMain: boolean;
@@ -234,6 +246,8 @@ type Props = {
     ordersPath: string;
     orderStatsPath: string;
   };
+  /** Блок «Оформить заказ» для клиента — показывается вверху колонки с деталями. */
+  bookingCta?: ReactNode;
 };
 
 const PET_SIZE_OPTIONS: SpecialistPetSize[] = ['small', 'medium', 'large', 'giant'];
@@ -435,6 +449,13 @@ export const SpecialistProfileView = observer(
     canLoadMoreReviews,
     onRetry,
     onLoadMoreReviews,
+    reviewsSearchQuery,
+    reviewsRatingFilter,
+    reviewsReplyFilter,
+    reviewsFilteredCount,
+    onSetReviewsSearchQuery,
+    onSetReviewsRatingFilter,
+    onSetReviewsReplyFilter,
 
     isEditingMain,
     isSavingMain,
@@ -479,6 +500,7 @@ export const SpecialistProfileView = observer(
     onContactSpecialist,
     onBookService,
     ownerWorkspace,
+    bookingCta,
   }: Props) => {
     if (isLoading) {
       return (
@@ -912,6 +934,8 @@ export const SpecialistProfileView = observer(
         </div>
 
         <div className={styles.rightColumn}>
+          {bookingCta ? <div className={styles.bookingCtaWrap}>{bookingCta}</div> : null}
+
           <section className={styles.cardLarge}>
             <div className={styles.cardHeader}>
               <h2 className={styles.cardTitle}>Детали</h2>
@@ -1476,50 +1500,77 @@ export const SpecialistProfileView = observer(
                 </p>
               ) : null}
 
-              <div className={styles.reviewsList}>
-                {visibleReviews.map((review) => (
-                  <article key={review.id} className={styles.reviewCard}>
-                    <div className={styles.reviewHeader}>
-                      <div>
-                        <div className={styles.reviewAuthorRow}>
-                          <span className={styles.reviewAuthor}>{review.authorName}</span>
-                          {review.petName ? (
-                            <span className={styles.reviewPetName}>
-                              Питомец: {review.petName}
-                            </span>
-                          ) : null}
-                        </div>
-                        <div className={styles.reviewMeta}>
-                          <span>{formatDate(review.createdAt)}</span>
-                          <span>{getRatingStars(review.rating)}</span>
-                        </div>
-                      </div>
-                    </div>
-
-                    <p className={styles.reviewText}>{review.text}</p>
-
-                    {review.specialistReply ? (
-                      <div className={styles.replyCard}>
-                        <div className={styles.replyTitle}>Ответ специалиста</div>
-                        <div className={styles.replyDate}>
-                          {formatDate(review.specialistReply.createdAt)}
-                        </div>
-                        <p className={styles.replyText}>{review.specialistReply.text}</p>
-                      </div>
-                    ) : null}
-                  </article>
-                ))}
-              </div>
-
-              {canLoadMoreReviews ? (
-                <button
-                  type="button"
-                  className={styles.primaryButton}
-                  onClick={onLoadMoreReviews}
-                >
-                  Загрузить еще
-                </button>
+              {profile.reviews.length > 0 ? (
+                <ReviewsFiltersToolbar
+                  searchQuery={reviewsSearchQuery}
+                  ratingFilter={reviewsRatingFilter}
+                  replyFilter={reviewsReplyFilter}
+                  totalCount={profile.reviews.length}
+                  filteredCount={reviewsFilteredCount}
+                  onSearchChange={onSetReviewsSearchQuery}
+                  onRatingFilterChange={onSetReviewsRatingFilter}
+                  onReplyFilterChange={onSetReviewsReplyFilter}
+                />
               ) : null}
+
+              {profile.reviews.length === 0 ? (
+                <p className={styles.emptyText}>Пока отзывов нет.</p>
+              ) : reviewsFilteredCount === 0 ? (
+                <p className={styles.emptyText}>
+                  Ничего не найдено. Измените поиск или фильтры.
+                </p>
+              ) : (
+                <>
+                  <div className={styles.reviewsList}>
+                    {visibleReviews.map((review) => (
+                      <article key={review.id} className={styles.reviewCard}>
+                        <div className={styles.reviewHeader}>
+                          <div>
+                            <div className={styles.reviewAuthorRow}>
+                              <span className={styles.reviewAuthor}>
+                                {review.authorName}
+                              </span>
+                              {review.petName ? (
+                                <span className={styles.reviewPetName}>
+                                  Питомец: {review.petName}
+                                </span>
+                              ) : null}
+                            </div>
+                            <div className={styles.reviewMeta}>
+                              <span>{formatDate(review.createdAt)}</span>
+                              <span>{getRatingStars(review.rating)}</span>
+                            </div>
+                          </div>
+                        </div>
+
+                        <p className={styles.reviewText}>{review.text}</p>
+
+                        {review.specialistReply ? (
+                          <div className={styles.replyCard}>
+                            <div className={styles.replyTitle}>Ответ специалиста</div>
+                            <div className={styles.replyDate}>
+                              {formatDate(review.specialistReply.createdAt)}
+                            </div>
+                            <p className={styles.replyText}>
+                              {review.specialistReply.text}
+                            </p>
+                          </div>
+                        ) : null}
+                      </article>
+                    ))}
+                  </div>
+
+                  {canLoadMoreReviews ? (
+                    <button
+                      type="button"
+                      className={styles.primaryButton}
+                      onClick={onLoadMoreReviews}
+                    >
+                      Загрузить еще
+                    </button>
+                  ) : null}
+                </>
+              )}
             </div>
           </section>
         </div>

@@ -507,16 +507,17 @@
   line-height: 1.5;
 }
 
-.freshBadge {
-  position: absolute;
-  top: 14px;
-  right: 14px;
-  padding: 8px 12px;
-  border-radius: 999px;
-  background: rgba(99, 102, 241, 0.12);
+.freshBanner {
+  padding: 10px 14px;
+  border-radius: 12px;
+  background: rgba(99, 102, 241, 0.1);
+  border: 1px solid rgba(99, 102, 241, 0.22);
   color: #4338ca;
   font-size: 13px;
   font-weight: 600;
+  line-height: 1.4;
+  width: 100%;
+  box-sizing: border-box;
 }
 
 .listScroll {
@@ -542,12 +543,6 @@
   .reviewViewHeader {
     flex-direction: column;
     align-items: flex-start;
-  }
-
-  .freshBadge {
-    position: static;
-    margin-top: 14px;
-    width: fit-content;
   }
 
   .reviewDraftPhotosGrid,

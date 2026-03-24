@@ -598,6 +598,12 @@ export const OrdersServicesSection = observer(
                         </span>
                       </div>
 
+                      {isFresh ? (
+                        <div className={styles.freshBanner} role="status">
+                          Новый заказ успешно создан
+                        </div>
+                      ) : null}
+
                       <div className={styles.metaGrid}>
                         {isSpecialistViewer ? (
                           <>
@@ -973,10 +979,6 @@ export const OrdersServicesSection = observer(
 
                   {order.status === 'completed' && order.hasReview && !order.review ? (
                     <div className={styles.successBox}>Отзыв уже оставлен.</div>
-                  ) : null}
-
-                  {isFresh ? (
-                    <div className={styles.freshBadge}>Новый заказ успешно создан</div>
                   ) : null}
                 </article>
               );

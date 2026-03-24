@@ -128,6 +128,10 @@
   gap: 14px;
 }
 
+.rangeGridTimeRange {
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+}
+
 .infoBox {
   margin-top: 12px;
   padding: 14px 16px;
@@ -282,6 +286,10 @@
 @media (max-width: 760px) {
   .formGrid,
   .rangeGrid {
+    grid-template-columns: 1fr;
+  }
+
+  .rangeGridTimeRange {
     grid-template-columns: 1fr;
   }
 

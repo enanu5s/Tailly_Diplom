@@ -1,15 +1,20 @@
 // src/features/specialist-profile/data/buildRollingDemoCalendar.ts
-/** Демо-календарь специалиста: даты привязаны к текущему месяцу (удобный просмотр без «пустого» месяца). */
+/** Демо-календарь: окна и брони на датах относительно «сегодня», чтобы слоты для записи не оказывались в прошлом. */
 
 import type { SpecialistCalendar } from '../model/types';
 
-function isoInCurrentMonth(day: number, ref: Date): string {
-  const y = ref.getFullYear();
-  const m = ref.getMonth() + 1;
-  const last = new Date(y, m, 0).getDate();
-  const d = Math.min(Math.max(1, day), last);
+function pad2(n: number): string {
+  return String(n).padStart(2, '0');
+}
 
-  return `${y}-${String(m).padStart(2, '0')}-${String(d).padStart(2, '0')}`;
+function toIsoLocal(d: Date): string {
+  return `${d.getFullYear()}-${pad2(d.getMonth() + 1)}-${pad2(d.getDate())}`;
+}
+
+function addDays(ref: Date, days: number): Date {
+  const next = new Date(ref);
+  next.setDate(next.getDate() + days);
+  return next;
 }
 
 function firstDayOfMonthIso(ref: Date): string {
@@ -20,20 +25,28 @@ function firstDayOfMonthIso(ref: Date): string {
 }
 
 /**
- * Календарь по умолчанию для основного демо-специалиста (Мария Иванова).
- * Совпадает по смыслу с прежним сидом на март 2026, но дни 20–28 — в «текущем» месяце.
+ * Календарь по умолчанию для демо-специалистов.
+ * Окна доступности на ближайшие дни (завтра и далее), чтобы `buildSlotsFromWindowsForService`
+ * не отбрасывал все слоты как прошедшие.
  */
 export function buildRollingDemoCalendar(now: Date = new Date()): SpecialistCalendar {
+  const d1 = toIsoLocal(addDays(now, 1));
+  const d2 = toIsoLocal(addDays(now, 2));
+  const d3 = toIsoLocal(addDays(now, 3));
+  const d4 = toIsoLocal(addDays(now, 4));
+  const dayOff = toIsoLocal(addDays(now, 7));
+  const fullyBooked = toIsoLocal(addDays(now, 10));
+
   return {
     timezone: 'Europe/Moscow',
     dayOverrides: [
-      { date: isoInCurrentMonth(25, now), status: 'day_off' },
-      { date: isoInCurrentMonth(28, now), status: 'fully_booked' },
+      { date: dayOff, status: 'day_off' },
+      { date: fullyBooked, status: 'fully_booked' },
     ],
     bookedSlots: [
       {
         id: 'booked-1',
-        date: isoInCurrentMonth(20, now),
+        date: d1,
         startTime: '10:00',
         endTime: '11:00',
         serviceIds: ['service-walk-1'],
@@ -42,7 +55,7 @@ export function buildRollingDemoCalendar(now: Date = new Date()): SpecialistCale
       },
       {
         id: 'booked-2',
-        date: isoInCurrentMonth(20, now),
+        date: d1,
         startTime: '14:00',
         endTime: '15:30',
         serviceIds: ['service-photo-1'],
@@ -52,7 +65,7 @@ export function buildRollingDemoCalendar(now: Date = new Date()): SpecialistCale
       },
       {
         id: 'booked-3',
-        date: isoInCurrentMonth(22, now),
+        date: d3,
         startTime: '13:00',
         endTime: '23:59',
         serviceIds: ['service-boarding-1'],
@@ -60,7 +73,7 @@ export function buildRollingDemoCalendar(now: Date = new Date()): SpecialistCale
       },
       {
         id: 'booked-4',
-        date: isoInCurrentMonth(23, now),
+        date: d4,
         startTime: '00:00',
         endTime: '11:00',
         serviceIds: ['service-boarding-1'],
@@ -70,7 +83,7 @@ export function buildRollingDemoCalendar(now: Date = new Date()): SpecialistCale
     availabilityWindows: [
       {
         id: 'window-1',
-        date: isoInCurrentMonth(20, now),
+        date: d1,
         startTime: '09:00',
         endTime: '21:00',
         serviceIds: ['service-walk-1', 'service-photo-1', 'service-visit-1'],
@@ -78,14 +91,14 @@ export function buildRollingDemoCalendar(now: Date = new Date()): SpecialistCale
       },
       {
         id: 'window-2',
-        date: isoInCurrentMonth(21, now),
+        date: d2,
         startTime: '10:00',
         endTime: '19:00',
         serviceIds: ['service-walk-1', 'service-photo-1', 'service-visit-1'],
       },
       {
         id: 'window-3',
-        date: isoInCurrentMonth(22, now),
+        date: d3,
         startTime: '10:00',
         endTime: '20:00',
         serviceIds: ['service-boarding-1', 'service-consult-1'],
@@ -143,7 +156,7 @@ export function buildRollingDemoCalendar(now: Date = new Date()): SpecialistCale
     availabilityOverrides: [
       {
         id: 'override-1',
-        targetDate: isoInCurrentMonth(24, now),
+        targetDate: d2,
         editScope: 'single',
         sourceRuleId: 'rule-walk-weekdays',
         startTime: '13:00',

@@ -126,6 +126,7 @@ export function buildInitialSnapshot(): MockDbSnapshot {
       },
       breeds: cloneDeep(MOCK_BREEDS),
     },
+    /** Контексты отзывов по orderId синхронизируются из списка услуг в `features/orders/data/mockOrders.ts`. */
     reviews: {
       contexts: {},
       list: [],

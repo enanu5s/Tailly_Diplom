@@ -162,6 +162,14 @@ function resolveSearchServiceId(
   return inferServiceIdFromSpecialistService(svc);
 }
 
+/** Совпадает с отсечением прошедших слотов в `buildSlotsFromWindowsForService` (оформление заказа). */
+function isWindowEndInFuture(dateIso: string, endTime: string): boolean {
+  const normalizedTime = /^\d{2}:\d{2}$/.test(endTime) ? `${endTime}:00` : endTime;
+  const end = new Date(`${dateIso}T${normalizedTime}`);
+
+  return !Number.isNaN(end.getTime()) && end.getTime() > Date.now();
+}
+
 /**
  * Слоты для карточек поиска и превью — из того же календаря, что и в профиле специалиста (мок).
  */
@@ -172,6 +180,10 @@ export function calendarSlotsFromSpecialistCalendar(
   const slots: SpecialistCalendarSlot[] = [];
 
   for (const window of calendar.availabilityWindows) {
+    if (!isWindowEndInFuture(window.date, window.endTime)) {
+      continue;
+    }
+
     const serviceId = resolveSearchServiceId(window.serviceIds[0], services);
 
     slots.push({

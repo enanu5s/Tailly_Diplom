@@ -20,6 +20,8 @@ import type {
   SpecialistPetType,
   SpecialistProfile,
   SpecialistReview,
+  SpecialistReviewsRatingFilter,
+  SpecialistReviewsReplyFilter,
   SpecialistService,
   SpecialistServiceBookingPolicy,
   SpecialistServicePriceUnit,
@@ -27,6 +29,51 @@ import type {
 
 const INITIAL_VISIBLE_REVIEWS_COUNT = 3;
 const REVIEWS_LOAD_STEP = 3;
+
+function reviewMatchesSearch(review: SpecialistReview, query: string): boolean {
+  const normalized = query.trim().toLowerCase();
+
+  if (!normalized) {
+    return true;
+  }
+
+  const haystack = [
+    review.authorName,
+    review.petName ?? '',
+    review.text,
+    review.serviceTitle ?? '',
+  ]
+    .join(' ')
+    .toLowerCase();
+
+  return haystack.includes(normalized);
+}
+
+function reviewMatchesRating(
+  review: SpecialistReview,
+  filter: SpecialistReviewsRatingFilter,
+): boolean {
+  if (filter === 'all') {
+    return true;
+  }
+
+  return review.rating === filter;
+}
+
+function reviewMatchesReplyFilter(
+  review: SpecialistReview,
+  filter: SpecialistReviewsReplyFilter,
+): boolean {
+  if (filter === 'all') {
+    return true;
+  }
+
+  if (filter === 'with_reply') {
+    return Boolean(review.specialistReply);
+  }
+
+  return !review.specialistReply;
+}
 const MAX_SERVICE_PRICE = 1_000_000;
 const MAX_ADVANTAGES_COUNT = 3;
 
@@ -422,6 +469,10 @@ export class SpecialistProfileStore {
   visibleReviewsCount = INITIAL_VISIBLE_REVIEWS_COUNT;
   loadedSlug: string | null = null;
 
+  reviewsSearchQuery = '';
+  reviewsRatingFilter: SpecialistReviewsRatingFilter = 'all';
+  reviewsReplyFilter: SpecialistReviewsReplyFilter = 'all';
+
   isEditingMain = false;
   isSavingMain = false;
   mainSaveError: string | null = null;
@@ -438,20 +489,40 @@ export class SpecialistProfileStore {
     makeAutoObservable(this, {}, { autoBind: true });
   }
 
-  get visibleReviews(): SpecialistReview[] {
+  get filteredReviews(): SpecialistReview[] {
     if (!this.profile) {
       return [];
     }
 
-    return this.profile.reviews.slice(0, this.visibleReviewsCount);
+    return this.profile.reviews.filter(
+      (review) =>
+        reviewMatchesSearch(review, this.reviewsSearchQuery) &&
+        reviewMatchesRating(review, this.reviewsRatingFilter) &&
+        reviewMatchesReplyFilter(review, this.reviewsReplyFilter),
+    );
+  }
+
+  get visibleReviews(): SpecialistReview[] {
+    return this.filteredReviews.slice(0, this.visibleReviewsCount);
   }
 
   get canLoadMoreReviews(): boolean {
-    if (!this.profile) {
-      return false;
-    }
+    return this.visibleReviewsCount < this.filteredReviews.length;
+  }
 
-    return this.visibleReviewsCount < this.profile.reviews.length;
+  setReviewsSearchQuery(value: string): void {
+    this.reviewsSearchQuery = value;
+    this.visibleReviewsCount = INITIAL_VISIBLE_REVIEWS_COUNT;
+  }
+
+  setReviewsRatingFilter(value: SpecialistReviewsRatingFilter): void {
+    this.reviewsRatingFilter = value;
+    this.visibleReviewsCount = INITIAL_VISIBLE_REVIEWS_COUNT;
+  }
+
+  setReviewsReplyFilter(value: SpecialistReviewsReplyFilter): void {
+    this.reviewsReplyFilter = value;
+    this.visibleReviewsCount = INITIAL_VISIBLE_REVIEWS_COUNT;
   }
 
   async load(slug: string): Promise<void> {
@@ -474,6 +545,9 @@ export class SpecialistProfileStore {
         this.profile = profile;
         this.loadedSlug = slug;
         this.visibleReviewsCount = INITIAL_VISIBLE_REVIEWS_COUNT;
+        this.reviewsSearchQuery = '';
+        this.reviewsRatingFilter = 'all';
+        this.reviewsReplyFilter = 'all';
 
         this.isEditingMain = false;
         this.isSavingMain = false;
@@ -507,9 +581,11 @@ export class SpecialistProfileStore {
       return;
     }
 
+    const maxVisible = this.filteredReviews.length;
+
     this.visibleReviewsCount = Math.min(
       this.visibleReviewsCount + REVIEWS_LOAD_STEP,
-      this.profile.reviews.length,
+      maxVisible,
     );
   }
 
@@ -1251,6 +1327,9 @@ export class SpecialistProfileStore {
     this.error = null;
     this.visibleReviewsCount = INITIAL_VISIBLE_REVIEWS_COUNT;
     this.loadedSlug = null;
+    this.reviewsSearchQuery = '';
+    this.reviewsRatingFilter = 'all';
+    this.reviewsReplyFilter = 'all';
 
     this.isEditingMain = false;
     this.isSavingMain = false;

@@ -6,8 +6,12 @@ import {
   unsafeMutableMockDb,
 } from '@/shared/mock-db/store';
 
+import type { MockDbSnapshot } from '@/shared/mock-db/types';
+
 import { buildBulkSyntheticServiceOrders } from './mockOrdersBulkSeed';
 import { MOCK_PRODUCT_ORDERS_SEED } from './mockProductOrdersSeed';
+
+import type { ReviewContext } from '@/features/reviews/model/types';
 
 import type {
   CreateServiceOrderPayload,
@@ -61,6 +65,52 @@ function buildLegacyReview(rating?: number, comment?: string): ServiceOrderRevie
   };
 }
 
+function buildReviewContextsFromServiceOrders(
+  orders: ServiceOrder[],
+): Record<string, ReviewContext> {
+  const out: Record<string, ReviewContext> = {};
+
+  for (const order of orders) {
+    if (order.status !== 'completed' || order.hasReview) {
+      continue;
+    }
+
+    out[order.id] = {
+      orderId: order.id,
+      petId: order.petId,
+      petName: order.petName,
+      ownerFullName: order.clientName,
+      sitterId: order.sitterId,
+      sitterName: order.sitterName,
+      serviceTitle: order.serviceTitle,
+    };
+  }
+
+  return out;
+}
+
+/** Согласовать `reviews.contexts` с текущим списком заказов (единый источник правды). */
+function syncReviewContextsIntoDb(db: MockDbSnapshot, orders: ServiceOrder[]): void {
+  const next = buildReviewContextsFromServiceOrders(orders);
+  const merged: Record<string, ReviewContext> = { ...db.reviews.contexts, ...next };
+  const orderIdSet = new Set(orders.map((o) => o.id));
+
+  for (const id of [...Object.keys(merged)]) {
+    if (!orderIdSet.has(id)) {
+      delete merged[id];
+      continue;
+    }
+
+    const order = orders.find((o) => o.id === id);
+
+    if (!order || order.status !== 'completed' || order.hasReview) {
+      delete merged[id];
+    }
+  }
+
+  db.reviews.contexts = merged;
+}
+
 function generateServiceSeed(): ServiceOrder[] {
   const now = new Date();
 
@@ -74,7 +124,7 @@ function generateServiceSeed(): ServiceOrder[] {
   const pendingEnd = atTime(pendingDay, 12, 0);
 
   const confirmedStart = atTime(confirmedDay, 10, 0);
-  const confirmedEnd = atTime(confirmedDay, 11, 30);
+  const confirmedEnd = atTime(confirmedDay, 12, 0);
 
   const activeCheckIn = atTime(activeDay, 13, 0);
   const activeCheckOut = atTime(addDays(activeDay, 2), 11, 0);
@@ -374,13 +424,13 @@ function generateServiceSeed(): ServiceOrder[] {
       createdAt: atTime(addDays(now, -12), 9, 30),
       confirmedAt: atTime(addDays(now, -12), 10, 0),
       startedAt: atTime(addDays(now, -11), 15, 0),
-      completedAt: atTime(addDays(now, -11), 16, 30),
+      completedAt: atTime(addDays(now, -11), 17, 0),
       dateFrom: atTime(addDays(now, -11), 15, 0),
-      dateTo: atTime(addDays(now, -11), 16, 30),
+      dateTo: atTime(addDays(now, -11), 17, 0),
       schedule: {
         mode: 'time_range',
         startAt: atTime(addDays(now, -11), 15, 0),
-        endAt: atTime(addDays(now, -11), 16, 30),
+        endAt: atTime(addDays(now, -11), 17, 0),
       },
       petId: 'pet-profile-kirill',
       petName: 'Пушок',
@@ -504,6 +554,64 @@ function generateServiceSeed(): ServiceOrder[] {
         {
           status: 'completed',
           changedAt: atTime(addDays(now, -26), 11, 0),
+        },
+      ],
+    },
+    {
+      id: 'service-order-awaiting-client-review-1',
+      createdAt: atTime(addDays(now, -7), 9, 0),
+      confirmedAt: atTime(addDays(now, -7), 9, 20),
+      startedAt: atTime(addDays(now, -6), 10, 0),
+      completedAt: atTime(addDays(now, -6), 11, 0),
+      dateFrom: atTime(addDays(now, -6), 10, 0),
+      dateTo: atTime(addDays(now, -6), 11, 0),
+      schedule: {
+        mode: 'fixed_slot',
+        startAt: atTime(addDays(now, -6), 10, 0),
+        endAt: atTime(addDays(now, -6), 11, 0),
+      },
+      petId: 'pet-1',
+      petName: 'Марта',
+      clientId: DEFAULT_CLIENT_ID,
+      clientName: DEFAULT_CLIENT_NAME,
+      clientSlug: DEFAULT_CLIENT_SLUG,
+      sitterId: 'specialist-1',
+      sitterName: 'Мария Иванова',
+      specialistSlug: 'maria-ivanova',
+      status: 'completed',
+      serviceId: 'service-walk-1',
+      serviceTitle: 'Прогулка с собакой',
+      servicePriceUnit: 'walk',
+      serviceSnapshot: {
+        id: 'service-walk-1',
+        title: 'Прогулка с собакой',
+        locationLabel: 'На улице рядом с домом клиента',
+        price: 900,
+        priceUnit: 'walk',
+        bookingMode: 'fixed_slot',
+      },
+      locationLabel: 'На улице рядом с домом клиента',
+      comment: 'Демо-заказ без отзыва: контекст подтягивается из общей mock-базы.',
+      price: 900,
+      currency: 'RUB',
+      hasReview: false,
+      review: null,
+      lifecycle: [
+        {
+          status: 'pending_confirmation',
+          changedAt: atTime(addDays(now, -7), 9, 0),
+        },
+        {
+          status: 'confirmed',
+          changedAt: atTime(addDays(now, -7), 9, 20),
+        },
+        {
+          status: 'active',
+          changedAt: atTime(addDays(now, -6), 10, 0),
+        },
+        {
+          status: 'completed',
+          changedAt: atTime(addDays(now, -6), 11, 0),
         },
       ],
     },
@@ -768,8 +876,10 @@ function ensureServiceOrdersInitialized(): void {
   }
 
   const initial = generateServiceSeed();
+
   patchMockDatabase((next) => {
     next.orders.service = initial;
+    syncReviewContextsIntoDb(next, initial);
   });
 }
 
@@ -786,6 +896,7 @@ function readStorage(): ServiceOrder[] {
   if (JSON.stringify(normalized) !== JSON.stringify(list)) {
     patchMockDatabase((db) => {
       db.orders.service = normalized;
+      syncReviewContextsIntoDb(db, normalized);
     });
   }
 
@@ -799,6 +910,7 @@ function writeStorage(list: ServiceOrder[]): void {
 
   patchMockDatabase((db) => {
     db.orders.service = clone(list);
+    syncReviewContextsIntoDb(db, list);
   });
 }
 

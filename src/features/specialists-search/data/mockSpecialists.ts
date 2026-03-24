@@ -133,8 +133,8 @@ const SERVICE_SETS: Specialist['services'][] = [
       petTypes: ['dog', 'cat'],
       priceFrom: 3500,
       priceTo: 8000,
-      durationMinutes: 60,
-      note: 'Студия / выезд',
+      durationMinutes: 120,
+      note: 'Обычно 2–4 ч · студия / выезд',
     },
     {
       serviceId: 'grooming',

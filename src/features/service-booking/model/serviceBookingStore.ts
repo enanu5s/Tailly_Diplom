@@ -20,6 +20,16 @@ import type {
   ServiceBookingLoadParams,
 } from './types';
 
+function isIsoDateInOptions(isoDate: string, options: BookingDateOption[]): boolean {
+  const normalized = isoDate.trim();
+
+  if (!normalized) {
+    return false;
+  }
+
+  return options.some((item) => item.date === normalized);
+}
+
 const BOOKING_DRAFT_STORAGE_KEY = 'tailly_service_booking_draft_v2';
 
 function createEmptyDraft(): ServiceBookingDraft {
@@ -330,6 +340,18 @@ function buildDefaultDraftForService(
   const firstDate = availableDates[0]?.date ?? '';
   const secondDate = availableDates[1]?.date ?? firstDate;
 
+  let requestedStartDate = storedDraft?.requestedStartDate ?? firstDate;
+  let requestedEndDate = storedDraft?.requestedEndDate ?? firstDate;
+
+  if (bookingMode === 'time_range' || bookingMode === 'open_request') {
+    const validStart =
+      requestedStartDate &&
+      availableDates.some((item) => item.date === requestedStartDate);
+    const day = validStart ? requestedStartDate : firstDate;
+    requestedStartDate = day;
+    requestedEndDate = day;
+  }
+
   return {
     specialistSlug,
     serviceId: service?.id ?? '',
@@ -338,9 +360,9 @@ function buildDefaultDraftForService(
     selectedSlotId,
     comment: storedDraft?.comment ?? '',
     bookingMode,
-    requestedStartDate: storedDraft?.requestedStartDate ?? firstDate,
+    requestedStartDate,
     requestedStartTime: storedDraft?.requestedStartTime ?? '10:00',
-    requestedEndDate: storedDraft?.requestedEndDate ?? firstDate,
+    requestedEndDate,
     requestedEndTime: storedDraft?.requestedEndTime ?? '11:30',
     stayCheckInDate: storedDraft?.stayCheckInDate ?? firstDate,
     stayCheckInTime: storedDraft?.stayCheckInTime ?? checkInTime,
@@ -466,6 +488,18 @@ export class ServiceBookingStore {
     return buildDateOptions(
       filterSlotsByService(this.normalizedSlots, this.draft.serviceId),
     );
+  }
+
+  /** Даты выезда: не раньше заезда, только из свободных дней. */
+  get stayCheckoutDateOptions(): BookingDateOption[] {
+    const dates = this.availableDates;
+    const checkIn = this.draft.stayCheckInDate.trim();
+
+    if (!checkIn) {
+      return dates;
+    }
+
+    return dates.filter((item) => item.date >= checkIn);
   }
 
   get availableSlotsForSelectedDate(): BookingSlot[] {
@@ -678,11 +712,29 @@ export class ServiceBookingStore {
     endDate?: string;
     endTime?: string;
   }): void {
+    const nextStartDate =
+      payload.startDate !== undefined
+        ? payload.startDate
+        : this.draft.requestedStartDate;
+    let nextEndDate =
+      payload.endDate !== undefined ? payload.endDate : this.draft.requestedEndDate;
+
+    // Произвольный интервал и свободный запрос: один календарный день — дата окончания = дата начала.
+    if (payload.startDate !== undefined) {
+      nextEndDate = nextStartDate;
+    } else if (nextStartDate && nextEndDate && nextEndDate < nextStartDate) {
+      nextEndDate = nextStartDate;
+    }
+
     this.replaceDraft({
-      requestedStartDate: payload.startDate ?? this.draft.requestedStartDate,
-      requestedStartTime: payload.startTime ?? this.draft.requestedStartTime,
-      requestedEndDate: payload.endDate ?? this.draft.requestedEndDate,
-      requestedEndTime: payload.endTime ?? this.draft.requestedEndTime,
+      requestedStartDate: nextStartDate,
+      requestedStartTime:
+        payload.startTime !== undefined
+          ? payload.startTime
+          : this.draft.requestedStartTime,
+      requestedEndDate: nextEndDate,
+      requestedEndTime:
+        payload.endTime !== undefined ? payload.endTime : this.draft.requestedEndTime,
     });
   }
 
@@ -692,11 +744,30 @@ export class ServiceBookingStore {
     checkOutDate?: string;
     checkOutTime?: string;
   }): void {
+    const nextCheckIn =
+      payload.checkInDate !== undefined
+        ? payload.checkInDate
+        : this.draft.stayCheckInDate;
+    let nextCheckOut =
+      payload.checkOutDate !== undefined
+        ? payload.checkOutDate
+        : this.draft.stayCheckOutDate;
+
+    if (nextCheckIn && nextCheckOut && nextCheckOut < nextCheckIn) {
+      nextCheckOut = nextCheckIn;
+    }
+
     this.replaceDraft({
-      stayCheckInDate: payload.checkInDate ?? this.draft.stayCheckInDate,
-      stayCheckInTime: payload.checkInTime ?? this.draft.stayCheckInTime,
-      stayCheckOutDate: payload.checkOutDate ?? this.draft.stayCheckOutDate,
-      stayCheckOutTime: payload.checkOutTime ?? this.draft.stayCheckOutTime,
+      stayCheckInDate: nextCheckIn,
+      stayCheckInTime:
+        payload.checkInTime !== undefined
+          ? payload.checkInTime
+          : this.draft.stayCheckInTime,
+      stayCheckOutDate: nextCheckOut,
+      stayCheckOutTime:
+        payload.checkOutTime !== undefined
+          ? payload.checkOutTime
+          : this.draft.stayCheckOutTime,
     });
   }
 
@@ -764,7 +835,7 @@ export class ServiceBookingStore {
           !this.draft.requestedEndDate ||
           !this.draft.requestedEndTime
         ) {
-          throw new Error('Заполни начало и конец выбранного интервала.');
+          throw new Error('Укажите дату и время начала и окончания интервала.');
         }
 
         const startIso = buildIsoDateTime(
@@ -775,6 +846,15 @@ export class ServiceBookingStore {
           this.draft.requestedEndDate,
           this.draft.requestedEndTime,
         );
+
+        const allowedDates = this.availableDates;
+
+        if (
+          !isIsoDateInOptions(this.draft.requestedStartDate, allowedDates) ||
+          !isIsoDateInOptions(this.draft.requestedEndDate, allowedDates)
+        ) {
+          throw new Error('Выберите дату только из свободных у специалиста дней.');
+        }
 
         payload = {
           dateFrom: startIso,
@@ -804,6 +884,15 @@ export class ServiceBookingStore {
           this.draft.stayCheckOutTime,
         );
 
+        const allowedStayDates = this.availableDates;
+
+        if (
+          !isIsoDateInOptions(this.draft.stayCheckInDate, allowedStayDates) ||
+          !isIsoDateInOptions(this.draft.stayCheckOutDate, allowedStayDates)
+        ) {
+          throw new Error('Выберите даты только из свободных у специалиста.');
+        }
+
         payload = {
           dateFrom: checkInAt,
           dateTo: checkOutAt,
@@ -815,8 +904,18 @@ export class ServiceBookingStore {
           },
         };
       } else {
+        const allowedOpenDates = this.availableDates;
+
+        if (allowedOpenDates.length === 0) {
+          throw new Error('У специалиста нет свободных дат для этой услуги.');
+        }
+
         const requestedDate =
-          this.draft.requestedStartDate || this.availableDates[0]?.date;
+          this.draft.requestedStartDate || allowedOpenDates[0]?.date;
+
+        if (!requestedDate || !isIsoDateInOptions(requestedDate, allowedOpenDates)) {
+          throw new Error('Выберите дату из доступных у специалиста.');
+        }
 
         payload = {
           dateFrom: requestedDate

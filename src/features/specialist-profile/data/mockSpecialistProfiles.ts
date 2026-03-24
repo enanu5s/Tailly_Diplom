@@ -20,11 +20,12 @@ const PRIMARY_SPECIALIST_PROFILE: SpecialistProfileResponse = {
     avatarUrl: '/images/specialists/maria-ivanova.jpg',
     firstName: 'Мария',
     lastName: 'Иванова',
-    middleName: 'Сергеевна',
+    middleName: '',
     city: 'Москва',
     district: 'Пресненский район',
-    phone: '+7 (999) 123-45-67',
-    email: 'specialist@tailly.ru',
+    /** Совпадает с `SEED_AUTH_BASE_ACCOUNTS` и `SEED_MANAGED_SPECIALISTS` (вход specialist@tailly.local). */
+    phone: '+7 (900) 000-00-20',
+    email: 'specialist@tailly.local',
   },
   stats: {
     experienceYears: 5,
@@ -127,9 +128,9 @@ const PRIMARY_SPECIALIST_PROFILE: SpecialistProfileResponse = {
       bookingPolicy: {
         mode: 'time_range',
         duration: {
-          defaultDurationMinutes: 90,
-          minDurationMinutes: 60,
-          maxDurationMinutes: 180,
+          defaultDurationMinutes: 120,
+          minDurationMinutes: 90,
+          maxDurationMinutes: 240,
           durationStepMinutes: 30,
         },
         buffer: {
@@ -143,7 +144,7 @@ const PRIMARY_SPECIALIST_PROFILE: SpecialistProfileResponse = {
           compatibleServiceIds: [],
         },
         advance: {
-          minAdvanceMinutes: 1440,
+          minAdvanceMinutes: 360,
           maxAdvanceDays: 45,
         },
         allowsClientComment: true,

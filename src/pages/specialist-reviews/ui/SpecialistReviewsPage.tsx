@@ -7,6 +7,7 @@ import { Link, useParams } from 'react-router-dom';
 import { specialistProfileStore } from '@/features/specialist-profile/model/specialistProfileStore';
 import { specialistReviewRepliesStore } from '@/features/specialist-profile/model/specialistReviewRepliesStore';
 import type { SpecialistReview } from '@/features/specialist-profile/model/types';
+import { ReviewsFiltersToolbar } from '@/features/specialist-profile/ui/ReviewsFiltersToolbar/ReviewsFiltersToolbar';
 import { SpecialistReviewReplyEditor } from '@/features/specialist-profile/ui/SpecialistReviewReplyEditor';
 import { useAppNavigate } from '@/shared/lib/navigation/useAppNavigate';
 
@@ -95,7 +96,8 @@ export const SpecialistReviewsPage = observer((): ReactElement => {
     );
   }
 
-  const reviews = store.profile?.reviews ?? [];
+  const totalReviews = store.profile?.reviews.length ?? 0;
+  const filteredReviews = store.filteredReviews;
 
   return (
     <div className={styles.page}>
@@ -117,27 +119,46 @@ export const SpecialistReviewsPage = observer((): ReactElement => {
           </Link>
         </header>
 
-        {reviews.length === 0 ? (
+        {totalReviews === 0 ? (
           <div className={styles.empty}>Пока нет отзывов.</div>
         ) : (
-          <div className={styles.list}>
-            {reviews.map((review) => (
-              <SpecialistReviewReplyEditor
-                key={review.id}
-                review={review}
-                draft={repliesStore.draftsByReviewId[review.id] ?? ''}
-                error={repliesStore.errorsByReviewId[review.id] ?? ''}
-                isSaving={Boolean(repliesStore.savingByReviewId[review.id])}
-                onChangeDraft={(value) => repliesStore.setDraft(review.id, value)}
-                onSave={() => {
-                  void handleSave(review);
-                }}
-                onOpenOrder={
-                  review.orderId ? () => openOrder(review.orderId as string) : undefined
-                }
-              />
-            ))}
-          </div>
+          <>
+            <ReviewsFiltersToolbar
+              searchQuery={store.reviewsSearchQuery}
+              ratingFilter={store.reviewsRatingFilter}
+              replyFilter={store.reviewsReplyFilter}
+              totalCount={totalReviews}
+              filteredCount={filteredReviews.length}
+              onSearchChange={store.setReviewsSearchQuery}
+              onRatingFilterChange={store.setReviewsRatingFilter}
+              onReplyFilterChange={store.setReviewsReplyFilter}
+            />
+
+            {filteredReviews.length === 0 ? (
+              <div className={styles.empty}>
+                Ничего не найдено. Измените поиск или фильтры.
+              </div>
+            ) : (
+              <div className={styles.list}>
+                {filteredReviews.map((review) => (
+                  <SpecialistReviewReplyEditor
+                    key={review.id}
+                    review={review}
+                    draft={repliesStore.draftsByReviewId[review.id] ?? ''}
+                    error={repliesStore.errorsByReviewId[review.id] ?? ''}
+                    isSaving={Boolean(repliesStore.savingByReviewId[review.id])}
+                    onChangeDraft={(value) => repliesStore.setDraft(review.id, value)}
+                    onSave={() => {
+                      void handleSave(review);
+                    }}
+                    onOpenOrder={
+                      review.orderId ? () => openOrder(review.orderId as string) : undefined
+                    }
+                  />
+                ))}
+              </div>
+            )}
+          </>
         )}
       </div>
     </div>

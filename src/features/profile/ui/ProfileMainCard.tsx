@@ -4,6 +4,8 @@ import { observer } from 'mobx-react-lite';
 import { useEffect, type ChangeEvent, type ReactElement } from 'react';
 import { Link } from 'react-router-dom';
 
+import { LocalitySuggestInput } from '@/features/specialists-search/ui/LocalitySuggestInput/LocalitySuggestInput';
+
 import styles from './ProfileMainCard.module.css';
 import { profileStore } from '../model/profileStore';
 
@@ -157,11 +159,12 @@ export const ProfileMainCard = observer((): ReactElement => {
               <div className={styles.label}>Город</div>
 
               {isEditing ? (
-                <input
-                  className={styles.input}
+                <LocalitySuggestInput
+                  id="profile-client-city"
                   value={profileStore.draftCity}
-                  onChange={(event) => profileStore.setDraftCity(event.target.value)}
-                  placeholder="Введите город"
+                  onChange={(next) => profileStore.setDraftCity(next)}
+                  placeholder="Начните вводить название…"
+                  inputClassName={styles.input}
                   required
                 />
               ) : (

@@ -218,6 +218,12 @@ export type SpecialistReview = {
   specialistReply?: SpecialistReviewReply;
 };
 
+/** Фильтр по оценке в списке отзывов (профиль / управление ответами). */
+export type SpecialistReviewsRatingFilter = 'all' | 1 | 2 | 3 | 4 | 5;
+
+/** Фильтр по наличию ответа специалиста. */
+export type SpecialistReviewsReplyFilter = 'all' | 'with_reply' | 'without_reply';
+
 export type SpecialistDetails = {
   experienceLabel: string;
   experienceDurationValue?: number;
