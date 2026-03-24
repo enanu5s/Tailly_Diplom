@@ -43,6 +43,17 @@ export type DeleteAdminPayload = {
     adminId: string;
 };
 
+export type UpdateAdminPayload = {
+    adminId: string;
+    firstName: string;
+    lastName: string;
+    middleName?: string;
+    birthDate: string;
+    phone?: string;
+    position?: string;
+    department?: string;
+};
+
 export class AdminManagementError extends Error {
     constructor(message: string) {
         super(message);

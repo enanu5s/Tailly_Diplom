@@ -20,8 +20,28 @@ export type UpdateAdminProfilePayload = {
   lastName: string;
   middleName?: string;
   phone?: string;
+  /** Только для главного администратора */
+  birthDate?: string;
   position?: string;
   department?: string;
+};
+
+export type RequestSuperAdminEmailChangePayload = {
+  newEmail: string;
+  password: string;
+};
+
+export type RequestSuperAdminEmailChangeResponse = {
+  message: string;
+  /**
+   * Только в mock-режиме: код «из письма» для локальной проверки.
+   * В продакшене отсутствует.
+   */
+  mockCodeForDevelopment?: string;
+};
+
+export type ConfirmSuperAdminEmailChangePayload = {
+  code: string;
 };
 
 export class AdminProfileError extends Error {

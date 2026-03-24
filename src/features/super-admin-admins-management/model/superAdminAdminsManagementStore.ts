@@ -7,6 +7,7 @@ import { superAdminAdminsManagementService } from '../service/superAdminAdminsMa
 import type {
     CreateAdminPayload,
     ManagedAdmin,
+    UpdateAdminPayload,
 } from './types';
 
 type CreateAdminForm = {
@@ -35,6 +36,28 @@ function createInitialForm(): CreateAdminForm {
     };
 }
 
+type EditAdminForm = {
+    firstName: string;
+    lastName: string;
+    middleName: string;
+    birthDate: string;
+    phone: string;
+    position: string;
+    department: string;
+};
+
+function adminToEditForm(admin: ManagedAdmin): EditAdminForm {
+    return {
+        firstName: admin.firstName,
+        lastName: admin.lastName,
+        middleName: admin.middleName ?? '',
+        birthDate: admin.birthDate,
+        phone: admin.phone ?? '',
+        position: admin.position ?? '',
+        department: admin.department ?? '',
+    };
+}
+
 class SuperAdminAdminsManagementStore {
     admins: ManagedAdmin[] = [];
     isLoading = false;
@@ -48,6 +71,21 @@ class SuperAdminAdminsManagementStore {
 
     deletingAdminId: string | null = null;
     deleteError = '';
+
+    isEditModalOpen = false;
+    editingAdminId: string | null = null;
+    editingAdminEmail = '';
+    isUpdating = false;
+    updateError = '';
+    editForm: EditAdminForm = {
+        firstName: '',
+        lastName: '',
+        middleName: '',
+        birthDate: '',
+        phone: '',
+        position: '',
+        department: '',
+    };
 
     form: CreateAdminForm = createInitialForm();
 
@@ -76,6 +114,51 @@ class SuperAdminAdminsManagementStore {
         value: CreateAdminForm[K],
     ): void {
         this.form[key] = value;
+    }
+
+    openEditModal(admin: ManagedAdmin): void {
+        if (admin.role === 'super_admin') {
+            return;
+        }
+
+        this.isEditModalOpen = true;
+        this.editingAdminId = admin.adminId;
+        this.editingAdminEmail = admin.email;
+        this.updateError = '';
+        this.editForm = adminToEditForm(admin);
+    }
+
+    closeEditModal(): void {
+        this.isEditModalOpen = false;
+        this.editingAdminId = null;
+        this.editingAdminEmail = '';
+        this.updateError = '';
+        this.editForm = {
+            firstName: '',
+            lastName: '',
+            middleName: '',
+            birthDate: '',
+            phone: '',
+            position: '',
+            department: '',
+        };
+    }
+
+    setEditFormField<K extends keyof EditAdminForm>(
+        key: K,
+        value: EditAdminForm[K],
+    ): void {
+        this.editForm[key] = value;
+    }
+
+    get canSubmitEditForm(): boolean {
+        return (
+            !this.isUpdating &&
+            this.editingAdminId !== null &&
+            this.editForm.firstName.trim().length > 0 &&
+            this.editForm.lastName.trim().length > 0 &&
+            this.editForm.birthDate.trim().length > 0
+        );
     }
 
     get activeAdmins(): ManagedAdmin[] {
@@ -169,6 +252,51 @@ class SuperAdminAdminsManagementStore {
         } finally {
             runInAction(() => {
                 this.isCreating = false;
+            });
+        }
+    }
+
+    async updateAdmin(): Promise<void> {
+        if (!this.canSubmitEditForm || !this.editingAdminId) {
+            return;
+        }
+
+        runInAction(() => {
+            this.isUpdating = true;
+            this.updateError = '';
+        });
+
+        try {
+            const payload: UpdateAdminPayload = {
+                adminId: this.editingAdminId,
+                firstName: this.editForm.firstName.trim(),
+                lastName: this.editForm.lastName.trim(),
+                middleName: this.editForm.middleName.trim() || undefined,
+                birthDate: this.editForm.birthDate,
+                phone: this.editForm.phone.trim() || undefined,
+                position: this.editForm.position.trim() || undefined,
+                department: this.editForm.department.trim() || undefined,
+            };
+
+            const updated =
+                await superAdminAdminsManagementService.updateAdmin(payload);
+
+            runInAction(() => {
+                this.admins = this.admins.map((admin) =>
+                    admin.adminId === updated.adminId ? updated : admin,
+                );
+                this.closeEditModal();
+            });
+        } catch (error) {
+            runInAction(() => {
+                this.updateError =
+                    error instanceof Error
+                        ? error.message
+                        : 'Не удалось сохранить изменения.';
+            });
+        } finally {
+            runInAction(() => {
+                this.isUpdating = false;
             });
         }
     }

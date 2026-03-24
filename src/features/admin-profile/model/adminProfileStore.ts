@@ -14,9 +14,10 @@ type AdminProfileForm = {
   lastName: string;
   middleName: string;
   phone: string;
-  position: string;
-  department: string;
+  birthDate: string;
 };
+
+type EmailChangePhase = 'credentials' | 'code';
 
 function createInitialForm(): AdminProfileForm {
   return {
@@ -24,8 +25,7 @@ function createInitialForm(): AdminProfileForm {
     lastName: '',
     middleName: '',
     phone: '',
-    position: '',
-    department: '',
+    birthDate: '',
   };
 }
 
@@ -35,9 +35,29 @@ function mapProfileToForm(profile: AdminProfile): AdminProfileForm {
     lastName: profile.lastName,
     middleName: profile.middleName ?? '',
     phone: profile.phone ?? '',
-    position: profile.position ?? '',
-    department: profile.department ?? '',
+    birthDate: profile.birthDate ?? '',
   };
+}
+
+function applyUpdatedProfileToAuth(updatedProfile: AdminProfile): void {
+  authStore.updateUser({
+    id: updatedProfile.id,
+    firstName: updatedProfile.firstName,
+    lastName: updatedProfile.lastName,
+    middleName: updatedProfile.middleName,
+    phone: updatedProfile.phone,
+    adminId: updatedProfile.adminId,
+    email: updatedProfile.email,
+    role: updatedProfile.role,
+    name: [
+      updatedProfile.lastName,
+      updatedProfile.firstName,
+      updatedProfile.middleName,
+    ]
+      .filter(Boolean)
+      .join(' ')
+      .trim(),
+  });
 }
 
 class AdminProfileStore {
@@ -52,15 +72,54 @@ class AdminProfileStore {
 
   form: AdminProfileForm = createInitialForm();
 
+  isEmailChangeModalOpen = false;
+  emailChangePhase: EmailChangePhase = 'credentials';
+  emailChangeNewEmail = '';
+  emailChangePassword = '';
+  emailChangeCode = '';
+  emailChangeError = '';
+  emailChangeInfoMessage = '';
+  emailChangeMockHint = '';
+  isRequestingEmailChange = false;
+  isConfirmingEmailChange = false;
+
   constructor() {
     makeAutoObservable(this, {}, { autoBind: true });
   }
 
+  get isSuperAdmin(): boolean {
+    return this.profile?.role === 'super_admin';
+  }
+
   get canSubmit(): boolean {
-    return (
+    const base =
       !this.isSaving &&
       this.form.firstName.trim().length > 0 &&
-      this.form.lastName.trim().length > 0
+      this.form.lastName.trim().length > 0;
+
+    if (!base) {
+      return false;
+    }
+
+    if (this.isSuperAdmin) {
+      return this.form.birthDate.trim().length > 0;
+    }
+
+    return true;
+  }
+
+  get canSubmitEmailChangeRequest(): boolean {
+    return (
+      !this.isRequestingEmailChange &&
+      this.emailChangeNewEmail.trim().includes('@') &&
+      this.emailChangePassword.length > 0
+    );
+  }
+
+  get canSubmitEmailChangeConfirm(): boolean {
+    return (
+      !this.isConfirmingEmailChange &&
+      this.emailChangeCode.trim().length > 0
     );
   }
 
@@ -69,6 +128,19 @@ class AdminProfileStore {
     value: AdminProfileForm[K],
   ): void {
     this.form[key] = value;
+  }
+
+  setEmailChangeField(
+    key: 'newEmail' | 'password' | 'code',
+    value: string,
+  ): void {
+    if (key === 'newEmail') {
+      this.emailChangeNewEmail = value;
+    } else if (key === 'password') {
+      this.emailChangePassword = value;
+    } else {
+      this.emailChangeCode = value;
+    }
   }
 
   async load(): Promise<void> {
@@ -85,19 +157,7 @@ class AdminProfileStore {
         this.form = mapProfileToForm(profile);
       });
 
-      authStore.updateUser({
-        firstName: profile.firstName,
-        lastName: profile.lastName,
-        middleName: profile.middleName,
-        phone: profile.phone,
-        adminId: profile.adminId,
-        email: profile.email,
-        role: profile.role,
-        name: [profile.lastName, profile.firstName, profile.middleName]
-          .filter(Boolean)
-          .join(' ')
-          .trim(),
-      });
+      applyUpdatedProfileToAuth(profile);
     } catch (error) {
       runInAction(() => {
         this.loadError =
@@ -125,7 +185,130 @@ class AdminProfileStore {
   cancelEdit(): void {
     this.isEditing = false;
     this.saveError = '';
-    this.form = this.profile ? mapProfileToForm(this.profile) : createInitialForm();
+    this.form = this.profile
+      ? mapProfileToForm(this.profile)
+      : createInitialForm();
+  }
+
+  openEmailChangeModal(): void {
+    if (!this.isSuperAdmin) {
+      return;
+    }
+
+    void adminProfileService.cancelSuperAdminEmailChange();
+    this.isEmailChangeModalOpen = true;
+    this.emailChangePhase = 'credentials';
+    this.emailChangeNewEmail = '';
+    this.emailChangePassword = '';
+    this.emailChangeCode = '';
+    this.emailChangeError = '';
+    this.emailChangeInfoMessage = '';
+    this.emailChangeMockHint = '';
+  }
+
+  closeEmailChangeModal(): void {
+    void adminProfileService.cancelSuperAdminEmailChange();
+    this.isEmailChangeModalOpen = false;
+    this.emailChangePhase = 'credentials';
+    this.emailChangeNewEmail = '';
+    this.emailChangePassword = '';
+    this.emailChangeCode = '';
+    this.emailChangeError = '';
+    this.emailChangeInfoMessage = '';
+    this.emailChangeMockHint = '';
+  }
+
+  backEmailChangeToCredentials(): void {
+    void adminProfileService.cancelSuperAdminEmailChange();
+    runInAction(() => {
+      this.emailChangePhase = 'credentials';
+      this.emailChangeCode = '';
+      this.emailChangeError = '';
+      this.emailChangeInfoMessage = '';
+      this.emailChangeMockHint = '';
+    });
+  }
+
+  async requestSuperAdminEmailChange(): Promise<void> {
+    if (!this.canSubmitEmailChangeRequest) {
+      return;
+    }
+
+    runInAction(() => {
+      this.isRequestingEmailChange = true;
+      this.emailChangeError = '';
+      this.emailChangeInfoMessage = '';
+      this.emailChangeMockHint = '';
+    });
+
+    try {
+      const result = await adminProfileService.requestSuperAdminEmailChange({
+        newEmail: this.emailChangeNewEmail.trim(),
+        password: this.emailChangePassword,
+      });
+
+      runInAction(() => {
+        this.emailChangePassword = '';
+        this.emailChangePhase = 'code';
+        this.emailChangeInfoMessage = result.message;
+        this.emailChangeMockHint = result.mockCodeForDevelopment ?? '';
+      });
+    } catch (error) {
+      runInAction(() => {
+        this.emailChangeError =
+          error instanceof Error
+            ? error.message
+            : 'Не удалось отправить код.';
+      });
+    } finally {
+      runInAction(() => {
+        this.isRequestingEmailChange = false;
+      });
+    }
+  }
+
+  async confirmSuperAdminEmailChange(): Promise<void> {
+    if (!this.canSubmitEmailChangeConfirm) {
+      return;
+    }
+
+    runInAction(() => {
+      this.isConfirmingEmailChange = true;
+      this.emailChangeError = '';
+    });
+
+    try {
+      const updatedProfile =
+        await adminProfileService.confirmSuperAdminEmailChange({
+          code: this.emailChangeCode.trim(),
+        });
+
+      runInAction(() => {
+        this.profile = updatedProfile;
+        this.form = mapProfileToForm(updatedProfile);
+        this.isEmailChangeModalOpen = false;
+        this.emailChangePhase = 'credentials';
+        this.emailChangeNewEmail = '';
+        this.emailChangePassword = '';
+        this.emailChangeCode = '';
+        this.emailChangeError = '';
+        this.emailChangeInfoMessage = '';
+        this.emailChangeMockHint = '';
+      });
+
+      applyUpdatedProfileToAuth(updatedProfile);
+    } catch (error) {
+      runInAction(() => {
+        this.emailChangeError =
+          error instanceof Error
+            ? error.message
+            : 'Не удалось подтвердить смену email.';
+      });
+    } finally {
+      runInAction(() => {
+        this.isConfirmingEmailChange = false;
+      });
+    }
   }
 
   async save(): Promise<void> {
@@ -147,8 +330,7 @@ class AdminProfileStore {
       };
 
       if (this.profile.role === 'super_admin') {
-        payload.position = this.form.position.trim() || undefined;
-        payload.department = this.form.department.trim() || undefined;
+        payload.birthDate = this.form.birthDate.trim();
       }
 
       const updatedProfile = await adminProfileService.updateProfile(payload);
@@ -159,23 +341,7 @@ class AdminProfileStore {
         this.isEditing = false;
       });
 
-      authStore.updateUser({
-        firstName: updatedProfile.firstName,
-        lastName: updatedProfile.lastName,
-        middleName: updatedProfile.middleName,
-        phone: updatedProfile.phone,
-        adminId: updatedProfile.adminId,
-        email: updatedProfile.email,
-        role: updatedProfile.role,
-        name: [
-          updatedProfile.lastName,
-          updatedProfile.firstName,
-          updatedProfile.middleName,
-        ]
-          .filter(Boolean)
-          .join(' ')
-          .trim(),
-      });
+      applyUpdatedProfileToAuth(updatedProfile);
     } catch (error) {
       runInAction(() => {
         this.saveError =
@@ -191,6 +357,7 @@ class AdminProfileStore {
   }
 
   reset(): void {
+    void adminProfileService.cancelSuperAdminEmailChange();
     this.profile = null;
     this.isLoading = false;
     this.loadError = '';
@@ -198,6 +365,16 @@ class AdminProfileStore {
     this.isSaving = false;
     this.saveError = '';
     this.form = createInitialForm();
+    this.isEmailChangeModalOpen = false;
+    this.emailChangePhase = 'credentials';
+    this.emailChangeNewEmail = '';
+    this.emailChangePassword = '';
+    this.emailChangeCode = '';
+    this.emailChangeError = '';
+    this.emailChangeInfoMessage = '';
+    this.emailChangeMockHint = '';
+    this.isRequestingEmailChange = false;
+    this.isConfirmingEmailChange = false;
   }
 }
 

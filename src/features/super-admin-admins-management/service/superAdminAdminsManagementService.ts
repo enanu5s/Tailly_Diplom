@@ -7,6 +7,7 @@ import type {
     CreateAdminResponse,
     DeleteAdminPayload,
     ManagedAdmin,
+    UpdateAdminPayload,
 } from '../model/types';
 
 export const superAdminAdminsManagementService = {
@@ -20,5 +21,9 @@ export const superAdminAdminsManagementService = {
 
     deleteAdmin(payload: DeleteAdminPayload): Promise<void> {
         return superAdminAdminsManagementApi.deleteAdmin(payload);
+    },
+
+    updateAdmin(payload: UpdateAdminPayload): Promise<ManagedAdmin> {
+        return superAdminAdminsManagementApi.updateAdmin(payload);
     },
 };

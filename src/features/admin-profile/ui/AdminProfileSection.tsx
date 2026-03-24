@@ -54,25 +54,33 @@ export const AdminProfileSection = observer((): ReactElement => {
   }
 
   const profile = store.profile;
+  const isSuperAdmin = store.isSuperAdmin;
 
   return (
     <div className={styles.root}>
       <div className={styles.hero}>
         <div className={styles.heroContent}>
           <span className={styles.badge}>
-            {profile.role === 'super_admin'
-              ? 'Главный администратор'
-              : 'Администратор'}
+            {isSuperAdmin ? 'Главный администратор' : 'Администратор'}
           </span>
 
           <h1 className={styles.title}>Профиль администратора</h1>
 
-          <p className={styles.subtitle}>
-            Здесь можно просматривать и редактировать персональные данные
-            администратора. Email, дата рождения и роль заполняются системой и
-            не редактируются в этом разделе. Изменить должность и отдел может
-            только главный администратор.
-          </p>
+          {isSuperAdmin ? (
+            <p className={styles.subtitle}>
+              Вы можете редактировать ФИО, телефон и дату рождения. Смена email
+              выполняется отдельно: сначала укажите новый адрес и пароль от
+              аккаунта — на текущую почту придёт код; после ввода кода почта
+              обновится. Роль, должность и отдел здесь не меняются.
+            </p>
+          ) : (
+            <p className={styles.subtitle}>
+              Здесь можно просматривать и редактировать часть персональных
+              данных. Email, дата рождения, роль, должность и отдел заполняются
+              системой и в этом разделе не меняются. Должность и отдел назначает
+              главный администратор в разделе «Управление администраторами».
+            </p>
+          )}
         </div>
 
         <div className={styles.heroActions}>
@@ -83,6 +91,16 @@ export const AdminProfileSection = observer((): ReactElement => {
               onClick={() => store.startEdit()}
             >
               Редактировать профиль
+            </button>
+          ) : null}
+
+          {isSuperAdmin ? (
+            <button
+              className={styles.secondaryButton}
+              type="button"
+              onClick={() => store.openEmailChangeModal()}
+            >
+              Сменить email
             </button>
           ) : null}
 
@@ -144,9 +162,7 @@ export const AdminProfileSection = observer((): ReactElement => {
             <div className={styles.infoItem}>
               <span className={styles.label}>Роль</span>
               <span className={styles.value}>
-                {profile.role === 'super_admin'
-                  ? 'Главный администратор'
-                  : 'Администратор'}
+                {isSuperAdmin ? 'Главный администратор' : 'Администратор'}
               </span>
             </div>
 
@@ -209,32 +225,19 @@ export const AdminProfileSection = observer((): ReactElement => {
               />
             </label>
 
-            {profile.role === 'super_admin' ? (
-              <>
-                <label className={styles.field}>
-                  <span className={styles.fieldLabel}>Должность</span>
-                  <input
-                    className={styles.input}
-                    value={store.form.position}
-                    onChange={(event) =>
-                      store.setFormField('position', event.target.value)
-                    }
-                    placeholder="Администратор поддержки"
-                  />
-                </label>
-
-                <label className={styles.field}>
-                  <span className={styles.fieldLabel}>Отдел</span>
-                  <input
-                    className={styles.input}
-                    value={store.form.department}
-                    onChange={(event) =>
-                      store.setFormField('department', event.target.value)
-                    }
-                    placeholder="Поддержка"
-                  />
-                </label>
-              </>
+            {isSuperAdmin ? (
+              <label className={styles.field}>
+                <span className={styles.fieldLabel}>Дата рождения</span>
+                <input
+                  className={styles.input}
+                  type="date"
+                  value={store.form.birthDate}
+                  onChange={(event) =>
+                    store.setFormField('birthDate', event.target.value)
+                  }
+                  required
+                />
+              </label>
             ) : null}
           </div>
 
@@ -265,6 +268,178 @@ export const AdminProfileSection = observer((): ReactElement => {
           </div>
         </div>
       )}
+
+      {store.isEmailChangeModalOpen ? (
+        <div className={styles.overlay}>
+          <div
+            className={styles.modal}
+            role="dialog"
+            aria-modal="true"
+            aria-labelledby="email-change-title"
+          >
+            <div className={styles.modalHeader}>
+              <h2 className={styles.modalTitle} id="email-change-title">
+                Смена email
+              </h2>
+              <button
+                className={styles.modalClose}
+                type="button"
+                onClick={() => store.closeEmailChangeModal()}
+              >
+                Закрыть
+              </button>
+            </div>
+
+            {store.emailChangePhase === 'credentials' ? (
+              <>
+                <p className={styles.modalLead}>
+                  Текущий адрес:{' '}
+                  <strong className={styles.modalEmphasis}>
+                    {profile.email}
+                  </strong>
+                  . После проверки пароля на эту почту будет отправлен код.
+                  Новый адрес вступит в силу только после ввода кода.
+                </p>
+
+                <label className={styles.field}>
+                  <span className={styles.fieldLabel}>Новый email</span>
+                  <input
+                    className={styles.input}
+                    type="email"
+                    autoComplete="off"
+                    value={store.emailChangeNewEmail}
+                    onChange={(event) =>
+                      store.setEmailChangeField('newEmail', event.target.value)
+                    }
+                    placeholder="new@example.com"
+                  />
+                </label>
+
+                <label className={styles.field}>
+                  <span className={styles.fieldLabel}>Пароль от аккаунта</span>
+                  <input
+                    className={styles.input}
+                    type="password"
+                    autoComplete="current-password"
+                    value={store.emailChangePassword}
+                    onChange={(event) =>
+                      store.setEmailChangeField(
+                        'password',
+                        event.target.value,
+                      )
+                    }
+                  />
+                </label>
+              </>
+            ) : (
+              <>
+                <p className={styles.modalLead}>
+                  Введите код из письма, отправленного на{' '}
+                  <strong className={styles.modalEmphasis}>
+                    {profile.email}
+                  </strong>
+                  .
+                </p>
+
+                <label className={styles.field}>
+                  <span className={styles.fieldLabel}>Код подтверждения</span>
+                  <input
+                    className={styles.input}
+                    type="text"
+                    inputMode="numeric"
+                    autoComplete="one-time-code"
+                    value={store.emailChangeCode}
+                    onChange={(event) =>
+                      store.setEmailChangeField('code', event.target.value)
+                    }
+                    placeholder="000000"
+                  />
+                </label>
+
+                <button
+                  className={styles.linkButton}
+                  type="button"
+                  disabled={
+                    store.isRequestingEmailChange || store.isConfirmingEmailChange
+                  }
+                  onClick={() => store.backEmailChangeToCredentials()}
+                >
+                  Указать другой email и запросить код заново
+                </button>
+              </>
+            )}
+
+            {store.emailChangeInfoMessage ? (
+              <div className={styles.infoBanner}>
+                {store.emailChangeInfoMessage}
+              </div>
+            ) : null}
+
+            {store.emailChangeMockHint ? (
+              <div className={styles.mockHintBanner}>
+                Демо-режим: код из «письма» —{' '}
+                <span className={styles.mockHintCode}>
+                  {store.emailChangeMockHint}
+                </span>
+              </div>
+            ) : null}
+
+            {store.emailChangeError ? (
+              <div className={styles.errorBanner}>{store.emailChangeError}</div>
+            ) : null}
+
+            <div className={styles.modalActions}>
+              {store.emailChangePhase === 'credentials' ? (
+                <>
+                  <button
+                    className={styles.secondaryButton}
+                    type="button"
+                    disabled={store.isRequestingEmailChange}
+                    onClick={() => store.closeEmailChangeModal()}
+                  >
+                    Отмена
+                  </button>
+                  <button
+                    className={styles.primaryButton}
+                    type="button"
+                    disabled={!store.canSubmitEmailChangeRequest}
+                    onClick={() => {
+                      void store.requestSuperAdminEmailChange();
+                    }}
+                  >
+                    {store.isRequestingEmailChange
+                      ? 'Отправка...'
+                      : 'Отправить код'}
+                  </button>
+                </>
+              ) : (
+                <>
+                  <button
+                    className={styles.secondaryButton}
+                    type="button"
+                    disabled={store.isConfirmingEmailChange}
+                    onClick={() => store.closeEmailChangeModal()}
+                  >
+                    Отмена
+                  </button>
+                  <button
+                    className={styles.primaryButton}
+                    type="button"
+                    disabled={!store.canSubmitEmailChangeConfirm}
+                    onClick={() => {
+                      void store.confirmSuperAdminEmailChange();
+                    }}
+                  >
+                    {store.isConfirmingEmailChange
+                      ? 'Проверка...'
+                      : 'Подтвердить смену email'}
+                  </button>
+                </>
+              )}
+            </div>
+          </div>
+        </div>
+      ) : null}
     </div>
   );
 });

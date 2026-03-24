@@ -162,6 +162,118 @@
   color: #b91c1c;
 }
 
+.infoBanner {
+  margin-top: 12px;
+  border-radius: 16px;
+  padding: 14px 16px;
+  line-height: 1.55;
+  background: #eff6ff;
+  color: #1e40af;
+}
+
+.mockHintBanner {
+  margin-top: 12px;
+  border-radius: 16px;
+  padding: 14px 16px;
+  line-height: 1.55;
+  background: #f0fdf4;
+  color: #166534;
+  font-size: 14px;
+}
+
+.mockHintCode {
+  font-weight: 800;
+  letter-spacing: 0.06em;
+  color: #0f172a;
+}
+
+.overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 120;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 24px;
+  background: rgba(15, 23, 42, 0.45);
+}
+
+.modal {
+  width: 100%;
+  max-width: 480px;
+  max-height: calc(100vh - 48px);
+  overflow: auto;
+  border-radius: 20px;
+  padding: 24px;
+  background: #ffffff;
+  box-shadow: 0 24px 70px rgba(15, 23, 42, 0.2);
+  display: grid;
+  gap: 16px;
+}
+
+.modalHeader {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 16px;
+}
+
+.modalTitle {
+  margin: 0;
+  font-size: 22px;
+  color: #0f172a;
+}
+
+.modalClose {
+  flex-shrink: 0;
+  min-height: 40px;
+  padding: 0 14px;
+  border-radius: 12px;
+  border: 1px solid #cbd5e1;
+  background: #ffffff;
+  color: #0f172a;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.modalLead {
+  margin: 0;
+  color: #475569;
+  font-size: 15px;
+  line-height: 1.55;
+}
+
+.modalEmphasis {
+  color: #0f172a;
+}
+
+.modalActions {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: flex-end;
+  gap: 12px;
+  margin-top: 8px;
+}
+
+.linkButton {
+  justify-self: start;
+  margin: 0;
+  padding: 0;
+  border: none;
+  background: none;
+  color: #4f46e5;
+  font-size: 14px;
+  font-weight: 600;
+  text-decoration: underline;
+  cursor: pointer;
+  text-align: left;
+}
+
+.linkButton:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
 @media (max-width: 900px) {
   .hero {
     flex-direction: column;

@@ -3,8 +3,13 @@
 import { observer } from 'mobx-react-lite';
 import { useEffect } from 'react';
 
-import styles from './SuperAdminAdminsManagementSection.module.css';
+import {
+    ADMIN_DEPARTMENT_OPTIONS,
+    ADMIN_POSITION_OPTIONS,
+    mergeWithCurrentOption,
+} from '../data/adminOrganizationOptions';
 import { superAdminAdminsManagementStore } from '../model/superAdminAdminsManagementStore';
+import styles from './SuperAdminAdminsManagementSection.module.css';
 
 import type { ReactElement } from 'react';
 
@@ -49,9 +54,10 @@ export const SuperAdminAdminsManagementSection = observer(
 
                         <p className={styles.subtitle}>
                             Здесь можно создавать обычных
-                            администраторов, просматривать их
-                            данные и удалять неактуальные
-                            аккаунты.
+                            администраторов, редактировать их
+                            данные (должность и отдел — из
+                            списков), а также удалять
+                            неактуальные аккаунты.
                         </p>
                     </div>
 
@@ -197,6 +203,27 @@ export const SuperAdminAdminsManagementSection = observer(
 
 
                                             <div className={styles.cardActions}>
+                                                {admin.role === 'admin' ? (
+                                                    <button
+                                                        className={
+                                                            styles.secondaryButton
+                                                        }
+                                                        type="button"
+                                                        disabled={
+                                                            store.isUpdating ||
+                                                            store.deletingAdminId ===
+                                                                admin.adminId
+                                                        }
+                                                        onClick={() =>
+                                                            store.openEditModal(
+                                                                admin,
+                                                            )
+                                                        }
+                                                    >
+                                                        Редактировать
+                                                    </button>
+                                                ) : null}
+
                                                 <button
                                                     className={styles.dangerButton}
                                                     type="button"
@@ -364,8 +391,8 @@ export const SuperAdminAdminsManagementSection = observer(
                                     <span className={styles.fieldLabel}>
                                         Должность
                                     </span>
-                                    <input
-                                        className={styles.input}
+                                    <select
+                                        className={`${styles.input} ${styles.inputSelect}`}
                                         value={store.form.position}
                                         onChange={(event) =>
                                             store.setFormField(
@@ -373,16 +400,29 @@ export const SuperAdminAdminsManagementSection = observer(
                                                 event.target.value,
                                             )
                                         }
-                                        placeholder="Администратор поддержки"
-                                    />
+                                    >
+                                        <option value="">
+                                            Не указано
+                                        </option>
+                                        {ADMIN_POSITION_OPTIONS.map(
+                                            (option) => (
+                                                <option
+                                                    key={option}
+                                                    value={option}
+                                                >
+                                                    {option}
+                                                </option>
+                                            ),
+                                        )}
+                                    </select>
                                 </label>
 
                                 <label className={styles.field}>
                                     <span className={styles.fieldLabel}>
                                         Отдел
                                     </span>
-                                    <input
-                                        className={styles.input}
+                                    <select
+                                        className={`${styles.input} ${styles.inputSelect}`}
                                         value={store.form.department}
                                         onChange={(event) =>
                                             store.setFormField(
@@ -390,8 +430,21 @@ export const SuperAdminAdminsManagementSection = observer(
                                                 event.target.value,
                                             )
                                         }
-                                        placeholder="Поддержка"
-                                    />
+                                    >
+                                        <option value="">
+                                            Не указано
+                                        </option>
+                                        {ADMIN_DEPARTMENT_OPTIONS.map(
+                                            (option) => (
+                                                <option
+                                                    key={option}
+                                                    value={option}
+                                                >
+                                                    {option}
+                                                </option>
+                                            ),
+                                        )}
+                                    </select>
                                 </label>
                             </div>
 
@@ -451,6 +504,225 @@ export const SuperAdminAdminsManagementSection = observer(
                                     {store.isCreating
                                         ? 'Создание...'
                                         : 'Создать администратора'}
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                ) : null}
+
+                {store.isEditModalOpen ? (
+                    <div className={styles.overlay}>
+                        <div className={styles.modal}>
+                            <div className={styles.modalHeader}>
+                                <div>
+                                    <h2 className={styles.modalTitle}>
+                                        Редактирование администратора
+                                    </h2>
+                                    <p className={styles.modalSubtitle}>
+                                        Email аккаунта менять нельзя.
+                                        Должность и отдел выбираются из
+                                        справочника.
+                                    </p>
+                                </div>
+
+                                <button
+                                    className={styles.modalClose}
+                                    type="button"
+                                    disabled={store.isUpdating}
+                                    onClick={() => store.closeEditModal()}
+                                >
+                                    Закрыть
+                                </button>
+                            </div>
+
+                            <label className={styles.field}>
+                                <span className={styles.fieldLabel}>
+                                    Email
+                                </span>
+                                <input
+                                    className={styles.input}
+                                    type="email"
+                                    value={store.editingAdminEmail}
+                                    readOnly
+                                    disabled
+                                />
+                            </label>
+
+                            <div className={styles.formGrid}>
+                                <label className={styles.field}>
+                                    <span className={styles.fieldLabel}>
+                                        Имя
+                                    </span>
+                                    <input
+                                        className={styles.input}
+                                        value={store.editForm.firstName}
+                                        onChange={(event) =>
+                                            store.setEditFormField(
+                                                'firstName',
+                                                event.target.value,
+                                            )
+                                        }
+                                        required
+                                    />
+                                </label>
+
+                                <label className={styles.field}>
+                                    <span className={styles.fieldLabel}>
+                                        Фамилия
+                                    </span>
+                                    <input
+                                        className={styles.input}
+                                        value={store.editForm.lastName}
+                                        onChange={(event) =>
+                                            store.setEditFormField(
+                                                'lastName',
+                                                event.target.value,
+                                            )
+                                        }
+                                        required
+                                    />
+                                </label>
+
+                                <label className={styles.field}>
+                                    <span className={styles.fieldLabel}>
+                                        Отчество
+                                    </span>
+                                    <input
+                                        className={styles.input}
+                                        value={store.editForm.middleName}
+                                        onChange={(event) =>
+                                            store.setEditFormField(
+                                                'middleName',
+                                                event.target.value,
+                                            )
+                                        }
+                                    />
+                                </label>
+
+                                <label className={styles.field}>
+                                    <span className={styles.fieldLabel}>
+                                        Дата рождения
+                                    </span>
+                                    <input
+                                        className={styles.input}
+                                        type="date"
+                                        value={store.editForm.birthDate}
+                                        onChange={(event) =>
+                                            store.setEditFormField(
+                                                'birthDate',
+                                                event.target.value,
+                                            )
+                                        }
+                                        required
+                                    />
+                                </label>
+
+                                <label className={styles.field}>
+                                    <span className={styles.fieldLabel}>
+                                        Телефон
+                                    </span>
+                                    <input
+                                        className={styles.input}
+                                        value={store.editForm.phone}
+                                        onChange={(event) =>
+                                            store.setEditFormField(
+                                                'phone',
+                                                event.target.value,
+                                            )
+                                        }
+                                    />
+                                </label>
+
+                                <label className={styles.field}>
+                                    <span className={styles.fieldLabel}>
+                                        Должность
+                                    </span>
+                                    <select
+                                        className={`${styles.input} ${styles.inputSelect}`}
+                                        value={store.editForm.position}
+                                        onChange={(event) =>
+                                            store.setEditFormField(
+                                                'position',
+                                                event.target.value,
+                                            )
+                                        }
+                                    >
+                                        <option value="">
+                                            Не указано
+                                        </option>
+                                        {mergeWithCurrentOption(
+                                            ADMIN_POSITION_OPTIONS,
+                                            store.editForm.position,
+                                        ).map((option) => (
+                                            <option
+                                                key={option}
+                                                value={option}
+                                            >
+                                                {option}
+                                            </option>
+                                        ))}
+                                    </select>
+                                </label>
+
+                                <label className={styles.field}>
+                                    <span className={styles.fieldLabel}>
+                                        Отдел
+                                    </span>
+                                    <select
+                                        className={`${styles.input} ${styles.inputSelect}`}
+                                        value={store.editForm.department}
+                                        onChange={(event) =>
+                                            store.setEditFormField(
+                                                'department',
+                                                event.target.value,
+                                            )
+                                        }
+                                    >
+                                        <option value="">
+                                            Не указано
+                                        </option>
+                                        {mergeWithCurrentOption(
+                                            ADMIN_DEPARTMENT_OPTIONS,
+                                            store.editForm.department,
+                                        ).map((option) => (
+                                            <option
+                                                key={option}
+                                                value={option}
+                                            >
+                                                {option}
+                                            </option>
+                                        ))}
+                                    </select>
+                                </label>
+                            </div>
+
+                            {store.updateError ? (
+                                <div className={styles.errorBanner}>
+                                    {store.updateError}
+                                </div>
+                            ) : null}
+
+                            <div className={styles.modalActions}>
+                                <button
+                                    className={styles.secondaryButton}
+                                    type="button"
+                                    disabled={store.isUpdating}
+                                    onClick={() => store.closeEditModal()}
+                                >
+                                    Отмена
+                                </button>
+
+                                <button
+                                    className={styles.primaryButton}
+                                    type="button"
+                                    disabled={!store.canSubmitEditForm}
+                                    onClick={() => {
+                                        void store.updateAdmin();
+                                    }}
+                                >
+                                    {store.isUpdating
+                                        ? 'Сохранение...'
+                                        : 'Сохранить'}
                                 </button>
                             </div>
                         </div>

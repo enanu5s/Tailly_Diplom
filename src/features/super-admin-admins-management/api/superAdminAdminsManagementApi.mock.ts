@@ -15,6 +15,7 @@ import {
   type CreateAdminResponse,
   type DeleteAdminPayload,
   type ManagedAdmin,
+  type UpdateAdminPayload,
 } from '../model/types';
 
 
@@ -97,4 +98,41 @@ export async function mockDeleteAdmin(
   }
 
   MOCK_ADMINS.splice(adminIndex, 1);
+}
+
+export async function mockUpdateAdmin(
+  payload: UpdateAdminPayload,
+): Promise<ManagedAdmin> {
+  await wait();
+
+  const adminIndex = MOCK_ADMINS.findIndex(
+    (admin) => admin.adminId === payload.adminId,
+  );
+
+  if (adminIndex === -1) {
+    throw new AdminManagementError('Администратор не найден.');
+  }
+
+  if (MOCK_ADMINS[adminIndex].role === 'super_admin') {
+    throw new AdminManagementError(
+      'Данные главного администратора здесь изменить нельзя.',
+    );
+  }
+
+  const existing = MOCK_ADMINS[adminIndex];
+
+  const updated: MockAdminRecord = {
+    ...existing,
+    firstName: payload.firstName.trim(),
+    lastName: payload.lastName.trim(),
+    middleName: normalizeOptional(payload.middleName),
+    birthDate: payload.birthDate,
+    phone: normalizeOptional(payload.phone),
+    position: normalizeOptional(payload.position),
+    department: normalizeOptional(payload.department),
+  };
+
+  MOCK_ADMINS[adminIndex] = updated;
+
+  return JSON.parse(JSON.stringify(updated)) as ManagedAdmin;
 }

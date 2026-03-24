@@ -1,11 +1,17 @@
 // src/features/admin-profile/api/adminProfileApi.mock.ts
 import {
+  clearPendingSuperAdminEmailChange,
   getMockAdminProfile,
+  mockConfirmSuperAdminEmailChange,
+  mockRequestSuperAdminEmailChange,
   updateMockAdminProfile,
   wait,
 } from '../data/mockAdminProfile';
 import type {
   AdminProfile,
+  ConfirmSuperAdminEmailChangePayload,
+  RequestSuperAdminEmailChangePayload,
+  RequestSuperAdminEmailChangeResponse,
   UpdateAdminProfilePayload,
 } from '../model/types';
 
@@ -21,4 +27,25 @@ export async function mockUpdateAdminProfile(
   await wait();
 
   return updateMockAdminProfile(payload);
+}
+
+export async function mockRequestSuperAdminEmailChangeApi(
+  payload: RequestSuperAdminEmailChangePayload,
+): Promise<RequestSuperAdminEmailChangeResponse> {
+  await wait();
+
+  return mockRequestSuperAdminEmailChange(payload);
+}
+
+export async function mockConfirmSuperAdminEmailChangeApi(
+  payload: ConfirmSuperAdminEmailChangePayload,
+): Promise<AdminProfile> {
+  await wait();
+
+  return mockConfirmSuperAdminEmailChange(payload);
+}
+
+export async function mockCancelSuperAdminEmailChangeApi(): Promise<void> {
+  await wait(0);
+  clearPendingSuperAdminEmailChange();
 }
