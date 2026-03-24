@@ -230,6 +230,7 @@ type Props = {
   ownerWorkspace?: {
     reviewsPath: string;
     ordersPath: string;
+    orderStatsPath: string;
   };
 };
 
@@ -944,6 +945,12 @@ export const SpecialistProfileView = observer(
                       to={ownerWorkspace.ordersPath}
                     >
                       Заказы клиентов
+                    </Link>
+                    <Link
+                      className={styles.ownerWorkspaceLinkSecondary}
+                      to={ownerWorkspace.orderStatsPath}
+                    >
+                      Статистика заказов
                     </Link>
                     <Link
                       className={styles.ownerWorkspaceLinkSecondary}

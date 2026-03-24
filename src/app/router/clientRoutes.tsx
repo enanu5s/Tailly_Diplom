@@ -58,6 +58,12 @@ const SpecialistOrdersPage = lazy(() =>
   })),
 );
 
+const SpecialistOrderStatsPage = lazy(() =>
+  import('@/pages/specialist-order-stats').then((module) => ({
+    default: module.SpecialistOrderStatsPage,
+  })),
+);
+
 const SpecialistClientProfilePage = lazy(() =>
   import('@/pages/specialist-client').then((module) => ({
     default: module.SpecialistClientProfilePage,
@@ -115,6 +121,10 @@ export const clientRoutes: RouteObject[] = [
       {
         path: '/specialists/:specialistSlug/reviews',
         element: withSuspense(<SpecialistReviewsPage />),
+      },
+      {
+        path: '/specialists/:specialistSlug/orders/stats',
+        element: withSuspense(<SpecialistOrderStatsPage />),
       },
       {
         path: '/specialists/:specialistSlug/orders',

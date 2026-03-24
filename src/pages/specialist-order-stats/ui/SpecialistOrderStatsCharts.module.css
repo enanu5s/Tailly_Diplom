@@ -1,0 +1,70 @@
+/* src/pages/specialist-order-stats/ui/SpecialistOrderStatsCharts.module.css */
+
+.statusBlock {
+  display: grid;
+  gap: 20px;
+  align-items: start;
+}
+
+@media (min-width: 880px) {
+  .statusBlock {
+    grid-template-columns: minmax(260px, 340px) minmax(0, 1fr);
+  }
+}
+
+.chartTitle {
+  margin: 0 0 12px;
+  font-size: 15px;
+  font-weight: 600;
+  color: #374151;
+}
+
+.chartWrap {
+  width: 100%;
+  min-height: 280px;
+}
+
+.serviceChartSection {
+  margin-bottom: 20px;
+}
+
+.serviceChartWrap {
+  width: 100%;
+  min-height: min(420px, 52px + var(--service-rows, 6) * 44px);
+}
+
+.legendList {
+  margin: 12px 0 0;
+  padding: 0;
+  list-style: none;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.legendItem {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-size: 13px;
+  color: #374151;
+}
+
+.legendSwatch {
+  width: 10px;
+  height: 10px;
+  border-radius: 3px;
+  flex-shrink: 0;
+}
+
+.legendLabel {
+  flex: 1;
+  min-width: 0;
+  line-height: 1.35;
+}
+
+.legendValue {
+  font-weight: 700;
+  color: #111827;
+  font-variant-numeric: tabular-nums;
+}

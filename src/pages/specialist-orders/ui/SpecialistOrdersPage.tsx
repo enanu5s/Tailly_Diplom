@@ -28,9 +28,17 @@ export const SpecialistOrdersPage = (): ReactElement => {
             Подтверждайте новые заявки, начинайте и завершайте услуги. Связанные отзывы можно открыть со
             страницы ответов.
           </p>
-          <Link to={`/specialists/${slug}/reviews`} className={styles.secondaryLink}>
-            Отзывы и ответы
-          </Link>
+          <div className={styles.headerLinks}>
+            <Link
+              to={`/specialists/${slug}/orders/stats`}
+              className={styles.secondaryLink}
+            >
+              Статистика по заказам
+            </Link>
+            <Link to={`/specialists/${slug}/reviews`} className={styles.secondaryLink}>
+              Отзывы и ответы
+            </Link>
+          </div>
         </header>
 
         <OrdersServicesSection viewerRole="specialist" />

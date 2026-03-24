@@ -248,6 +248,7 @@ export const SpecialistProfilePage = observer((): ReactElement => {
               ? {
                   reviewsPath: `/specialists/${store.profile.slug.trim()}/reviews`,
                   ordersPath: `/specialists/${store.profile.slug.trim()}/orders`,
+                  orderStatsPath: `/specialists/${store.profile.slug.trim()}/orders/stats`,
                 }
               : undefined
           }
