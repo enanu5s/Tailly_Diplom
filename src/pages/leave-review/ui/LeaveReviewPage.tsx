@@ -74,7 +74,10 @@ export const LeaveReviewPage = observer(() => {
                   <div>Хозяин: {ctx.ownerFullName}</div>
                   <div>
                     Петситтер:{' '}
-                    <Link className={styles.link} to={`/sitters/${ctx.sitterId}`}>
+                    <Link
+                      className={styles.link}
+                      to={`/specialists/${encodeURIComponent(ctx.sitterId)}`}
+                    >
                       {ctx.sitterName}
                     </Link>
                   </div>

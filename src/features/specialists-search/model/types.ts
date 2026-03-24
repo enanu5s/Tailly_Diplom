@@ -12,6 +12,20 @@ export type SpecialistService = {
   petTypes: PetType[];
   priceFrom: number;
   priceTo?: number;
+  /** Типовая длительность услуги, мин (мок / превью) */
+  durationMinutes?: number;
+  /** Пояснение для карточки или отладки */
+  note?: string;
+};
+
+/** Слот в мок-календаре специалиста (свободный или занятый) */
+export type SpecialistCalendarSlot = {
+  date: string;
+  startTime: string;
+  endTime: string;
+  kind: 'available' | 'booked';
+  serviceId?: ServiceId;
+  title?: string;
 };
 
 export type GeoPoint = { lat: number; lon: number };
@@ -28,6 +42,13 @@ export type Specialist = {
   experienceYears: number;
   location: GeoPoint;
   services: SpecialistService[];
+  /**
+   * Дни недели (0=вс … 6=сб), когда есть хотя бы одно окно для записи по услугам.
+   * Если не задано или пусто — при фильтре по датам специалист не отбрасывается (нет данных).
+   */
+  availabilityWeekdays?: number[];
+  /** Мок: окна на ближайшие дни (свободные и занятые) — для превью и отладки */
+  calendarSlots?: SpecialistCalendarSlot[];
 };
 
 export type DateRange = {

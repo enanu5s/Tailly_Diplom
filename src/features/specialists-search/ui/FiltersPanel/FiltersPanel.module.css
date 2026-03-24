@@ -37,13 +37,38 @@
   border-color: #6366f1;
 }
 
-.moreBtn {
+.actionsRow {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  align-items: center;
   margin-top: 12px;
+}
+
+.resetBtn {
+  height: 40px;
+  border-radius: 12px;
+  border: 1px solid #e5e7eb;
+  background: #ffffff;
+  padding: 0 16px;
+  cursor: pointer;
+  font-size: 14px;
+  color: #374151;
+}
+
+.resetBtn:hover {
+  border-color: #6366f1;
+  color: #4f46e5;
+}
+
+.moreBtn {
   height: 40px;
   border-radius: 12px;
   border: 1px solid #e5e7eb;
   background: #f9fafb;
   cursor: pointer;
+  padding: 0 16px;
+  font-size: 14px;
 }
 
 .moreBtn:hover {

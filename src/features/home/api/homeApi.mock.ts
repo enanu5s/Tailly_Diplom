@@ -4,6 +4,8 @@ import { SERVICES } from '@/shared/config/services';
 import type { ServiceConfig } from '@/shared/config/services';
 
 import { deepCopy, MOCK_REVIEWS } from '../data/mockHome';
+import { getHomeFeaturedReviewsForCurrentDay } from '../lib/homeFeaturedReviewsDayCache';
+import { selectHomeFeaturedReviews } from '../lib/selectHomeFeaturedReviews';
 
 import type { HomeBanner, HomeReview } from '../model/types';
 
@@ -36,15 +38,7 @@ export async function mockGetServices(): Promise<ServiceConfig[]> {
 }
 
 export async function mockGetTopReviews(): Promise<HomeReview[]> {
-  const now = Date.now();
-  const days30 = 30 * 24 * 60 * 60 * 1000;
-
-  const filtered = MOCK_REVIEWS.filter((review) => {
-    const time = new Date(review.createdAtIso).getTime();
-    return review.rating === 5 && now - time <= days30;
-  });
-
-  const sorted = filtered.sort((a, b) => (a.createdAtIso < b.createdAtIso ? 1 : -1));
-
-  return deepCopy(sorted.slice(0, 5));
+  return getHomeFeaturedReviewsForCurrentDay(() =>
+    selectHomeFeaturedReviews(MOCK_REVIEWS, 5),
+  );
 }

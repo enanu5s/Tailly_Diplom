@@ -8,6 +8,7 @@ import {
   dedupeSuggestItems,
   type GeoPoint,
   type GeoSuggestItem,
+  isDistrictSuggestItem,
   isLocalitySuggestItem,
   normalizeSuggestItems,
   type SuggestResponse,
@@ -60,6 +61,30 @@ async function requestSuggestLocalities(query: string): Promise<SuggestResponse>
   return requestJson<SuggestResponse>(url);
 }
 
+async function requestSuggestDistricts(query: string): Promise<SuggestResponse> {
+  const params = new URLSearchParams({
+    q: query.trim(),
+    suggest_type: 'address',
+    fields: SUGGEST_FIELDS,
+    key: MAPS_API_KEY,
+    locale: 'ru_RU',
+    type: 'adm_div.district,adm_div.living_area',
+  });
+
+  const url = buildDirect2GisUrl('/3.0/suggests', params);
+
+  return requestJson<SuggestResponse>(url);
+}
+
+/** Первая часть строки города без хвоста «…, Россия» — для составного запроса районов */
+function primaryCityQueryFragment(cityQuery: string): string {
+  const t = cityQuery.trim();
+  if (!t) {
+    return '';
+  }
+  return t.split(',')[0]?.trim() ?? t;
+}
+
 async function requestGeocode(query: string): Promise<GeocodeResponse> {
   const params = new URLSearchParams({
     q: query.trim(),
@@ -86,15 +111,22 @@ export const specialistsGeoMockApi = {
       throw new Error('VITE_2GIS_API_KEY is not set');
     }
 
-    const data = await requestSuggest(normalizedQuery);
+    let data: SuggestResponse;
+
+    try {
+      data = await requestSuggestLocalities(normalizedQuery);
+    } catch {
+      data = await requestSuggest(normalizedQuery);
+    }
 
     if (data?.meta?.code !== 200 || !Array.isArray(data?.result?.items)) {
       return [];
     }
 
     const normalized = normalizeSuggestItems(data.result.items);
+    const localities = normalized.filter(isLocalitySuggestItem);
 
-    return dedupeSuggestItems(normalized).slice(0, 8);
+    return dedupeSuggestItems(localities).slice(0, 8);
   },
 
   async suggestLocalities(query: string): Promise<GeoSuggestItem[]> {
@@ -165,19 +197,27 @@ export const specialistsGeoMockApi = {
       throw new Error('VITE_2GIS_API_KEY is not set');
     }
 
-    const compositeQuery = normalizedCityQuery
-      ? `${normalizedCityQuery}, ${normalizedDistrictQuery}`
+    const cityFragment = primaryCityQueryFragment(normalizedCityQuery);
+    const compositeQuery = cityFragment
+      ? `${cityFragment}, ${normalizedDistrictQuery}`
       : normalizedDistrictQuery;
 
-    const data = await requestSuggest(compositeQuery);
+    let data: SuggestResponse;
+
+    try {
+      data = await requestSuggestDistricts(compositeQuery);
+    } catch {
+      data = await requestSuggest(compositeQuery);
+    }
 
     if (data?.meta?.code !== 200 || !Array.isArray(data?.result?.items)) {
       return [];
     }
 
     const normalized = normalizeSuggestItems(data.result.items);
+    const districts = normalized.filter(isDistrictSuggestItem);
 
-    return dedupeSuggestItems(normalized).slice(0, 8);
+    return dedupeSuggestItems(districts).slice(0, 8);
   },
 
   async geocodeCity(query: string): Promise<GeoPoint | null> {

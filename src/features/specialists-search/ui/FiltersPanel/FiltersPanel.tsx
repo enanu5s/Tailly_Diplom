@@ -43,6 +43,9 @@ export const FiltersPanel = observer(({ store }: Props) => {
   const citySuggestRequestIdRef = useRef(0);
   const districtSuggestRequestIdRef = useRef(0);
 
+  /** После выбора города из списка не подгружать подсказки снова для того же ввода */
+  const suppressCitySuggestionsAfterPickRef = useRef(false);
+
   useEffect(() => {
     setCityInput(store.filters.cityQuery);
   }, [store.filters.cityQuery]);
@@ -53,6 +56,13 @@ export const FiltersPanel = observer(({ store }: Props) => {
 
   useEffect(() => {
     const normalizedQuery = cityInput.trim();
+    const committedCity = store.filters.cityQuery.trim();
+
+    if (committedCity.length > 0 && normalizedQuery === committedCity) {
+      setCitySuggestions([]);
+      setCitySuggestionsLoading(false);
+      return;
+    }
 
     if (normalizedQuery.length < 2) {
       setCitySuggestions([]);
@@ -63,6 +73,13 @@ export const FiltersPanel = observer(({ store }: Props) => {
     const requestId = ++citySuggestRequestIdRef.current;
 
     const timer = window.setTimeout(async () => {
+      if (suppressCitySuggestionsAfterPickRef.current) {
+        suppressCitySuggestionsAfterPickRef.current = false;
+        setCitySuggestions([]);
+        setCitySuggestionsLoading(false);
+        return;
+      }
+
       setCitySuggestionsLoading(true);
 
       try {
@@ -91,7 +108,7 @@ export const FiltersPanel = observer(({ store }: Props) => {
     return () => {
       window.clearTimeout(timer);
     };
-  }, [cityInput]);
+  }, [cityInput, store.filters.cityQuery]);
 
   useEffect(() => {
     const normalizedDistrictQuery = districtInput.trim();
@@ -117,9 +134,6 @@ export const FiltersPanel = observer(({ store }: Props) => {
         if (requestId !== districtSuggestRequestIdRef.current) {
           return;
         }
-
-        console.log('city suggest items', items);
-        console.log('district suggest items', items);
 
         setDistrictSuggestions(items);
       } catch (error) {
@@ -185,6 +199,8 @@ export const FiltersPanel = observer(({ store }: Props) => {
 
   const handleCitySelect = (item: GeoSuggestItem) => {
     const nextValue = item.fullName || item.name || '';
+
+    suppressCitySuggestionsAfterPickRef.current = true;
 
     isSelectingCitySuggestionRef.current = true;
 
@@ -291,7 +307,10 @@ export const FiltersPanel = observer(({ store }: Props) => {
             <input
               className={styles.input}
               value={cityInput}
-              onChange={(event) => setCityInput(event.target.value)}
+              onChange={(event) => {
+                suppressCitySuggestionsAfterPickRef.current = false;
+                setCityInput(event.target.value);
+              }}
               onKeyDown={handleCityKeyDown}
               onBlur={handleCityBlur}
               placeholder="Начните вводить…"
@@ -304,9 +323,7 @@ export const FiltersPanel = observer(({ store }: Props) => {
             {citySuggestions.length > 0 && (
               <ul className={styles.suggestions}>
                 {citySuggestions.map((item, index) => {
-                  const primaryText = item.name || item.fullName;
-                  const secondaryText =
-                    item.fullName && item.fullName !== item.name ? item.fullName : '';
+                  const label = (item.name || item.fullName).trim();
 
                   return (
                     <li
@@ -317,13 +334,7 @@ export const FiltersPanel = observer(({ store }: Props) => {
                         handleCitySelect(item);
                       }}
                     >
-                      <span className={styles.suggestionPrimary}>{primaryText}</span>
-                      {secondaryText ? (
-                        <span className={styles.suggestionSecondary}>
-                          {' '}
-                          — {secondaryText}
-                        </span>
-                      ) : null}
+                      <span className={styles.suggestionPrimary}>{label}</span>
                     </li>
                   );
                 })}
@@ -353,9 +364,7 @@ export const FiltersPanel = observer(({ store }: Props) => {
             {districtSuggestions.length > 0 && (
               <ul className={styles.suggestions}>
                 {districtSuggestions.map((item, index) => {
-                  const primaryText = item.name || item.fullName;
-                  const secondaryText =
-                    item.fullName && item.fullName !== item.name ? item.fullName : '';
+                  const label = (item.name || item.fullName).trim();
 
                   return (
                     <li
@@ -366,13 +375,7 @@ export const FiltersPanel = observer(({ store }: Props) => {
                         handleDistrictSelect(item);
                       }}
                     >
-                      <span className={styles.suggestionPrimary}>{primaryText}</span>
-                      {secondaryText ? (
-                        <span className={styles.suggestionSecondary}>
-                          {' '}
-                          — {secondaryText}
-                        </span>
-                      ) : null}
+                      <span className={styles.suggestionPrimary}>{label}</span>
                     </li>
                   );
                 })}
@@ -486,13 +489,28 @@ export const FiltersPanel = observer(({ store }: Props) => {
         </div>
       </div>
 
-      <button
-        type="button"
-        className={styles.moreBtn}
-        onClick={() => setExpanded((value) => !value)}
-      >
-        {expanded ? 'Скрыть дополнительные фильтры' : 'Дополнительные фильтры'}
-      </button>
+      <div className={styles.actionsRow}>
+        <button
+          type="button"
+          className={styles.resetBtn}
+          onClick={() => {
+            store.resetFilters();
+            setCitySuggestions([]);
+            setDistrictSuggestions([]);
+            suppressCitySuggestionsAfterPickRef.current = false;
+          }}
+        >
+          Сбросить фильтр
+        </button>
+
+        <button
+          type="button"
+          className={styles.moreBtn}
+          onClick={() => setExpanded((value) => !value)}
+        >
+          {expanded ? 'Скрыть дополнительные фильтры' : 'Дополнительные фильтры'}
+        </button>
+      </div>
 
       {expanded && <AdditionalFilters store={store} />}
     </div>

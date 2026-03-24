@@ -140,6 +140,32 @@ export function buildDemoSpecialistSpecs(): DemoSpecialistSpec[] {
   return specs;
 }
 
+/**
+ * Краткое имя для UI (как в поиске специалистов и карточках списка).
+ * Совпадает с форматом в `features/specialists-search/data/mockSpecialists.ts`.
+ */
+export function getDemoSpecialistDisplayNameForProfileId(id: string): string {
+  const trimmed = id.trim();
+  if (trimmed === 'specialist-1') {
+    return 'Мария И.';
+  }
+
+  const match = /^specialist-(\d+)$/.exec(trimmed);
+  if (!match) {
+    return trimmed;
+  }
+
+  const index = Number(match[1]);
+  const specs = buildDemoSpecialistSpecs();
+  const spec = specs.find((s) => s.index === index);
+  if (!spec) {
+    return trimmed;
+  }
+
+  const lastInitial = spec.lastName.charAt(0);
+  return `${spec.firstName} ${lastInitial}.`;
+}
+
 export function buildExtraSpecialistAuthAccounts(
   specs: DemoSpecialistSpec[],
 ): MockAuthAccount[] {

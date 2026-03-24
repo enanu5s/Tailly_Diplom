@@ -3,6 +3,7 @@ import { makeAutoObservable, runInAction } from 'mobx';
 
 import type { ServiceId } from '@/shared/config/services';
 
+import { dateRangeIntersectsWeekdays } from '../lib/availabilityDateRange';
 import { servicesSearchPersist } from './persist';
 import { specialistsSearchService } from '../service/specialistsSearchService';
 
@@ -90,6 +91,21 @@ export class SpecialistsSearchStore {
     if (f.districtQuery.trim()) {
       const q = f.districtQuery.trim().toLowerCase();
       items = items.filter((sp) => sp.district.toLowerCase().includes(q));
+    }
+
+    const hasDateFilter = f.dateRange.from != null || f.dateRange.to != null;
+    if (hasDateFilter) {
+      items = items.filter((sp) => {
+        const wd = sp.availabilityWeekdays;
+        if (wd == null || wd.length === 0) {
+          return true;
+        }
+        return dateRangeIntersectsWeekdays(
+          f.dateRange.from,
+          f.dateRange.to,
+          new Set(wd),
+        );
+      });
     }
 
     // experience
@@ -199,6 +215,13 @@ export class SpecialistsSearchStore {
     if (next.priceMax != null) next.priceMax = clampNumber(next.priceMax, 0, 100000);
 
     this.filters = next;
+    this.persist(0);
+  }
+
+  /** Сброс всех полей фильтра поиска и границ карты */
+  resetFilters(): void {
+    this.filters = defaultFilters();
+    this.mapBounds = null;
     this.persist(0);
   }
 

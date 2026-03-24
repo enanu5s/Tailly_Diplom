@@ -1,8 +1,21 @@
 //src/features/specialists-search/ui/SpecialistsList/SpecialistCard.tsx
 
+import {
+  countAvailableCalendarSlots,
+  getNextAvailableCalendarSlot,
+} from '../../data/mockSpecialistCalendar';
 import styles from './SpecialistCard.module.css';
 
 import type { Specialist, PetType, ServiceId } from '../../model/types';
+
+function formatRuShortDate(iso: string): string {
+  const parts = iso.trim().split('-');
+  if (parts.length !== 3) {
+    return iso;
+  }
+  const [y, m, d] = parts;
+  return `${d}.${m}.${y?.slice(2) ?? ''}`;
+}
 
 type Props = {
   specialist: Specialist;
@@ -23,7 +36,7 @@ function getPriceText(
   });
   if (candidates.length === 0) return '—';
   const min = Math.min(...candidates.map((c) => c.priceFrom));
-  return `${min} €`;
+  return `${min} ₽`;
 }
 
 export function SpecialistCard({
@@ -33,6 +46,8 @@ export function SpecialistCard({
   onClick,
 }: Props) {
   const priceText = getPriceText(specialist, currentServiceId, currentPetType);
+  const freeSlots = countAvailableCalendarSlots(specialist.calendarSlots);
+  const nextFree = getNextAvailableCalendarSlot(specialist.calendarSlots);
 
   return (
     <button type="button" className={styles.card} onClick={onClick}>
@@ -64,6 +79,13 @@ export function SpecialistCard({
       </div>
 
       <div className={styles.desc}>{specialist.description}</div>
+
+      {freeSlots > 0 && nextFree ? (
+        <div className={styles.scheduleHint}>
+          Свободных окон: {freeSlots} · ближайшее: {formatRuShortDate(nextFree.date)}{' '}
+          {nextFree.startTime}–{nextFree.endTime}
+        </div>
+      ) : null}
     </button>
   );
 }

@@ -101,7 +101,7 @@ export function ReviewCard({
             <div>Хозяин: {review.ownerFullName}</div>
             <div>
               Петситтер:{' '}
-              <Link className={styles.link} to={`/sitters/${review.sitterId}`}>
+              <Link className={styles.link} to={`/specialists/${encodeURIComponent(review.sitterId)}`}>
                 {review.sitterName}
               </Link>
             </div>
@@ -111,7 +111,10 @@ export function ReviewCard({
         <div className={styles.text}>{review.text}</div>
 
         <div className={styles.actions}>
-          <Link className={styles.primaryBtn} to={`/sitters/${review.sitterId}`}>
+          <Link
+            className={styles.primaryBtn}
+            to={`/specialists/${encodeURIComponent(review.sitterId)}`}
+          >
             Перейти в профиль петситтера
           </Link>
         </div>

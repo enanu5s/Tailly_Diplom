@@ -48,8 +48,11 @@ async function realGetTopReviews(): Promise<HomeReview[]> {
   return request<HomeReview[]>('/home/reviews', {
     query: {
       rating: 5,
-      freshDays: 30,
       limit: 5,
+      /** Пять последних с фото и достаточным текстом; снимок на стороне API обновляется раз в сутки. */
+      requirePhotos: true,
+      minTextLength: 80,
+      minWords: 8,
     },
   });
 }

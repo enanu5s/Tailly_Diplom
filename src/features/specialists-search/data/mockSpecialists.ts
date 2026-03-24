@@ -1,6 +1,11 @@
 // src/features/specialists-search/data/mockSpecialists.ts
 
-import { buildDemoSpecialistSpecs } from '@/shared/mock-db/seed/demoDataset.seed';
+import {
+  buildDemoSpecialistSpecs,
+  getDemoSpecialistDisplayNameForProfileId,
+} from '@/shared/mock-db/seed/demoDataset.seed';
+
+import { buildSpecialistCalendarSlots } from './mockSpecialistCalendar';
 
 import type { Specialist } from '../model/types';
 
@@ -13,26 +18,153 @@ const CITY_COORDS: Record<string, { lat: number; lon: number }> = {
   Краснодар: { lat: 45.0355, lon: 38.9753 },
 };
 
+/** Дни приёма для мока: от расписания зависит попадание в выбранный пользователем диапазон дат */
+function availabilityWeekdaysForIndex(index: number): number[] {
+  const base = [1, 2, 3, 4, 5];
+  if (index <= 0) {
+    return base;
+  }
+  const rotated = base.filter((_, i) => (i + index) % 2 === 0);
+  const withWeekend =
+    index % 4 === 0 ? [...rotated, 0, 6] : index % 3 === 0 ? [...rotated, 6] : rotated;
+  return withWeekend.length > 0 ? withWeekend : [1, 3, 5];
+}
+
+/**
+ * Разнообразные наборы услуг: цены, длительность, типы питомцев.
+ * Индекс берётся по модулю при сборке синтетических специалистов.
+ */
 const SERVICE_SETS: Specialist['services'][] = [
   [
-    { serviceId: 'walking', petTypes: ['dog'], priceFrom: 1200 },
-    { serviceId: 'boarding', petTypes: ['cat', 'dog'], priceFrom: 2500 },
+    {
+      serviceId: 'walking',
+      petTypes: ['dog'],
+      priceFrom: 1200,
+      priceTo: 1800,
+      durationMinutes: 60,
+      note: 'Выгул 1 ч',
+    },
+    {
+      serviceId: 'boarding',
+      petTypes: ['cat', 'dog'],
+      priceFrom: 2500,
+      priceTo: 4200,
+      durationMinutes: 1440,
+      note: 'Передержка от суток',
+    },
   ],
   [
-    { serviceId: 'walking', petTypes: ['dog'], priceFrom: 1000 },
-    { serviceId: 'boarding', petTypes: ['cat', 'dog', 'other'], priceFrom: 1800 },
+    {
+      serviceId: 'walking',
+      petTypes: ['dog'],
+      priceFrom: 1000,
+      durationMinutes: 45,
+    },
+    {
+      serviceId: 'boarding',
+      petTypes: ['cat', 'dog', 'other'],
+      priceFrom: 1800,
+      priceTo: 3500,
+      durationMinutes: 720,
+    },
   ],
-  [{ serviceId: 'boarding', petTypes: ['cat', 'dog'], priceFrom: 1500 }],
   [
-    { serviceId: 'walking', petTypes: ['dog'], priceFrom: 1100 },
-    { serviceId: 'boarding', petTypes: ['cat', 'dog'], priceFrom: 1700 },
+    {
+      serviceId: 'boarding',
+      petTypes: ['cat', 'dog'],
+      priceFrom: 1500,
+      durationMinutes: 1080,
+    },
+  ],
+  [
+    {
+      serviceId: 'walking',
+      petTypes: ['dog'],
+      priceFrom: 1100,
+      priceTo: 1500,
+      durationMinutes: 90,
+    },
+    {
+      serviceId: 'boarding',
+      petTypes: ['cat', 'dog'],
+      priceFrom: 1700,
+      durationMinutes: 720,
+    },
+  ],
+  [
+    {
+      serviceId: 'grooming',
+      petTypes: ['dog', 'cat'],
+      priceFrom: 1900,
+      priceTo: 4500,
+      durationMinutes: 120,
+      note: 'Комплекс / стрижка',
+    },
+    {
+      serviceId: 'walking',
+      petTypes: ['dog'],
+      priceFrom: 950,
+      durationMinutes: 60,
+    },
+  ],
+  [
+    {
+      serviceId: 'training',
+      petTypes: ['dog'],
+      priceFrom: 1600,
+      durationMinutes: 60,
+      note: 'Коррекция поведения',
+    },
+    {
+      serviceId: 'boarding',
+      petTypes: ['dog'],
+      priceFrom: 2200,
+      durationMinutes: 1440,
+    },
+  ],
+  [
+    {
+      serviceId: 'photoshoot',
+      petTypes: ['dog', 'cat'],
+      priceFrom: 3500,
+      priceTo: 8000,
+      durationMinutes: 60,
+      note: 'Студия / выезд',
+    },
+    {
+      serviceId: 'grooming',
+      petTypes: ['dog', 'cat'],
+      priceFrom: 2100,
+      durationMinutes: 90,
+    },
+  ],
+  [
+    {
+      serviceId: 'walking',
+      petTypes: ['dog'],
+      priceFrom: 800,
+      durationMinutes: 30,
+      note: 'Короткий выгул',
+    },
+    {
+      serviceId: 'training',
+      petTypes: ['dog', 'cat'],
+      priceFrom: 1400,
+      durationMinutes: 45,
+    },
+    {
+      serviceId: 'boarding',
+      petTypes: ['cat', 'dog', 'other'],
+      priceFrom: 2000,
+      durationMinutes: 720,
+    },
   ],
 ];
 
 function buildMockSpecialists(): Specialist[] {
   const primary: Specialist = {
     id: 'specialist-1',
-    name: 'Мария И.',
+    name: getDemoSpecialistDisplayNameForProfileId('specialist-1'),
     avatarUrl: '/images/mock/specialists/sp3.jpg',
     city: 'Москва',
     district: 'Пресненский район',
@@ -42,10 +174,31 @@ function buildMockSpecialists(): Specialist[] {
     reviewsCount: 18,
     location: { lat: 55.7572, lon: 37.5598 },
     experienceYears: 5,
+    availabilityWeekdays: availabilityWeekdaysForIndex(0),
     services: [
-      { serviceId: 'boarding', petTypes: ['cat', 'dog'], priceFrom: 1500 },
-      { serviceId: 'walking', petTypes: ['dog'], priceFrom: 900 },
+      {
+        serviceId: 'boarding',
+        petTypes: ['cat', 'dog'],
+        priceFrom: 1500,
+        priceTo: 3800,
+        durationMinutes: 720,
+        note: 'Передержка, фотоотчёт',
+      },
+      {
+        serviceId: 'walking',
+        petTypes: ['dog'],
+        priceFrom: 900,
+        priceTo: 1300,
+        durationMinutes: 60,
+      },
+      {
+        serviceId: 'grooming',
+        petTypes: ['cat', 'dog'],
+        priceFrom: 2200,
+        durationMinutes: 90,
+      },
     ],
+    calendarSlots: buildSpecialistCalendarSlots(0),
   };
 
   const specs = buildDemoSpecialistSpecs();
@@ -54,10 +207,11 @@ function buildMockSpecialists(): Specialist[] {
     const loc = CITY_COORDS[s.city] ?? CITY_COORDS['Москва'];
     const jitter = s.index * 0.012;
     const services = SERVICE_SETS[s.index % SERVICE_SETS.length] ?? SERVICE_SETS[0];
+    const slots = buildSpecialistCalendarSlots(s.index);
 
     return {
       id: `specialist-${s.index}`,
-      name: `${s.firstName} ${s.lastName[0] ?? ''}.`,
+      name: getDemoSpecialistDisplayNameForProfileId(`specialist-${s.index}`),
       avatarUrl: s.index % 3 === 0 ? '/images/mock/specialists/sp1.jpg' : null,
       city: s.city,
       district: s.city === 'Москва' ? 'В пределах МКАД' : '',
@@ -66,7 +220,9 @@ function buildMockSpecialists(): Specialist[] {
       reviewsCount: 4 + s.index * 2,
       experienceYears: 2 + (s.index % 6),
       location: { lat: loc.lat + jitter, lon: loc.lon + jitter },
+      availabilityWeekdays: availabilityWeekdaysForIndex(s.index),
       services,
+      calendarSlots: slots,
     };
   });
 

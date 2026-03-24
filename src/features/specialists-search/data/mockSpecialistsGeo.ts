@@ -40,6 +40,26 @@ export function isLocalitySuggestItem(
   );
 }
 
+/** Район / жилой массив (2GIS: adm_div.district, adm_div.living_area) */
+const DISTRICT_ADM_DIV_TYPES = new Set(['adm_div.district', 'adm_div.living_area']);
+
+const DISTRICT_ADM_DIV_SUBTYPES = new Set(['district', 'living_area']);
+
+/** Подсказка — административный район или жилой массив (не НП, не улица) */
+export function isDistrictSuggestItem(
+  item: Pick<GeoSuggestItem, 'type' | 'subtype'>,
+): boolean {
+  if (item.type !== null && DISTRICT_ADM_DIV_TYPES.has(item.type)) {
+    return true;
+  }
+
+  return (
+    item.type === 'adm_div' &&
+    item.subtype !== null &&
+    DISTRICT_ADM_DIV_SUBTYPES.has(item.subtype)
+  );
+}
+
 export type SuggestResponseItem = {
   id?: string;
   name?: string;

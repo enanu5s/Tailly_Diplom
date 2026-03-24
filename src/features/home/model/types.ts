@@ -15,7 +15,8 @@ export type HomeBanner = {
 export type HomeReview = {
   id: string;
   createdAtIso: string;
-  rating: 5; // на главной только 5
+  /** В сыром списке может быть любая оценка; на главную попадают только 5★. */
+  rating: number;
   text: string;
   petName: string;
   ownerName: string;
