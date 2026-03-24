@@ -12,6 +12,7 @@ import {
   findProfileIndexBySlug,
   MOCK_SPECIALIST_PROFILES,
 } from '../data/mockSpecialistProfiles';
+import { syncMockSpecialistCalendarSlotsFromProfile } from '@/features/specialists-search/data/mockSpecialists';
 
 import type {
   SpecialistCalendarUpdatePayload,
@@ -199,37 +200,72 @@ export async function mockUpdateCalendar(
 
   const currentProfile = MOCK_SPECIALIST_PROFILES[profileIndex];
 
-  Object.assign(currentProfile, {
-    ...currentProfile,
-    calendar: {
-      ...currentProfile.calendar,
-      timezone: payload.timezone.trim(),
-      dayOverrides: payload.dayOverrides.map((item) => ({
-        date: item.date,
-        status: item.status,
-      })),
-      availabilityWindows: payload.availabilityWindows.map((item, index) => ({
-        id: item.id || `window-${Date.now()}-${index}`,
-        date: item.date,
+  const nextCalendar = {
+    ...currentProfile.calendar,
+    timezone: payload.timezone.trim(),
+    dayOverrides: payload.dayOverrides.map((item) => ({
+      date: item.date,
+      status: item.status,
+    })),
+    availabilityWindows: payload.availabilityWindows.map((item, index) => ({
+      id: item.id || `window-${Date.now()}-${index}`,
+      date: item.date,
+      startTime: item.startTime,
+      endTime: item.endTime,
+      serviceIds: [...item.serviceIds],
+      comment: item.comment?.trim() || undefined,
+    })),
+    bookingSettings: {
+      dayStartTime: normalizeTime(payload.bookingSettings.dayStartTime, '10:00'),
+      dayEndTime: normalizeTime(payload.bookingSettings.dayEndTime, '19:00'),
+      slotStepMinutes: normalizePositiveMinutes(
+        payload.bookingSettings.slotStepMinutes,
+        60,
+      ),
+      defaultDurationMinutes: normalizePositiveMinutes(
+        payload.bookingSettings.defaultDurationMinutes,
+        60,
+      ),
+    },
+  };
+
+  if (payload.availabilityRules !== undefined) {
+    nextCalendar.availabilityRules = payload.availabilityRules.map((item, index) => ({
+      id: item.id || `rule-${Date.now()}-${index}`,
+      title: item.title,
+      serviceIds: [...item.serviceIds],
+      startDate: item.startDate,
+      endDate: item.endDate,
+      startTime: item.startTime,
+      endTime: item.endTime,
+      recurrence: item.recurrence,
+      isEnabled: item.isEnabled,
+      comment: item.comment?.trim() || undefined,
+    }));
+  }
+
+  if (payload.availabilityOverrides !== undefined) {
+    nextCalendar.availabilityOverrides = payload.availabilityOverrides.map(
+      (item, index) => ({
+        id: item.id || `override-${Date.now()}-${index}`,
+        targetDate: item.targetDate,
+        editScope: item.editScope,
+        sourceRuleId: item.sourceRuleId,
+        serviceIds: item.serviceIds ? [...item.serviceIds] : undefined,
         startTime: item.startTime,
         endTime: item.endTime,
-        serviceIds: [...item.serviceIds],
+        removeAvailability: item.removeAvailability,
         comment: item.comment?.trim() || undefined,
-      })),
-      bookingSettings: {
-        dayStartTime: normalizeTime(payload.bookingSettings.dayStartTime, '10:00'),
-        dayEndTime: normalizeTime(payload.bookingSettings.dayEndTime, '19:00'),
-        slotStepMinutes: normalizePositiveMinutes(
-          payload.bookingSettings.slotStepMinutes,
-          60,
-        ),
-        defaultDurationMinutes: normalizePositiveMinutes(
-          payload.bookingSettings.defaultDurationMinutes,
-          60,
-        ),
-      },
-    },
+      }),
+    );
+  }
+
+  Object.assign(currentProfile, {
+    ...currentProfile,
+    calendar: nextCalendar,
   });
+
+  syncMockSpecialistCalendarSlotsFromProfile(currentProfile);
 
   return cloneProfile(currentProfile);
 }

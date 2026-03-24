@@ -2,11 +2,13 @@
 
 import type { SpecialistCalendar, SpecialistCalendarDayStatus } from './types';
 
-type CalendarMonthDay = {
+export type CalendarMonthDay = {
   isoDate: string | null;
   dayNumber: number | null;
   status: SpecialistCalendarDayStatus | null;
   isCurrentMonth: boolean;
+  /** Есть окна доступности (при статусе «свободно» это видно только по этому флагу) */
+  hasAvailabilityWindows?: boolean;
 };
 
 type DateBookingSummary = {
@@ -261,12 +263,15 @@ export function buildCalendarMonthDays(
   for (let day = 1; day <= daysInMonth; day += 1) {
     const date = new Date(year, month, day);
     const isoDate = toIsoDate(date);
+    const hasAvailabilityWindows =
+      getAvailabilityWindowsForDate(calendar, isoDate).length > 0;
 
     result.push({
       isoDate,
       dayNumber: day,
       status: getCalendarDayStatus(calendar, isoDate),
       isCurrentMonth: true,
+      hasAvailabilityWindows,
     });
   }
 

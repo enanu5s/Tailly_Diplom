@@ -1,0 +1,68 @@
+/* src/pages/specialist-calendar-edit/ui/CalendarDayContextMenu.module.css */
+
+.root {
+  position: fixed;
+  z-index: 1200;
+  min-width: 240px;
+  max-width: min(320px, calc(100vw - 16px));
+  padding: 8px 0;
+  border-radius: 14px;
+  border: 1px solid rgba(17, 24, 39, 0.12);
+  background: #ffffff;
+  box-shadow: 0 18px 48px rgba(17, 24, 39, 0.18);
+}
+
+.title {
+  padding: 4px 14px 8px;
+  font-size: 12px;
+  font-weight: 600;
+  letter-spacing: 0.02em;
+  color: rgba(17, 24, 39, 0.5);
+}
+
+.list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+.item {
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 2px;
+  padding: 10px 14px;
+  border: none;
+  background: transparent;
+  font: inherit;
+  text-align: left;
+  cursor: pointer;
+  color: #111827;
+}
+
+.item:hover,
+.item:focus-visible {
+  outline: none;
+  background: rgba(99, 102, 241, 0.08);
+}
+
+.itemDanger {
+  color: #b91c1c;
+}
+
+.itemDanger:hover,
+.itemDanger:focus-visible {
+  background: rgba(239, 68, 68, 0.08);
+}
+
+.itemLabel {
+  font-size: 14px;
+  font-weight: 600;
+}
+
+.itemHint {
+  font-size: 12px;
+  color: rgba(17, 24, 39, 0.55);
+  line-height: 1.35;
+}

@@ -1,6 +1,10 @@
 // src/features/specialists-search/data/mockSpecialistCalendar.ts
 /** Генерация мок-слотов календаря для списка специалистов (свободные и занятые окна). */
 
+import type {
+  SpecialistCalendar,
+  SpecialistService,
+} from '@/features/specialist-profile/model/types';
 import type { ServiceId } from '@/shared/config/services';
 
 import type { SpecialistCalendarSlot } from '../model/types';
@@ -104,6 +108,102 @@ export function buildSpecialistCalendarSlots(
   return slots.sort((a, b) => {
     const c = a.date.localeCompare(b.date);
     if (c !== 0) return c;
+    return a.startTime.localeCompare(b.startTime);
+  });
+}
+
+function inferServiceIdFromSpecialistService(
+  service: SpecialistService | undefined,
+): ServiceId {
+  if (!service) {
+    return 'walking';
+  }
+
+  const t = `${service.id} ${service.name}`.toLowerCase();
+
+  if (
+    t.includes('walk') ||
+    t.includes('прогул') ||
+    t.includes('выгул') ||
+    t.includes('visit')
+  ) {
+    return 'walking';
+  }
+
+  if (t.includes('board') || t.includes('передерж') || t.includes('присмотр')) {
+    return 'boarding';
+  }
+
+  if (t.includes('groom') || t.includes('грум') || t.includes('стриж')) {
+    return 'grooming';
+  }
+
+  if (t.includes('train') || t.includes('дресс') || t.includes('коррекц')) {
+    return 'training';
+  }
+
+  if (t.includes('photo') || t.includes('фото')) {
+    return 'photoshoot';
+  }
+
+  return 'walking';
+}
+
+function resolveSearchServiceId(
+  profileServiceId: string | undefined,
+  services: SpecialistService[],
+): ServiceId {
+  if (!profileServiceId) {
+    return 'walking';
+  }
+
+  const svc = services.find((s) => s.id === profileServiceId);
+
+  return inferServiceIdFromSpecialistService(svc);
+}
+
+/**
+ * Слоты для карточек поиска и превью — из того же календаря, что и в профиле специалиста (мок).
+ */
+export function calendarSlotsFromSpecialistCalendar(
+  calendar: SpecialistCalendar,
+  services: SpecialistService[],
+): SpecialistCalendarSlot[] {
+  const slots: SpecialistCalendarSlot[] = [];
+
+  for (const window of calendar.availabilityWindows) {
+    const serviceId = resolveSearchServiceId(window.serviceIds[0], services);
+
+    slots.push({
+      date: window.date,
+      startTime: window.startTime,
+      endTime: window.endTime,
+      kind: 'available',
+      serviceId,
+      title: window.comment?.trim() || 'Свободно',
+    });
+  }
+
+  for (const booked of calendar.bookedSlots) {
+    const serviceId = resolveSearchServiceId(booked.serviceIds[0], services);
+
+    slots.push({
+      date: booked.date,
+      startTime: booked.startTime,
+      endTime: booked.endTime,
+      kind: 'booked',
+      serviceId,
+      title: booked.orderId ? 'Занято (заказ)' : 'Занято',
+    });
+  }
+
+  return slots.sort((a, b) => {
+    const c = a.date.localeCompare(b.date);
+
+    if (c !== 0) {
+      return c;
+    }
+
     return a.startTime.localeCompare(b.startTime);
   });
 }

@@ -33,6 +33,19 @@ type BulkAvailabilityTemplateForm = {
   replaceExistingWindows: boolean;
 };
 
+/** Дни недели: 1 = пн … 7 = вс (как в демо-правилах календаря) */
+export type WeeklyWeekday = 1 | 2 | 3 | 4 | 5 | 6 | 7;
+
+type WeeklyScheduleForm = {
+  weekDays: WeeklyWeekday[];
+  startTime: string;
+  endTime: string;
+  serviceIds: string[];
+  weeksAhead: number;
+  replaceExisting: boolean;
+  comment: string;
+};
+
 function createDefaultBookingSettings(): SpecialistCalendarBookingSettings {
   return {
     dayStartTime: '10:00',
@@ -161,6 +174,54 @@ function buildWindowId(date: string): string {
   return `window-${date}-${Date.now()}-${Math.floor(Math.random() * 10000)}`;
 }
 
+/** Понедельник = 1 … воскресенье = 7 */
+function getIsoWeekdayMon1Sun7(date: Date): WeeklyWeekday {
+  const day = date.getDay();
+
+  return (day === 0 ? 7 : day) as WeeklyWeekday;
+}
+
+function addDaysToIsoDate(iso: string, days: number): string {
+  const [y, m, d] = iso.split('-').map(Number);
+  const dt = new Date(y, m - 1, d);
+
+  dt.setDate(dt.getDate() + days);
+
+  return toIsoDate(dt);
+}
+
+function enumerateDatesInclusive(startIso: string, endIso: string): string[] {
+  const out: string[] = [];
+  let cursor = startIso;
+
+  while (cursor <= endIso) {
+    out.push(cursor);
+    cursor = addDaysToIsoDate(cursor, 1);
+
+    if (out.length > 800) {
+      break;
+    }
+  }
+
+  return out;
+}
+
+function createDefaultWeeklyScheduleForm(
+  bookingSettings?: SpecialistCalendarBookingSettings,
+): WeeklyScheduleForm {
+  const base = createDefaultBulkTemplateForm(bookingSettings);
+
+  return {
+    weekDays: [1, 2, 3, 4, 5],
+    startTime: base.startTime,
+    endTime: base.endTime,
+    serviceIds: [...base.serviceIds],
+    weeksAhead: 8,
+    replaceExisting: true,
+    comment: '',
+  };
+}
+
 export class SpecialistCalendarEditStore {
   profile: SpecialistProfile | null = null;
   editableCalendar: SpecialistCalendar | null = null;
@@ -183,6 +244,9 @@ export class SpecialistCalendarEditStore {
 
   bulkTemplateForm: BulkAvailabilityTemplateForm = createDefaultBulkTemplateForm();
   bulkTemplateError: string | null = null;
+
+  weeklyScheduleForm: WeeklyScheduleForm = createDefaultWeeklyScheduleForm();
+  weeklyScheduleError: string | null = null;
 
   bookingSettingsError: string | null = null;
 
@@ -332,6 +396,7 @@ export class SpecialistCalendarEditStore {
     this.hasUnsavedChanges = false;
     this.bookingSettingsError = null;
     this.bulkTemplateError = null;
+    this.weeklyScheduleError = null;
 
     try {
       const profile = await specialistProfileService.getBySlug(slug);
@@ -357,6 +422,15 @@ export class SpecialistCalendarEditStore {
         this.bulkTemplateForm = createDefaultBulkTemplateForm(
           editableCalendar.bookingSettings,
         );
+        this.weeklyScheduleForm = createDefaultWeeklyScheduleForm(
+          editableCalendar.bookingSettings,
+        );
+
+        if (profile.services.length > 0) {
+          this.weeklyScheduleForm.serviceIds = profile.services.map((s) => s.id);
+        }
+
+        this.weeklyScheduleError = null;
       });
     } catch (error) {
       runInAction(() => {
@@ -390,6 +464,8 @@ export class SpecialistCalendarEditStore {
     this.windowFormError = null;
     this.bulkTemplateForm = createDefaultBulkTemplateForm();
     this.bulkTemplateError = null;
+    this.weeklyScheduleForm = createDefaultWeeklyScheduleForm();
+    this.weeklyScheduleError = null;
     this.bookingSettingsError = null;
   }
 
@@ -414,6 +490,12 @@ export class SpecialistCalendarEditStore {
   }
 
   selectDate(isoDate: string): void {
+    const todayIso = toIsoDate(new Date());
+
+    if (isoDate < todayIso) {
+      return;
+    }
+
     this.selectedDate = isoDate;
     this.currentMonth = parseIsoDateToMonthStart(isoDate);
     this.windowFormError = null;
@@ -598,6 +680,166 @@ export class SpecialistCalendarEditStore {
   resetBulkTemplateFromBookingSettings(): void {
     this.bulkTemplateForm = createDefaultBulkTemplateForm(this.bookingSettings);
     this.bulkTemplateError = null;
+    this.saveSuccess = false;
+  }
+
+  resetWeeklyScheduleFromBookingSettings(): void {
+    this.weeklyScheduleForm = createDefaultWeeklyScheduleForm(this.bookingSettings);
+    this.weeklyScheduleError = null;
+    this.saveSuccess = false;
+  }
+
+  setWeeklyScheduleField<K extends keyof WeeklyScheduleForm>(
+    field: K,
+    value: WeeklyScheduleForm[K],
+  ): void {
+    this.weeklyScheduleForm = {
+      ...this.weeklyScheduleForm,
+      [field]: value,
+    };
+    this.weeklyScheduleError = null;
+    this.saveSuccess = false;
+  }
+
+  toggleWeeklyScheduleService(serviceId: string): void {
+    const next = new Set(this.weeklyScheduleForm.serviceIds);
+
+    if (next.has(serviceId)) {
+      next.delete(serviceId);
+    } else {
+      next.add(serviceId);
+    }
+
+    this.weeklyScheduleForm.serviceIds = [...next];
+    this.weeklyScheduleError = null;
+    this.saveSuccess = false;
+  }
+
+  toggleWeeklyWeekday(day: WeeklyWeekday): void {
+    const set = new Set(this.weeklyScheduleForm.weekDays);
+
+    if (set.has(day)) {
+      set.delete(day);
+    } else {
+      set.add(day);
+    }
+
+    this.weeklyScheduleForm.weekDays = Array.from(set).sort(
+      (a, b) => a - b,
+    ) as WeeklyWeekday[];
+
+    this.weeklyScheduleError = null;
+    this.saveSuccess = false;
+  }
+
+  setWeeklyWeekdaysPreset(preset: 'weekdays' | 'all' | 'weekend' | 'clear'): void {
+    if (preset === 'weekdays') {
+      this.weeklyScheduleForm.weekDays = [1, 2, 3, 4, 5];
+    } else if (preset === 'weekend') {
+      this.weeklyScheduleForm.weekDays = [6, 7];
+    } else if (preset === 'all') {
+      this.weeklyScheduleForm.weekDays = [1, 2, 3, 4, 5, 6, 7];
+    } else {
+      this.weeklyScheduleForm.weekDays = [];
+    }
+
+    this.weeklyScheduleError = null;
+    this.saveSuccess = false;
+  }
+
+  applyWeeklyRecurringSchedule(): void {
+    if (!this.editableCalendar) {
+      return;
+    }
+
+    if (!this.validateBookingSettings()) {
+      return;
+    }
+
+    if (this.weeklyScheduleForm.weekDays.length === 0) {
+      this.weeklyScheduleError = 'Отметь хотя бы один день недели.';
+      return;
+    }
+
+    if (
+      !isValidTimeRange(
+        this.weeklyScheduleForm.startTime,
+        this.weeklyScheduleForm.endTime,
+      )
+    ) {
+      this.weeklyScheduleError = 'Укажи корректный интервал времени (начало раньше конца).';
+      return;
+    }
+
+    if (this.weeklyScheduleForm.serviceIds.length === 0) {
+      this.weeklyScheduleError = 'Выбери хотя бы одну услугу.';
+      return;
+    }
+
+    if (
+      this.weeklyScheduleForm.startTime < this.bookingSettings.dayStartTime ||
+      this.weeklyScheduleForm.endTime > this.bookingSettings.dayEndTime
+    ) {
+      this.weeklyScheduleError =
+        'Интервал должен попадать в рабочий день из блока «Параметры слотов».';
+      return;
+    }
+
+    const weeks = Math.min(
+      52,
+      Math.max(1, Math.floor(Number(this.weeklyScheduleForm.weeksAhead)) || 8),
+    );
+
+    const todayIso = toIsoDate(new Date());
+    const endIso = addDaysToIsoDate(todayIso, weeks * 7 - 1);
+    const allDates = enumerateDatesInclusive(todayIso, endIso);
+
+    const weekDaySet = new Set(this.weeklyScheduleForm.weekDays);
+    const targetDates = allDates.filter((iso) => {
+      const [y, m, d] = iso.split('-').map(Number);
+      const dt = new Date(y, m - 1, d);
+
+      return weekDaySet.has(getIsoWeekdayMon1Sun7(dt));
+    });
+
+    if (targetDates.length === 0) {
+      this.weeklyScheduleError = 'В выбранном периоде нет подходящих дней.';
+      return;
+    }
+
+    const targetSet = new Set(targetDates);
+
+    if (this.weeklyScheduleForm.replaceExisting) {
+      this.editableCalendar.availabilityWindows =
+        this.editableCalendar.availabilityWindows.filter(
+          (item) => !targetSet.has(item.date),
+        );
+    }
+
+    const dayOffDates = new Set(
+      this.editableCalendar.dayOverrides
+        .filter((o) => o.status === 'day_off')
+        .map((o) => o.date),
+    );
+
+    const toAdd = targetDates.filter((d) => !dayOffDates.has(d));
+
+    const newWindows: SpecialistCalendarAvailabilityWindow[] = toAdd.map((date) => ({
+      id: buildWindowId(date),
+      date,
+      startTime: this.weeklyScheduleForm.startTime,
+      endTime: this.weeklyScheduleForm.endTime,
+      serviceIds: [...this.weeklyScheduleForm.serviceIds],
+      comment: this.weeklyScheduleForm.comment.trim() || undefined,
+    }));
+
+    this.editableCalendar.availabilityWindows = sortWindows([
+      ...this.editableCalendar.availabilityWindows,
+      ...newWindows,
+    ]);
+
+    this.weeklyScheduleError = null;
+    this.hasUnsavedChanges = true;
     this.saveSuccess = false;
   }
 

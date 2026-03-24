@@ -224,6 +224,8 @@ function excludeBookedSlots(
   });
 }
 
+/** Слоты строятся по явным `availabilityWindows` и вычитаются `bookedSlots`.
+ * Правила `availabilityRules` / `availabilityOverrides` в моке пока только в данных профиля и не разворачиваются в слоты. */
 function buildSlotsFromWindowsForService(
   calendar: SpecialistCalendar,
   service: SpecialistService | null,

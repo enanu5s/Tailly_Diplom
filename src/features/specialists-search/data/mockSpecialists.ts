@@ -1,12 +1,17 @@
 // src/features/specialists-search/data/mockSpecialists.ts
 
+import { MOCK_SPECIALIST_PROFILES } from '@/features/specialist-profile/data/mockSpecialistProfiles';
 import {
   buildDemoSpecialistSpecs,
   getDemoSpecialistDisplayNameForProfileId,
 } from '@/shared/mock-db/seed/demoDataset.seed';
 
-import { buildSpecialistCalendarSlots } from './mockSpecialistCalendar';
+import {
+  buildSpecialistCalendarSlots,
+  calendarSlotsFromSpecialistCalendar,
+} from './mockSpecialistCalendar';
 
+import type { SpecialistProfileResponse } from '@/features/specialist-profile/model/types';
 import type { Specialist } from '../model/types';
 
 const CITY_COORDS: Record<string, { lat: number; lon: number }> = {
@@ -162,6 +167,9 @@ const SERVICE_SETS: Specialist['services'][] = [
 ];
 
 function buildMockSpecialists(): Specialist[] {
+  const profiles = MOCK_SPECIALIST_PROFILES;
+
+  const primaryProfile = profiles[0];
   const primary: Specialist = {
     id: 'specialist-1',
     name: getDemoSpecialistDisplayNameForProfileId('specialist-1'),
@@ -198,7 +206,10 @@ function buildMockSpecialists(): Specialist[] {
         durationMinutes: 90,
       },
     ],
-    calendarSlots: buildSpecialistCalendarSlots(0),
+    calendarSlots: calendarSlotsFromSpecialistCalendar(
+      primaryProfile.calendar,
+      primaryProfile.services,
+    ),
   };
 
   const specs = buildDemoSpecialistSpecs();
@@ -207,7 +218,11 @@ function buildMockSpecialists(): Specialist[] {
     const loc = CITY_COORDS[s.city] ?? CITY_COORDS['Москва'];
     const jitter = s.index * 0.012;
     const services = SERVICE_SETS[s.index % SERVICE_SETS.length] ?? SERVICE_SETS[0];
-    const slots = buildSpecialistCalendarSlots(s.index);
+    const profile = profiles[s.index - 1];
+    const slots =
+      profile?.calendar && profile.services
+        ? calendarSlotsFromSpecialistCalendar(profile.calendar, profile.services)
+        : buildSpecialistCalendarSlots(s.index);
 
     return {
       id: `specialist-${s.index}`,
@@ -230,6 +245,22 @@ function buildMockSpecialists(): Specialist[] {
 }
 
 export const MOCK_SPECIALISTS: Specialist[] = buildMockSpecialists();
+
+/** После сохранения календаря в `MOCK_SPECIALIST_PROFILES` — обновить слоты в списке поиска. */
+export function syncMockSpecialistCalendarSlotsFromProfile(
+  profile: SpecialistProfileResponse,
+): void {
+  const idx = MOCK_SPECIALISTS.findIndex((s) => s.id === profile.id);
+
+  if (idx === -1) {
+    return;
+  }
+
+  MOCK_SPECIALISTS[idx].calendarSlots = calendarSlotsFromSpecialistCalendar(
+    profile.calendar,
+    profile.services,
+  );
+}
 
 export function cloneSpecialists(): Specialist[] {
   return JSON.parse(JSON.stringify(MOCK_SPECIALISTS)) as Specialist[];

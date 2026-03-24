@@ -5,6 +5,8 @@ import {
   specialistDemoSlug,
 } from '@/shared/mock-db/seed/demoDataset.seed';
 
+import { buildRollingDemoCalendar } from './buildRollingDemoCalendar';
+
 import type { SpecialistProfileResponse } from '../model/types';
 
 function clone<T>(value: T): T {
@@ -31,135 +33,7 @@ const PRIMARY_SPECIALIST_PROFILE: SpecialistProfileResponse = {
     completedOrdersCount: 46,
     repeatOrdersCount: 14,
   },
-  calendar: {
-    timezone: 'Europe/Moscow',
-    dayOverrides: [
-      { date: '2026-03-25', status: 'day_off' },
-      { date: '2026-03-28', status: 'fully_booked' },
-    ],
-    bookedSlots: [
-      {
-        id: 'booked-1',
-        date: '2026-03-20',
-        startTime: '10:00',
-        endTime: '11:00',
-        serviceIds: ['service-walk-1'],
-        orderId: 'seed-booking-1',
-        bufferAfterMinutes: 15,
-      },
-      {
-        id: 'booked-2',
-        date: '2026-03-20',
-        startTime: '14:00',
-        endTime: '15:30',
-        serviceIds: ['service-photo-1'],
-        orderId: 'seed-booking-2',
-        bufferBeforeMinutes: 15,
-        bufferAfterMinutes: 30,
-      },
-      {
-        id: 'booked-3',
-        date: '2026-03-22',
-        startTime: '13:00',
-        endTime: '23:59',
-        serviceIds: ['service-boarding-1'],
-        orderId: 'seed-booking-3',
-      },
-      {
-        id: 'booked-4',
-        date: '2026-03-23',
-        startTime: '00:00',
-        endTime: '11:00',
-        serviceIds: ['service-boarding-1'],
-        orderId: 'seed-booking-3',
-      },
-    ],
-    availabilityWindows: [
-      {
-        id: 'window-1',
-        date: '2026-03-20',
-        startTime: '09:00',
-        endTime: '21:00',
-        serviceIds: ['service-walk-1', 'service-photo-1', 'service-visit-1'],
-        comment: 'Основное дневное окно',
-      },
-      {
-        id: 'window-2',
-        date: '2026-03-21',
-        startTime: '10:00',
-        endTime: '19:00',
-        serviceIds: ['service-walk-1', 'service-photo-1', 'service-visit-1'],
-      },
-      {
-        id: 'window-3',
-        date: '2026-03-22',
-        startTime: '10:00',
-        endTime: '20:00',
-        serviceIds: ['service-boarding-1', 'service-consult-1'],
-      },
-    ],
-    bookingSettings: {
-      dayStartTime: '09:00',
-      dayEndTime: '21:00',
-      slotStepMinutes: 30,
-      defaultDurationMinutes: 60,
-    },
-    availabilityRules: [
-      {
-        id: 'rule-walk-weekdays',
-        title: 'Прогулки по будням',
-        serviceIds: ['service-walk-1'],
-        startDate: '2026-03-01',
-        startTime: '09:00',
-        endTime: '20:00',
-        recurrence: {
-          frequency: 'weekly',
-          interval: 1,
-          weekDays: [1, 2, 3, 4, 5],
-        },
-        isEnabled: true,
-      },
-      {
-        id: 'rule-photo-weekend',
-        title: 'Фотосессии по выходным',
-        serviceIds: ['service-photo-1'],
-        startDate: '2026-03-01',
-        startTime: '11:00',
-        endTime: '18:00',
-        recurrence: {
-          frequency: 'weekly',
-          interval: 1,
-          weekDays: [0, 6],
-        },
-        isEnabled: true,
-      },
-      {
-        id: 'rule-boarding-daily',
-        title: 'Передержка ежедневно',
-        serviceIds: ['service-boarding-1'],
-        startDate: '2026-03-01',
-        startTime: '09:00',
-        endTime: '21:00',
-        recurrence: {
-          frequency: 'daily',
-          interval: 1,
-        },
-        isEnabled: true,
-      },
-    ],
-    availabilityOverrides: [
-      {
-        id: 'override-1',
-        targetDate: '2026-03-24',
-        editScope: 'single',
-        sourceRuleId: 'rule-walk-weekdays',
-        startTime: '13:00',
-        endTime: '19:00',
-        serviceIds: ['service-walk-1'],
-        comment: 'В этот день прогулки только после обеда',
-      },
-    ],
-  },
+  calendar: buildRollingDemoCalendar(),
   specialistGallery: [
     {
       id: 'specialist-gallery-1',

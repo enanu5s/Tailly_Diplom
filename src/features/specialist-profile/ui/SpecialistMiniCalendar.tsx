@@ -29,6 +29,7 @@ const STATUS_CLASS_NAMES: Record<SpecialistCalendarDayStatus, string> = {
 };
 
 const LEGEND_ITEMS: SpecialistCalendarDayStatus[] = [
+  'available',
   'partially_booked',
   'fully_booked',
   'day_off',
@@ -51,12 +52,7 @@ export function SpecialistMiniCalendar({
   const todayIsoDate = toIsoDate(new Date());
 
   const handleEditCalendarClick = (): void => {
-    console.log('MINI CALENDAR EDIT CLICK');
-    console.log('EDIT_HREF:', editHref);
-    console.log('CURRENT_PATH:', window.location.pathname);
-
     if (!editHref) {
-      console.error('EDIT_HREF IS EMPTY');
       return;
     }
 
@@ -146,10 +142,14 @@ export function SpecialistMiniCalendar({
                 <>
                   <span className={styles.dayNumber}>{day.dayNumber}</span>
 
-                  {day.status &&
-                  day.status !== 'available' &&
-                  day.status !== 'day_off' ? (
+                  {day.status === 'partially_booked' ? (
                     <span className={styles.dot} aria-hidden="true" />
+                  ) : day.status === 'available' &&
+                    day.hasAvailabilityWindows ? (
+                    <span
+                      className={`${styles.dot} ${styles.dotOpenSlots}`}
+                      aria-hidden="true"
+                    />
                   ) : null}
                 </>
               ) : null}

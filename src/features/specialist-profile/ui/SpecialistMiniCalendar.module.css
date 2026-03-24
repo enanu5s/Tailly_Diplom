@@ -108,6 +108,11 @@
   background: currentColor;
 }
 
+.dotOpenSlots {
+  color: #10b981;
+  background: #10b981;
+}
+
 .today {
   border-color: #6366f1;
   box-shadow: 0 0 0 2px rgba(99, 102, 241, 0.16);
