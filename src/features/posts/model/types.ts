@@ -1,9 +1,11 @@
+// src/features/posts/model/types.ts
+
 export type Post = {
   id: string;
   title: string;
   content: string;
-  publishedAt: string; // ISO
-  imageUrl?: string;   // "/images/...." или полный URL
+  publishedAt: string;
+  imageUrl?: string;
   tags?: string[];
 };
 
@@ -14,6 +16,7 @@ export type PostsListParams = {
   pageSize: number;
   search?: string;
   sort?: PostsSort;
+  tag?: string;
 };
 
 export type PostsListResponse = {
@@ -21,4 +24,5 @@ export type PostsListResponse = {
   total: number;
   page: number;
   pageSize: number;
+  availableTags?: string[];
 };

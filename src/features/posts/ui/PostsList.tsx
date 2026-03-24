@@ -2,12 +2,13 @@
 
 import { observer } from 'mobx-react-lite';
 import { useEffect } from 'react';
-import { useAppNavigate } from '@/shared/lib/navigation/useAppNavigate';
 
+import { useAppNavigate } from '@/shared/lib/navigation/useAppNavigate';
 import { saveScrollPosition } from '@/shared/lib/scroll';
 
 import styles from './PostsList.module.css';
 import { postsStore } from '../model/postsStore';
+import type { PostsSort } from '../model/types';
 
 export const PostsList = observer(() => {
   const navigate = useAppNavigate();
@@ -16,9 +17,13 @@ export const PostsList = observer(() => {
     void postsStore.loadList();
   }, []);
 
-  const onSearchSubmit = (e: React.FormEvent) => {
-    e.preventDefault();
+  const onSearchSubmit = (event: React.FormEvent<HTMLFormElement>): void => {
+    event.preventDefault();
     void postsStore.loadList();
+  };
+
+  const handleSortChange = (value: string): void => {
+    postsStore.setSort(value as PostsSort);
   };
 
   return (
@@ -29,21 +34,13 @@ export const PostsList = observer(() => {
           type="text"
           placeholder="Поиск по постам..."
           value={postsStore.list.search}
-          onChange={(e) => postsStore.setSearch(e.target.value)}
+          onChange={(event) => postsStore.setSearch(event.target.value)}
         />
 
         <select
           className={styles.select}
           value={postsStore.list.sort}
-          onChange={(e) =>
-            postsStore.setSort(
-              e.target.value as
-                | 'newest'
-                | 'oldest'
-                | 'title_asc'
-                | 'title_desc',
-            )
-          }
+          onChange={(event) => handleSortChange(event.target.value)}
         >
           <option value="newest">Сначала новые</option>
           <option value="oldest">Сначала старые</option>
@@ -60,35 +57,108 @@ export const PostsList = observer(() => {
         </button>
       </form>
 
-      {postsStore.list.error && (
+      {postsStore.list.availableTags.length > 0 ? (
+        <div className={styles.tagsSection}>
+          <div className={styles.tagsHeader}>
+            <span className={styles.tagsTitle}>Темы</span>
+
+            {postsStore.hasActiveFilters ? (
+              <button
+                type="button"
+                className={styles.clearFiltersButton}
+                onClick={() => postsStore.clearFilters()}
+                disabled={postsStore.list.loading}
+              >
+                Сбросить фильтры
+              </button>
+            ) : null}
+          </div>
+
+          <div className={styles.tagsList}>
+            <button
+              type="button"
+              className={
+                postsStore.list.selectedTag === ''
+                  ? `${styles.tagButton} ${styles.tagButtonActive}`
+                  : styles.tagButton
+              }
+              onClick={() => postsStore.setSelectedTag('')}
+              disabled={postsStore.list.loading}
+            >
+              Все темы
+            </button>
+
+            {postsStore.list.availableTags.map((tag) => {
+              const isActive = postsStore.list.selectedTag === tag;
+
+              return (
+                <button
+                  key={tag}
+                  type="button"
+                  className={
+                    isActive
+                      ? `${styles.tagButton} ${styles.tagButtonActive}`
+                      : styles.tagButton
+                  }
+                  onClick={() => postsStore.setSelectedTag(tag)}
+                  disabled={postsStore.list.loading}
+                >
+                  #{tag}
+                </button>
+              );
+            })}
+          </div>
+        </div>
+      ) : null}
+
+      {postsStore.list.error ? (
         <div className={styles.error}>{postsStore.list.error}</div>
-      )}
+      ) : null}
+
+      {!postsStore.list.loading && postsStore.list.items.length === 0 ? (
+        <div className={styles.emptyState}>
+          По текущим параметрам посты не найдены.
+        </div>
+      ) : null}
 
       <div className={styles.grid}>
         {postsStore.list.loading && postsStore.list.items.length === 0
-          ? Array.from({ length: 6 }).map((_, i) => (
-              <div key={i} className={styles.skeleton} />
+          ? Array.from({ length: 6 }).map((_, index) => (
+              <div key={index} className={styles.skeleton} />
             ))
-          : postsStore.list.items.map((p) => (
+          : postsStore.list.items.map((post) => (
               <button
-                key={p.id}
+                key={post.id}
                 type="button"
                 className={styles.card}
                 onClick={() => {
                   saveScrollPosition('/posts');
-                  navigate(`/posts/${p.id}`);
+                  navigate(`/posts/${post.id}`);
                 }}
               >
-                <div className={styles.cardTitle}>{p.title}</div>
-                <div className={styles.cardDate}>
-                  {new Date(p.publishedAt).toLocaleDateString('ru-RU', {
-                    year: 'numeric',
-                    month: 'long',
-                    day: '2-digit',
-                  })}
+                <div className={styles.cardHeader}>
+                  <div className={styles.cardTitle}>{post.title}</div>
+                  <div className={styles.cardDate}>
+                    {new Date(post.publishedAt).toLocaleDateString('ru-RU', {
+                      year: 'numeric',
+                      month: 'long',
+                      day: '2-digit',
+                    })}
+                  </div>
                 </div>
+
+                {post.tags && post.tags.length > 0 ? (
+                  <div className={styles.cardTags}>
+                    {post.tags.map((tag) => (
+                      <span key={tag} className={styles.cardTag}>
+                        #{tag}
+                      </span>
+                    ))}
+                  </div>
+                ) : null}
+
                 <div className={styles.cardTextWrap}>
-                  <p className={styles.cardText}>{p.content}</p>
+                  <p className={styles.cardText}>{post.content}</p>
                   <div className={styles.fade} />
                 </div>
               </button>

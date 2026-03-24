@@ -13,6 +13,8 @@ type ListState = {
   pageSize: number;
   search: string;
   sort: PostsSort;
+  selectedTag: string;
+  availableTags: string[];
   loading: boolean;
   error: string | null;
 };
@@ -30,7 +32,11 @@ type DetailsState = {
 };
 
 export class PostsStore {
-  latest: LatestState = { items: [], loading: false, error: null };
+  latest: LatestState = {
+    items: [],
+    loading: false,
+    error: null,
+  };
 
   list: ListState = {
     items: [],
@@ -39,6 +45,8 @@ export class PostsStore {
     pageSize: 9,
     search: '',
     sort: 'newest',
+    selectedTag: '',
+    availableTags: [],
     loading: false,
     error: null,
   };
@@ -49,7 +57,9 @@ export class PostsStore {
     error: null,
   };
 
-  private searchDebounceTimer: ReturnType<typeof setTimeout> | null = null;
+  private searchDebounceTimer: ReturnType<typeof window.setTimeout> | null =
+    null;
+
   private listRequestId = 0;
 
   constructor() {
@@ -58,6 +68,10 @@ export class PostsStore {
 
   get totalPages(): number {
     return Math.max(1, Math.ceil(this.list.total / this.list.pageSize));
+  }
+
+  get hasActiveFilters(): boolean {
+    return Boolean(this.list.search.trim() || this.list.selectedTag);
   }
 
   setListPage(page: number): void {
@@ -73,6 +87,21 @@ export class PostsStore {
   setSort(value: PostsSort): void {
     this.list.sort = value;
     this.list.page = 1;
+    void this.loadList();
+  }
+
+  setSelectedTag(value: string): void {
+    this.list.selectedTag = value;
+    this.list.page = 1;
+    void this.loadList();
+  }
+
+  clearFilters(): void {
+    this.list.search = '';
+    this.list.selectedTag = '';
+    this.list.sort = 'newest';
+    this.list.page = 1;
+    void this.loadList();
   }
 
   private clearSearchDebounce(): void {
@@ -124,6 +153,7 @@ export class PostsStore {
         pageSize: this.list.pageSize,
         search: this.list.search.trim() || undefined,
         sort: this.list.sort,
+        tag: this.list.selectedTag || undefined,
       });
 
       runInAction(() => {
@@ -135,6 +165,7 @@ export class PostsStore {
         this.list.total = response.total;
         this.list.page = response.page;
         this.list.pageSize = response.pageSize;
+        this.list.availableTags = response.availableTags ?? [];
         this.list.loading = false;
       });
     } catch (error) {
