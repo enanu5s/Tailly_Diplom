@@ -188,6 +188,23 @@ export const MessagesSection = observer(() => {
     };
   }, [searchParams]);
 
+  const clientIntent = useMemo(() => {
+    const clientId = searchParams.get("clientId")?.trim() ?? "";
+    const clientName = searchParams.get("clientName")?.trim() ?? "";
+    const clientAvatarUrl =
+      searchParams.get("clientAvatarUrl")?.trim() ?? "";
+
+    if (!clientId || !clientName) {
+      return null;
+    }
+
+    return {
+      clientId,
+      clientName,
+      clientAvatarUrl: clientAvatarUrl || undefined,
+    };
+  }, [searchParams]);
+
   useEffect(() => {
     if (!viewer.userId) {
       messagesStore.reset();
@@ -198,7 +215,33 @@ export const MessagesSection = observer(() => {
   }, [viewer]);
 
   useEffect(() => {
+    if (!viewer.userId || !clientIntent || viewer.role !== "specialist") {
+      return;
+    }
+
+    void messagesStore
+      .ensureClientThread({
+        viewer,
+        clientId: clientIntent.clientId,
+        clientName: clientIntent.clientName,
+        clientAvatarUrl: clientIntent.clientAvatarUrl,
+      })
+      .finally(() => {
+        navigate(
+          {
+            pathname: location.pathname,
+          },
+          { replace: true }
+        );
+      });
+  }, [clientIntent, location.pathname, navigate, viewer]);
+
+  useEffect(() => {
     if (!viewer.userId || !specialistIntent) {
+      return;
+    }
+
+    if (viewer.role === "specialist" && clientIntent) {
       return;
     }
 
@@ -218,7 +261,13 @@ export const MessagesSection = observer(() => {
           { replace: true }
         );
       });
-  }, [location.pathname, navigate, specialistIntent, viewer]);
+  }, [
+    clientIntent,
+    location.pathname,
+    navigate,
+    specialistIntent,
+    viewer,
+  ]);
 
   const {
     threads,

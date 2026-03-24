@@ -490,6 +490,10 @@ function validateByMode(payload: CreateServiceOrderPayload): void {
     throw new Error('Нужно выбрать питомца для оформления заказа.');
   }
 
+  if (!payload.clientId.trim() || !payload.clientName.trim()) {
+    throw new Error('Не удалось определить клиента для заказа.');
+  }
+
   if (
     payload.schedule.mode === 'fixed_slot' ||
     payload.schedule.mode === 'time_range'
@@ -756,6 +760,8 @@ function addReviewToSpecialist(
 
   const nextReview: SpecialistReview = {
     id: `review-from-order-${order.id}`,
+    orderId: order.id,
+    serviceTitle: order.serviceTitle,
     authorName: 'Вы',
     petName: order.petName,
     rating: review.rating,

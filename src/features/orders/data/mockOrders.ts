@@ -11,6 +11,10 @@ import type {
 
 const SERVICE_ORDERS_STORAGE_KEY = "tailly_mock_service_orders";
 
+const DEFAULT_CLIENT_ID = "client-1";
+const DEFAULT_CLIENT_NAME = "Елена Смирнова";
+const DEFAULT_CLIENT_SLUG = "client-1";
+
 function clone<T>(value: T): T {
   return JSON.parse(JSON.stringify(value)) as T;
 }
@@ -89,6 +93,9 @@ function generateServiceSeed(): ServiceOrder[] {
       },
       petId: "pet-1",
       petName: "Марта",
+      clientId: DEFAULT_CLIENT_ID,
+      clientName: DEFAULT_CLIENT_NAME,
+      clientSlug: DEFAULT_CLIENT_SLUG,
       sitterId: "specialist-1",
       sitterName: "Мария Иванова",
       specialistSlug: "maria-ivanova",
@@ -130,6 +137,9 @@ function generateServiceSeed(): ServiceOrder[] {
       },
       petId: "pet-2",
       petName: "Пушок",
+      clientId: DEFAULT_CLIENT_ID,
+      clientName: DEFAULT_CLIENT_NAME,
+      clientSlug: DEFAULT_CLIENT_SLUG,
       sitterId: "specialist-1",
       sitterName: "Мария Иванова",
       specialistSlug: "maria-ivanova",
@@ -177,6 +187,9 @@ function generateServiceSeed(): ServiceOrder[] {
       },
       petId: "pet-3",
       petName: "Снежок",
+      clientId: DEFAULT_CLIENT_ID,
+      clientName: DEFAULT_CLIENT_NAME,
+      clientSlug: DEFAULT_CLIENT_SLUG,
       sitterId: "specialist-1",
       sitterName: "Мария Иванова",
       specialistSlug: "maria-ivanova",
@@ -228,6 +241,9 @@ function generateServiceSeed(): ServiceOrder[] {
       },
       petId: "pet-4",
       petName: "Тиша",
+      clientId: DEFAULT_CLIENT_ID,
+      clientName: DEFAULT_CLIENT_NAME,
+      clientSlug: DEFAULT_CLIENT_SLUG,
       sitterId: "specialist-1",
       sitterName: "Мария Иванова",
       specialistSlug: "maria-ivanova",
@@ -281,6 +297,214 @@ function generateServiceSeed(): ServiceOrder[] {
       ],
     },
     {
+      id: "service-order-completed-anna-1",
+      createdAt: atTime(addDays(now, -19), 11, 0),
+      confirmedAt: atTime(addDays(now, -19), 11, 20),
+      startedAt: atTime(addDays(now, -18), 14, 0),
+      completedAt: atTime(addDays(now, -18), 16, 0),
+      dateFrom: atTime(addDays(now, -18), 14, 0),
+      dateTo: atTime(addDays(now, -18), 16, 0),
+      schedule: {
+        mode: "fixed_slot",
+        startAt: atTime(addDays(now, -18), 14, 0),
+        endAt: atTime(addDays(now, -18), 16, 0),
+      },
+      petId: "pet-profile-anna",
+      petName: "Марта",
+      clientId: "client-anna-1",
+      clientName: "Анна Волкова",
+      clientSlug: "client-anna-1",
+      sitterId: "specialist-1",
+      sitterName: "Мария Иванова",
+      specialistSlug: "maria-ivanova",
+      status: "completed",
+      serviceId: "service-boarding-1",
+      serviceTitle: "Передержка у специалиста",
+      servicePriceUnit: "day",
+      serviceSnapshot: {
+        id: "service-boarding-1",
+        title: "Передержка у специалиста",
+        locationLabel: "У специалиста дома",
+        price: 1200,
+        priceUnit: "day",
+        bookingMode: "fixed_slot",
+      },
+      locationLabel: "У специалиста дома",
+      comment: "Короткая передержка на выходные.",
+      price: 2400,
+      currency: "RUB",
+      rating: 5,
+      hasReview: true,
+      review: {
+        rating: 5,
+        comment:
+          "Очень тёплый и бережный подход. Кошка быстро привыкла, отчёты были каждый день.",
+        photos: [],
+        createdAt: "2026-02-19T12:00:00.000Z",
+        specialistReply: {
+          comment: "Анна, спасибо большое за доверие. Марта чудесная.",
+          createdAt: "2026-02-19T15:00:00.000Z",
+        },
+      },
+      lifecycle: [
+        {
+          status: "pending_confirmation",
+          changedAt: atTime(addDays(now, -19), 11, 0),
+        },
+        {
+          status: "confirmed",
+          changedAt: atTime(addDays(now, -19), 11, 20),
+        },
+        {
+          status: "active",
+          changedAt: atTime(addDays(now, -18), 14, 0),
+        },
+        {
+          status: "completed",
+          changedAt: atTime(addDays(now, -18), 16, 0),
+        },
+      ],
+    },
+    {
+      id: "service-order-completed-kirill-1",
+      createdAt: atTime(addDays(now, -12), 9, 30),
+      confirmedAt: atTime(addDays(now, -12), 10, 0),
+      startedAt: atTime(addDays(now, -11), 15, 0),
+      completedAt: atTime(addDays(now, -11), 16, 30),
+      dateFrom: atTime(addDays(now, -11), 15, 0),
+      dateTo: atTime(addDays(now, -11), 16, 30),
+      schedule: {
+        mode: "time_range",
+        startAt: atTime(addDays(now, -11), 15, 0),
+        endAt: atTime(addDays(now, -11), 16, 30),
+      },
+      petId: "pet-profile-kirill",
+      petName: "Пушок",
+      clientId: "client-kirill-1",
+      clientName: "Кирилл Лебедев",
+      clientSlug: "client-kirill-1",
+      sitterId: "specialist-1",
+      sitterName: "Мария Иванова",
+      specialistSlug: "maria-ivanova",
+      status: "completed",
+      serviceId: "service-photo-1",
+      serviceTitle: "Фотосессия питомца",
+      servicePriceUnit: "service",
+      serviceSnapshot: {
+        id: "service-photo-1",
+        title: "Фотосессия питомца",
+        locationLabel: "На прогулке или дома у клиента",
+        price: 2500,
+        priceUnit: "service",
+        bookingMode: "time_range",
+      },
+      locationLabel: "На прогулке или дома у клиента",
+      comment: "Съёмка в парке.",
+      price: 2500,
+      currency: "RUB",
+      rating: 5,
+      hasReview: true,
+      review: {
+        rating: 5,
+        comment:
+          "Очень понравился подход. Всё чётко по рекомендациям, всегда на связи.",
+        photos: [],
+        createdAt: "2026-02-10T11:00:00.000Z",
+        specialistReply: null,
+      },
+      lifecycle: [
+        {
+          status: "pending_confirmation",
+          changedAt: atTime(addDays(now, -12), 9, 30),
+        },
+        {
+          status: "confirmed",
+          changedAt: atTime(addDays(now, -12), 10, 0),
+        },
+        {
+          status: "active",
+          changedAt: atTime(addDays(now, -11), 15, 0),
+        },
+        {
+          status: "completed",
+          changedAt: atTime(addDays(now, -11), 16, 30),
+        },
+      ],
+    },
+    {
+      id: "service-order-completed-elena-1",
+      createdAt: atTime(addDays(now, -30), 8, 0),
+      confirmedAt: atTime(addDays(now, -30), 8, 40),
+      startedAt: atTime(addDays(now, -28), 12, 0),
+      completedAt: atTime(addDays(now, -26), 11, 0),
+      dateFrom: atTime(addDays(now, -28), 12, 0),
+      dateTo: atTime(addDays(now, -26), 11, 0),
+      schedule: {
+        mode: "multi_day_stay",
+        checkInAt: atTime(addDays(now, -28), 12, 0),
+        checkOutAt: atTime(addDays(now, -26), 11, 0),
+        stayDays: calculateStayDays(
+          atTime(addDays(now, -28), 12, 0),
+          atTime(addDays(now, -26), 11, 0),
+        ),
+      },
+      petId: "pet-profile-elena",
+      petName: "Снежок",
+      clientId: DEFAULT_CLIENT_ID,
+      clientName: DEFAULT_CLIENT_NAME,
+      clientSlug: DEFAULT_CLIENT_SLUG,
+      sitterId: "specialist-1",
+      sitterName: "Мария Иванова",
+      specialistSlug: "maria-ivanova",
+      status: "completed",
+      serviceId: "service-boarding-1",
+      serviceTitle: "Передержка у специалиста",
+      servicePriceUnit: "day",
+      serviceSnapshot: {
+        id: "service-boarding-1",
+        title: "Передержка у специалиста",
+        locationLabel: "У специалиста дома",
+        price: 1200,
+        priceUnit: "day",
+        bookingMode: "multi_day_stay",
+      },
+      locationLabel: "У специалиста дома",
+      comment: "Длительная передержка.",
+      price: 3600,
+      currency: "RUB",
+      rating: 5,
+      hasReview: true,
+      review: {
+        rating: 5,
+        comment:
+          "Передержка прошла идеально. Место чистое, рекомендации соблюдены полностью.",
+        photos: [],
+        createdAt: "2026-01-27T10:00:00.000Z",
+        specialistReply: {
+          comment: "Елена, спасибо. Буду рада помочь снова.",
+          createdAt: "2026-01-28T09:00:00.000Z",
+        },
+      },
+      lifecycle: [
+        {
+          status: "pending_confirmation",
+          changedAt: atTime(addDays(now, -30), 8, 0),
+        },
+        {
+          status: "confirmed",
+          changedAt: atTime(addDays(now, -30), 8, 40),
+        },
+        {
+          status: "active",
+          changedAt: atTime(addDays(now, -28), 12, 0),
+        },
+        {
+          status: "completed",
+          changedAt: atTime(addDays(now, -26), 11, 0),
+        },
+      ],
+    },
+    {
       id: "service-order-canceled-1",
       createdAt: atTime(addDays(now, -5), 18, 0),
       canceledAt: atTime(canceledDay, 9, 0),
@@ -294,6 +518,9 @@ function generateServiceSeed(): ServiceOrder[] {
       },
       petId: "pet-5",
       petName: "Ричи",
+      clientId: DEFAULT_CLIENT_ID,
+      clientName: DEFAULT_CLIENT_NAME,
+      clientSlug: DEFAULT_CLIENT_SLUG,
       sitterId: "specialist-1",
       sitterName: "Мария Иванова",
       specialistSlug: "maria-ivanova",
@@ -492,6 +719,19 @@ function migrateLegacyOrder(raw: LegacyServiceOrder): ServiceOrder | null {
 
   const normalizedReview = normalizeReview(raw);
 
+  const clientId =
+    typeof raw.clientId === "string" && raw.clientId.trim()
+      ? raw.clientId.trim()
+      : DEFAULT_CLIENT_ID;
+  const clientName =
+    typeof raw.clientName === "string" && raw.clientName.trim()
+      ? raw.clientName.trim()
+      : DEFAULT_CLIENT_NAME;
+  const clientSlug =
+    typeof raw.clientSlug === "string" && raw.clientSlug.trim()
+      ? raw.clientSlug.trim()
+      : clientId;
+
   return {
     id: raw.id,
     createdAt: raw.createdAt,
@@ -504,6 +744,9 @@ function migrateLegacyOrder(raw: LegacyServiceOrder): ServiceOrder | null {
     schedule,
     petId: raw.petId,
     petName: raw.petName,
+    clientId,
+    clientName,
+    clientSlug,
     sitterId: raw.sitterId,
     sitterName: raw.sitterName,
     specialistSlug: raw.specialistSlug,
@@ -614,6 +857,9 @@ export function createMockServiceOrder(
     schedule: clone(payload.schedule),
     petId: payload.petId,
     petName: payload.petName,
+    clientId: payload.clientId.trim(),
+    clientName: payload.clientName.trim(),
+    clientSlug: payload.clientSlug.trim() || payload.clientId.trim(),
     sitterId: payload.sitterId,
     sitterName: payload.sitterName,
     specialistSlug: payload.specialistSlug,

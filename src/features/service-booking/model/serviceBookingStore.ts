@@ -736,7 +736,13 @@ export class ServiceBookingStore {
     });
   }
 
-  async submit(): Promise<ServiceOrder | null> {
+  async submit(bookingClient: {
+    id: string;
+    firstName?: string;
+    lastName?: string;
+    name?: string;
+    email?: string;
+  }): Promise<ServiceOrder | null> {
     if (!this.specialist) {
       throw new Error("Специалист не найден.");
     }
@@ -752,6 +758,18 @@ export class ServiceBookingStore {
     if (!pet) {
       throw new Error("Выберите питомца.");
     }
+
+    if (!bookingClient.id.trim()) {
+      throw new Error("Нужно войти в аккаунт, чтобы оформить заказ.");
+    }
+
+    const clientName =
+      `${bookingClient.firstName?.trim() ?? ""} ${bookingClient.lastName?.trim() ?? ""}`.trim() ||
+      bookingClient.name?.trim() ||
+      bookingClient.email?.trim() ||
+      "Клиент";
+    const clientId = bookingClient.id.trim();
+    const clientSlug = clientId;
 
     this.submitting = true;
     this.submitError = null;
@@ -857,6 +875,9 @@ export class ServiceBookingStore {
         ...payload,
         petId: pet.id,
         petName: pet.name,
+        clientId,
+        clientName,
+        clientSlug,
         sitterId: this.specialist.id,
         sitterName:
           `${this.specialist.main.firstName} ${this.specialist.main.lastName}`.trim(),

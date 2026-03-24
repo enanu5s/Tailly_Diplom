@@ -531,6 +531,23 @@ export class SpecialistProfileStore {
     );
   }
 
+  /** Обновить профиль из ответа API без isLoading и без сброса форм редактирования. */
+  applyProfileFromReviewReply(next: SpecialistProfile): void {
+    runInAction(() => {
+      if (!this.profile) {
+        this.profile = next;
+        this.loadedSlug = next.slug.trim();
+        return;
+      }
+
+      if (this.profile.slug.trim() !== next.slug.trim()) {
+        return;
+      }
+
+      this.profile = next;
+    });
+  }
+
   startMainEditing(): void {
     if (!this.profile?.isOwner) {
       return;

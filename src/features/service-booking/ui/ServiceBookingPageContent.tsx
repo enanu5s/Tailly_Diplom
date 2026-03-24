@@ -3,6 +3,7 @@
 import { observer } from "mobx-react-lite";
 import { useEffect } from "react";
 
+import { useAuth } from "@/features/auth/model/useAuth";
 import { useAppNavigate } from "@/shared/lib/navigation/useAppNavigate";
 import { useLocation, useSearchParams } from "react-router-dom";
 
@@ -243,6 +244,7 @@ export const ServiceBookingPageContent = observer((): ReactElement => {
   const navigate = useAppNavigate();
   const location = useLocation();
   const [searchParams] = useSearchParams();
+  const { user } = useAuth();
 
   const state = (location.state as ServiceBookingLocationState | null) ?? null;
   const repeatOrderId = searchParams.get("repeat");
@@ -271,8 +273,18 @@ export const ServiceBookingPageContent = observer((): ReactElement => {
   const estimatedPrice = serviceBookingStore.estimatedPrice;
 
   const handleSubmit = async (): Promise<void> => {
+    if (!user?.id) {
+      return;
+    }
+
     try {
-      const createdOrder = await serviceBookingStore.submit();
+      const createdOrder = await serviceBookingStore.submit({
+        id: user.id,
+        firstName: user.firstName,
+        lastName: user.lastName,
+        name: user.name,
+        email: user.email,
+      });
 
       if (!createdOrder) {
         return;
@@ -749,6 +761,7 @@ export const ServiceBookingPageContent = observer((): ReactElement => {
               disabled={
                 serviceBookingStore.submitting ||
                 pets.length === 0 ||
+                !user?.id ||
                 !canSubmitBooking()
               }
               onClick={() => {

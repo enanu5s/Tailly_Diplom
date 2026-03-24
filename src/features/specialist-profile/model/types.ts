@@ -228,6 +228,10 @@ export type SpecialistReviewReply = {
 
 export type SpecialistReview = {
   id: string;
+  /** Заказ, к которому привязан отзыв (для перехода из кабинета специалиста). */
+  orderId?: string;
+  /** Подпись услуги без запроса к API заказов. */
+  serviceTitle?: string;
   authorName: string;
   petName?: string;
   rating: 1 | 2 | 3 | 4 | 5;

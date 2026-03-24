@@ -13,11 +13,16 @@ import {
   syncBlockedState,
   wait,
 } from '../data/mockAuthAccounts';
+import type { UserRole } from '../model/authStore';
 import {
   LoginError,
   type LoginPayload,
   type LoginSuccessResponse,
 } from '../model/types';
+
+function resolveAdminSessionRole(roles: UserRole[]): 'admin' | 'super_admin' {
+  return roles.includes('super_admin') ? 'super_admin' : 'admin';
+}
 
 export async function mockLogin(
   payload: LoginPayload,
@@ -110,6 +115,14 @@ export async function mockLogin(
     });
   }
 
+  if (hasAdminRole(account.roles)) {
+    resetAdminAttempts(email);
+    return mapAccountToLoginSuccess(
+      account,
+      resolveAdminSessionRole(account.roles),
+    );
+  }
+
   if (!account.roles.includes(requestedRole)) {
     throw new LoginError({
       code: 'INVALID_ROLE',
@@ -118,10 +131,6 @@ export async function mockLogin(
           ? 'Этот аккаунт не зарегистрирован как специалист.'
           : 'Этот аккаунт не зарегистрирован как клиент.',
     });
-  }
-
-  if (hasAdminRole(account.roles)) {
-    resetAdminAttempts(email);
   }
 
   return mapAccountToLoginSuccess(account, requestedRole);

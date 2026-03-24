@@ -7,6 +7,7 @@ import { messagesUnreadStore } from './messagesUnreadStore';
 import type {
   ChatMessage,
   DraftMessageImageAttachment,
+  EnsureClientThreadPayload,
   MessageReplyPreview,
   MessageThread,
   MessagesSnapshot,
@@ -233,6 +234,9 @@ class MessagesStore {
         (thread) =>
           thread.kind === 'specialist_direct' &&
           thread.participants.some(
+            (participant) => participant.userId === params.viewer.userId,
+          ) &&
+          thread.participants.some(
             (participant) => participant.userId === params.specialistId,
           ),
       );
@@ -268,6 +272,59 @@ class MessagesStore {
     specialistAvatarUrl?: string;
   }): Promise<void> {
     await this.ensureSpecialistThread(params);
+  }
+
+  async ensureClientThread(params: EnsureClientThreadPayload): Promise<void> {
+    if (
+      params.viewer.role !== 'specialist' ||
+      !params.viewer.userId.trim() ||
+      !params.clientId.trim()
+    ) {
+      return;
+    }
+
+    this.loading = true;
+    this.error = null;
+
+    try {
+      const snapshot = await messagesService.ensureClientThread(params);
+
+      const targetThread = snapshot.threads.find(
+        (thread) =>
+          thread.kind === 'specialist_direct' &&
+          thread.participants.some(
+            (participant) => participant.userId === params.viewer.userId,
+          ) &&
+          thread.participants.some(
+            (participant) => participant.userId === params.clientId.trim(),
+          ),
+      );
+
+      runInAction(() => {
+        this.applySnapshot(
+          params.viewer,
+          snapshot,
+          targetThread?.id ?? null,
+        );
+      });
+
+      await this.syncUnread(params.viewer);
+    } catch (error) {
+      runInAction(() => {
+        this.error =
+          error instanceof Error
+            ? error.message
+            : 'Не удалось открыть чат с клиентом.';
+      });
+    } finally {
+      runInAction(() => {
+        this.loading = false;
+      });
+    }
+  }
+
+  async startChatWithClient(params: EnsureClientThreadPayload): Promise<void> {
+    await this.ensureClientThread(params);
   }
 
   async markMessagesAsRead(params: {

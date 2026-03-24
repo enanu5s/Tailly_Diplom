@@ -1,5 +1,6 @@
 // src/features/specialist-profile/ui/SpecialistProfileView.tsx
 import { observer } from "mobx-react-lite";
+import { Link } from "react-router-dom";
 
 import { SpecialistMiniCalendar } from "./SpecialistMiniCalendar";
 import { SpecialistPhotoGallery } from "./SpecialistPhotoGallery";
@@ -225,6 +226,11 @@ type Props = {
   onSaveDetails: () => void;
   onContactSpecialist?: () => void;
   onBookService?: (serviceId: string) => void;
+  /** Ссылки кабинета владельца профиля (только для isOwner). */
+  ownerWorkspace?: {
+    reviewsPath: string;
+    ordersPath: string;
+  };
 };
 
 const PET_SIZE_OPTIONS: SpecialistPetSize[] = [
@@ -502,6 +508,7 @@ export const SpecialistProfileView = observer(
     onSaveDetails,
     onContactSpecialist,
     onBookService,
+    ownerWorkspace,
   }: Props) => {
     if (isLoading) {
       return (
@@ -890,12 +897,21 @@ export const SpecialistProfileView = observer(
                     </div>
                   </div>
 
-                  <a
-                    className={styles.primaryLinkButton}
-                    href="#specialist-reviews"
-                  >
-                    Перейти в отзывы
-                  </a>
+                  {profile.isOwner && ownerWorkspace ? (
+                    <Link
+                      className={styles.primaryLinkButton}
+                      to={ownerWorkspace.reviewsPath}
+                    >
+                      Управление отзывами
+                    </Link>
+                  ) : (
+                    <a
+                      className={styles.primaryLinkButton}
+                      href="#specialist-reviews"
+                    >
+                      Перейти в отзывы
+                    </a>
+                  )}
                 </div>
 
                 <div className={styles.statsGrid}>
@@ -920,6 +936,23 @@ export const SpecialistProfileView = observer(
                     <span className={styles.statLabel}>повторных заказов</span>
                   </div>
                 </div>
+
+                {profile.isOwner && ownerWorkspace ? (
+                  <div className={styles.ownerWorkspaceLinks}>
+                    <Link
+                      className={styles.ownerWorkspaceLink}
+                      to={ownerWorkspace.ordersPath}
+                    >
+                      Заказы клиентов
+                    </Link>
+                    <Link
+                      className={styles.ownerWorkspaceLinkSecondary}
+                      to={ownerWorkspace.reviewsPath}
+                    >
+                      Ответы на отзывы
+                    </Link>
+                  </div>
+                ) : null}
               </div>
             </div>
           </section>
@@ -1519,6 +1552,19 @@ export const SpecialistProfileView = observer(
 
             <div id="specialist-reviews" className={styles.subsection}>
               <h3 className={styles.subsectionTitle}>Отзывы о специалисте</h3>
+
+              {profile.isOwner && ownerWorkspace ? (
+                <p className={styles.reviewsOwnerNote}>
+                  Ответы на отзывы оформляются на отдельной странице:{" "}
+                  <Link
+                    className={styles.inlineLink}
+                    to={ownerWorkspace.reviewsPath}
+                  >
+                    открыть раздел ответов
+                  </Link>
+                  .
+                </p>
+              ) : null}
 
               <div className={styles.reviewsList}>
                 {visibleReviews.map((review) => (

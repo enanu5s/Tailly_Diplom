@@ -1,0 +1,55 @@
+/* src/pages/specialist-orders/ui/SpecialistOrdersPage.module.css */
+
+.page {
+  padding: 24px 16px 48px;
+  background: #f3f4f6;
+}
+
+.container {
+  max-width: 960px;
+  margin: 0 auto;
+}
+
+.breadcrumb {
+  margin-bottom: 16px;
+}
+
+.backLink {
+  font-size: 14px;
+  color: #4f46e5;
+  text-decoration: none;
+}
+
+.backLink:hover {
+  text-decoration: underline;
+}
+
+.header {
+  margin-bottom: 20px;
+}
+
+.title {
+  margin: 0 0 10px;
+  font-size: 28px;
+  line-height: 1.2;
+  color: #111827;
+}
+
+.subtitle {
+  margin: 0 0 12px;
+  max-width: 720px;
+  line-height: 1.55;
+  color: rgba(17, 24, 39, 0.72);
+}
+
+.secondaryLink {
+  display: inline-block;
+  font-size: 14px;
+  font-weight: 600;
+  color: #4f46e5;
+  text-decoration: none;
+}
+
+.secondaryLink:hover {
+  text-decoration: underline;
+}

@@ -2,8 +2,12 @@
 
 import { observer } from "mobx-react-lite";
 import { useEffect, useMemo, useRef, useState } from "react";
-import { useLocation } from "react-router-dom";
+import { useLocation, useParams } from "react-router-dom";
 import { useAppNavigate } from '@/shared/lib/navigation/useAppNavigate';
+
+import { useAuth } from "@/features/auth/model/useAuth";
+import { getMessagesViewerFromUser } from "@/features/messages/model/messagesViewer";
+import { messagesStore } from "@/features/messages/model/messagesStore";
 
 import { ordersStore } from "../model/ordersStore";
 import type {
@@ -292,8 +296,14 @@ function readFileAsDataUrl(file: File): Promise<string> {
 
 export const OrdersServicesSection = observer(
   ({ viewerRole = "client" }: Props): ReactElement => {
+    const isSpecialistViewer = viewerRole === "specialist";
     const navigate = useAppNavigate();
     const location = useLocation();
+    const { specialistSlug: specialistSlugParam } = useParams<{
+      specialistSlug?: string;
+    }>();
+    const { user } = useAuth();
+    const specialistSlug = specialistSlugParam?.trim() ?? "";
     const locationState =
       (location.state as ProfileOrdersLocationState | null) ?? null;
 
@@ -489,22 +499,56 @@ export const OrdersServicesSection = observer(
       });
     };
 
-    const openSpecialistProfile = (specialistSlug: string): void => {
-      navigate(`/specialists/${specialistSlug}`, {
+    const openSpecialistProfile = (specialistSlugValue: string): void => {
+      navigate(`/specialists/${specialistSlugValue}`, {
         state: {
           from: `${location.pathname}${location.search}`,
         },
       });
     };
 
+    const openClientProfile = (order: ServiceOrder): void => {
+      const slug = specialistSlug || order.specialistSlug;
+      const clientKey = order.clientSlug || order.clientId;
+      if (!slug || !clientKey) {
+        return;
+      }
+
+      navigate(
+        `/specialists/${slug}/clients/${encodeURIComponent(clientKey)}`,
+        {
+          state: {
+            from: `${location.pathname}${location.search}`,
+          },
+        },
+      );
+    };
+
+    const handleContactClient = async (order: ServiceOrder): Promise<void> => {
+      if (!user?.id) {
+        return;
+      }
+
+      await messagesStore.startChatWithClient({
+        viewer: getMessagesViewerFromUser(user),
+        clientId: order.clientId,
+        clientName: order.clientName,
+      });
+
+      navigate("/messages");
+    };
+
     return (
       <section className={styles.section}>
         <div className={styles.header}>
           <div>
-            <h2 className={styles.title}>Заказы услуг</h2>
+            <h2 className={styles.title}>
+              {isSpecialistViewer ? "Заказы клиентов" : "Заказы услуг"}
+            </h2>
             <p className={styles.subtitle}>
-              Здесь собраны все этапы заказа: создание, подтверждение,
-              выполнение, завершение, отзыв и повторный заказ.
+              {isSpecialistViewer
+                ? "Новые заявки, подтверждённые и активные визиты, завершённые заказы и отзывы клиентов — в одном списке."
+                : "Здесь собраны все этапы заказа: создание, подтверждение, выполнение, завершение, отзыв и повторный заказ."}
             </p>
           </div>
         </div>
@@ -579,18 +623,39 @@ export const OrdersServicesSection = observer(
                       </div>
 
                       <div className={styles.metaGrid}>
-                        <div className={styles.metaItem}>
-                          <span className={styles.metaLabel}>Специалист</span>
-                          <button
-                            type="button"
-                            className={styles.inlineLinkButton}
-                            onClick={() => {
-                              openSpecialistProfile(order.specialistSlug);
-                            }}
-                          >
-                            {order.sitterName}
-                          </button>
-                        </div>
+                        {isSpecialistViewer ? (
+                          <>
+                            <div className={styles.metaItem}>
+                              <span className={styles.metaLabel}>Номер заказа</span>
+                              <span className={styles.metaValue}>{order.id}</span>
+                            </div>
+                            <div className={styles.metaItem}>
+                              <span className={styles.metaLabel}>Клиент</span>
+                              <button
+                                type="button"
+                                className={styles.inlineLinkButton}
+                                onClick={() => {
+                                  openClientProfile(order);
+                                }}
+                              >
+                                {order.clientName}
+                              </button>
+                            </div>
+                          </>
+                        ) : (
+                          <div className={styles.metaItem}>
+                            <span className={styles.metaLabel}>Специалист</span>
+                            <button
+                              type="button"
+                              className={styles.inlineLinkButton}
+                              onClick={() => {
+                                openSpecialistProfile(order.specialistSlug);
+                              }}
+                            >
+                              {order.sitterName}
+                            </button>
+                          </div>
+                        )}
 
                         <div className={styles.metaItem}>
                           <span className={styles.metaLabel}>Питомец</span>
@@ -684,15 +749,39 @@ export const OrdersServicesSection = observer(
                   </div>
 
                   <div className={styles.actions}>
-                    <button
-                      type="button"
-                      className={styles.secondaryButton}
-                      onClick={() => {
-                        openSpecialistProfile(order.specialistSlug);
-                      }}
-                    >
-                      Перейти в профиль петситтера
-                    </button>
+                    {!isSpecialistViewer ? (
+                      <button
+                        type="button"
+                        className={styles.secondaryButton}
+                        onClick={() => {
+                          openSpecialistProfile(order.specialistSlug);
+                        }}
+                      >
+                        Перейти в профиль петситтера
+                      </button>
+                    ) : (
+                      <>
+                        <button
+                          type="button"
+                          className={styles.secondaryButton}
+                          onClick={() => {
+                            openClientProfile(order);
+                          }}
+                        >
+                          Профиль клиента
+                        </button>
+                        <button
+                          type="button"
+                          className={styles.secondaryButton}
+                          disabled={!user?.id}
+                          onClick={() => {
+                            void handleContactClient(order);
+                          }}
+                        >
+                          Связаться
+                        </button>
+                      </>
+                    )}
 
                     {canCancel(order, viewerRole) ? (
                       <button
@@ -763,7 +852,9 @@ export const OrdersServicesSection = observer(
                   {order.review ? (
                     <div className={styles.reviewView}>
                       <div className={styles.reviewViewHeader}>
-                        <div className={styles.reviewViewTitle}>Ваш отзыв</div>
+                        <div className={styles.reviewViewTitle}>
+                          {isSpecialistViewer ? "Отзыв клиента" : "Ваш отзыв"}
+                        </div>
                         <div className={styles.reviewViewRating}>
                           {renderStars(order.review.rating)} (
                           {order.review.rating}/5)

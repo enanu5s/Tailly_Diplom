@@ -46,6 +46,24 @@ const SpecialistCalendarEditPage = lazy(() =>
   })),
 );
 
+const SpecialistReviewsPage = lazy(() =>
+  import('@/pages/specialist-reviews').then((module) => ({
+    default: module.SpecialistReviewsPage,
+  })),
+);
+
+const SpecialistOrdersPage = lazy(() =>
+  import('@/pages/specialist-orders').then((module) => ({
+    default: module.SpecialistOrdersPage,
+  })),
+);
+
+const SpecialistClientProfilePage = lazy(() =>
+  import('@/pages/specialist-client').then((module) => ({
+    default: module.SpecialistClientProfilePage,
+  })),
+);
+
 const MessagesPage = lazy(() =>
   import('@/pages/messages').then((module) => ({
     default: module.MessagesPage,
@@ -93,6 +111,18 @@ export const clientRoutes: RouteObject[] = [
       {
         path: '/specialists/:specialistSlug/calendar/edit',
         element: withSuspense(<SpecialistCalendarEditPage />),
+      },
+      {
+        path: '/specialists/:specialistSlug/reviews',
+        element: withSuspense(<SpecialistReviewsPage />),
+      },
+      {
+        path: '/specialists/:specialistSlug/orders',
+        element: withSuspense(<SpecialistOrdersPage />),
+      },
+      {
+        path: '/specialists/:specialistSlug/clients/:clientId',
+        element: withSuspense(<SpecialistClientProfilePage />),
       },
     ],
   },

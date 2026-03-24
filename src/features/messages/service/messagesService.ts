@@ -3,6 +3,7 @@ import { messagesApi } from '../api/messagesApi';
 
 import type {
   DraftMessageImageAttachment,
+  EnsureClientThreadPayload,
   EnsureSpecialistThreadPayload,
   EnsureSupportThreadPayload,
   MarkMessagesAsReadPayload,
@@ -193,6 +194,12 @@ class MessagesService {
     payload: EnsureSpecialistThreadPayload,
   ): Promise<MessagesSnapshot> {
     return messagesApi.ensureSpecialistThread(payload);
+  }
+
+  ensureClientThread(
+    payload: EnsureClientThreadPayload,
+  ): Promise<MessagesSnapshot> {
+    return messagesApi.ensureClientThread(payload);
   }
 
   markMessagesAsRead(

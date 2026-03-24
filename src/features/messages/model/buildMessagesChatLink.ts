@@ -21,3 +21,22 @@ export function buildMessagesChatLink(
 
   return `/messages?${searchParams.toString()}`;
 }
+
+type BuildClientChatLinkParams = {
+  clientId: string;
+  clientName: string;
+  clientAvatarUrl?: string;
+};
+
+export function buildClientChatLink(params: BuildClientChatLinkParams): string {
+  const searchParams = new URLSearchParams();
+
+  searchParams.set('clientId', params.clientId.trim());
+  searchParams.set('clientName', params.clientName.trim());
+
+  if (params.clientAvatarUrl?.trim()) {
+    searchParams.set('clientAvatarUrl', params.clientAvatarUrl.trim());
+  }
+
+  return `/messages?${searchParams.toString()}`;
+}

@@ -4,6 +4,7 @@ import { ordersService } from "../service/ordersService";
 
 import type {
   LeaveServiceReviewPayload,
+  OrderStatus,
   ProductOrder,
   ServiceOrder,
   ServicesFilter,
@@ -56,6 +57,42 @@ export class OrdersStore {
     this.serviceOrders[index] = {
       ...this.serviceOrders[index],
       ...patch,
+    };
+  }
+
+  /** Синхронно с бэкендом: новый статус, метка времени и событие в истории. */
+  private applyServiceOrderTransition(
+    orderId: string,
+    nextStatus: OrderStatus
+  ): void {
+    const index = this.serviceOrders.findIndex((item) => item.id === orderId);
+
+    if (index === -1) {
+      return;
+    }
+
+    const order = this.serviceOrders[index];
+    const changedAt = new Date().toISOString();
+
+    const timestamps: Partial<ServiceOrder> = {};
+    if (nextStatus === "confirmed") {
+      timestamps.confirmedAt = changedAt;
+    } else if (nextStatus === "active") {
+      timestamps.startedAt = changedAt;
+    } else if (nextStatus === "completed") {
+      timestamps.completedAt = changedAt;
+    } else if (nextStatus === "canceled") {
+      timestamps.canceledAt = changedAt;
+    }
+
+    this.serviceOrders[index] = {
+      ...order,
+      ...timestamps,
+      status: nextStatus,
+      lifecycle: [
+        ...order.lifecycle,
+        { status: nextStatus, changedAt },
+      ],
     };
   }
 
@@ -250,10 +287,7 @@ export class OrdersStore {
       await ordersService.confirmServiceOrder(orderId);
 
       runInAction(() => {
-        this.updateLocalOrder(orderId, {
-          status: "confirmed",
-          confirmedAt: new Date().toISOString(),
-        });
+        this.applyServiceOrderTransition(orderId, "confirmed");
         this.actionLoadingId = null;
       });
     } catch (error) {
@@ -275,10 +309,7 @@ export class OrdersStore {
       await ordersService.startServiceOrder(orderId);
 
       runInAction(() => {
-        this.updateLocalOrder(orderId, {
-          status: "active",
-          startedAt: new Date().toISOString(),
-        });
+        this.applyServiceOrderTransition(orderId, "active");
         this.actionLoadingId = null;
       });
     } catch (error) {
@@ -298,10 +329,7 @@ export class OrdersStore {
       await ordersService.completeServiceOrder(orderId);
 
       runInAction(() => {
-        this.updateLocalOrder(orderId, {
-          status: "completed",
-          completedAt: new Date().toISOString(),
-        });
+        this.applyServiceOrderTransition(orderId, "completed");
         this.actionLoadingId = null;
       });
     } catch (error) {
@@ -321,10 +349,7 @@ export class OrdersStore {
       await ordersService.cancelServiceOrder(orderId);
 
       runInAction(() => {
-        this.updateLocalOrder(orderId, {
-          status: "canceled",
-          canceledAt: new Date().toISOString(),
-        });
+        this.applyServiceOrderTransition(orderId, "canceled");
         this.actionLoadingId = null;
       });
     } catch (error) {

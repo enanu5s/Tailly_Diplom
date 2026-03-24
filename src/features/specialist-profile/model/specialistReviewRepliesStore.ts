@@ -4,7 +4,7 @@ import { makeAutoObservable, runInAction } from 'mobx';
 
 import { specialistProfileService } from '../service/specialistProfileService';
 
-import type { SpecialistReview } from './types';
+import type { SpecialistProfile, SpecialistReview } from './types';
 
 type SaveReplyParams = {
     slug: string;
@@ -28,6 +28,14 @@ export class SpecialistReviewRepliesStore {
         this.errorsByReviewId = {};
         this.savingByReviewId = {};
         this.successByReviewId = {};
+    }
+
+    hydrateDraftsFromReviews(reviews: SpecialistReview[]): void {
+        for (const review of reviews) {
+            this.draftsByReviewId[review.id] = review.specialistReply?.text ?? '';
+            delete this.errorsByReviewId[review.id];
+            delete this.successByReviewId[review.id];
+        }
     }
 
     isEditing(reviewId: string): boolean {
@@ -78,18 +86,18 @@ export class SpecialistReviewRepliesStore {
         delete this.successByReviewId[reviewId];
     }
 
-    async saveReply({ slug, review }: SaveReplyParams): Promise<boolean> {
+    async saveReply({ slug, review }: SaveReplyParams): Promise<SpecialistProfile | null> {
         const text = (this.draftsByReviewId[review.id] ?? review.specialistReply?.text ?? '').trim();
 
         if (text.length === 0) {
             this.errorsByReviewId[review.id] = 'Ответ не может быть пустым.';
-            return false;
+            return null;
         }
 
         if (text.length > 2000) {
             this.errorsByReviewId[review.id] =
                 'Ответ слишком длинный. Максимум 2000 символов.';
-            return false;
+            return null;
         }
 
         this.savingByReviewId[review.id] = true;
@@ -97,7 +105,7 @@ export class SpecialistReviewRepliesStore {
         delete this.successByReviewId[review.id];
 
         try {
-            await specialistProfileService.upsertReviewReply(slug, {
+            const profile = await specialistProfileService.upsertReviewReply(slug, {
                 reviewId: review.id,
                 text,
             });
@@ -105,9 +113,10 @@ export class SpecialistReviewRepliesStore {
             runInAction(() => {
                 this.successByReviewId[review.id] = true;
                 this.editingReviewId = null;
+                this.draftsByReviewId[review.id] = text;
             });
 
-            return true;
+            return profile;
         } catch (error) {
             runInAction(() => {
                 this.errorsByReviewId[review.id] =
@@ -116,7 +125,7 @@ export class SpecialistReviewRepliesStore {
                         : 'Не удалось сохранить ответ на отзыв.';
             });
 
-            return false;
+            return null;
         } finally {
             runInAction(() => {
                 this.savingByReviewId[review.id] = false;

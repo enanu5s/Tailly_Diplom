@@ -103,6 +103,13 @@ export type EnsureSpecialistThreadPayload = {
   specialistAvatarUrl?: string;
 };
 
+export type EnsureClientThreadPayload = {
+  viewer: MessagesViewer;
+  clientId: string;
+  clientName: string;
+  clientAvatarUrl?: string;
+};
+
 export type SendMessagePayload = {
   viewer: MessagesViewer;
   threadId: string;

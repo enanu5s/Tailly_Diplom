@@ -378,7 +378,9 @@ export const MOCK_SPECIALIST_PROFILES: SpecialistProfileResponse[] = [
     ],
     reviews: [
       {
-        id: 'review-1',
+        id: 'review-from-order-service-order-completed-anna-1',
+        orderId: 'service-order-completed-anna-1',
+        serviceTitle: 'Передержка у специалиста',
         authorName: 'Анна',
         petName: 'Марта',
         rating: 5,
@@ -390,7 +392,9 @@ export const MOCK_SPECIALIST_PROFILES: SpecialistProfileResponse[] = [
         },
       },
       {
-        id: 'review-2',
+        id: 'review-from-order-service-order-completed-kirill-1',
+        orderId: 'service-order-completed-kirill-1',
+        serviceTitle: 'Фотосессия питомца',
         authorName: 'Кирилл',
         petName: 'Пушок',
         rating: 5,
@@ -398,7 +402,9 @@ export const MOCK_SPECIALIST_PROFILES: SpecialistProfileResponse[] = [
         text: 'Очень понравился подход. Всё чётко по рекомендациям, всегда на связи.',
       },
       {
-        id: 'review-3',
+        id: 'review-from-order-service-order-completed-elena-1',
+        orderId: 'service-order-completed-elena-1',
+        serviceTitle: 'Передержка у специалиста',
         authorName: 'Елена',
         petName: 'Снежок',
         rating: 5,

@@ -8,10 +8,7 @@ import { useAppNavigate } from '@/shared/lib/navigation/useAppNavigate';
 import { useAuth } from "@/features/auth/model/useAuth";
 import { messagesStore } from "@/features/messages";
 import { specialistProfileStore } from "@/features/specialist-profile/model/specialistProfileStore";
-import { specialistReviewRepliesStore } from "@/features/specialist-profile/model/specialistReviewRepliesStore";
-import type { SpecialistReview } from "@/features/specialist-profile/model/types";
 import { SpecialistProfileView } from "@/features/specialist-profile/ui/SpecialistProfileView";
-import { SpecialistReviewRepliesPanel } from "@/features/specialist-profile/ui/SpecialistReviewRepliesPanel";
 
 import bookingCtaStyles from "./SpecialistProfileBookingCta.module.css";
 import styles from "./SpecialistProfilePage.module.css";
@@ -78,8 +75,6 @@ export const SpecialistProfilePage = observer((): ReactElement => {
 
   const normalizedSpecialistSlug = specialistSlug?.trim() ?? "";
   const store = specialistProfileStore;
-  const repliesStore = specialistReviewRepliesStore;
-
   useEffect(() => {
     if (!normalizedSpecialistSlug) {
       return;
@@ -99,9 +94,8 @@ export const SpecialistProfilePage = observer((): ReactElement => {
   useEffect(() => {
     if (!isAuth) {
       store.reset();
-      repliesStore.reset();
     }
-  }, [isAuth, store, repliesStore]);
+  }, [isAuth, store]);
 
   const handleRetry = (): void => {
     if (!normalizedSpecialistSlug) {
@@ -109,25 +103,6 @@ export const SpecialistProfilePage = observer((): ReactElement => {
     }
 
     void store.load(normalizedSpecialistSlug);
-  };
-
-  const handleSaveReply = async (review: SpecialistReview): Promise<void> => {
-    if (!store.profile) {
-      return;
-    }
-
-    const slug = store.profile.slug.trim();
-
-    const isSaved = await repliesStore.saveReply({
-      slug,
-      review,
-    });
-
-    if (!isSaved) {
-      return;
-    }
-
-    await store.load(slug);
   };
 
   const handleContactSpecialist = async (): Promise<void> => {
@@ -267,6 +242,14 @@ export const SpecialistProfilePage = observer((): ReactElement => {
                 }
               : undefined
           }
+          ownerWorkspace={
+            canManageOwnProfile && store.profile
+              ? {
+                  reviewsPath: `/specialists/${store.profile.slug.trim()}/reviews`,
+                  ordersPath: `/specialists/${store.profile.slug.trim()}/orders`,
+                }
+              : undefined
+          }
         />
 
         {canBookSpecialist && store.profile ? (
@@ -293,18 +276,6 @@ export const SpecialistProfilePage = observer((): ReactElement => {
               </div>
             </div>
           </section>
-        ) : null}
-
-        {canManageOwnProfile && store.profile ? (
-          <SpecialistReviewRepliesPanel
-            reviews={store.profile.reviews}
-            canManageReplies={canManageOwnProfile}
-            draftByReviewId={repliesStore.draftsByReviewId}
-            errorsByReviewId={repliesStore.errorsByReviewId}
-            savingByReviewId={repliesStore.savingByReviewId}
-            onChangeDraft={repliesStore.setDraft}
-            onSaveReply={handleSaveReply}
-          />
         ) : null}
       </div>
     </div>

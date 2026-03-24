@@ -111,6 +111,10 @@ export type ServiceOrder = {
   petId: string;
   petName: string;
 
+  clientId: string;
+  clientName: string;
+  clientSlug: string;
+
   sitterId: string;
   sitterName: string;
   specialistSlug: string;
@@ -144,6 +148,10 @@ export type CreateServiceOrderPayload = {
 
   petId: string;
   petName: string;
+
+  clientId: string;
+  clientName: string;
+  clientSlug: string;
 
   sitterId: string;
   sitterName: string;

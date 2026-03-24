@@ -1,5 +1,7 @@
 // src/features/specialist-profile/api/specialistProfileApi.mock.ts
 
+import { getMockServiceOrderById, updateMockServiceOrder } from '@/features/orders/data/mockOrders';
+
 import {
   delay,
   cloneProfile,
@@ -209,13 +211,34 @@ export async function mockUpsertReviewReply(
     String(now.getDate()).padStart(2, '0'),
   ].join('-');
 
+  const createdAtIso = now.toISOString();
+  const trimmedReply = payload.text.trim();
+
   currentProfile.reviews[reviewIndex] = {
     ...currentProfile.reviews[reviewIndex],
     specialistReply: {
-      text: payload.text.trim(),
+      text: trimmedReply,
       createdAt,
     },
   };
+
+  const linkedOrderId = currentProfile.reviews[reviewIndex].orderId;
+
+  if (linkedOrderId) {
+    const order = getMockServiceOrderById(linkedOrderId);
+
+    if (order?.review) {
+      updateMockServiceOrder(linkedOrderId, {
+        review: {
+          ...order.review,
+          specialistReply: {
+            comment: trimmedReply,
+            createdAt: createdAtIso,
+          },
+        },
+      });
+    }
+  }
 
   return cloneProfile(currentProfile);
 }

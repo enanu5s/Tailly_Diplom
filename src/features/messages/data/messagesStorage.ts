@@ -2,6 +2,7 @@
 import { emitMessagesUpdated } from '../model/messagesEvents';
 import type {
   ChatMessage,
+  EnsureClientThreadPayload,
   EnsureSpecialistThreadPayload,
   EnsureSupportThreadPayload,
   MarkMessagesAsReadPayload,
@@ -772,6 +773,59 @@ export function ensureSpecialistThread(
         role: 'specialist',
         displayName: payload.specialistName.trim() || 'Специалист',
         avatarUrl: payload.specialistAvatarUrl?.trim() || undefined,
+      },
+    ],
+    createdAt: nowIso,
+    updatedAt: nowIso,
+    lastMessagePreview: '',
+  };
+
+  const updatedThreads = [...allThreads, newThread];
+
+  writeThreads(updatedThreads);
+  emitMessagesUpdated();
+
+  return buildSnapshot(viewer, updatedThreads, allMessages);
+}
+
+export function ensureClientThread(
+  payload: EnsureClientThreadPayload,
+): MessagesSnapshot {
+  const { viewer } = payload;
+  const clientId = payload.clientId.trim();
+
+  if (viewer.role !== 'specialist' || !viewer.userId.trim() || !clientId) {
+    return getMessagesSnapshot(viewer);
+  }
+
+  const allThreads = readThreads();
+  const allMessages = readMessages();
+
+  const existingThread = allThreads.find(
+    (thread) =>
+      thread.kind === 'specialist_direct' &&
+      thread.participants.some(
+        (participant) => participant.userId === viewer.userId,
+      ) &&
+      thread.participants.some((participant) => participant.userId === clientId),
+  );
+
+  if (existingThread) {
+    return buildSnapshot(viewer, allThreads, allMessages);
+  }
+
+  const nowIso = new Date().toISOString();
+
+  const newThread: StoredMessageThread = {
+    id: createId('thread'),
+    kind: 'specialist_direct',
+    participants: [
+      buildViewerParticipant(viewer),
+      {
+        userId: clientId,
+        role: 'client',
+        displayName: payload.clientName.trim() || 'Клиент',
+        avatarUrl: payload.clientAvatarUrl?.trim() || undefined,
       },
     ],
     createdAt: nowIso,

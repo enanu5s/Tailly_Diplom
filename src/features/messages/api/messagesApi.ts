@@ -1,5 +1,6 @@
 // src/features/messages/api/messagesApi.ts
 import {
+  ensureClientThread as ensureClientThreadInStorage,
   ensureSpecialistThread as ensureSpecialistThreadInStorage,
   ensureSupportThread as ensureSupportThreadInStorage,
   getMessagesSnapshot as getMessagesSnapshotFromStorage,
@@ -9,6 +10,7 @@ import {
 } from '../data/messagesStorage';
 
 import type {
+  EnsureClientThreadPayload,
   EnsureSpecialistThreadPayload,
   EnsureSupportThreadPayload,
   MarkMessagesAsReadPayload,
@@ -61,6 +63,16 @@ export const messagesApi = {
   ): Promise<MessagesSnapshot> {
     if (USE_MOCK) {
       return Promise.resolve(ensureSpecialistThreadInStorage(payload));
+    }
+
+    return notImplemented();
+  },
+
+  async ensureClientThread(
+    payload: EnsureClientThreadPayload,
+  ): Promise<MessagesSnapshot> {
+    if (USE_MOCK) {
+      return Promise.resolve(ensureClientThreadInStorage(payload));
     }
 
     return notImplemented();
