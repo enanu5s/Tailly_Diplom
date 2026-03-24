@@ -3,14 +3,58 @@
 import { observer } from 'mobx-react-lite';
 import { useEffect, useMemo, useRef } from 'react';
 import { useLocation } from 'react-router-dom';
-import { useAppNavigate } from '@/shared/lib/navigation/useAppNavigate';
 
+import { useAppNavigate } from '@/shared/lib/navigation/useAppNavigate';
 import { saveScrollPosition } from '@/shared/lib/scroll';
 
 import styles from './PostsCarousel.module.css';
+import { getPostGalleryUrls } from '../lib/postGallery';
 import { postsStore } from '../model/postsStore';
 
+import type { Post } from '../model/types';
+
 const TEXT_LIMIT = 220;
+
+function PostCardImages({ post }: { post: Post }) {
+  const urls = getPostGalleryUrls(post);
+
+  if (urls.length === 0) {
+    return null;
+  }
+
+  const [main, ...rest] = urls;
+  const maxThumbs = 3;
+  const thumbs = rest.slice(0, maxThumbs);
+  const hidden = Math.max(0, rest.length - maxThumbs);
+
+  return (
+    <div className={styles.cardMedia}>
+      <div className={styles.cardMainImageWrap}>
+        <img
+          className={styles.cardMainImage}
+          src={main}
+          alt=""
+          loading="lazy"
+        />
+        {urls.length > 1 ? (
+          <span className={styles.photoCount}>{urls.length} фото</span>
+        ) : null}
+      </div>
+      {thumbs.length > 0 ? (
+        <div className={styles.cardThumbRow}>
+          {thumbs.map((url, index) => (
+            <div key={`${url}-${index}`} className={styles.cardThumb}>
+              <img src={url} alt="" loading="lazy" />
+            </div>
+          ))}
+          {hidden > 0 ? (
+            <div className={styles.cardThumbMore}>+{hidden}</div>
+          ) : null}
+        </div>
+      ) : null}
+    </div>
+  );
+}
 
 function truncate(text: string, limit: number) {
   const t = text.trim();
@@ -103,6 +147,8 @@ export const PostsCarousel = observer(() => {
                     })}
                   </div>
                 </div>
+
+                <PostCardImages post={p} />
 
                 <div className={styles.previewWrap}>
                   <p className={styles.previewText}>{truncate(p.content, TEXT_LIMIT)}</p>

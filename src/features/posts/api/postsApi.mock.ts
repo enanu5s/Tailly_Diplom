@@ -1,16 +1,43 @@
 // src/features/posts/api/postsApi.mock.ts
 
 import { readAdminManagedPosts } from '@/features/admin-posts-banners-management/data/adminPostsBannersStorage';
-
 import type { AdminManagedPost } from '@/features/admin-posts-banners-management/model/types';
+
 import type { Post, PostsListParams, PostsListResponse, PostsSort } from '../model/types';
 
+function buildPublicPostImageUrls(adminPost: AdminManagedPost): string[] {
+  const seen = new Set<string>();
+  const out: string[] = [];
+
+  const push = (raw?: string) => {
+    const url = (raw ?? '').trim();
+    if (!url || seen.has(url)) {
+      return;
+    }
+
+    seen.add(url);
+    out.push(url);
+  };
+
+  push(adminPost.coverImageUrl);
+
+  for (const url of adminPost.imageUrls ?? []) {
+    push(url);
+  }
+
+  return out;
+}
+
 function mapAdminPostToPost(adminPost: AdminManagedPost): Post {
+  const imageUrls = buildPublicPostImageUrls(adminPost);
+  const primary = imageUrls[0];
+
   return {
     id: adminPost.id,
     title: adminPost.title,
     content: adminPost.content,
-    imageUrl: adminPost.coverImageUrl || adminPost.imageUrls[0] || '',
+    imageUrl: primary,
+    imageUrls: imageUrls.length > 0 ? imageUrls : undefined,
     publishedAt: adminPost.publishedAt || adminPost.createdAt,
     tags: adminPost.tags,
   };
@@ -102,7 +129,7 @@ function getAvailableTags(posts: Post[]): string[] {
 }
 
 export async function mockGetLatestPosts(limit: number): Promise<Post[]> {
-  const posts = readAdminManagedPosts()
+  const posts = (await readAdminManagedPosts())
     .filter((post) => post.status === 'published')
     .map(mapAdminPostToPost);
 
@@ -112,7 +139,7 @@ export async function mockGetLatestPosts(limit: number): Promise<Post[]> {
 export async function mockGetPostsList(
   params: PostsListParams,
 ): Promise<PostsListResponse> {
-  const publishedPosts = readAdminManagedPosts()
+  const publishedPosts = (await readAdminManagedPosts())
     .filter((post) => post.status === 'published')
     .map(mapAdminPostToPost);
 
@@ -134,7 +161,7 @@ export async function mockGetPostsList(
 }
 
 export async function mockGetPostById(id: string): Promise<Post> {
-  const post = readAdminManagedPosts().find(
+  const post = (await readAdminManagedPosts()).find(
     (item) => item.id === id && item.status === 'published',
   );
 

@@ -1,9 +1,11 @@
 import { observer } from 'mobx-react-lite';
 import { useEffect } from 'react';
 import { useLocation, useParams } from 'react-router-dom';
-import { useAppNavigate } from '@/shared/lib/navigation/useAppNavigate';
 
+
+import { getPostGalleryUrls } from '@/features/posts/lib/postGallery';
 import { postsStore } from '@/features/posts/model/postsStore';
+import { useAppNavigate } from '@/shared/lib/navigation/useAppNavigate';
 
 import styles from './PostPage.module.css';
 
@@ -74,9 +76,13 @@ export const PostPage = observer(() => {
     );
   }
 
-  const heroStyle = post.imageUrl
+  const galleryUrls = getPostGalleryUrls(post);
+  const heroImage = galleryUrls[0];
+  const extraGalleryUrls = galleryUrls.slice(1);
+
+  const heroStyle = heroImage
     ? {
-        backgroundImage: `url(${post.imageUrl})`,
+        backgroundImage: `url(${heroImage})`,
       }
     : {
         backgroundImage: FALLBACK_HERO_BACKGROUND,
@@ -129,6 +135,24 @@ export const PostPage = observer(() => {
               <h1 className={styles.title}>{post.title}</h1>
             </div>
           </div>
+
+          {extraGalleryUrls.length > 0 ? (
+            <div className={styles.gallery}>
+              <h2 className={styles.galleryTitle}>Галерея</h2>
+              <div className={styles.galleryGrid}>
+                {extraGalleryUrls.map((url, index) => (
+                  <figure key={`${url}-${index}`} className={styles.galleryFigure}>
+                    <img
+                      className={styles.galleryImage}
+                      src={url}
+                      alt={`Иллюстрация «${post.title}», ${index + 2} из ${galleryUrls.length}`}
+                      loading="lazy"
+                    />
+                  </figure>
+                ))}
+              </div>
+            </div>
+          ) : null}
 
           <div className={styles.content}>
             {post.content.split('\n').map((paragraph, index) => {

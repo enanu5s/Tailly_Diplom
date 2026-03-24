@@ -7,8 +7,28 @@ import { useAppNavigate } from '@/shared/lib/navigation/useAppNavigate';
 import { saveScrollPosition } from '@/shared/lib/scroll';
 
 import styles from './PostsList.module.css';
+import { getPostGalleryUrls } from '../lib/postGallery';
 import { postsStore } from '../model/postsStore';
-import type { PostsSort } from '../model/types';
+
+import type { Post, PostsSort } from '../model/types';
+
+function PostListThumbs({ post }: { post: Post }) {
+  const urls = getPostGalleryUrls(post);
+
+  if (urls.length === 0) {
+    return null;
+  }
+
+  return (
+    <div className={styles.listThumbScroller}>
+      {urls.map((url, index) => (
+        <div key={`${url}-${index}`} className={styles.listThumb}>
+          <img src={url} alt="" loading="lazy" />
+        </div>
+      ))}
+    </div>
+  );
+}
 
 export const PostsList = observer(() => {
   const navigate = useAppNavigate();
@@ -156,6 +176,8 @@ export const PostsList = observer(() => {
                     ))}
                   </div>
                 ) : null}
+
+                <PostListThumbs post={post} />
 
                 <div className={styles.cardTextWrap}>
                   <p className={styles.cardText}>{post.content}</p>

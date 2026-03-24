@@ -51,7 +51,7 @@ function resolveBannerLinkUrl(
 
 export async function mockGetAdminPostsBanners(): Promise<AdminPostsBannersResponse> {
   return {
-    posts: readAdminManagedPosts(),
+    posts: await readAdminManagedPosts(),
     banners: readAdminManagedBanners(),
   };
 }
@@ -78,7 +78,7 @@ export async function mockSaveAdminPost(
     );
   }
 
-  const posts = readAdminManagedPosts();
+  const posts = await readAdminManagedPosts();
   const nowIso = new Date().toISOString();
 
   const nextPost: AdminManagedPost = payload.id
@@ -125,20 +125,20 @@ export async function mockSaveAdminPost(
     ? posts.map((post) => (post.id === nextPost.id ? nextPost : post))
     : [nextPost, ...posts];
 
-  writeAdminManagedPosts(updatedPosts);
+  await writeAdminManagedPosts(updatedPosts);
 
   return nextPost;
 }
 
 export async function mockDeleteAdminPost(postId: string): Promise<void> {
-  const posts = readAdminManagedPosts();
+  const posts = await readAdminManagedPosts();
   const nextPosts = posts.filter((post) => post.id !== postId);
 
   if (nextPosts.length === posts.length) {
     throw new AdminPostsBannersManagementError("Публикация не найдена.");
   }
 
-  writeAdminManagedPosts(nextPosts);
+  await writeAdminManagedPosts(nextPosts);
 }
 
 export async function mockSaveAdminBanner(
@@ -161,7 +161,7 @@ export async function mockSaveAdminBanner(
     );
   }
 
-  const posts = readAdminManagedPosts();
+  const posts = await readAdminManagedPosts();
   const banners = readAdminManagedBanners();
 
   const linkedPostId =

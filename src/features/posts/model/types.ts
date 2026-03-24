@@ -5,7 +5,10 @@ export type Post = {
   title: string;
   content: string;
   publishedAt: string;
+  /** Главное изображение (обложка), дублирует первый элемент imageUrls при наличии */
   imageUrl?: string;
+  /** Все изображения поста в порядке отображения (обложка первой) */
+  imageUrls?: string[];
   tags?: string[];
 };
 
