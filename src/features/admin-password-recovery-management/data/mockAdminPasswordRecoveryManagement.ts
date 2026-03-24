@@ -1,15 +1,12 @@
 // src/features/admin-password-recovery-management/data/mockAdminPasswordRecoveryManagement.ts
 
 import {
-  MOCK_ADMIN_PASSWORD_RECOVERY_REQUESTS,
+  getAdminPasswordRecoveryRequestsSnapshot,
   wait,
   type MockAdminPasswordRecoveryRequest,
 } from '@/features/auth/data/mockAdminPasswordRecoveryRequests';
-import {
-  getMockAuthAccounts,
-  hasAdminRole,
-  normalizeEmail,
-} from '@/features/auth/data/mockAuthAccounts';
+import { normalizeEmail } from '@/features/auth/data/mockAuthAccounts';
+import { patchMockDatabase } from '@/shared/mock-db/store';
 
 import {
   AdminPasswordRecoveryManagementError,
@@ -23,7 +20,7 @@ function mapRequest(
 }
 
 export function cloneRecoveryRequests(): AdminPasswordRecoveryRequestItem[] {
-  return MOCK_ADMIN_PASSWORD_RECOVERY_REQUESTS.map(mapRequest);
+  return getAdminPasswordRecoveryRequestsSnapshot().map(mapRequest);
 }
 
 export function buildTemporaryPassword(): string {
@@ -35,46 +32,23 @@ export function getRecoveryRequestById(
   requestId: string,
 ): MockAdminPasswordRecoveryRequest | null {
   return (
-    MOCK_ADMIN_PASSWORD_RECOVERY_REQUESTS.find(
+    getAdminPasswordRecoveryRequestsSnapshot().find(
       (item) => item.id === requestId,
     ) ?? null
   );
 }
 
-function updateAdminAccountPassword(
-  email: string,
-  nextPassword: string,
-): void {
-  const normalizedTargetEmail = normalizeEmail(email);
-  const accounts = getMockAuthAccounts();
-
-  const account = accounts.find(
-    (item) =>
-      item.email.toLowerCase() === normalizedTargetEmail &&
-      hasAdminRole(item.roles),
-  );
-
-  if (!account) {
-    throw new AdminPasswordRecoveryManagementError(
-      'Не удалось найти admin-аккаунт для обновления пароля.',
-    );
-  }
-
-  account.password = nextPassword;
-}
-
 export function processRecoveryRequest(
   requestId: string,
 ): AdminPasswordRecoveryRequestItem {
-  const requestIndex = MOCK_ADMIN_PASSWORD_RECOVERY_REQUESTS.findIndex(
-    (item) => item.id === requestId,
-  );
+  const list = getAdminPasswordRecoveryRequestsSnapshot();
+  const requestIndex = list.findIndex((item) => item.id === requestId);
 
   if (requestIndex === -1) {
     throw new AdminPasswordRecoveryManagementError('Заявка не найдена.');
   }
 
-  const currentItem = MOCK_ADMIN_PASSWORD_RECOVERY_REQUESTS[requestIndex];
+  const currentItem = list[requestIndex];
 
   if (currentItem.status === 'processed') {
     throw new AdminPasswordRecoveryManagementError(
@@ -84,16 +58,49 @@ export function processRecoveryRequest(
 
   const temporaryPassword = buildTemporaryPassword();
 
-  updateAdminAccountPassword(currentItem.email, temporaryPassword);
+  const targetEmail = normalizeEmail(currentItem.email);
 
-  MOCK_ADMIN_PASSWORD_RECOVERY_REQUESTS[requestIndex] = {
-    ...currentItem,
-    status: 'processed',
-    processedAt: new Date().toISOString(),
-    temporaryPassword,
-  };
+  patchMockDatabase((db) => {
+    const acc = db.auth.baseAccounts.find(
+      (item) => normalizeEmail(item.email) === targetEmail,
+    );
 
-  return mapRequest(MOCK_ADMIN_PASSWORD_RECOVERY_REQUESTS[requestIndex]);
+    if (acc) {
+      acc.password = temporaryPassword;
+    }
+
+    const idx = db.adminPasswordRecovery.requests.findIndex(
+      (item) => item.id === requestId,
+    );
+
+    if (idx === -1) {
+      return;
+    }
+
+    const row = db.adminPasswordRecovery.requests[idx];
+
+    db.adminPasswordRecovery.requests = db.adminPasswordRecovery.requests.map(
+      (item, i) =>
+        i === idx
+          ? {
+              ...row,
+              status: 'processed' as const,
+              processedAt: new Date().toISOString(),
+              temporaryPassword,
+            }
+          : item,
+    );
+  });
+
+  const updated = getAdminPasswordRecoveryRequestsSnapshot().find(
+    (item) => item.id === requestId,
+  );
+
+  if (!updated) {
+    throw new AdminPasswordRecoveryManagementError('Заявка не найдена.');
+  }
+
+  return mapRequest(updated);
 }
 
 export { wait };

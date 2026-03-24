@@ -1,5 +1,5 @@
 // src/features/admin-password-recovery/data/mockAdminPasswordRecovery.ts
-import { MOCK_ADMINS } from '@/features/super-admin-admins-management/data/mockAdminsManagement';
+import { getSuperAdminAdminsMutable } from '@/features/super-admin-admins-management/data/mockAdminsManagement';
 
 import { AdminPasswordRecoveryError } from '../model/types';
 
@@ -12,7 +12,7 @@ export function wait(delay = 500): Promise<void> {
 export function sendRecoveryRequest(email: string): void {
   const normalizedEmail = email.trim().toLowerCase();
 
-  const admin = MOCK_ADMINS.find(
+  const admin = getSuperAdminAdminsMutable().find(
     (item) => item.email.toLowerCase() === normalizedEmail,
   );
 

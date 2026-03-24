@@ -1,33 +1,52 @@
 // src/features/profile/api/profileApi.mock.ts
 
-import { deepCopy, MOCK_PROFILE } from '../data/mockProfile';
+import { cloneDeep } from '@/shared/mock-db/cloneDeep';
+import {
+  ensureMockDatabaseLoaded,
+  patchMockDatabase,
+  unsafeMutableMockDb,
+} from '@/shared/mock-db/store';
 
 import type { UserProfile } from '../model/types';
 
+function getDefaultProfileRef(): UserProfile {
+  ensureMockDatabaseLoaded();
+
+  const db = unsafeMutableMockDb();
+
+  return db.client.profiles[db.client.defaultUserId];
+}
+
 export async function mockGetProfile(): Promise<UserProfile> {
-  return deepCopy(MOCK_PROFILE);
+  return cloneDeep(getDefaultProfileRef());
 }
 
 export async function mockUpdateContacts(
   payload: Pick<UserProfile, 'city' | 'phone'>,
 ): Promise<UserProfile> {
-  Object.assign(MOCK_PROFILE, payload);
+  patchMockDatabase((db) => {
+    const profile = db.client.profiles[db.client.defaultUserId];
+    Object.assign(profile, payload);
+  });
 
-  return deepCopy(MOCK_PROFILE);
+  return cloneDeep(getDefaultProfileRef());
 }
 
 export async function mockUpdateMain(
   payload: Pick<UserProfile, 'firstName' | 'lastName' | 'middleName' | 'avatarUrl'>,
 ): Promise<UserProfile> {
-  Object.assign(MOCK_PROFILE, payload);
+  patchMockDatabase((db) => {
+    const profile = db.client.profiles[db.client.defaultUserId];
+    Object.assign(profile, payload);
 
-  if (!payload.middleName) {
-    delete MOCK_PROFILE.middleName;
-  }
+    if (!payload.middleName) {
+      delete profile.middleName;
+    }
 
-  if (!payload.avatarUrl) {
-    delete MOCK_PROFILE.avatarUrl;
-  }
+    if (!payload.avatarUrl) {
+      delete profile.avatarUrl;
+    }
+  });
 
-  return deepCopy(MOCK_PROFILE);
+  return cloneDeep(getDefaultProfileRef());
 }

@@ -958,3 +958,181 @@ export function sendMessage(payload: SendMessagePayload): MessagesSnapshot {
 
   return buildSnapshot(viewer, updatedThreads, updatedMessages);
 }
+
+/** Демо-переписки в localStorage (только если хранилище сообщений пустое). */
+export function seedDemoMessagesIfEmpty(): void {
+  const USE_MOCK = (import.meta.env.VITE_USE_MOCK_API ?? 'true') === 'true';
+
+  if (!USE_MOCK || typeof window === 'undefined') {
+    return;
+  }
+
+  if (readThreads().length > 0 || readMessages().length > 0) {
+    return;
+  }
+
+  const weekAgo = Date.now() - 7 * 86_400_000;
+
+  const directThread1: StoredMessageThread = {
+    id: 'demo-thread-client1-specialist2',
+    kind: 'specialist_direct',
+    participants: [
+      { userId: 'client-1', role: 'client', displayName: 'Елена Смирнова' },
+      {
+        userId: 'specialist-2',
+        role: 'specialist',
+        displayName: 'Игорь П.',
+      },
+    ],
+    createdAt: new Date(weekAgo).toISOString(),
+    updatedAt: new Date(weekAgo + 3_600_000).toISOString(),
+    lastMessagePreview: 'Договорились, до субботы!',
+  };
+
+  const directThread2: StoredMessageThread = {
+    id: 'demo-thread-client5-specialist4',
+    kind: 'specialist_direct',
+    participants: [
+      { userId: 'client-5', role: 'client', displayName: 'Ольга С.' },
+      {
+        userId: 'specialist-4',
+        role: 'specialist',
+        displayName: 'Татьяна Е.',
+      },
+    ],
+    createdAt: new Date(weekAgo + 86_400_000).toISOString(),
+    updatedAt: new Date(weekAgo + 90_000_000).toISOString(),
+    lastMessagePreview: 'Фотоотчёт отправлю вечером.',
+  };
+
+  const supportThread: StoredMessageThread = {
+    id: 'demo-thread-support-client10',
+    kind: 'support',
+    participants: [
+      { userId: 'client-10', role: 'client', displayName: 'Сергей С.' },
+      buildSupportParticipant(),
+    ],
+    createdAt: new Date(weekAgo + 172_800_000).toISOString(),
+    updatedAt: new Date(weekAgo + 175_000_000).toISOString(),
+    lastMessagePreview: 'Спасибо, разобрался с оплатой.',
+  };
+
+  const demoMessages: ChatMessage[] = [
+    {
+      id: 'demo-msg-1',
+      threadId: directThread1.id,
+      authorId: 'client-1',
+      authorRole: 'client',
+      authorName: 'Елена Смирнова',
+      text: 'Добрый день! Можно перенести прогулку на субботу утром?',
+      attachments: [],
+      createdAt: new Date(weekAgo + 60_000).toISOString(),
+      readByUserIds: ['client-1', 'specialist-2'],
+    },
+    {
+      id: 'demo-msg-2',
+      threadId: directThread1.id,
+      authorId: 'specialist-2',
+      authorRole: 'specialist',
+      authorName: 'Игорь П.',
+      text: 'Да, суббота с 10:00 подойдёт. Подтвердите, пожалуйста, адрес.',
+      attachments: [],
+      createdAt: new Date(weekAgo + 120_000).toISOString(),
+      readByUserIds: ['client-1', 'specialist-2'],
+    },
+    {
+      id: 'demo-msg-3',
+      threadId: directThread1.id,
+      authorId: 'client-1',
+      authorRole: 'client',
+      authorName: 'Елена Смирнова',
+      text: 'Отлично, адрес тот же. Спасибо!',
+      attachments: [],
+      createdAt: new Date(weekAgo + 3_600_000).toISOString(),
+      readByUserIds: ['client-1', 'specialist-2'],
+    },
+    {
+      id: 'demo-msg-4',
+      threadId: directThread2.id,
+      authorId: 'client-5',
+      authorRole: 'client',
+      authorName: 'Ольга С.',
+      text: 'Нужна передержка на выходные, кот спокойный.',
+      attachments: [],
+      createdAt: new Date(weekAgo + 86_400_000).toISOString(),
+      readByUserIds: ['client-5', 'specialist-4'],
+    },
+    {
+      id: 'demo-msg-5',
+      threadId: directThread2.id,
+      authorId: 'specialist-4',
+      authorRole: 'specialist',
+      authorName: 'Татьяна Е.',
+      text: 'Могу принять с пятницы вечера. Уточните корм и привычки.',
+      attachments: [],
+      createdAt: new Date(weekAgo + 86_500_000).toISOString(),
+      readByUserIds: ['client-5', 'specialist-4'],
+    },
+    {
+      id: 'demo-msg-6',
+      threadId: directThread2.id,
+      authorId: 'specialist-4',
+      authorRole: 'specialist',
+      authorName: 'Татьяна Е.',
+      text: 'Фотоотчёт отправлю вечером.',
+      attachments: [],
+      createdAt: new Date(weekAgo + 90_000_000).toISOString(),
+      readByUserIds: ['client-5', 'specialist-4'],
+    },
+    {
+      id: 'demo-msg-support-welcome',
+      threadId: supportThread.id,
+      authorId: 'tailly-support',
+      authorRole: 'support',
+      authorName: 'Поддержка Tailly',
+      authorSupportAgentName: 'Система',
+      text: 'Здравствуйте! Это чат поддержки Tailly. Напишите ваш вопрос, и мы постараемся помочь.',
+      attachments: [],
+      createdAt: new Date(weekAgo + 172_800_000).toISOString(),
+      readByUserIds: ['client-10', SUPPORT_TEAM_READ_KEY],
+    },
+    {
+      id: 'demo-msg-7',
+      threadId: supportThread.id,
+      authorId: 'client-10',
+      authorRole: 'client',
+      authorName: 'Сергей С.',
+      text: 'Не проходит оплата картой в магазине, что проверить?',
+      attachments: [],
+      createdAt: new Date(weekAgo + 172_900_000).toISOString(),
+      readByUserIds: ['client-10', SUPPORT_TEAM_READ_KEY],
+    },
+    {
+      id: 'demo-msg-8',
+      threadId: supportThread.id,
+      authorId: 'tailly-support',
+      authorRole: 'support',
+      authorName: 'Поддержка Tailly',
+      authorSupportAgentName: 'Агент',
+      text: 'Проверьте лимиты карты и попробуйте СБП. Если ошибка повторится — пришлите скрин.',
+      attachments: [],
+      createdAt: new Date(weekAgo + 173_200_000).toISOString(),
+      readByUserIds: [SUPPORT_TEAM_READ_KEY],
+    },
+    {
+      id: 'demo-msg-9',
+      threadId: supportThread.id,
+      authorId: 'client-10',
+      authorRole: 'client',
+      authorName: 'Сергей С.',
+      text: 'Спасибо, разобрался с оплатой.',
+      attachments: [],
+      createdAt: new Date(weekAgo + 175_000_000).toISOString(),
+      readByUserIds: ['client-10', SUPPORT_TEAM_READ_KEY],
+    },
+  ];
+
+  writeThreads([directThread1, directThread2, supportThread]);
+  writeMessages(demoMessages);
+  emitMessagesUpdated();
+}

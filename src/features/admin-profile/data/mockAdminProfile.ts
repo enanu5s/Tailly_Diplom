@@ -4,8 +4,9 @@ import {
   normalizeEmail,
 } from '@/features/admin-auth/data/mockAdminAccounts';
 import { authStore } from '@/features/auth/model/authStore';
+import { patchMockDatabase } from '@/shared/mock-db/store';
 import {
-  MOCK_ADMINS,
+  getSuperAdminAdminsMutable,
   type MockAdminRecord,
 } from '@/features/super-admin-admins-management/data/mockAdminsManagement';
 
@@ -94,7 +95,9 @@ export function getCurrentAdminRecord(): MockAdminProfileRecord {
     throw new AdminProfileError('Не удалось определить ID администратора.');
   }
 
-  const matchedAdmin = MOCK_ADMINS.find((item) => item.adminId === adminId);
+  const matchedAdmin = getSuperAdminAdminsMutable().find(
+    (item) => item.adminId === adminId,
+  );
 
   if (!matchedAdmin) {
     throw new AdminProfileError('Администратор не найден в mock-данных.');
@@ -113,7 +116,8 @@ export function updateMockAdminProfile(
   payload: UpdateAdminProfilePayload,
 ): AdminProfile {
   const record = getCurrentAdminRecord();
-  const recordIndex = MOCK_ADMINS.findIndex(
+  const admins = getSuperAdminAdminsMutable();
+  const recordIndex = admins.findIndex(
     (item) => item.adminId === record.adminId,
   );
 
@@ -129,7 +133,7 @@ export function updateMockAdminProfile(
   }
 
   const nextRecord: MockAdminRecord = {
-    ...MOCK_ADMINS[recordIndex],
+    ...admins[recordIndex],
     firstName: nextFirstName,
     lastName: nextLastName,
     middleName: normalizeOptional(payload.middleName),
@@ -137,7 +141,7 @@ export function updateMockAdminProfile(
   };
 
   if (
-    MOCK_ADMINS[recordIndex].role === 'super_admin' &&
+    admins[recordIndex].role === 'super_admin' &&
     typeof payload.birthDate === 'string' &&
     payload.birthDate.trim().length > 0
   ) {
@@ -152,9 +156,28 @@ export function updateMockAdminProfile(
     nextRecord.department = normalizeOptional(payload.department);
   }
 
-  MOCK_ADMINS[recordIndex] = nextRecord;
+  patchMockDatabase((db) => {
+    db.superAdmin.admins = db.superAdmin.admins.map((item) =>
+      item.adminId === record.adminId ? nextRecord : item,
+    );
 
-  return mapRecordToProfile(MOCK_ADMINS[recordIndex]);
+    const baIdx = db.auth.baseAccounts.findIndex(
+      (item) => item.adminId === record.adminId,
+    );
+
+    if (baIdx !== -1) {
+      const base = db.auth.baseAccounts[baIdx];
+      db.auth.baseAccounts[baIdx] = {
+        ...base,
+        firstName: nextFirstName,
+        lastName: nextLastName,
+        middleName: nextRecord.middleName,
+        phone: nextRecord.phone,
+      };
+    }
+  });
+
+  return mapRecordToProfile(nextRecord);
 }
 
 export function mockRequestSuperAdminEmailChange(
@@ -178,7 +201,7 @@ export function mockRequestSuperAdminEmailChange(
     throw new AdminProfileError('Новый email должен отличаться от текущего.');
   }
 
-  const emailTaken = MOCK_ADMINS.some(
+  const emailTaken = getSuperAdminAdminsMutable().some(
     (item) =>
       normalizeEmail(item.email) === newEmail && item.adminId !== record.adminId,
   );
@@ -239,7 +262,8 @@ export function mockConfirmSuperAdminEmailChange(
     throw new AdminProfileError('Неверный код подтверждения.');
   }
 
-  const recordIndex = MOCK_ADMINS.findIndex(
+  const admins = getSuperAdminAdminsMutable();
+  const recordIndex = admins.findIndex(
     (item) => item.adminId === record.adminId,
   );
 
@@ -247,10 +271,27 @@ export function mockConfirmSuperAdminEmailChange(
     throw new AdminProfileError('Администратор не найден.');
   }
 
-  MOCK_ADMINS[recordIndex] = {
-    ...MOCK_ADMINS[recordIndex],
+  const nextAdminRecord: MockAdminRecord = {
+    ...admins[recordIndex],
     email: pending.newEmail,
   };
+
+  patchMockDatabase((db) => {
+    db.superAdmin.admins = db.superAdmin.admins.map((item) =>
+      item.adminId === record.adminId ? nextAdminRecord : item,
+    );
+
+    const baIdx = db.auth.baseAccounts.findIndex(
+      (item) => item.adminId === record.adminId,
+    );
+
+    if (baIdx !== -1) {
+      db.auth.baseAccounts[baIdx] = {
+        ...db.auth.baseAccounts[baIdx],
+        email: pending.newEmail,
+      };
+    }
+  });
 
   const accIndex = MOCK_ADMIN_ACCOUNTS.findIndex(
     (item) => item.adminId === record.adminId,
@@ -265,7 +306,7 @@ export function mockConfirmSuperAdminEmailChange(
 
   pendingSuperAdminEmailChangeByAdminId.delete(record.adminId);
 
-  return mapRecordToProfile(MOCK_ADMINS[recordIndex]);
+  return mapRecordToProfile(nextAdminRecord);
 }
 
 /** Сброс незавершённой смены email (закрытие модального окна, «Назад»). */

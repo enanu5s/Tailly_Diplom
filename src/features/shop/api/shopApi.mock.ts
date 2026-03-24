@@ -3,9 +3,12 @@
 import {
   applyFilters,
   applySort,
-  buildCatalogMetaMock,
-  SHOP_PRODUCTS_MOCK,
+  buildCatalogMetaForLists,
 } from '../data/mockShop';
+import {
+  getShopCategoriesSnapshot,
+  getShopProductsSnapshot,
+} from '../data/mockShopCatalogDb';
 
 import type {
   CatalogFilterState,
@@ -15,13 +18,16 @@ import type {
 } from '../model/types';
 
 export async function mockGetCatalogMeta(): Promise<CatalogMetaResponse> {
-  return buildCatalogMetaMock();
+  return buildCatalogMetaForLists(
+    getShopProductsSnapshot(),
+    getShopCategoriesSnapshot(),
+  );
 }
 
 export async function mockGetCatalogProducts(
   filters: CatalogFilterState,
 ): Promise<CatalogProductsResponse> {
-  const filtered = applyFilters(SHOP_PRODUCTS_MOCK, filters);
+  const filtered = applyFilters(getShopProductsSnapshot(), filters);
   const sorted = applySort(filtered, filters.sort);
 
   const startIndex = (filters.page - 1) * filters.limit;
@@ -43,10 +49,11 @@ export async function mockGetProductsByIds(
   }
 
   const productIdsSet = new Set(productIds);
+  const catalog = getShopProductsSnapshot();
   const orderedProducts = productIds
     .map(
       (productId) =>
-        SHOP_PRODUCTS_MOCK.find((product) => product.id === productId) ?? null,
+        catalog.find((product) => product.id === productId) ?? null,
     )
     .filter((product): product is Product => product !== null);
 
@@ -68,5 +75,5 @@ export async function mockGetProductsByIds(
 export async function mockGetProductBySlug(
   slug: string,
 ): Promise<Product | null> {
-  return SHOP_PRODUCTS_MOCK.find((product) => product.slug === slug) ?? null;
+  return getShopProductsSnapshot().find((product) => product.slug === slug) ?? null;
 }

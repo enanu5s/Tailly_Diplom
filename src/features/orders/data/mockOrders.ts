@@ -1,5 +1,8 @@
 // src/features/orders/data/mockOrders.ts
 
+import { MOCK_PRODUCT_ORDERS_SEED } from "./mockProductOrdersSeed";
+import { buildBulkSyntheticServiceOrders } from "./mockOrdersBulkSeed";
+
 import type {
   CreateServiceOrderPayload,
   ProductOrder,
@@ -9,7 +12,11 @@ import type {
   ServicePriceUnit,
 } from "../model/types";
 
-const SERVICE_ORDERS_STORAGE_KEY = "tailly_mock_service_orders";
+import {
+  ensureMockDatabaseLoaded,
+  patchMockDatabase,
+  unsafeMutableMockDb,
+} from "@/shared/mock-db/store";
 
 const DEFAULT_CLIENT_ID = "client-1";
 const DEFAULT_CLIENT_NAME = "Елена Смирнова";
@@ -555,39 +562,11 @@ function generateServiceSeed(): ServiceOrder[] {
         },
       ],
     },
+    ...buildBulkSyntheticServiceOrders(now),
   ];
 }
 
-export const MOCK_PRODUCT_ORDERS: ProductOrder[] = [
-  {
-    id: "product-order-1",
-    number: "№ T-1001",
-    status: "delivered",
-    createdAt: "2026-03-15T10:00:00.000Z",
-    price: 2590,
-    currency: "RUB",
-    itemsCount: 2,
-    productThumbs: ["/images/shop/product-1.jpg", "/images/shop/product-2.jpg"],
-    items: [
-      {
-        productId: "product-1",
-        title: "Лежанка для кошки",
-        quantity: 1,
-        price: 1590,
-        imageUrl: "/images/shop/product-1.jpg",
-        variantId: "gray-m",
-        variantLabel: "Серая, M",
-      },
-      {
-        productId: "product-2",
-        title: "Игрушка-мышка",
-        quantity: 1,
-        price: 1000,
-        imageUrl: "/images/shop/product-2.jpg",
-      },
-    ],
-  },
-];
+export const MOCK_PRODUCT_ORDERS: ProductOrder[] = MOCK_PRODUCT_ORDERS_SEED;
 
 type LegacyServiceOrder = Partial<ServiceOrder> & {
   dateFrom?: string;
@@ -785,40 +764,38 @@ function normalizeStoredOrders(raw: unknown): ServiceOrder[] {
   return migrated.length > 0 ? migrated : generateServiceSeed();
 }
 
+function ensureServiceOrdersInitialized(): void {
+  ensureMockDatabaseLoaded();
+
+  const db = unsafeMutableMockDb();
+
+  if (db.orders.service.length > 0) {
+    return;
+  }
+
+  const initial = generateServiceSeed();
+  patchMockDatabase((next) => {
+    next.orders.service = initial;
+  });
+}
+
 function readStorage(): ServiceOrder[] {
   if (typeof window === "undefined") {
     return clone(generateServiceSeed());
   }
 
-  const raw = window.localStorage.getItem(SERVICE_ORDERS_STORAGE_KEY);
+  ensureServiceOrdersInitialized();
 
-  if (!raw) {
-    const initial = generateServiceSeed();
-    window.localStorage.setItem(
-      SERVICE_ORDERS_STORAGE_KEY,
-      JSON.stringify(initial),
-    );
-    return clone(initial);
+  const list = unsafeMutableMockDb().orders.service;
+  const normalized = normalizeStoredOrders(list);
+
+  if (JSON.stringify(normalized) !== JSON.stringify(list)) {
+    patchMockDatabase((db) => {
+      db.orders.service = normalized;
+    });
   }
 
-  try {
-    const parsed = JSON.parse(raw);
-    const normalized = normalizeStoredOrders(parsed);
-
-    window.localStorage.setItem(
-      SERVICE_ORDERS_STORAGE_KEY,
-      JSON.stringify(normalized),
-    );
-
-    return clone(normalized);
-  } catch {
-    const fallback = generateServiceSeed();
-    window.localStorage.setItem(
-      SERVICE_ORDERS_STORAGE_KEY,
-      JSON.stringify(fallback),
-    );
-    return clone(fallback);
-  }
+  return clone(normalized);
 }
 
 function writeStorage(list: ServiceOrder[]): void {
@@ -826,10 +803,9 @@ function writeStorage(list: ServiceOrder[]): void {
     return;
   }
 
-  window.localStorage.setItem(
-    SERVICE_ORDERS_STORAGE_KEY,
-    JSON.stringify(clone(list)),
-  );
+  patchMockDatabase((db) => {
+    db.orders.service = clone(list);
+  });
 }
 
 export function readMockServiceOrders(): ServiceOrder[] {

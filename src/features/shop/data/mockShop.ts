@@ -45,9 +45,9 @@ function calculateRating(reviews: ProductReview[]): number {
   return Number((total / reviews.length).toFixed(1));
 }
 
-type ProductMockInput = Omit<Product, 'rating' | 'reviewsCount'>;
+export type ProductMockInput = Omit<Product, 'rating' | 'reviewsCount'>;
 
-function createProduct(input: ProductMockInput): Product {
+export function createProduct(input: ProductMockInput): Product {
   const reviewsCount = input.reviews.length;
   const rating = calculateRating(input.reviews);
 
@@ -613,11 +613,14 @@ export function applyFilters(
   });
 }
 
-export function buildCatalogMetaMock(): CatalogMetaResponse {
-  const prices = SHOP_PRODUCTS_MOCK.map((product) => product.price);
+export function buildCatalogMetaForLists(
+  products: Product[],
+  categories: ProductCategory[],
+): CatalogMetaResponse {
+  const prices = products.map((product) => product.price);
 
   return {
-    categories: SHOP_CATEGORIES_MOCK,
+    categories,
     minPrice: prices.length > 0 ? Math.min(...prices) : 0,
     maxPrice: prices.length > 0 ? Math.max(...prices) : 0,
     availableSorts: [
@@ -628,4 +631,8 @@ export function buildCatalogMetaMock(): CatalogMetaResponse {
       'price-desc',
     ],
   };
+}
+
+export function buildCatalogMetaMock(): CatalogMetaResponse {
+  return buildCatalogMetaForLists(SHOP_PRODUCTS_MOCK, SHOP_CATEGORIES_MOCK);
 }

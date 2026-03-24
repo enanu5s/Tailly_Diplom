@@ -1,44 +1,70 @@
 // src/features/pets/api/petsApi.mock.ts
 
+import { cloneDeep } from '@/shared/mock-db/cloneDeep';
 import {
-  deepCopy,
-  MOCK_BREEDS,
-  MOCK_PETS,
-} from '../data/mockPets';
+  ensureMockDatabaseLoaded,
+  patchMockDatabase,
+  unsafeMutableMockDb,
+} from '@/shared/mock-db/store';
 
 import type { Breed, Pet } from '../model/types';
 
+function defaultUserPets(): Pet[] {
+  ensureMockDatabaseLoaded();
+
+  const db = unsafeMutableMockDb();
+  const uid = db.client.defaultUserId;
+
+  return db.client.petsByUserId[uid] ?? [];
+}
 
 export async function mockGetPets(): Promise<Pet[]> {
-  return deepCopy(MOCK_PETS);
+  return cloneDeep(defaultUserPets());
 }
 
 export async function mockGetBreeds(): Promise<Breed[]> {
-  return deepCopy(MOCK_BREEDS);
+  ensureMockDatabaseLoaded();
+
+  return cloneDeep(unsafeMutableMockDb().client.breeds);
 }
 
 export async function mockUpsertPet(pet: Pet): Promise<Pet> {
-  const next = deepCopy(pet);
+  const next = cloneDeep(pet);
 
-  const idx = MOCK_PETS.findIndex((item) => item.id === next.id);
+  patchMockDatabase((db) => {
+    const uid = db.client.defaultUserId;
+    const list = [...(db.client.petsByUserId[uid] ?? [])];
+    const idx = list.findIndex((item) => item.id === next.id);
 
-  if (idx >= 0) {
-    MOCK_PETS[idx] = next;
-  } else {
-    MOCK_PETS.unshift(next);
-  }
+    if (idx >= 0) {
+      list[idx] = next;
+    } else {
+      list.unshift(next);
+    }
 
-  return deepCopy(next);
+    db.client.petsByUserId[uid] = list;
+  });
+
+  return cloneDeep(next);
 }
 
 export async function mockDeletePet(id: string): Promise<{ id: string }> {
-  const idx = MOCK_PETS.findIndex((pet) => pet.id === id);
+  ensureMockDatabaseLoaded();
 
-  if (idx === -1) {
+  const db = unsafeMutableMockDb();
+  const uid = db.client.defaultUserId;
+  const list = db.client.petsByUserId[uid] ?? [];
+
+  if (!list.some((p) => p.id === id)) {
     throw new Error('Питомец не найден');
   }
 
-  MOCK_PETS.splice(idx, 1);
+  patchMockDatabase((next) => {
+    const u = next.client.defaultUserId;
+    next.client.petsByUserId[u] = (next.client.petsByUserId[u] ?? []).filter(
+      (p) => p.id !== id,
+    );
+  });
 
   return { id };
 }

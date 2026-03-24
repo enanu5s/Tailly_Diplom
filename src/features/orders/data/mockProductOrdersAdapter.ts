@@ -1,5 +1,7 @@
 // src/features/orders/data/mockProductOrdersAdapter.ts
 
+import { cloneDeep } from '@/shared/mock-db/cloneDeep';
+import { ensureMockDatabaseLoaded, unsafeMutableMockDb } from '@/shared/mock-db/store';
 import { readStoredOrders } from '@/features/shop/data/mockShopOrders';
 
 import type { ProductOrder } from '../model/types';
@@ -7,7 +9,7 @@ import type { ProductOrder } from '../model/types';
 export function readProductOrdersFromShop(): ProductOrder[] {
   const shopOrders = readStoredOrders();
 
-  return shopOrders.map((order): ProductOrder => {
+  const mapped = shopOrders.map((order): ProductOrder => {
     const expectedAt =
       typeof order.estimatedDeliveryDate === 'string' &&
       order.estimatedDeliveryDate.trim().length > 0
@@ -74,6 +76,14 @@ export function readProductOrdersFromShop(): ProductOrder[] {
       ],
     };
   });
+
+  if (mapped.length > 0) {
+    return mapped;
+  }
+
+  ensureMockDatabaseLoaded();
+
+  return cloneDeep(unsafeMutableMockDb().legacyProductOrders);
 }
 
 function mapStatus(status: string): ProductOrder['status'] {

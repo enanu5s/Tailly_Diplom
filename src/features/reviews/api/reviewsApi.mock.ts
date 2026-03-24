@@ -1,10 +1,11 @@
 // src/features/reviews/api/reviewsApi.mock.ts
 
+import { cloneDeep } from '@/shared/mock-db/cloneDeep';
 import {
-  deepCopy,
-  MOCK_CONTEXTS,
-  MOCK_REVIEWS,
-} from '../data/mockReviews';
+  ensureMockDatabaseLoaded,
+  patchMockDatabase,
+  unsafeMutableMockDb,
+} from '@/shared/mock-db/store';
 
 import type {
   Review,
@@ -12,17 +13,18 @@ import type {
   ReviewCreatePayload,
 } from '../model/types';
 
-
 export async function mockGetContext(
   orderId: string,
 ): Promise<ReviewContext> {
-  const context = MOCK_CONTEXTS[orderId];
+  ensureMockDatabaseLoaded();
+
+  const context = unsafeMutableMockDb().reviews.contexts[orderId];
 
   if (!context) {
     throw new Error('Контекст заказа не найден');
   }
 
-  return deepCopy(context);
+  return cloneDeep(context);
 }
 
 export async function mockCreateReview(
@@ -44,7 +46,9 @@ export async function mockCreateReview(
     serviceTitle: context.serviceTitle,
   };
 
-  MOCK_REVIEWS.unshift(review);
+  patchMockDatabase((db) => {
+    db.reviews.list = [review, ...db.reviews.list];
+  });
 
-  return deepCopy(review);
+  return cloneDeep(review);
 }

@@ -1,221 +1,190 @@
 // src/shared/lib/mock/specialistAccountsStorage.ts
 
+import {
+  ensureMockDatabaseLoaded,
+  patchMockDatabase,
+  persistMockDatabase,
+  unsafeMutableMockDb,
+} from '@/shared/mock-db/store';
+
+import { cloneDeep } from '@/shared/mock-db/cloneDeep';
+import { SEED_MANAGED_SPECIALISTS } from '@/shared/mock-db/seed/managedSpecialists.seed';
+
 export type ManagedSpecialistMockAccount = {
-    id: string;
-    email: string;
-    password: string;
-    role: 'specialist';
-    firstName: string;
-    lastName: string;
-    middleName?: string;
-    phone?: string;
-    city: string;
-    about: string;
-    specialistId: string;
-    specialistSlug?: string;
-    applicationId?: string;
-    createdAt: string;
-    createdBy: string;
-    isBlocked: boolean;
-    blockReason?: string;
-    blockedUntil?: string;
-    isPermanentBlock?: boolean;
+  id: string;
+  email: string;
+  password: string;
+  role: 'specialist';
+  firstName: string;
+  lastName: string;
+  middleName?: string;
+  phone?: string;
+  city: string;
+  about: string;
+  specialistId: string;
+  specialistSlug?: string;
+  applicationId?: string;
+  createdAt: string;
+  createdBy: string;
+  isBlocked: boolean;
+  blockReason?: string;
+  blockedUntil?: string;
+  isPermanentBlock?: boolean;
 };
 
-const STORAGE_KEY = 'tailly_managed_specialist_accounts';
-
-const INITIAL_SPECIALIST_ACCOUNTS: ManagedSpecialistMockAccount[] = [
-    {
-        id: 'specialist-1',
-        email: 'specialist@tailly.local',
-        password: '123456',
-        role: 'specialist',
-        firstName: 'Мария',
-        lastName: 'Иванова',
-        middleName: '',
-        phone: '+7 (900) 000-00-20',
-        city: 'Москва',
-        about: 'Опыт ухода за животными, базовый тестовый специалист.',
-        specialistId: 'specialist-1',
-        specialistSlug: 'maria-ivanova',
-        applicationId: undefined,
-        createdAt: '2026-03-01T10:00:00.000Z',
-        createdBy: 'system',
-        isBlocked: false,
-        blockReason: undefined,
-        blockedUntil: undefined,
-        isPermanentBlock: false,
-    },
-];
-
 function cloneAccounts(
-    accounts: ManagedSpecialistMockAccount[],
+  accounts: ManagedSpecialistMockAccount[],
 ): ManagedSpecialistMockAccount[] {
-    return JSON.parse(
-        JSON.stringify(accounts),
-    ) as ManagedSpecialistMockAccount[];
+  return cloneDeep(accounts);
 }
 
 function normalizeOptionalString(value: unknown): string | undefined {
-    return typeof value === 'string' && value.trim() ? value : undefined;
+  return typeof value === 'string' && value.trim() ? value : undefined;
 }
 
 function normalizeAccounts(
-    value: unknown,
+  value: unknown,
 ): ManagedSpecialistMockAccount[] {
-    if (!Array.isArray(value)) {
-        return cloneAccounts(INITIAL_SPECIALIST_ACCOUNTS);
-    }
+  if (!Array.isArray(value)) {
+    return cloneAccounts(SEED_MANAGED_SPECIALISTS);
+  }
 
-    const result = value
-        .filter(
-            (item) =>
-                typeof item === 'object' &&
-                item !== null &&
-                typeof (item as ManagedSpecialistMockAccount).id === 'string' &&
-                typeof (item as ManagedSpecialistMockAccount).email === 'string' &&
-                typeof (item as ManagedSpecialistMockAccount).password === 'string',
-        )
-        .map((item) => {
-            const account = item as ManagedSpecialistMockAccount;
+  const result = value
+    .filter(
+      (item) =>
+        typeof item === 'object' &&
+        item !== null &&
+        typeof (item as ManagedSpecialistMockAccount).id === 'string' &&
+        typeof (item as ManagedSpecialistMockAccount).email === 'string' &&
+        typeof (item as ManagedSpecialistMockAccount).password === 'string',
+    )
+    .map((item) => {
+      const account = item as ManagedSpecialistMockAccount;
 
-            return {
-                ...account,
-                blockReason: normalizeOptionalString(account.blockReason),
-                blockedUntil: normalizeOptionalString(account.blockedUntil),
-                isBlocked: Boolean(account.isBlocked),
-                isPermanentBlock: Boolean(account.isPermanentBlock),
-            };
-        }) as ManagedSpecialistMockAccount[];
+      return {
+        ...account,
+        blockReason: normalizeOptionalString(account.blockReason),
+        blockedUntil: normalizeOptionalString(account.blockedUntil),
+        isBlocked: Boolean(account.isBlocked),
+        isPermanentBlock: Boolean(account.isPermanentBlock),
+      };
+    }) as ManagedSpecialistMockAccount[];
 
-    return cloneAccounts(result);
+  return cloneAccounts(result);
 }
 
 export function syncManagedSpecialistBlockedState(
-    account: ManagedSpecialistMockAccount,
+  account: ManagedSpecialistMockAccount,
 ): ManagedSpecialistMockAccount {
-    if (!account.isBlocked) {
-        return account;
-    }
-
-    if (account.isPermanentBlock) {
-        return account;
-    }
-
-    if (!account.blockedUntil) {
-        return account;
-    }
-
-    const blockedUntilTime = new Date(account.blockedUntil).getTime();
-
-    if (Number.isNaN(blockedUntilTime)) {
-        return account;
-    }
-
-    if (blockedUntilTime <= Date.now()) {
-        return {
-            ...account,
-            isBlocked: false,
-            blockReason: undefined,
-            blockedUntil: undefined,
-            isPermanentBlock: false,
-        };
-    }
-
+  if (!account.isBlocked) {
     return account;
+  }
+
+  if (account.isPermanentBlock) {
+    return account;
+  }
+
+  if (!account.blockedUntil) {
+    return account;
+  }
+
+  const blockedUntilTime = new Date(account.blockedUntil).getTime();
+
+  if (Number.isNaN(blockedUntilTime)) {
+    return account;
+  }
+
+  if (blockedUntilTime <= Date.now()) {
+    return {
+      ...account,
+      isBlocked: false,
+      blockReason: undefined,
+      blockedUntil: undefined,
+      isPermanentBlock: false,
+    };
+  }
+
+  return account;
 }
 
 export function ensureManagedSpecialistAccountsSeed(): void {
-    const existing = localStorage.getItem(STORAGE_KEY);
-
-    if (!existing) {
-        localStorage.setItem(
-            STORAGE_KEY,
-            JSON.stringify(INITIAL_SPECIALIST_ACCOUNTS),
-        );
-    }
+  ensureMockDatabaseLoaded();
 }
 
 export function readManagedSpecialistAccounts(): ManagedSpecialistMockAccount[] {
-    ensureManagedSpecialistAccountsSeed();
+  ensureMockDatabaseLoaded();
 
-    const raw = localStorage.getItem(STORAGE_KEY);
+  const db = unsafeMutableMockDb();
+  const normalizedAccounts = normalizeAccounts(db.specialists.managed);
 
-    if (!raw) {
-        return cloneAccounts(INITIAL_SPECIALIST_ACCOUNTS);
-    }
+  const syncedAccounts = normalizedAccounts.map(syncManagedSpecialistBlockedState);
 
-    try {
-        const parsed = JSON.parse(raw) as unknown;
-        const normalizedAccounts = normalizeAccounts(parsed);
+  const hasChanges = syncedAccounts.some((account, index) => {
+    const original = normalizedAccounts[index];
 
-        const syncedAccounts = normalizedAccounts.map(
-            syncManagedSpecialistBlockedState,
-        );
+    return (
+      original.isBlocked !== account.isBlocked ||
+      original.blockReason !== account.blockReason ||
+      original.blockedUntil !== account.blockedUntil ||
+      Boolean(original.isPermanentBlock) !== Boolean(account.isPermanentBlock)
+    );
+  });
 
-        const hasChanges = syncedAccounts.some((account, index) => {
-            const original = normalizedAccounts[index];
+  if (hasChanges) {
+    db.specialists.managed = syncedAccounts;
+    persistMockDatabase();
+  }
 
-            return (
-                original.isBlocked !== account.isBlocked ||
-                original.blockReason !== account.blockReason ||
-                original.blockedUntil !== account.blockedUntil ||
-                Boolean(original.isPermanentBlock) !== Boolean(account.isPermanentBlock)
-            );
-        });
-
-        if (hasChanges) {
-            writeManagedSpecialistAccounts(syncedAccounts);
-        }
-
-        return cloneAccounts(syncedAccounts);
-    } catch {
-        return cloneAccounts(INITIAL_SPECIALIST_ACCOUNTS);
-    }
+  return cloneAccounts(syncedAccounts);
 }
 
 export function writeManagedSpecialistAccounts(
-    accounts: ManagedSpecialistMockAccount[],
+  accounts: ManagedSpecialistMockAccount[],
 ): void {
-    localStorage.setItem(STORAGE_KEY, JSON.stringify(accounts));
+  patchMockDatabase((db) => {
+    db.specialists.managed = cloneDeep(accounts);
+  });
 }
 
 export function upsertManagedSpecialistAccount(
-    account: ManagedSpecialistMockAccount,
+  account: ManagedSpecialistMockAccount,
 ): void {
-    const accounts = readManagedSpecialistAccounts();
-    const existingIndex = accounts.findIndex(
-        (item) => item.id === account.id,
-    );
+  patchMockDatabase((db) => {
+    const accounts = [...db.specialists.managed];
+    const existingIndex = accounts.findIndex((item) => item.id === account.id);
 
     if (existingIndex === -1) {
-        accounts.unshift(account);
+      accounts.unshift(account);
     } else {
-        accounts[existingIndex] = account;
+      accounts[existingIndex] = account;
     }
 
-    writeManagedSpecialistAccounts(accounts);
+    db.specialists.managed = accounts;
+  });
 }
 
 export function updateManagedSpecialistAccount(
-    specialistId: string,
-    updater: (
-        account: ManagedSpecialistMockAccount,
-    ) => ManagedSpecialistMockAccount,
+  specialistId: string,
+  updater: (
+    account: ManagedSpecialistMockAccount,
+  ) => ManagedSpecialistMockAccount,
 ): ManagedSpecialistMockAccount {
-    const accounts = readManagedSpecialistAccounts();
-    const targetIndex = accounts.findIndex(
-        (item) => item.id === specialistId || item.specialistId === specialistId,
-    );
+  ensureMockDatabaseLoaded();
 
-    if (targetIndex === -1) {
-        throw new Error('Специалист не найден в mock storage.');
-    }
+  const db = unsafeMutableMockDb();
+  const accounts = [...db.specialists.managed];
+  const targetIndex = accounts.findIndex(
+    (item) => item.id === specialistId || item.specialistId === specialistId,
+  );
 
-    const updatedAccount = updater(accounts[targetIndex]);
-    accounts[targetIndex] = updatedAccount;
+  if (targetIndex === -1) {
+    throw new Error('Специалист не найден в mock storage.');
+  }
 
-    writeManagedSpecialistAccounts(accounts);
+  const updated = updater(accounts[targetIndex]);
+  accounts[targetIndex] = updated;
+  db.specialists.managed = accounts;
+  persistMockDatabase();
 
-    return updatedAccount;
+  return cloneDeep(updated);
 }

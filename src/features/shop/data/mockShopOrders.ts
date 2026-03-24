@@ -1,58 +1,37 @@
 // src/features/shop/data/mockShopOrders.ts
 
-import type {
-  Order,
-  PickupPoint,
-} from '../model/types';
+import {
+  ensureMockDatabaseLoaded,
+  patchMockDatabase,
+  unsafeMutableMockDb,
+} from '@/shared/mock-db/store';
+
+import type { Order, PickupPoint } from '../model/types';
 
 export const ORDERS_STORAGE_KEY = 'tailly_shop_orders';
 
-export const PICKUP_POINTS_MOCK: PickupPoint[] = [
-  {
-    id: 'pickup-cdek-1',
-    provider: 'cdek',
-    title: 'СДЭК — ПВЗ на Тверской',
-    address: 'Москва, ул. Тверская, д. 12',
-    estimatedDate: '2026-03-11',
-  },
-  {
-    id: 'pickup-cdek-2',
-    provider: 'cdek',
-    title: 'СДЭК — ПВЗ на Арбате',
-    address: 'Москва, ул. Арбат, д. 21',
-    estimatedDate: '2026-03-12',
-  },
-  {
-    id: 'pickup-cdek-3',
-    provider: 'cdek',
-    title: 'СДЭК — ПВЗ на Ленинском',
-    address: 'Москва, Ленинский проспект, д. 41',
-    estimatedDate: '2026-03-12',
-  },
-];
-
 export function readStoredOrders(): Order[] {
-  const raw = localStorage.getItem(ORDERS_STORAGE_KEY);
+  ensureMockDatabaseLoaded();
 
-  if (!raw) {
-    return [];
-  }
-
-  try {
-    const parsed = JSON.parse(raw);
-
-    if (!Array.isArray(parsed)) {
-      return [];
-    }
-
-    return parsed as Order[];
-  } catch {
-    return [];
-  }
+  return unsafeMutableMockDb().shop.orders.map((order) => ({ ...order }));
 }
 
 export function writeStoredOrders(orders: Order[]): void {
-  localStorage.setItem(ORDERS_STORAGE_KEY, JSON.stringify(orders));
+  patchMockDatabase((db) => {
+    db.shop.orders = orders.map((order) => ({ ...order }));
+  });
+}
+
+export function getPickupPointsSnapshot(): PickupPoint[] {
+  ensureMockDatabaseLoaded();
+
+  return unsafeMutableMockDb().shop.pickupPoints.map((p) => ({ ...p }));
+}
+
+export function replacePickupPoints(points: PickupPoint[]): void {
+  patchMockDatabase((db) => {
+    db.shop.pickupPoints = points.map((p) => ({ ...p }));
+  });
 }
 
 export function addDays(date: Date, days: number): string {

@@ -7,6 +7,8 @@ import { routes } from "@/app/router/routes";
 import { authStore } from "@/features/auth/model/authStore";
 import { configureHttpClient } from "@/shared/api/http";
 import { runEmailNotificationScheduler } from "@/shared/lib/emailNotifications";
+import { seedDemoMessagesIfEmpty } from "@/features/messages/data/messagesStorage";
+import { ensureMockDatabaseLoaded } from "@/shared/mock-db/store";
 
 const router = createBrowserRouter(routes);
 
@@ -18,6 +20,11 @@ export function getUnauthorizedRedirectPath(pathname: string): string {
 }
 
 function bootstrap() {
+  if ((import.meta.env.VITE_USE_MOCK_API ?? "true") === "true") {
+    ensureMockDatabaseLoaded();
+    seedDemoMessagesIfEmpty();
+  }
+
   configureHttpClient({
     getAuthToken: () => authStore.getToken(),
     onUnauthorized: () => {

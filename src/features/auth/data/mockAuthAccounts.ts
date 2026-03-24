@@ -1,6 +1,12 @@
 //src/features/auth/data/mockAuthAccounts.ts
 
 import {
+  ensureMockDatabaseLoaded,
+  patchMockDatabase,
+  persistMockDatabase,
+  unsafeMutableMockDb,
+} from '@/shared/mock-db/store';
+import {
   getActiveSoftDeleteRecord,
   getPermanentDeletedIds,
   purgeExpiredSoftDeletes,
@@ -40,58 +46,6 @@ export type MockAttemptState = {
 export const MAX_ADMIN_LOGIN_ATTEMPTS = 5;
 export const ADMIN_LOCK_MINUTES = 15;
 
-const BASE_AUTH_ACCOUNTS: MockAuthAccount[] = [
-  {
-    id: 'client-1',
-    email: 'client@tailly.local',
-    password: '123456',
-    roles: ['client'],
-    firstName: 'Елена',
-    lastName: 'Смирнова',
-    phone: '+7 (900) 000-00-10',
-    isBlocked: false,
-  },
-  {
-    id: 'specialist-1',
-    email: 'specialist@tailly.local',
-    password: '123456',
-    roles: ['client', 'specialist'],
-    firstName: 'Мария',
-    lastName: 'Иванова',
-    middleName: '',
-    phone: '+7 (900) 000-00-20',
-    specialistId: 'specialist-1',
-    specialistSlug: 'maria-ivanova',
-    isBlocked: false,
-  },
-  {
-    id: 'admin-1',
-    email: 'admin@tailly.local',
-    password: '123456',
-    roles: ['admin'],
-    firstName: 'Анна',
-    lastName: 'Иванова',
-    middleName: 'Сергеевна',
-    phone: '+7 (900) 000-00-01',
-    adminId: 'admin-1',
-    isBlocked: false,
-  },
-  {
-    id: 'super-admin-1',
-    email: 'superadmin@tailly.local',
-    password: '123456',
-    roles: ['super_admin'],
-    firstName: 'Мария',
-    lastName: 'Петрова',
-    middleName: 'Александровна',
-    phone: '+7 (900) 000-00-02',
-    adminId: 'super-admin-1',
-    isBlocked: false,
-  },
-];
-
-export const adminAttemptsMap = new Map<string, MockAttemptState>();
-
 export function wait(delay = 350): Promise<void> {
   return new Promise((resolve) => {
     window.setTimeout(resolve, delay);
@@ -129,8 +83,11 @@ export function syncBlockedState(account: MockAuthAccount): void {
 }
 
 export function getAdminAttemptState(email: string): MockAttemptState {
+  ensureMockDatabaseLoaded();
+
   const normalizedEmail = normalizeEmail(email);
-  const current = adminAttemptsMap.get(normalizedEmail);
+  const db = unsafeMutableMockDb();
+  let current = db.auth.adminAttempts[normalizedEmail];
 
   if (current) {
     return current;
@@ -141,15 +98,44 @@ export function getAdminAttemptState(email: string): MockAttemptState {
     lockUntil: null,
   };
 
-  adminAttemptsMap.set(normalizedEmail, initialState);
+  db.auth.adminAttempts[normalizedEmail] = initialState;
+  persistMockDatabase();
 
   return initialState;
 }
 
+export function putAdminAttemptState(
+  email: string,
+  state: MockAttemptState,
+): void {
+  ensureMockDatabaseLoaded();
+
+  const db = unsafeMutableMockDb();
+  db.auth.adminAttempts[normalizeEmail(email)] = state;
+  persistMockDatabase();
+}
+
 export function resetAdminAttempts(email: string): void {
-  adminAttemptsMap.set(normalizeEmail(email), {
+  putAdminAttemptState(email, {
     failedAttempts: 0,
     lockUntil: null,
+  });
+}
+
+export function setMockAuthBaseAccountPasswordByEmail(
+  email: string,
+  password: string,
+): void {
+  const normalized = normalizeEmail(email);
+
+  patchMockDatabase((db) => {
+    const acc = db.auth.baseAccounts.find(
+      (item) => normalizeEmail(item.email) === normalized,
+    );
+
+    if (acc) {
+      acc.password = password;
+    }
   });
 }
 
@@ -237,6 +223,7 @@ function chooseMoreCompleteAccount(
 }
 
 export function getMockAuthAccounts(): MockAuthAccount[] {
+  ensureMockDatabaseLoaded();
   purgeExpiredSoftDeletes();
 
   const permanent = getPermanentDeletedIds();
@@ -245,7 +232,8 @@ export function getMockAuthAccounts(): MockAuthAccount[] {
     mapManagedSpecialistAccountToAuthAccount,
   );
 
-  const mergedAccounts = [...BASE_AUTH_ACCOUNTS, ...specialistAccounts];
+  const baseAccounts = unsafeMutableMockDb().auth.baseAccounts;
+  const mergedAccounts = [...baseAccounts, ...specialistAccounts];
   const uniqueAccountsMap = new Map<string, MockAuthAccount>();
 
   for (const account of mergedAccounts) {

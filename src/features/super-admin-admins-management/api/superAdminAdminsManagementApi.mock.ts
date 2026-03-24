@@ -1,12 +1,13 @@
 // src/features/super-admin-admins-management/api/superAdminAdminsManagementApi.mock.ts
 
 import { notifyNewAdminPasswordFromSuperAdmin } from '@/shared/lib/emailNotifications';
+import { patchMockDatabase } from '@/shared/mock-db/store';
 
 import {
   buildAdminId,
   buildTemporaryPassword,
   cloneAdmins,
-  MOCK_ADMINS,
+  getSuperAdminAdminsMutable,
   normalizeOptional,
   type MockAdminRecord,
   wait,
@@ -19,7 +20,6 @@ import {
   type ManagedAdmin,
   type UpdateAdminPayload,
 } from '../model/types';
-
 
 export async function mockGetAdmins(): Promise<ManagedAdmin[]> {
   await wait();
@@ -40,7 +40,7 @@ export async function mockCreateAdmin(
 
   const normalizedEmail = payload.email.trim().toLowerCase();
 
-  const existingAdmin = MOCK_ADMINS.find(
+  const existingAdmin = getSuperAdminAdminsMutable().find(
     (admin) => admin.email.toLowerCase() === normalizedEmail,
   );
 
@@ -72,7 +72,9 @@ export async function mockCreateAdmin(
     temporaryPassword,
   };
 
-  MOCK_ADMINS.unshift(createdAdmin);
+  patchMockDatabase((db) => {
+    db.superAdmin.admins = [createdAdmin, ...db.superAdmin.admins];
+  });
 
   notifyNewAdminPasswordFromSuperAdmin({
     adminEmail: normalizedEmail,
@@ -92,7 +94,8 @@ export async function mockDeleteAdmin(
 ): Promise<void> {
   await wait();
 
-  const adminIndex = MOCK_ADMINS.findIndex(
+  const admins = getSuperAdminAdminsMutable();
+  const adminIndex = admins.findIndex(
     (admin) => admin.adminId === payload.adminId,
   );
 
@@ -100,13 +103,17 @@ export async function mockDeleteAdmin(
     throw new AdminManagementError('Администратор не найден.');
   }
 
-  if (MOCK_ADMINS[adminIndex].role === 'super_admin') {
+  if (admins[adminIndex].role === 'super_admin') {
     throw new AdminManagementError(
       'Главного администратора удалить нельзя.',
     );
   }
 
-  MOCK_ADMINS.splice(adminIndex, 1);
+  patchMockDatabase((db) => {
+    db.superAdmin.admins = db.superAdmin.admins.filter(
+      (admin) => admin.adminId !== payload.adminId,
+    );
+  });
 }
 
 export async function mockUpdateAdmin(
@@ -114,7 +121,8 @@ export async function mockUpdateAdmin(
 ): Promise<ManagedAdmin> {
   await wait();
 
-  const adminIndex = MOCK_ADMINS.findIndex(
+  const admins = getSuperAdminAdminsMutable();
+  const adminIndex = admins.findIndex(
     (admin) => admin.adminId === payload.adminId,
   );
 
@@ -122,13 +130,13 @@ export async function mockUpdateAdmin(
     throw new AdminManagementError('Администратор не найден.');
   }
 
-  if (MOCK_ADMINS[adminIndex].role === 'super_admin') {
+  if (admins[adminIndex].role === 'super_admin') {
     throw new AdminManagementError(
       'Данные главного администратора здесь изменить нельзя.',
     );
   }
 
-  const existing = MOCK_ADMINS[adminIndex];
+  const existing = admins[adminIndex];
 
   const updated: MockAdminRecord = {
     ...existing,
@@ -141,7 +149,11 @@ export async function mockUpdateAdmin(
     department: normalizeOptional(payload.department),
   };
 
-  MOCK_ADMINS[adminIndex] = updated;
+  patchMockDatabase((db) => {
+    db.superAdmin.admins = db.superAdmin.admins.map((admin) =>
+      admin.adminId === payload.adminId ? updated : admin,
+    );
+  });
 
   return JSON.parse(JSON.stringify(updated)) as ManagedAdmin;
 }

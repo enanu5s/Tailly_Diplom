@@ -2,7 +2,6 @@
 
 import { getActiveSoftDeleteRecord } from '../data/mockAccountDeletionStorage';
 import {
-  adminAttemptsMap,
   buildAdminLockUntilIso,
   getAdminAttemptState,
   getMockAuthAccounts,
@@ -10,6 +9,7 @@ import {
   mapAccountToLoginSuccess,
   MAX_ADMIN_LOGIN_ATTEMPTS,
   normalizeEmail,
+  putAdminAttemptState,
   resetAdminAttempts,
   syncBlockedState,
   wait,
@@ -89,7 +89,7 @@ export async function mockLogin(
       if (attemptsLeft <= 0) {
         const lockUntil = buildAdminLockUntilIso();
 
-        adminAttemptsMap.set(email, {
+        putAdminAttemptState(email, {
           failedAttempts: MAX_ADMIN_LOGIN_ATTEMPTS,
           lockUntil,
         });
@@ -103,7 +103,7 @@ export async function mockLogin(
         });
       }
 
-      adminAttemptsMap.set(email, {
+      putAdminAttemptState(email, {
         failedAttempts: nextFailedAttempts,
         lockUntil: null,
       });

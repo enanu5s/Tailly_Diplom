@@ -2,14 +2,14 @@
 
 import { notifyShopOrderEvent } from '@/shared/lib/emailNotifications';
 
-import { SHOP_PRODUCTS_MOCK } from './mockData';
 import {
   addDays,
   generateOrderId,
-  PICKUP_POINTS_MOCK,
+  getPickupPointsSnapshot,
   readStoredOrders,
   writeStoredOrders,
 } from '../data/mockShopOrders';
+import { getShopProductsSnapshot } from '../data/mockShopCatalogDb';
 
 import type { CreateOrderPayload } from './shopOrderApi';
 import type {
@@ -50,11 +50,13 @@ export async function mockGetPickupPoints(
 ): Promise<PickupPoint[]> {
   const normalizedCity = city?.trim().toLowerCase() ?? '';
 
+  const points = getPickupPointsSnapshot();
+
   if (!normalizedCity) {
-    return PICKUP_POINTS_MOCK;
+    return points;
   }
 
-  return PICKUP_POINTS_MOCK.filter((point) =>
+  return points.filter((point) =>
     point.address.toLowerCase().includes(normalizedCity),
   );
 }
@@ -63,7 +65,7 @@ export async function mockCreateOrder(
   payload: CreateOrderPayload,
 ): Promise<Order> {
   const productIds = payload.items.map((item) => item.productId);
-  const products = SHOP_PRODUCTS_MOCK.filter((product) =>
+  const products = getShopProductsSnapshot().filter((product) =>
     productIds.includes(product.id),
   );
   const detailedItems = buildDetailedItems(payload.items, products);

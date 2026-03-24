@@ -1,13 +1,17 @@
 // src/features/specialist-profile/data/mockSpecialistProfiles.ts
 
+import {
+  buildDemoSpecialistSpecs,
+  specialistDemoSlug,
+} from '@/shared/mock-db/seed/demoDataset.seed';
+
 import type { SpecialistProfileResponse } from '../model/types';
 
 function clone<T>(value: T): T {
   return JSON.parse(JSON.stringify(value)) as T;
 }
 
-export const MOCK_SPECIALIST_PROFILES: SpecialistProfileResponse[] = [
-  {
+const PRIMARY_SPECIALIST_PROFILE: SpecialistProfileResponse = {
     id: 'specialist-1',
     slug: 'maria-ivanova',
     main: {
@@ -416,7 +420,63 @@ export const MOCK_SPECIALIST_PROFILES: SpecialistProfileResponse[] = [
         },
       },
     ],
-  },
+};
+
+function buildSyntheticSpecialistProfiles(): SpecialistProfileResponse[] {
+  const specs = buildDemoSpecialistSpecs();
+
+  return specs.map((s) => {
+    const profile = clone(PRIMARY_SPECIALIST_PROFILE);
+    const id = `specialist-${s.index}`;
+    const slug = specialistDemoSlug(s);
+    const n = s.index.toString().padStart(2, '0');
+
+    profile.id = id;
+    profile.slug = slug;
+    profile.main = {
+      ...profile.main,
+      firstName: s.firstName,
+      lastName: s.lastName,
+      middleName: '',
+      city: s.city,
+      district: s.city === 'Москва' ? 'Центральный округ' : '',
+      phone: `+7 (901) ${200 + s.index}-${30 + s.index}-${40 + s.index}`,
+      email: `specialist${n}@tailly.local`,
+      avatarUrl:
+        s.index % 4 === 0
+          ? '/images/specialists/maria-ivanova.jpg'
+          : undefined,
+    };
+
+    const years = 2 + (s.index % 7);
+
+    profile.stats = {
+      experienceYears: years,
+      rating: Math.min(5, 4.2 + (s.index % 8) * 0.1),
+      reviewsCount: 5 + s.index * 3,
+      completedOrdersCount: 12 + s.index * 4,
+      repeatOrdersCount: 2 + (s.index % 5),
+    };
+
+    profile.details = {
+      ...profile.details,
+      about: s.about,
+      experienceLabel: `${years} ${years === 1 ? 'год' : years < 5 ? 'года' : 'лет'} опыта`,
+      experienceDurationValue: years,
+    };
+
+    profile.reviews = profile.reviews.slice(
+      0,
+      Math.min(2, profile.reviews.length),
+    );
+
+    return profile;
+  });
+}
+
+export const MOCK_SPECIALIST_PROFILES: SpecialistProfileResponse[] = [
+  PRIMARY_SPECIALIST_PROFILE,
+  ...buildSyntheticSpecialistProfiles(),
 ];
 
 export function delay(ms = 350): Promise<void> {
@@ -452,10 +512,6 @@ export function findProfileIndexBySlug(slug: string): number {
 
   if (byId !== -1) {
     return byId;
-  }
-
-  if (MOCK_SPECIALIST_PROFILES.length === 1) {
-    return 0;
   }
 
   return -1;

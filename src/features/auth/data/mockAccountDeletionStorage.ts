@@ -1,15 +1,14 @@
 // src/features/auth/data/mockAccountDeletionStorage.ts
 
 import {
-  readManagedSpecialistAccounts,
-  writeManagedSpecialistAccounts,
-} from '@/shared/lib/mock/specialistAccountsStorage';
+  ensureMockDatabaseLoaded,
+  patchMockDatabase,
+  persistMockDatabase,
+  unsafeMutableMockDb,
+} from '@/shared/mock-db/store';
 
 export const ACCOUNT_SOFT_DELETE_DAYS = 30;
 
-const STORAGE_SOFT_DELETE = 'tailly_account_soft_delete_by_user_id';
-const STORAGE_PERMANENT = 'tailly_permanently_deleted_user_ids';
-const STORAGE_EMAIL_OUTBOX = 'tailly_mock_account_deletion_emails';
 const EMAIL_OUTBOX_MAX = 30;
 
 export type AccountSoftDeleteRecord = {
@@ -34,64 +33,15 @@ function randomToken(): string {
   return Array.from(bytes, (b) => b.toString(16).padStart(2, '0')).join('');
 }
 
-function readSoftDeleteMap(): Record<string, AccountSoftDeleteRecord> {
-  try {
-    const raw = localStorage.getItem(STORAGE_SOFT_DELETE);
-
-    if (!raw) {
-      return {};
-    }
-
-    const parsed = JSON.parse(raw) as unknown;
-
-    if (!parsed || typeof parsed !== 'object') {
-      return {};
-    }
-
-    return parsed as Record<string, AccountSoftDeleteRecord>;
-  } catch {
-    return {};
-  }
-}
-
-function writeSoftDeleteMap(map: Record<string, AccountSoftDeleteRecord>): void {
-  localStorage.setItem(STORAGE_SOFT_DELETE, JSON.stringify(map));
-}
-
-function readPermanentDeletedIds(): Set<string> {
-  try {
-    const raw = localStorage.getItem(STORAGE_PERMANENT);
-
-    if (!raw) {
-      return new Set();
-    }
-
-    const parsed = JSON.parse(raw) as unknown;
-
-    if (!Array.isArray(parsed)) {
-      return new Set();
-    }
-
-    return new Set(
-      parsed.filter(
-        (id): id is string => typeof id === 'string' && id.trim().length > 0,
-      ),
-    );
-  } catch {
-    return new Set();
-  }
-}
-
-function writePermanentDeletedIds(ids: Set<string>): void {
-  localStorage.setItem(STORAGE_PERMANENT, JSON.stringify([...ids]));
-}
-
 export function purgeExpiredSoftDeletes(): void {
-  const map = readSoftDeleteMap();
-  const permanent = readPermanentDeletedIds();
+  ensureMockDatabaseLoaded();
+
+  const db = unsafeMutableMockDb();
+  const map = { ...db.accountDeletion.softDeleteByUserId };
+  const permanent = new Set(db.accountDeletion.permanentUserIds);
   const now = Date.now();
   let changed = false;
-  let specialists = readManagedSpecialistAccounts();
+  let specialists = [...db.specialists.managed];
   let specialistsTouched = false;
 
   for (const [userId, rec] of Object.entries(map)) {
@@ -116,17 +66,23 @@ export function purgeExpiredSoftDeletes(): void {
   }
 
   if (changed) {
-    writeSoftDeleteMap(map);
-    writePermanentDeletedIds(permanent);
+    db.accountDeletion.softDeleteByUserId = map;
+    db.accountDeletion.permanentUserIds = [...permanent];
   }
 
   if (specialistsTouched) {
-    writeManagedSpecialistAccounts(specialists);
+    db.specialists.managed = specialists;
+  }
+
+  if (changed || specialistsTouched) {
+    persistMockDatabase();
   }
 }
 
 export function getPermanentDeletedIds(): Set<string> {
-  return readPermanentDeletedIds();
+  ensureMockDatabaseLoaded();
+
+  return new Set(unsafeMutableMockDb().accountDeletion.permanentUserIds);
 }
 
 export function getActiveSoftDeleteRecord(
@@ -134,7 +90,8 @@ export function getActiveSoftDeleteRecord(
 ): AccountSoftDeleteRecord | null {
   purgeExpiredSoftDeletes();
 
-  const rec = readSoftDeleteMap()[userId];
+  const rec =
+    unsafeMutableMockDb().accountDeletion.softDeleteByUserId[userId];
 
   if (!rec) {
     return null;
@@ -164,7 +121,7 @@ export function findUserIdByRestoreToken(
     return null;
   }
 
-  const map = readSoftDeleteMap();
+  const map = unsafeMutableMockDb().accountDeletion.softDeleteByUserId;
 
   for (const [userId, rec] of Object.entries(map)) {
     if (rec.token === normalized) {
@@ -179,21 +136,20 @@ export function putSoftDeleteRecord(
   userId: string,
   record: AccountSoftDeleteRecord,
 ): void {
-  const map = readSoftDeleteMap();
-
-  map[userId] = record;
-  writeSoftDeleteMap(map);
+  patchMockDatabase((db) => {
+    db.accountDeletion.softDeleteByUserId = {
+      ...db.accountDeletion.softDeleteByUserId,
+      [userId]: record,
+    };
+  });
 }
 
 export function removeSoftDeleteRecord(userId: string): void {
-  const map = readSoftDeleteMap();
-
-  if (!(userId in map)) {
-    return;
-  }
-
-  delete map[userId];
-  writeSoftDeleteMap(map);
+  patchMockDatabase((db) => {
+    const next = { ...db.accountDeletion.softDeleteByUserId };
+    delete next[userId];
+    db.accountDeletion.softDeleteByUserId = next;
+  });
 }
 
 export function createSoftDeleteRecord(): AccountSoftDeleteRecord {
@@ -215,26 +171,20 @@ export function appendMockAccountDeletionEmail(entry: {
   html: string;
 }): void {
   try {
-    const raw = localStorage.getItem(STORAGE_EMAIL_OUTBOX);
-    const parsed = raw ? (JSON.parse(raw) as unknown) : [];
-    const list: MockAccountDeletionEmail[] = Array.isArray(parsed)
-      ? (parsed as MockAccountDeletionEmail[])
-      : [];
+    patchMockDatabase((db) => {
+      const list = [...db.accountDeletion.deletionEmailOutbox];
 
-    const row: MockAccountDeletionEmail = {
-      id: `mail-${Date.now()}-${Math.random().toString(16).slice(2)}`,
-      to: entry.to,
-      subject: entry.subject,
-      html: entry.html,
-      sentAt: new Date().toISOString(),
-    };
+      const row: MockAccountDeletionEmail = {
+        id: `mail-${Date.now()}-${Math.random().toString(16).slice(2)}`,
+        to: entry.to,
+        subject: entry.subject,
+        html: entry.html,
+        sentAt: new Date().toISOString(),
+      };
 
-    list.unshift(row);
-
-    localStorage.setItem(
-      STORAGE_EMAIL_OUTBOX,
-      JSON.stringify(list.slice(0, EMAIL_OUTBOX_MAX)),
-    );
+      list.unshift(row);
+      db.accountDeletion.deletionEmailOutbox = list.slice(0, EMAIL_OUTBOX_MAX);
+    });
   } catch {
     /* демо-хранилище писем */
   }

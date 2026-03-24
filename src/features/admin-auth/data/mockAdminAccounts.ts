@@ -1,5 +1,7 @@
 //src/features/admin-auth/data/mockAdminAccounts.ts
 
+import { buildExtraMockAdminPanelAccounts } from '@/shared/mock-db/seed/demoDataset.seed';
+
 import type { AdminLoginSuccessResponse } from '../model/types';
 
 export type MockAdminAccount = {
@@ -48,6 +50,7 @@ export const MOCK_ADMIN_ACCOUNTS: MockAdminAccount[] = [
     phone: '+7 (900) 000-00-02',
     isBlocked: false,
   },
+  ...buildExtraMockAdminPanelAccounts(),
 ];
 
 export const attemptsMap = new Map<string, MockAttemptState>();

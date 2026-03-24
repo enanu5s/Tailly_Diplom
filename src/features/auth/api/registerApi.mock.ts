@@ -1,5 +1,7 @@
 // src/features/auth/api/registerApi.mock.ts
 
+import { persistMockDatabase } from '@/shared/mock-db/store';
+
 import { cloneCities, getMockRegisterState, wait } from '../data/mockRegister';
 
 import type {
@@ -20,6 +22,7 @@ export async function mockStartRegister(
 
   const state = getMockRegisterState();
   state.email = dto.email.trim().toLowerCase();
+  persistMockDatabase();
 
   return {
     registrationId: state.registrationId,

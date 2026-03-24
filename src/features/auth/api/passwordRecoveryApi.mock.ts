@@ -6,9 +6,9 @@ import {
   getSession,
 } from '../data/mockPasswordRecovery';
 import {
-  MOCK_ADMIN_PASSWORD_RECOVERY_REQUESTS,
   buildRecoveryRequestId,
   findPendingAdminPasswordRecoveryRequestByEmail,
+  prependAdminPasswordRecoveryRequest,
   wait,
 } from '../data/mockAdminPasswordRecoveryRequests';
 import { getActiveSoftDeleteRecord } from '../data/mockAccountDeletionStorage';
@@ -76,7 +76,7 @@ export const passwordRecoveryMockApi = {
         );
       }
 
-      MOCK_ADMIN_PASSWORD_RECOVERY_REQUESTS.unshift({
+      prependAdminPasswordRecoveryRequest({
         id: buildRecoveryRequestId(),
         email: normalizedEmail,
         requestedAt: new Date().toISOString(),
