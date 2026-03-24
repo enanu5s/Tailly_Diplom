@@ -12,7 +12,11 @@ import {
   findProfileIndexBySlug,
   MOCK_SPECIALIST_PROFILES,
 } from '../data/mockSpecialistProfiles';
-import { syncMockSpecialistCalendarSlotsFromProfile } from '@/features/specialists-search/data/mockSpecialists';
+import { computeSpecialistStats } from '../lib/computeSpecialistStats';
+import {
+  syncMockSpecialistCalendarSlotsFromProfile,
+  syncMockSpecialistListingStatsFromProfile,
+} from '@/features/specialists-search/data/mockSpecialists';
 
 import type {
   SpecialistCalendarUpdatePayload,
@@ -41,6 +45,24 @@ function normalizePositiveMinutes(value: number, fallback: number): number {
   return Math.round(value);
 }
 
+function withComputedStats(profile: SpecialistProfileResponse): SpecialistProfileResponse {
+  const stats = computeSpecialistStats({
+    id: profile.id,
+    slug: profile.slug,
+    experienceYears: profile.stats.experienceYears,
+    reviews: profile.reviews,
+  });
+
+  const merged: SpecialistProfileResponse = {
+    ...profile,
+    stats,
+  };
+
+  syncMockSpecialistListingStatsFromProfile(merged);
+
+  return merged;
+}
+
 export async function mockGetSpecialistProfileBySlug(
   slug: string,
 ): Promise<SpecialistProfileResponse> {
@@ -52,7 +74,7 @@ export async function mockGetSpecialistProfileBySlug(
     throw new Error('Профиль специалиста не найден.');
   }
 
-  return cloneProfile(MOCK_SPECIALIST_PROFILES[profileIndex]);
+  return withComputedStats(cloneProfile(MOCK_SPECIALIST_PROFILES[profileIndex]));
 }
 
 export async function mockUpdateMainInfo(
@@ -83,7 +105,7 @@ export async function mockUpdateMainInfo(
     },
   });
 
-  return cloneProfile(currentProfile);
+  return withComputedStats(cloneProfile(currentProfile));
 }
 
 export async function mockUpdateDetails(
@@ -183,7 +205,7 @@ export async function mockUpdateDetails(
     }
   }
 
-  return cloneProfile(currentProfile);
+  return withComputedStats(cloneProfile(currentProfile));
 }
 
 export async function mockUpdateCalendar(
@@ -267,7 +289,7 @@ export async function mockUpdateCalendar(
 
   syncMockSpecialistCalendarSlotsFromProfile(currentProfile);
 
-  return cloneProfile(currentProfile);
+  return withComputedStats(cloneProfile(currentProfile));
 }
 
 export async function mockUpsertReviewReply(
@@ -328,5 +350,5 @@ export async function mockUpsertReviewReply(
     }
   }
 
-  return cloneProfile(currentProfile);
+  return withComputedStats(cloneProfile(currentProfile));
 }

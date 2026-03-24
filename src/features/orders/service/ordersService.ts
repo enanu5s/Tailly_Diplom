@@ -1,7 +1,11 @@
 // src/features/orders/service/ordersService.ts
 
 import { authStore } from '@/features/auth/model/authStore';
-import { canClientBookService, canOrderShopProducts } from '@/shared/lib/auth/roleAccess';
+import {
+  canClientBookService,
+  canOrderShopProducts,
+  isClientBlockedFromBookingOwnSpecialist,
+} from '@/shared/lib/auth/roleAccess';
 
 import { ordersApi } from '../api/ordersApi';
 
@@ -34,6 +38,17 @@ export const ordersService = {
 
     if (!canClientBookService(user)) {
       return Promise.reject(new Error('Заказывать услуги могут только клиенты.'));
+    }
+
+    if (
+      isClientBlockedFromBookingOwnSpecialist(user, {
+        slug: payload.specialistSlug,
+        id: payload.sitterId,
+      })
+    ) {
+      return Promise.reject(
+        new Error('Нельзя оформить услугу у своего профиля специалиста.'),
+      );
     }
 
     return ordersApi.createServiceOrder(payload);

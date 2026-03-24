@@ -65,6 +65,61 @@ export function canClientBookService(user: AuthUser | null): boolean {
 }
 
 /**
+ * Один аккаунт (одна почта) с ролями клиент и специалист: в сессии «клиент»
+ * пользователь не должен бронировать услуги у своего же профиля специалиста.
+ */
+export function isClientBlockedFromBookingOwnSpecialist(
+  user: AuthUser | null,
+  target: { slug?: string; id?: string },
+): boolean {
+  if (!user || user.isBlocked || user.role !== 'client') {
+    return false;
+  }
+
+  const ownId = user.specialistId?.trim();
+  const ownSlug = user.specialistSlug?.trim();
+  const targetId = target.id?.trim();
+  const targetSlug = target.slug?.trim();
+
+  if (!ownId && !ownSlug) {
+    return false;
+  }
+
+  if (ownId && targetId && ownId === targetId) {
+    return true;
+  }
+
+  if (ownSlug && targetSlug && ownSlug.toLowerCase() === targetSlug.toLowerCase()) {
+    return true;
+  }
+
+  return false;
+}
+
+/** Можно ли клиенту оформить услугу у указанного специалиста (не у себя). */
+export function canClientBookSpecialist(
+  user: AuthUser | null,
+  target: { slug?: string; id?: string },
+): boolean {
+  if (!canClientBookService(user)) {
+    return false;
+  }
+
+  return !isClientBlockedFromBookingOwnSpecialist(user, target);
+}
+
+/**
+ * Клиент в сессии «клиент» открывает профиль специалиста, привязанный к тому же аккаунту
+ * (та же почта / роли client+specialist). Для такого случая скрываем запись, чат и «связаться».
+ */
+export function isClientViewingOwnSpecialistProfile(
+  user: AuthUser | null,
+  target: { slug?: string; id?: string },
+): boolean {
+  return isClientBlockedFromBookingOwnSpecialist(user, target);
+}
+
+/**
  * Избранное, корзина и связанные кнопки в магазине не показываем администраторам.
  * У гостя (без user) — показываем.
  */

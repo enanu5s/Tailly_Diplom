@@ -9,6 +9,7 @@ import { seedDemoMessagesIfEmpty } from '@/features/messages/data/messagesStorag
 import { configureHttpClient } from '@/shared/api/http';
 import { isMockApiMode } from '@/shared/config/env';
 import { runEmailNotificationScheduler } from '@/shared/lib/emailNotifications';
+import { refreshAllMockSpecialistListingStatsFromOrders } from '@/features/specialists-search/data/mockSpecialists';
 import { ensureMockDatabaseLoaded } from '@/shared/mock-db/store';
 
 const router = createBrowserRouter(routes);
@@ -23,6 +24,7 @@ export function getUnauthorizedRedirectPath(pathname: string): string {
 function bootstrap() {
   if (isMockApiMode) {
     ensureMockDatabaseLoaded();
+    refreshAllMockSpecialistListingStatsFromOrders();
     seedDemoMessagesIfEmpty();
   }
 

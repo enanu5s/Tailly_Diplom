@@ -9,7 +9,10 @@ import { messagesStore } from '@/features/messages';
 import { specialistProfileStore } from '@/features/specialist-profile/model/specialistProfileStore';
 import { SpecialistProfileBookingCta } from '@/features/specialist-profile/ui/SpecialistProfileBookingCta';
 import { SpecialistProfileView } from '@/features/specialist-profile/ui/SpecialistProfileView';
-import { canClientBookService } from '@/shared/lib/auth/roleAccess';
+import {
+  canClientBookSpecialist,
+  isClientViewingOwnSpecialistProfile,
+} from '@/shared/lib/auth/roleAccess';
 import { useAppNavigate } from '@/shared/lib/navigation/useAppNavigate';
 
 import styles from './SpecialistProfilePage.module.css';
@@ -174,14 +177,24 @@ export const SpecialistProfilePage = observer((): ReactElement => {
   );
 
   const canContactSpecialist = Boolean(
-    isAuth && user?.id && store.profile && !canManageOwnProfile,
+    isAuth &&
+      user?.id &&
+      store.profile &&
+      !canManageOwnProfile &&
+      !isClientViewingOwnSpecialistProfile(user, {
+        slug: store.profile.slug,
+        id: store.profile.id,
+      }),
   );
 
   const canBookSpecialist = Boolean(
     isAuth &&
     user?.id &&
-    canClientBookService(user) &&
     store.profile &&
+    canClientBookSpecialist(user, {
+      slug: store.profile.slug,
+      id: store.profile.id,
+    }) &&
     !canManageOwnProfile,
   );
 

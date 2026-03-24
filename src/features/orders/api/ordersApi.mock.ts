@@ -1,12 +1,15 @@
 // src/features/orders/api/ordersApi.mock.ts
 
 import { authStore } from '@/features/auth/model/authStore';
+import { isClientBlockedFromBookingOwnSpecialist } from '@/shared/lib/auth/roleAccess';
 import { assertCurrentUserOwnsMockShopOrder } from '@/features/shop/api/shopOrderApi.mock';
 import { readStoredOrders, writeStoredOrders } from '@/features/shop/data/mockShopOrders';
 import {
   MOCK_SPECIALIST_PROFILES,
   findProfileIndexBySlug,
 } from '@/features/specialist-profile/data/mockSpecialistProfiles';
+import { computeSpecialistStats } from '@/features/specialist-profile/lib/computeSpecialistStats';
+import { syncMockSpecialistListingStatsFromProfile } from '@/features/specialists-search/data/mockSpecialists';
 import type {
   SpecialistCalendarBookedSlot,
   SpecialistReview,
@@ -814,21 +817,20 @@ function addReviewToSpecialist(order: ServiceOrder, review: ServiceOrderReview):
   };
 
   const nextReviews = [nextReview, ...profile.reviews];
-  const nextReviewsCount = nextReviews.length;
 
-  const ratingSum = nextReviews.reduce((sum, item) => sum + item.rating, 0);
-  const nextRating = Number((ratingSum / nextReviewsCount).toFixed(1));
-
-  MOCK_SPECIALIST_PROFILES[profileIndex] = {
+  const nextProfile = {
     ...profile,
     reviews: clone(nextReviews),
-    stats: {
-      ...profile.stats,
-      reviewsCount: nextReviewsCount,
-      rating: nextRating,
-      completedOrdersCount: Math.max(profile.stats.completedOrdersCount, 0),
-    },
+    stats: computeSpecialistStats({
+      id: profile.id,
+      slug: profile.slug,
+      experienceYears: profile.stats.experienceYears,
+      reviews: nextReviews,
+    }),
   };
+
+  MOCK_SPECIALIST_PROFILES[profileIndex] = nextProfile;
+  syncMockSpecialistListingStatsFromProfile(nextProfile);
 }
 
 /* ---------------- SERVICE ORDERS ---------------- */
@@ -870,6 +872,15 @@ export async function mockCreateServiceOrder(
 
   if (!user || user.role !== 'client' || user.id !== payload.clientId.trim()) {
     throw new Error('Не удалось определить клиента для заказа.');
+  }
+
+  if (
+    isClientBlockedFromBookingOwnSpecialist(user, {
+      slug: payload.specialistSlug,
+      id: payload.sitterId,
+    })
+  ) {
+    throw new Error('Нельзя оформить услугу у своего профиля специалиста.');
   }
 
   const created = createMockServiceOrder(payload);

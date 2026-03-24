@@ -1,6 +1,7 @@
 // src/features/specialists-search/data/mockSpecialists.ts
 
 import { MOCK_SPECIALIST_PROFILES } from '@/features/specialist-profile/data/mockSpecialistProfiles';
+import { computeSpecialistStats } from '@/features/specialist-profile/lib/computeSpecialistStats';
 import {
   buildDemoSpecialistSpecs,
   getDemoSpecialistDisplayNameForProfileId,
@@ -260,6 +261,35 @@ export function syncMockSpecialistCalendarSlotsFromProfile(
     profile.calendar,
     profile.services,
   );
+}
+
+/** Рейтинг и число отзывов в поиске — как у профиля после пересчёта по заказам. */
+export function syncMockSpecialistListingStatsFromProfile(
+  profile: SpecialistProfileResponse,
+): void {
+  const idx = MOCK_SPECIALISTS.findIndex((s) => s.id === profile.id);
+
+  if (idx === -1) {
+    return;
+  }
+
+  MOCK_SPECIALISTS[idx].rating = profile.stats.rating;
+  MOCK_SPECIALISTS[idx].reviewsCount = profile.stats.reviewsCount;
+}
+
+/** После загрузки мок-БД: цифры в списке поиска совпадают с заказами и отзывами. */
+export function refreshAllMockSpecialistListingStatsFromOrders(): void {
+  for (const p of MOCK_SPECIALIST_PROFILES) {
+    syncMockSpecialistListingStatsFromProfile({
+      ...p,
+      stats: computeSpecialistStats({
+        id: p.id,
+        slug: p.slug,
+        experienceYears: p.stats.experienceYears,
+        reviews: p.reviews,
+      }),
+    });
+  }
 }
 
 export function cloneSpecialists(): Specialist[] {

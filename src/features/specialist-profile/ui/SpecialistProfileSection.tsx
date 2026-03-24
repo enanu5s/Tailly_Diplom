@@ -5,7 +5,10 @@ import { useEffect } from 'react';
 import { useParams } from 'react-router-dom';
 
 import { useAuth } from '@/features/auth/model/useAuth';
-import { canClientBookService } from '@/shared/lib/auth/roleAccess';
+import {
+  canClientBookSpecialist,
+  isClientViewingOwnSpecialistProfile,
+} from '@/shared/lib/auth/roleAccess';
 import { useAppNavigate } from '@/shared/lib/navigation/useAppNavigate';
 
 import { SpecialistProfileBookingCta } from './SpecialistProfileBookingCta';
@@ -73,8 +76,18 @@ export const SpecialistProfileSection = observer((): ReactElement => {
     });
   };
 
+  const isOwnSpecialistAsClient = Boolean(
+    profile &&
+      isClientViewingOwnSpecialistProfile(user ?? null, {
+        slug: profile.slug,
+        id: profile.id,
+      }),
+  );
+
   const canShowBookingCta = Boolean(
-    profile && !profile.isOwner && canClientBookService(user ?? null),
+    profile &&
+      !profile.isOwner &&
+      canClientBookSpecialist(user ?? null, { slug: profile.slug, id: profile.id }),
   );
 
   return (
@@ -135,10 +148,14 @@ export const SpecialistProfileSection = observer((): ReactElement => {
       onRemoveSpecialistGalleryImage={specialistProfileStore.removeSpecialistGalleryImage}
       onSaveDetails={specialistProfileStore.saveDetails}
       onContactSpecialist={
-        profile && !profile.isOwner ? handleContactSpecialist : undefined
+        profile && !profile.isOwner && !isOwnSpecialistAsClient
+          ? handleContactSpecialist
+          : undefined
       }
       onBookService={
-        profile && !profile.isOwner && canClientBookService(user ?? null)
+        profile &&
+        !profile.isOwner &&
+        canClientBookSpecialist(user ?? null, { slug: profile.slug, id: profile.id })
           ? handleBookService
           : undefined
       }

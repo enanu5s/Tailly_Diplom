@@ -865,18 +865,11 @@ export const SpecialistProfileView = observer(
                     </div>
                   </div>
 
-                  {profile.isOwner && ownerWorkspace ? (
-                    <Link
-                      className={styles.primaryLinkButton}
-                      to={ownerWorkspace.reviewsPath}
-                    >
-                      Управление отзывами
-                    </Link>
-                  ) : (
+                  {!profile.isOwner ? (
                     <a className={styles.primaryLinkButton} href="#specialist-reviews">
                       Перейти в отзывы
                     </a>
-                  )}
+                  ) : null}
                 </div>
 
                 <div className={styles.statsGrid}>
@@ -901,32 +894,33 @@ export const SpecialistProfileView = observer(
                 </div>
 
                 {profile.isOwner && ownerWorkspace ? (
-                  <div className={styles.ownerWorkspaceLinks}>
-                    <Link
-                      className={styles.ownerWorkspaceLink}
-                      to={ownerWorkspace.ordersPath}
-                    >
-                      Заказы клиентов
-                    </Link>
-                    <Link
-                      className={styles.ownerWorkspaceLinkSecondary}
-                      to={ownerWorkspace.orderStatsPath}
-                    >
-                      Статистика заказов
-                    </Link>
-                    <Link
-                      className={styles.ownerWorkspaceLinkSecondary}
-                      to={ownerWorkspace.reviewsPath}
-                    >
-                      Ответы на отзывы
-                    </Link>
-                    <Link
-                      className={styles.ownerWorkspaceLinkSecondary}
-                      to="/account/delete"
-                    >
-                      Удаление аккаунта
-                    </Link>
-                  </div>
+                  <>
+                    <div className={styles.ownerWorkspaceLinks}>
+                      <Link
+                        className={styles.ownerWorkspaceLink}
+                        to={ownerWorkspace.ordersPath}
+                      >
+                        Заказы клиентов
+                      </Link>
+                      <Link
+                        className={styles.ownerWorkspaceLink}
+                        to={ownerWorkspace.orderStatsPath}
+                      >
+                        Статистика заказов
+                      </Link>
+                      <Link
+                        className={styles.ownerWorkspaceLink}
+                        to={ownerWorkspace.reviewsPath}
+                      >
+                        Ответы на отзывы
+                      </Link>
+                    </div>
+                    <div className={styles.ownerDangerZone}>
+                      <Link className={styles.ownerDangerLink} to="/account/delete">
+                        Удаление аккаунта
+                      </Link>
+                    </div>
+                  </>
                 ) : null}
               </div>
             </div>
@@ -1410,7 +1404,8 @@ export const SpecialistProfileView = observer(
                               </div>
                             ) : null}
 
-                            {!profile.isOwner ? (
+                            {!profile.isOwner &&
+                            (onBookService || onContactSpecialist) ? (
                               <div className={styles.actionsRow}>
                                 <button
                                   type="button"

@@ -928,12 +928,37 @@
 }
 
 .ownerWorkspaceLinks {
-  display: flex;
-  flex-wrap: wrap;
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
   gap: 10px;
   margin-top: 16px;
   padding-top: 16px;
   border-top: 1px solid rgba(17, 24, 39, 0.08);
+}
+
+@media (max-width: 520px) {
+  .ownerWorkspaceLinks {
+    grid-template-columns: 1fr;
+  }
+}
+
+.ownerDangerZone {
+  margin-top: 20px;
+  padding-top: 14px;
+  border-top: 1px dashed rgba(17, 24, 39, 0.1);
+}
+
+.ownerDangerLink {
+  display: inline-block;
+  font-size: 13px;
+  font-weight: 500;
+  color: #9ca3af;
+  text-decoration: none;
+}
+
+.ownerDangerLink:hover {
+  color: #b91c1c;
+  text-decoration: underline;
 }
 
 .ownerWorkspaceLink {
