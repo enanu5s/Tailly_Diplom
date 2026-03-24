@@ -1,30 +1,51 @@
 // src/pages/login/ui/LoginPage.tsx
 
-import { observer } from 'mobx-react-lite';
-import { useEffect, useSyncExternalStore } from 'react';
-import { Link, useLocation } from 'react-router-dom';
-import { useAppNavigate } from '@/shared/lib/navigation/useAppNavigate';
+import { observer } from "mobx-react-lite";
+import { useEffect, useMemo, useSyncExternalStore } from "react";
+import { Link, useLocation } from "react-router-dom";
+import { useAppNavigate } from "@/shared/lib/navigation/useAppNavigate";
 
-import { authStore, loginStore } from '@/features/auth';
-import { getDefaultAuthorizedRoute } from '@/shared/lib/auth';
+import { authStore, loginStore } from "@/features/auth";
+import { getDefaultAuthorizedRoute } from "@/shared/lib/auth";
 
-import styles from './LoginPage.module.css';
+import styles from "./LoginPage.module.css";
 
-import type { FormEvent, ReactElement } from 'react';
+import type { FormEvent, ReactElement } from "react";
 
 type LocationState = {
   from?: string;
 };
+
+function getRedirectFromQuery(search: string): string | null {
+  const searchParams = new URLSearchParams(search);
+  const from = searchParams.get("from");
+
+  if (!from) {
+    return null;
+  }
+
+  const normalizedFrom = from.trim();
+
+  if (!normalizedFrom.startsWith("/")) {
+    return null;
+  }
+
+  return normalizedFrom;
+}
 
 export const LoginPage = observer((): ReactElement => {
   const navigate = useAppNavigate();
   const location = useLocation();
   const authState = useSyncExternalStore(
     authStore.subscribe,
-    authStore.getState,
+    authStore.getState
   );
 
   const state = (location.state ?? null) as LocationState | null;
+
+  const redirectFromQuery = useMemo<string | null>(() => {
+    return getRedirectFromQuery(location.search);
+  }, [location.search]);
 
   useEffect(() => {
     if (authState.user) {
@@ -35,7 +56,7 @@ export const LoginPage = observer((): ReactElement => {
   }, [authState.user, navigate]);
 
   const handleSubmit = async (
-    event: FormEvent<HTMLFormElement>,
+    event: FormEvent<HTMLFormElement>
   ): Promise<void> => {
     event.preventDefault();
 
@@ -47,7 +68,7 @@ export const LoginPage = observer((): ReactElement => {
 
     const nextUser = authStore.getState().user;
     const redirectPath =
-      state?.from ?? getDefaultAuthorizedRoute(nextUser);
+      state?.from ?? redirectFromQuery ?? getDefaultAuthorizedRoute(nextUser);
 
     navigate(redirectPath, { replace: true });
   };
@@ -58,7 +79,7 @@ export const LoginPage = observer((): ReactElement => {
         <button
           className={styles.backButton}
           type="button"
-          onClick={() => navigate(-1)}
+          onClick={() => navigate("/")}
         >
           ← Назад
         </button>
@@ -70,8 +91,8 @@ export const LoginPage = observer((): ReactElement => {
             <h1 className={styles.title}>Вход в аккаунт</h1>
 
             <p className={styles.subtitle}>
-              Клиенты, специалисты и администраторы входят через
-              единую форму авторизации.
+              Клиенты, специалисты и администраторы входят через единую форму
+              авторизации.
             </p>
           </div>
 
@@ -83,9 +104,7 @@ export const LoginPage = observer((): ReactElement => {
                 className={styles.input}
                 type="email"
                 value={loginStore.email}
-                onChange={(event) =>
-                  loginStore.setEmail(event.target.value)
-                }
+                onChange={(event) => loginStore.setEmail(event.target.value)}
                 placeholder="name@example.com"
                 autoComplete="username"
                 required
@@ -99,28 +118,34 @@ export const LoginPage = observer((): ReactElement => {
                 className={styles.input}
                 type="password"
                 value={loginStore.password}
-                onChange={(event) =>
-                  loginStore.setPassword(event.target.value)
-                }
+                onChange={(event) => loginStore.setPassword(event.target.value)}
                 placeholder="Введите пароль"
                 autoComplete="current-password"
                 required
               />
             </label>
 
+            <label className={styles.checkboxRow}>
+              <input
+                type="checkbox"
+                checked={loginStore.loginAsSpecialist}
+                onChange={(event) =>
+                  loginStore.setLoginAsSpecialist(event.target.checked)
+                }
+              />
+              <span>Войти как специалист</span>
+            </label>
 
             {loginStore.failedAttemptsLeft !== null &&
-              loginStore.failedAttemptsLeft > 0 ? (
+            loginStore.failedAttemptsLeft > 0 ? (
               <div className={styles.attempts}>
-                Осталось попыток для администратора:{' '}
+                Осталось попыток для администратора:{" "}
                 {loginStore.failedAttemptsLeft}
               </div>
             ) : null}
 
             {loginStore.submitError ? (
-              <div className={styles.error}>
-                {loginStore.submitError}
-              </div>
+              <div className={styles.error}>{loginStore.submitError}</div>
             ) : null}
 
             <button
@@ -128,33 +153,26 @@ export const LoginPage = observer((): ReactElement => {
               type="submit"
               disabled={!loginStore.canSubmit}
             >
-              {loginStore.isSubmitting
-                ? 'Выполняется вход...'
-                : 'Войти'}
+              {loginStore.isSubmitting ? "Выполняется вход..." : "Войти"}
             </button>
 
             <div className={styles.links}>
               <button
                 className={styles.linkButton}
                 type="button"
-                onClick={() => navigate('/forgot-password')}
+                onClick={() => navigate("/forgot-password")}
               >
                 Восстановить пароль
               </button>
 
-              <Link
-                className={styles.linkButton}
-                to="/register"
-              >
+              <Link className={styles.linkButton} to="/register">
                 Регистрация
               </Link>
             </div>
           </form>
 
           <div className={styles.demoBlock}>
-            <div className={styles.demoTitle}>
-              Тестовые аккаунты
-            </div>
+            <div className={styles.demoTitle}>Тестовые аккаунты</div>
 
             <div className={styles.demoList}>
               <div className={styles.demoItem}>
@@ -165,9 +183,7 @@ export const LoginPage = observer((): ReactElement => {
                 specialist@tailly.local / 123456
               </div>
 
-              <div className={styles.demoItem}>
-                admin@tailly.local / 123456
-              </div>
+              <div className={styles.demoItem}>admin@tailly.local / 123456</div>
 
               <div className={styles.demoItem}>
                 superadmin@tailly.local / 123456

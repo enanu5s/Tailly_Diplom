@@ -9,25 +9,28 @@ import { configureHttpClient } from "@/shared/api/http";
 
 const router = createBrowserRouter(routes);
 
-function getUnauthorizedRedirectPath(pathname: string): string {
-  if (pathname.startsWith("/admin")) {
-    return "/admin/login";
-  }
+export function getUnauthorizedRedirectPath(pathname: string): string {
+  const normalizedPath = pathname.trim() || '/';
+  const encodedFrom = encodeURIComponent(normalizedPath);
 
-  return "/login";
+  return `/login?from=${encodedFrom}`;
 }
 
 function bootstrap() {
   configureHttpClient({
     getAuthToken: () => authStore.getToken(),
     onUnauthorized: () => {
-      const redirectPath = getUnauthorizedRedirectPath(
-        window.location.pathname,
-      );
-
+      const currentPath = window.location.pathname;
+      const currentSearch = window.location.search;
+      const redirectPath = getUnauthorizedRedirectPath(currentPath);
+  
       authStore.logout();
-
-      if (window.location.pathname !== redirectPath) {
+  
+      if (currentPath === '/login') {
+        return;
+      }
+  
+      if (`${currentPath}${currentSearch}` !== redirectPath) {
         window.location.replace(redirectPath);
       }
     },

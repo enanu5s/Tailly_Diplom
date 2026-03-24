@@ -1,26 +1,21 @@
 // src/pages/admin-users/ui/AdminUsersPage.tsx
 
-import { useAppNavigate } from '@/shared/lib/navigation/useAppNavigate';
+import { BackButton } from "@/shared/ui/back-button";
+import { AdminUsersManagementSection } from "@/features/admin-users-management";
 
-import { AdminUsersManagementSection } from '@/features/admin-users-management';
+import styles from "./AdminUsersPage.module.css";
 
-import styles from './AdminUsersPage.module.css';
-
-import type { ReactElement } from 'react';
+import type { ReactElement } from "react";
 
 export function AdminUsersPage(): ReactElement {
-  const navigate = useAppNavigate();
-
   return (
     <section className={styles.page}>
       <div className={styles.container}>
-        <button
+        <BackButton
           className={styles.backButton}
-          type="button"
-          onClick={() => navigate('/admin')}
-        >
-          Назад в админ-панель
-        </button>
+          fallbackTo="/admin"
+          label="Назад в админ-панель"
+        />
 
         <AdminUsersManagementSection />
       </div>

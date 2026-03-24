@@ -1,4 +1,4 @@
-// src/features/auth/data/mockAuthAccounts.ts
+//src/features/auth/data/mockAuthAccounts.ts
 
 import {
   readManagedSpecialistAccounts,
@@ -12,7 +12,7 @@ export type MockAuthAccount = {
   id: string;
   email: string;
   password: string;
-  role: UserRole;
+  roles: UserRole[];
   firstName: string;
   lastName: string;
   middleName?: string;
@@ -38,7 +38,7 @@ const BASE_AUTH_ACCOUNTS: MockAuthAccount[] = [
     id: 'client-1',
     email: 'client@tailly.local',
     password: '123456',
-    role: 'client',
+    roles: ['client'],
     firstName: 'Елена',
     lastName: 'Смирнова',
     phone: '+7 (900) 000-00-10',
@@ -48,7 +48,7 @@ const BASE_AUTH_ACCOUNTS: MockAuthAccount[] = [
     id: 'specialist-1',
     email: 'specialist@tailly.local',
     password: '123456',
-    role: 'specialist',
+    roles: ['client', 'specialist'],
     firstName: 'Мария',
     lastName: 'Иванова',
     middleName: '',
@@ -61,7 +61,7 @@ const BASE_AUTH_ACCOUNTS: MockAuthAccount[] = [
     id: 'admin-1',
     email: 'admin@tailly.local',
     password: '123456',
-    role: 'admin',
+    roles: ['admin'],
     firstName: 'Анна',
     lastName: 'Иванова',
     middleName: 'Сергеевна',
@@ -73,7 +73,7 @@ const BASE_AUTH_ACCOUNTS: MockAuthAccount[] = [
     id: 'super-admin-1',
     email: 'superadmin@tailly.local',
     password: '123456',
-    role: 'super_admin',
+    roles: ['super_admin'],
     firstName: 'Мария',
     lastName: 'Петрова',
     middleName: 'Александровна',
@@ -97,6 +97,10 @@ export function normalizeEmail(email: string): string {
 
 export function isAdminRole(role: UserRole): boolean {
   return role === 'admin' || role === 'super_admin';
+}
+
+export function hasAdminRole(roles: UserRole[]): boolean {
+  return roles.some((role) => isAdminRole(role));
 }
 
 export function syncBlockedState(account: MockAuthAccount): void {
@@ -155,7 +159,7 @@ export function mapManagedSpecialistAccountToAuthAccount(
     id: account.id,
     email: account.email,
     password: account.password,
-    role: account.role,
+    roles: [account.role],
     firstName: account.firstName,
     lastName: account.lastName,
     middleName: account.middleName,
@@ -175,11 +179,21 @@ export function mapManagedSpecialistAccountToAuthAccount(
 }
 
 function buildDeduplicationKey(account: MockAuthAccount): string {
-  if (account.role === 'specialist' && account.specialistId?.trim()) {
+  if (
+    account.roles.includes('specialist') &&
+    account.specialistId?.trim()
+  ) {
     return `specialist:${account.specialistId.trim().toLowerCase()}`;
   }
 
   return `email:${normalizeEmail(account.email)}`;
+}
+
+function mergeRoles(
+  currentRoles: UserRole[],
+  nextRoles: UserRole[],
+): UserRole[] {
+  return Array.from(new Set([...currentRoles, ...nextRoles]));
 }
 
 function chooseMoreCompleteAccount(
@@ -206,7 +220,13 @@ function chooseMoreCompleteAccount(
     Number(Boolean(nextAccount.blockReason)) +
     Number(Boolean(nextAccount.blockedUntil));
 
-  return nextScore > currentScore ? nextAccount : currentAccount;
+  const baseAccount =
+    nextScore > currentScore ? nextAccount : currentAccount;
+
+  return {
+    ...baseAccount,
+    roles: mergeRoles(currentAccount.roles, nextAccount.roles),
+  };
 }
 
 export function getMockAuthAccounts(): MockAuthAccount[] {
@@ -239,15 +259,16 @@ export function getMockAuthAccounts(): MockAuthAccount[] {
 
 export function mapAccountToLoginSuccess(
   account: MockAuthAccount,
+  activeRole: UserRole,
 ): LoginSuccessResponse {
   syncBlockedState(account);
 
   return {
-    accessToken: `mock-token-${account.id}`,
+    accessToken: `mock-token-${account.id}-${activeRole}`,
     user: {
       id: account.id,
       email: account.email,
-      role: account.role,
+      role: activeRole,
       firstName: account.firstName,
       lastName: account.lastName,
       middleName: account.middleName,

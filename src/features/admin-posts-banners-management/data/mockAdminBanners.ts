@@ -8,7 +8,7 @@ export const INITIAL_ADMIN_MANAGED_BANNERS: AdminManagedBanner[] = [
     description:
       'Главный баннер на главной странице с переходом в поиск специалистов.',
     imageUrl: '/images/banner-home-hero.png',
-    linkUrl: '/specialists',
+    linkUrl: '/services?service=boarding',
     linkTarget: 'specialists',
     placement: 'home_hero',
     status: 'published',

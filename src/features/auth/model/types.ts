@@ -5,6 +5,7 @@ import type { AuthUser } from './authStore';
 export type LoginPayload = {
   email: string;
   password: string;
+  requestedRole: 'client' | 'specialist';
 };
 
 export type LoginSuccessResponse = {
@@ -15,7 +16,8 @@ export type LoginSuccessResponse = {
 export type LoginErrorCode =
   | 'INVALID_CREDENTIALS'
   | 'TOO_MANY_ATTEMPTS'
-  | 'ACCOUNT_BLOCKED';
+  | 'ACCOUNT_BLOCKED'
+  | 'INVALID_ROLE';
 
 export class LoginError extends Error {
   readonly code: LoginErrorCode;

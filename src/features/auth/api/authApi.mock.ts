@@ -1,11 +1,11 @@
-// src/features/auth/api/authApi.mock.ts
+//src/features/auth/api/authApi.mock.ts
 
 import {
   adminAttemptsMap,
   buildAdminLockUntilIso,
   getAdminAttemptState,
   getMockAuthAccounts,
-  isAdminRole,
+  hasAdminRole,
   mapAccountToLoginSuccess,
   MAX_ADMIN_LOGIN_ATTEMPTS,
   normalizeEmail,
@@ -26,6 +26,7 @@ export async function mockLogin(
 
   const email = normalizeEmail(payload.email);
   const password = payload.password;
+  const requestedRole = payload.requestedRole;
 
   const account =
     getMockAuthAccounts().find(
@@ -36,7 +37,9 @@ export async function mockLogin(
     syncBlockedState(account);
   }
 
-  const isAdminAccount = Boolean(account && isAdminRole(account.role));
+  const isAdminAccount = Boolean(
+    account && hasAdminRole(account.roles),
+  );
 
   if (isAdminAccount) {
     const attemptState = getAdminAttemptState(email);
@@ -107,9 +110,19 @@ export async function mockLogin(
     });
   }
 
-  if (isAdminRole(account.role)) {
+  if (!account.roles.includes(requestedRole)) {
+    throw new LoginError({
+      code: 'INVALID_ROLE',
+      message:
+        requestedRole === 'specialist'
+          ? 'Этот аккаунт не зарегистрирован как специалист.'
+          : 'Этот аккаунт не зарегистрирован как клиент.',
+    });
+  }
+
+  if (hasAdminRole(account.roles)) {
     resetAdminAttempts(email);
   }
 
-  return mapAccountToLoginSuccess(account);
+  return mapAccountToLoginSuccess(account, requestedRole);
 }

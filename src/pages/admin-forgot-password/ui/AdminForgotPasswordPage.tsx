@@ -53,7 +53,7 @@ export const AdminForgotPasswordPage = observer((): ReactElement => {
 
         <button
           className={styles.back}
-          onClick={() => navigate("/admin/login")}
+          onClick={() => navigate("/login")}
         >
           Назад
         </button>

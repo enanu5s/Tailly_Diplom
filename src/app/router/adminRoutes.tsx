@@ -15,12 +15,6 @@ const AdminDashboardPage = lazy(() =>
   })),
 );
 
-const AdminLoginPage = lazy(() =>
-  import('@/pages/admin-login/ui/AdminLoginPage').then((module) => ({
-    default: module.AdminLoginPage,
-  })),
-);
-
 const AdminProfilePage = lazy(() =>
   import('@/pages/admin-profile/ui/AdminProfilePage').then((module) => ({
     default: module.AdminProfilePage,
@@ -60,10 +54,6 @@ const AdminPostsPage = lazy(() =>
 );
 
 export const adminRoutes: RouteObject[] = [
-  {
-    path: '/admin/login',
-    element: withSuspense(<AdminLoginPage />),
-  },
   {
     path: '/admin/forgot-password',
     element: <AdminForgotPasswordPage />,
