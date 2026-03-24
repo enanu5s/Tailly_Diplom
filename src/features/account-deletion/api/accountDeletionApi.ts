@@ -1,6 +1,7 @@
 // src/features/account-deletion/api/accountDeletionApi.ts
 
 import { request } from '@/shared/api/http';
+import { getOptionalApiBaseUrl, isMockApiMode } from '@/shared/config/env';
 
 import {
   mockGetAccountRestorePreview,
@@ -10,8 +11,7 @@ import {
 
 import type { AccountDeletionRestorePreview } from '../model/types';
 
-const USE_MOCK = (import.meta.env.VITE_USE_MOCK_API ?? 'true') === 'true';
-const API_BASE_URL = import.meta.env.VITE_API_BASE_URL ?? '';
+const API_BASE_URL = getOptionalApiBaseUrl();
 
 async function realRequestAccountDeletion(payload: {
   userId: string;
@@ -43,7 +43,7 @@ export const accountDeletionApi = {
     userId: string;
     password: string;
   }): Promise<{ ok: true; restoreDeadlineIso: string }> {
-    if (USE_MOCK) {
+    if (isMockApiMode) {
       return mockRequestAccountDeletion(payload);
     }
 
@@ -51,7 +51,7 @@ export const accountDeletionApi = {
   },
 
   getRestorePreview(token: string): Promise<AccountDeletionRestorePreview> {
-    if (USE_MOCK) {
+    if (isMockApiMode) {
       return mockGetAccountRestorePreview(token);
     }
 
@@ -59,7 +59,7 @@ export const accountDeletionApi = {
   },
 
   restoreByToken(token: string): Promise<void> {
-    if (USE_MOCK) {
+    if (isMockApiMode) {
       return mockRestoreAccountByToken(token);
     }
 

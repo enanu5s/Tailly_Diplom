@@ -3,11 +3,7 @@
 import { useEffect, useLayoutEffect, useMemo } from 'react';
 import { useLocation, useNavigationType } from 'react-router-dom';
 
-import {
-  buildRouteKey,
-  getScrollPosition,
-  saveScrollPosition,
-} from './routeMemory';
+import { buildRouteKey, getScrollPosition, saveScrollPosition } from './routeMemory';
 
 export function RouteViewportManager(): null {
   const location = useLocation();
@@ -46,8 +42,7 @@ export function RouteViewportManager(): null {
   }, [routeKey]);
 
   useLayoutEffect(() => {
-    const savedScrollY =
-      navigationType === 'POP' ? getScrollPosition(routeKey) : null;
+    const savedScrollY = navigationType === 'POP' ? getScrollPosition(routeKey) : null;
 
     if (savedScrollY !== null) {
       window.scrollTo({

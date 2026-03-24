@@ -1,8 +1,5 @@
 // src/features/admin-password-recovery/api/adminPasswordRecoveryApi.mock.ts
-import {
-  sendRecoveryRequest,
-  wait,
-} from '../data/mockAdminPasswordRecovery';
+import { sendRecoveryRequest, wait } from '../data/mockAdminPasswordRecovery';
 
 import type {
   AdminPasswordRecoveryRequest,

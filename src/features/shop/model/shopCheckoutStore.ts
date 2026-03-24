@@ -125,10 +125,7 @@ export class ShopCheckoutStore {
 
     if (isBlank(this.form.recipient.lastName) && !isBlank(user.lastName)) {
       this.form.recipient.lastName = user.lastName!.trim();
-    } else if (
-      isBlank(this.form.recipient.lastName) &&
-      !isBlank(fallbackName.lastName)
-    ) {
+    } else if (isBlank(this.form.recipient.lastName) && !isBlank(fallbackName.lastName)) {
       this.form.recipient.lastName = fallbackName.lastName!.trim();
     }
 
@@ -152,17 +149,11 @@ export class ShopCheckoutStore {
       const profile = await profileService.getProfile();
 
       runInAction(() => {
-        if (
-          isBlank(this.form.recipient.firstName) &&
-          !isBlank(profile.firstName)
-        ) {
+        if (isBlank(this.form.recipient.firstName) && !isBlank(profile.firstName)) {
           this.form.recipient.firstName = profile.firstName.trim();
         }
 
-        if (
-          isBlank(this.form.recipient.lastName) &&
-          !isBlank(profile.lastName)
-        ) {
+        if (isBlank(this.form.recipient.lastName) && !isBlank(profile.lastName)) {
           this.form.recipient.lastName = profile.lastName.trim();
         }
 
@@ -264,9 +255,7 @@ export class ShopCheckoutStore {
     this.pickupPointsError = null;
 
     try {
-      const points = await shopOrderService.getPickupPoints(
-        this.form.address.city,
-      );
+      const points = await shopOrderService.getPickupPoints(this.form.address.city);
 
       runInAction(() => {
         this.pickupPoints = points;
@@ -295,10 +284,7 @@ export class ShopCheckoutStore {
     }
   }
 
-  setRecipientField(
-    field: keyof CheckoutForm['recipient'],
-    value: string,
-  ): void {
+  setRecipientField(field: keyof CheckoutForm['recipient'], value: string): void {
     this.form.recipient[field] = value;
     delete this.validationErrors[field as keyof CheckoutValidationErrors];
   }
@@ -319,9 +305,7 @@ export class ShopCheckoutStore {
     }
   }
 
-  async setDeliveryMethod(
-    value: CheckoutForm['deliveryMethod'],
-  ): Promise<void> {
+  async setDeliveryMethod(value: CheckoutForm['deliveryMethod']): Promise<void> {
     this.form.deliveryMethod = value;
 
     if (value === 'courier') {
@@ -359,10 +343,13 @@ export class ShopCheckoutStore {
           );
 
           if (!product) {
-            console.warn('[shopCheckoutStore.detailedItems] product not found for repeat item', {
-              repeatItem: item,
-              loadedProducts: this.products.map((productItem) => productItem.id),
-            });
+            console.warn(
+              '[shopCheckoutStore.detailedItems] product not found for repeat item',
+              {
+                repeatItem: item,
+                loadedProducts: this.products.map((productItem) => productItem.id),
+              },
+            );
 
             return null;
           }
@@ -482,10 +469,7 @@ export class ShopCheckoutStore {
       }
     }
 
-    if (
-      this.form.deliveryMethod === 'pickup-point' &&
-      !this.form.pickupPointId
-    ) {
+    if (this.form.deliveryMethod === 'pickup-point' && !this.form.pickupPointId) {
       nextErrors.pickupPointId = 'Выбери ПВЗ.';
     }
 

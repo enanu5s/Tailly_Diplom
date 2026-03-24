@@ -43,7 +43,8 @@ export function SpecialistReviewReplyEditor({
   onOpenOrder,
 }: Props): ReactElement {
   const published = review.specialistReply?.text?.trim() ?? '';
-  const previewText = draft.trim() || published || 'Текст ответа появится здесь по мере ввода.';
+  const previewText =
+    draft.trim() || published || 'Текст ответа появится здесь по мере ввода.';
 
   return (
     <article className={styles.card} id={`specialist-review-${review.id}`}>
@@ -105,7 +106,11 @@ export function SpecialistReviewReplyEditor({
               disabled={isSaving}
               onClick={onSave}
             >
-              {isSaving ? 'Сохраняем...' : published ? 'Сохранить изменения' : 'Опубликовать ответ'}
+              {isSaving
+                ? 'Сохраняем...'
+                : published
+                  ? 'Сохранить изменения'
+                  : 'Опубликовать ответ'}
             </button>
           </div>
         </div>

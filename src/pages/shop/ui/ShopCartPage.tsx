@@ -1,18 +1,14 @@
 // src/pages/shop/ui/ShopCartPage.tsx
-import { reaction } from "mobx";
-import { observer } from "mobx-react-lite";
-import { useEffect } from "react";
-import { Link, useLocation } from "react-router-dom";
+import { reaction } from 'mobx';
+import { observer } from 'mobx-react-lite';
+import { useEffect } from 'react';
+import { Link, useLocation } from 'react-router-dom';
 
-import { shopCartPageStore } from "@/features/shop/model/shopCartPageStore";
-import { shopCartStore } from "@/features/shop/model/shopCartStore";
-import {
-  CartItemCard,
-  CartSummary,
-  ProductBackButton,
-} from "@/features/shop/ui";
+import { shopCartPageStore } from '@/features/shop/model/shopCartPageStore';
+import { shopCartStore } from '@/features/shop/model/shopCartStore';
+import { CartItemCard, CartSummary, ProductBackButton } from '@/features/shop/ui';
 
-import styles from "./ShopCartPage.module.css";
+import styles from './ShopCartPage.module.css';
 
 type ShopCartPageLocationState = {
   from?: {
@@ -35,7 +31,7 @@ export const ShopCartPage = observer(() => {
       search: location.search,
       hash: location.hash,
       scrollY: window.scrollY,
-      productId: "",
+      productId: '',
     },
   };
 
@@ -45,14 +41,14 @@ export const ShopCartPage = observer(() => {
       search: location.search,
       hash: location.hash,
       scrollY: window.scrollY,
-      productId: "",
+      productId: '',
     },
   };
 
   useEffect(() => {
     window.scrollTo({
       top: 0,
-      behavior: "auto",
+      behavior: 'auto',
     });
   }, []);
 
@@ -158,9 +154,7 @@ export const ShopCartPage = observer(() => {
         {!error && isLoading && !isInitialized ? (
           <div className={styles.stateCard}>
             <h2 className={styles.stateTitle}>Загружаем корзину</h2>
-            <p className={styles.stateText}>
-              Подготавливаем товары и итоговую сумму.
-            </p>
+            <p className={styles.stateText}>Подготавливаем товары и итоговую сумму.</p>
           </div>
         ) : null}
         {!error && isInitialized && isEmpty ? (

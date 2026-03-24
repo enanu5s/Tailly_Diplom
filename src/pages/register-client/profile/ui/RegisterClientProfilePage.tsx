@@ -1,33 +1,27 @@
 //src/pages/register-client/profile/ui/RegisterClientProfilePage.tsx
 
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useRef, useState } from 'react';
 
-
-import { registerService } from "@/features/auth/model/registerService";
-import { useRegisterFlow } from "@/features/auth/model/useRegisterFlow";
-import type { GeoSuggestItem } from "@/features/specialists-search/api/specialistsGeoApi";
-import { specialistsGeoService } from "@/features/specialists-search/service/specialistsGeoService";
+import { registerService } from '@/features/auth/model/registerService';
+import { useRegisterFlow } from '@/features/auth/model/useRegisterFlow';
+import type { GeoSuggestItem } from '@/features/specialists-search/api/specialistsGeoApi';
+import { specialistsGeoService } from '@/features/specialists-search/service/specialistsGeoService';
 import { useAppNavigate } from '@/shared/lib/navigation/useAppNavigate';
 
-import styles from "../../RegisterClient.module.css";
+import styles from '../../RegisterClient.module.css';
 
 export const RegisterClientProfilePage = () => {
   const navigate = useAppNavigate();
   const flow = useRegisterFlow();
 
-  const [lastName, setLastName] = useState("");
-  const [firstName, setFirstName] = useState("");
-  const [middleName, setMiddleName] = useState("");
+  const [lastName, setLastName] = useState('');
+  const [firstName, setFirstName] = useState('');
+  const [middleName, setMiddleName] = useState('');
 
-  const [cityInput, setCityInput] = useState("");
-  const [selectedLocality, setSelectedLocality] = useState<GeoSuggestItem | null>(
-    null,
-  );
-  const [localitySuggestions, setLocalitySuggestions] = useState<
-    GeoSuggestItem[]
-  >([]);
-  const [localitySuggestionsLoading, setLocalitySuggestionsLoading] =
-    useState(false);
+  const [cityInput, setCityInput] = useState('');
+  const [selectedLocality, setSelectedLocality] = useState<GeoSuggestItem | null>(null);
+  const [localitySuggestions, setLocalitySuggestions] = useState<GeoSuggestItem[]>([]);
+  const [localitySuggestionsLoading, setLocalitySuggestionsLoading] = useState(false);
 
   const localityBlurTimeoutRef = useRef<number | null>(null);
   const isSelectingLocalityRef = useRef(false);
@@ -37,8 +31,7 @@ export const RegisterClientProfilePage = () => {
   const [loading, setLoading] = useState(false);
 
   useEffect(() => {
-    if (!flow.verificationToken)
-      navigate("/register/client", { replace: true });
+    if (!flow.verificationToken) navigate('/register/client', { replace: true });
   }, [flow.verificationToken, navigate]);
 
   useEffect(() => {
@@ -51,8 +44,7 @@ export const RegisterClientProfilePage = () => {
     }
 
     if (selectedLocality) {
-      const chosen =
-        (selectedLocality.fullName || selectedLocality.name || "").trim();
+      const chosen = (selectedLocality.fullName || selectedLocality.name || '').trim();
 
       if (chosen && normalizedQuery === chosen) {
         setLocalitySuggestions([]);
@@ -67,8 +59,7 @@ export const RegisterClientProfilePage = () => {
       setLocalitySuggestionsLoading(true);
 
       try {
-        const items =
-          await specialistsGeoService.suggestLocalities(normalizedQuery);
+        const items = await specialistsGeoService.suggestLocalities(normalizedQuery);
 
         if (requestId !== localitySuggestRequestIdRef.current) {
           return;
@@ -84,9 +75,7 @@ export const RegisterClientProfilePage = () => {
         setLocalitySuggestions([]);
 
         const message =
-          err instanceof Error
-            ? err.message
-            : "Не удалось загрузить подсказки городов";
+          err instanceof Error ? err.message : 'Не удалось загрузить подсказки городов';
 
         setError(message);
       } finally {
@@ -113,8 +102,7 @@ export const RegisterClientProfilePage = () => {
     setCityInput(value);
 
     if (selectedLocality) {
-      const label =
-        selectedLocality.fullName || selectedLocality.name || "";
+      const label = selectedLocality.fullName || selectedLocality.name || '';
 
       if (value.trim() !== label.trim()) {
         setSelectedLocality(null);
@@ -123,7 +111,7 @@ export const RegisterClientProfilePage = () => {
   };
 
   const handleLocalitySelect = (item: GeoSuggestItem) => {
-    const nextValue = item.fullName || item.name || "";
+    const nextValue = item.fullName || item.name || '';
 
     localitySuggestRequestIdRef.current += 1;
 
@@ -158,10 +146,8 @@ export const RegisterClientProfilePage = () => {
     }, 150);
   };
 
-  const handleLocalityKeyDown = (
-    event: React.KeyboardEvent<HTMLInputElement>,
-  ) => {
-    if (event.key === "Enter") {
+  const handleLocalityKeyDown = (event: React.KeyboardEvent<HTMLInputElement>) => {
+    if (event.key === 'Enter') {
       event.preventDefault();
 
       if (localitySuggestions.length > 0) {
@@ -171,7 +157,7 @@ export const RegisterClientProfilePage = () => {
       return;
     }
 
-    if (event.key === "Escape") {
+    if (event.key === 'Escape') {
       setLocalitySuggestions([]);
     }
   };
@@ -183,7 +169,7 @@ export const RegisterClientProfilePage = () => {
     if (!flow.verificationToken) return;
 
     if (!selectedLocality) {
-      setError("Выберите населённый пункт из списка подсказок 2GIS");
+      setError('Выберите населённый пункт из списка подсказок 2GIS');
       return;
     }
 
@@ -198,12 +184,10 @@ export const RegisterClientProfilePage = () => {
         middleName,
         cityId,
       );
-      navigate("/", { replace: true });
+      navigate('/', { replace: true });
     } catch (err: unknown) {
       const message =
-        err instanceof Error
-          ? err.message
-          : "Ошибка завершения регистрации";
+        err instanceof Error ? err.message : 'Ошибка завершения регистрации';
 
       setError(message);
     } finally {
@@ -263,9 +247,7 @@ export const RegisterClientProfilePage = () => {
                 aria-autocomplete="list"
               />
               {localitySuggestionsLoading && (
-                <div className={styles.suggestLoading}>
-                  Загрузка из 2GIS…
-                </div>
+                <div className={styles.suggestLoading}>Загрузка из 2GIS…</div>
               )}
 
               {localitySuggestions.length > 0 && (
@@ -273,13 +255,11 @@ export const RegisterClientProfilePage = () => {
                   {localitySuggestions.map((item, index) => {
                     const primaryText = item.name || item.fullName;
                     const secondaryText =
-                      item.fullName && item.fullName !== item.name
-                        ? item.fullName
-                        : "";
+                      item.fullName && item.fullName !== item.name ? item.fullName : '';
 
                     return (
                       <li
-                        key={`${item.id ?? "noid"}-${primaryText}-${index}`}
+                        key={`${item.id ?? 'noid'}-${primaryText}-${index}`}
                         className={styles.suggestionItem}
                         role="option"
                         onMouseDown={(event) => {
@@ -287,12 +267,10 @@ export const RegisterClientProfilePage = () => {
                           handleLocalitySelect(item);
                         }}
                       >
-                        <span className={styles.suggestionPrimary}>
-                          {primaryText}
-                        </span>
+                        <span className={styles.suggestionPrimary}>{primaryText}</span>
                         {secondaryText ? (
                           <span className={styles.suggestionSecondary}>
-                            {" "}
+                            {' '}
                             — {secondaryText}
                           </span>
                         ) : null}
@@ -310,7 +288,7 @@ export const RegisterClientProfilePage = () => {
               disabled={loading || localitySuggestionsLoading}
               type="submit"
             >
-              {loading ? "Сохраняем..." : "Завершить регистрацию"}
+              {loading ? 'Сохраняем...' : 'Завершить регистрацию'}
             </button>
           </form>
         </div>

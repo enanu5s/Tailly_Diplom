@@ -34,9 +34,7 @@ export const ShopOrderResultPage = observer(() => {
   const order = ordersStore.selectedProductOrder;
   const isLoading = ordersStore.selectedProductLoading;
   const error = ordersStore.selectedProductError;
-  const isActionLoading = order
-    ? ordersStore.actionLoadingId === order.id
-    : false;
+  const isActionLoading = order ? ordersStore.actionLoadingId === order.id : false;
 
   return (
     <div className={styles.page}>
@@ -56,9 +54,7 @@ export const ShopOrderResultPage = observer(() => {
         {isLoading ? (
           <div className={styles.stateCard}>
             <h1 className={styles.title}>Загружаем заказ</h1>
-            <p className={styles.subtitle}>
-              Подготавливаем информацию о заказе.
-            </p>
+            <p className={styles.subtitle}>Подготавливаем информацию о заказе.</p>
           </div>
         ) : null}
 
@@ -78,22 +74,16 @@ export const ShopOrderResultPage = observer(() => {
         {!isLoading && !error && order ? (
           <div className={styles.layout}>
             <section className={styles.mainCard}>
-              <div className={styles.badge}>
-                {getStatusBadgeLabel(order.status)}
-              </div>
+              <div className={styles.badge}>{getStatusBadgeLabel(order.status)}</div>
 
               <h1 className={styles.title}>Заказ {order.number}</h1>
 
-              <p className={styles.subtitle}>
-                {getStatusDescription(order.status)}
-              </p>
+              <p className={styles.subtitle}>{getStatusDescription(order.status)}</p>
 
               <div className={styles.infoGrid}>
                 <div className={styles.infoItem}>
                   <span className={styles.infoLabel}>Статус</span>
-                  <span className={styles.infoValue}>
-                    {getStatusLabel(order.status)}
-                  </span>
+                  <span className={styles.infoValue}>{getStatusLabel(order.status)}</span>
                 </div>
 
                 <div className={styles.infoItem}>
@@ -135,9 +125,7 @@ export const ShopOrderResultPage = observer(() => {
 
                 <div className={styles.infoItem}>
                   <span className={styles.infoLabel}>Адрес / точка выдачи</span>
-                  <span className={styles.infoValue}>
-                    {getAddressLabel(order)}
-                  </span>
+                  <span className={styles.infoValue}>{getAddressLabel(order)}</span>
                 </div>
 
                 <div className={styles.infoItem}>
@@ -185,9 +173,7 @@ export const ShopOrderResultPage = observer(() => {
                     className={styles.summaryItem}
                   >
                     <div className={styles.summaryItemMeta}>
-                      <span className={styles.summaryItemTitle}>
-                        {item.title}
-                      </span>
+                      <span className={styles.summaryItemTitle}>{item.title}</span>
                       <span className={styles.summaryItemQty}>
                         {item.quantity} шт.
                         {item.variantLabel ? ` • ${item.variantLabel}` : ''}
@@ -347,20 +333,18 @@ function getPaymentStatusLabel(value?: string): string {
   }
 }
 
-function getAddressLabel(
-  order: {
-    delivery?: {
-      method: 'courier' | 'pickup';
-      address?: {
-        city: string;
-        street: string;
-        house: string;
-        apartment?: string;
-      };
-      pickupPointLabel?: string;
+function getAddressLabel(order: {
+  delivery?: {
+    method: 'courier' | 'pickup';
+    address?: {
+      city: string;
+      street: string;
+      house: string;
+      apartment?: string;
     };
-  },
-): string {
+    pickupPointLabel?: string;
+  };
+}): string {
   if (order.delivery?.method === 'pickup') {
     return order.delivery.pickupPointLabel ?? 'Пункт выдачи уточняется';
   }

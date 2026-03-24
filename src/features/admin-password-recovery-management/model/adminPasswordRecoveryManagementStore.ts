@@ -36,8 +36,7 @@ class AdminPasswordRecoveryManagementStore {
     });
 
     try {
-      const requests =
-        await adminPasswordRecoveryManagementService.getRequests();
+      const requests = await adminPasswordRecoveryManagementService.getRequests();
 
       runInAction(() => {
         this.requests = requests;
@@ -65,10 +64,9 @@ class AdminPasswordRecoveryManagementStore {
     });
 
     try {
-      const result =
-        await adminPasswordRecoveryManagementService.processRequest({
-          requestId,
-        });
+      const result = await adminPasswordRecoveryManagementService.processRequest({
+        requestId,
+      });
 
       runInAction(() => {
         this.requests = this.requests.map((item) =>
@@ -80,9 +78,7 @@ class AdminPasswordRecoveryManagementStore {
     } catch (error) {
       runInAction(() => {
         this.processError =
-          error instanceof Error
-            ? error.message
-            : 'Не удалось обработать заявку.';
+          error instanceof Error ? error.message : 'Не удалось обработать заявку.';
       });
     } finally {
       runInAction(() => {

@@ -203,15 +203,9 @@ function mapBookingPolicyToForm(
       defaultDurationMinutes: toStringNumber(
         bookingPolicy.duration.defaultDurationMinutes,
       ),
-      minDurationMinutes: toStringNumber(
-        bookingPolicy.duration.minDurationMinutes,
-      ),
-      maxDurationMinutes: toStringNumber(
-        bookingPolicy.duration.maxDurationMinutes,
-      ),
-      durationStepMinutes: toStringNumber(
-        bookingPolicy.duration.durationStepMinutes,
-      ),
+      minDurationMinutes: toStringNumber(bookingPolicy.duration.minDurationMinutes),
+      maxDurationMinutes: toStringNumber(bookingPolicy.duration.maxDurationMinutes),
+      durationStepMinutes: toStringNumber(bookingPolicy.duration.durationStepMinutes),
     },
     buffer: {
       hasBufferBefore: bookingPolicy.buffer.hasBufferBefore,
@@ -230,7 +224,8 @@ function mapBookingPolicyToForm(
     },
     multiDay: {
       allowsMultiDayBooking:
-        bookingPolicy.multiDay?.allowsMultiDayBooking ?? defaults.multiDay.allowsMultiDayBooking,
+        bookingPolicy.multiDay?.allowsMultiDayBooking ??
+        defaults.multiDay.allowsMultiDayBooking,
       minStayDays: toStringNumber(bookingPolicy.multiDay?.minStayDays),
       maxStayDays: toStringNumber(bookingPolicy.multiDay?.maxStayDays),
       checkInTime: bookingPolicy.multiDay?.checkInTime ?? defaults.multiDay.checkInTime,
@@ -238,8 +233,7 @@ function mapBookingPolicyToForm(
         bookingPolicy.multiDay?.checkOutTime ?? defaults.multiDay.checkOutTime,
     },
     allowsClientComment: bookingPolicy.allowsClientComment,
-    requiresSpecialistConfirmation:
-      bookingPolicy.requiresSpecialistConfirmation,
+    requiresSpecialistConfirmation: bookingPolicy.requiresSpecialistConfirmation,
   };
 }
 
@@ -307,9 +301,8 @@ function createDetailsForm(
     petTypes: [...details.petTypes],
     selectedAdvantages: details.advantages
       .map((item) => item.title)
-      .filter(
-        (item): item is string =>
-          (SPECIALIST_ADVANTAGE_OPTIONS as readonly string[]).includes(item),
+      .filter((item): item is string =>
+        (SPECIALIST_ADVANTAGE_OPTIONS as readonly string[]).includes(item),
       )
       .slice(0, MAX_ADVANTAGES_COUNT),
     about: details.about,
@@ -353,10 +346,7 @@ function createGalleryAlt(index: number): string {
   return `Фото специалиста ${index}`;
 }
 
-function createExperienceLabel(
-  value: string,
-  unit: SpecialistExperienceUnit,
-): string {
+function createExperienceLabel(value: string, unit: SpecialistExperienceUnit): string {
   const normalizedValue = value.trim();
   const safeValue = normalizedValue === '' ? '0' : normalizedValue;
   return `${safeValue} ${unit === 'years' ? 'лет' : 'месяцев'}`;
@@ -385,12 +375,8 @@ function normalizeBookingPolicyForSave(
       defaultDurationMinutes: toNumberOrUndefined(
         bookingPolicy.duration.defaultDurationMinutes,
       ),
-      minDurationMinutes: toNumberOrUndefined(
-        bookingPolicy.duration.minDurationMinutes,
-      ),
-      maxDurationMinutes: toNumberOrUndefined(
-        bookingPolicy.duration.maxDurationMinutes,
-      ),
+      minDurationMinutes: toNumberOrUndefined(bookingPolicy.duration.minDurationMinutes),
+      maxDurationMinutes: toNumberOrUndefined(bookingPolicy.duration.maxDurationMinutes),
       durationStepMinutes: toNumberOrUndefined(
         bookingPolicy.duration.durationStepMinutes,
       ),
@@ -406,15 +392,12 @@ function normalizeBookingPolicyForSave(
     compatibility: {
       canOverlapWithOtherServices:
         bookingPolicy.compatibility.canOverlapWithOtherServices,
-      compatibleServiceIds:
-        bookingPolicy.compatibility.canOverlapWithOtherServices
-          ? [...bookingPolicy.compatibility.compatibleServiceIds]
-          : [],
+      compatibleServiceIds: bookingPolicy.compatibility.canOverlapWithOtherServices
+        ? [...bookingPolicy.compatibility.compatibleServiceIds]
+        : [],
     },
     advance: {
-      minAdvanceMinutes: toNumberOrUndefined(
-        bookingPolicy.advance.minAdvanceMinutes,
-      ),
+      minAdvanceMinutes: toNumberOrUndefined(bookingPolicy.advance.minAdvanceMinutes),
       maxAdvanceDays: toNumberOrUndefined(bookingPolicy.advance.maxAdvanceDays),
     },
     multiDay:
@@ -428,8 +411,7 @@ function normalizeBookingPolicyForSave(
           }
         : undefined,
     allowsClientComment: bookingPolicy.allowsClientComment,
-    requiresSpecialistConfirmation:
-      bookingPolicy.requiresSpecialistConfirmation,
+    requiresSpecialistConfirmation: bookingPolicy.requiresSpecialistConfirmation,
   };
 }
 
@@ -701,7 +683,10 @@ export class SpecialistProfileStore {
   }
 
   setDetailsField<
-    K extends keyof Omit<DetailsForm, 'services' | 'specialistGallery' | 'selectedAdvantages'>,
+    K extends keyof Omit<
+      DetailsForm,
+      'services' | 'specialistGallery' | 'selectedAdvantages'
+    >,
   >(field: K, value: DetailsForm[K]): void {
     if (!this.detailsForm) {
       return;
@@ -787,8 +772,9 @@ export class SpecialistProfileStore {
     const hasValue = this.detailsForm.selectedAdvantages.includes(value);
 
     if (hasValue) {
-      this.detailsForm.selectedAdvantages =
-        this.detailsForm.selectedAdvantages.filter((item) => item !== value);
+      this.detailsForm.selectedAdvantages = this.detailsForm.selectedAdvantages.filter(
+        (item) => item !== value,
+      );
       delete this.detailsFormErrors.selectedAdvantages;
       return;
     }
@@ -799,10 +785,7 @@ export class SpecialistProfileStore {
       return;
     }
 
-    this.detailsForm.selectedAdvantages = [
-      ...this.detailsForm.selectedAdvantages,
-      value,
-    ];
+    this.detailsForm.selectedAdvantages = [...this.detailsForm.selectedAdvantages, value];
     delete this.detailsFormErrors.selectedAdvantages;
   }
 
@@ -951,8 +934,7 @@ export class SpecialistProfileStore {
     }
 
     if (field === 'canOverlapWithOtherServices') {
-      service.bookingPolicy.compatibility.canOverlapWithOtherServices =
-        Boolean(value);
+      service.bookingPolicy.compatibility.canOverlapWithOtherServices = Boolean(value);
 
       if (!value) {
         service.bookingPolicy.compatibility.compatibleServiceIds = [];
@@ -1189,8 +1171,7 @@ export class SpecialistProfileStore {
       });
 
       if (hasInvalidService) {
-        errors.services =
-          'Проверь название, цену и правила бронирования у всех услуг.';
+        errors.services = 'Проверь название, цену и правила бронирования у всех услуг.';
       }
     }
 

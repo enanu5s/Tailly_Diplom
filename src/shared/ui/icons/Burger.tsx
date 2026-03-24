@@ -19,11 +19,7 @@ export const Burger: FC<BurgerProps> = ({
   ...props
 }) => {
   return (
-    <span
-      className={clsx(styles.burger, className)}
-      aria-hidden="true"
-      {...props}
-    >
+    <span className={clsx(styles.burger, className)} aria-hidden="true" {...props}>
       <svg
         width={size}
         height={size}

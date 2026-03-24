@@ -57,8 +57,7 @@ export class PostsStore {
     error: null,
   };
 
-  private searchDebounceTimer: ReturnType<typeof window.setTimeout> | null =
-    null;
+  private searchDebounceTimer: ReturnType<typeof window.setTimeout> | null = null;
 
   private listRequestId = 0;
 
@@ -175,9 +174,7 @@ export class PostsStore {
         }
 
         this.list.error =
-          error instanceof Error
-            ? error.message
-            : 'Не удалось загрузить список постов';
+          error instanceof Error ? error.message : 'Не удалось загрузить список постов';
         this.list.loading = false;
       });
     }

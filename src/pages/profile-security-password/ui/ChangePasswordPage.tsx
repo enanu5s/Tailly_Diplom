@@ -4,7 +4,6 @@ import { useMemo, useState } from 'react';
 import { securityService } from '@/features/profileSecurity/service/securityService';
 import { useAppNavigate } from '@/shared/lib/navigation/useAppNavigate';
 
-
 import styles from './ChangePasswordPage.module.css';
 
 export const ChangePasswordPage = () => {
@@ -114,11 +113,21 @@ export const ChangePasswordPage = () => {
             </label>
           </div>
 
-<div className={styles.actions}>
-            <button className={styles.primaryBtn} type="button" disabled={loading} onClick={submit}>
+          <div className={styles.actions}>
+            <button
+              className={styles.primaryBtn}
+              type="button"
+              disabled={loading}
+              onClick={submit}
+            >
               {loading ? 'Сохраняем...' : 'Сохранить'}
             </button>
-            <button className={styles.secondaryBtn} type="button" disabled={loading} onClick={() => navigate('/profile')}>
+            <button
+              className={styles.secondaryBtn}
+              type="button"
+              disabled={loading}
+              onClick={() => navigate('/profile')}
+            >
               Назад в профиль
             </button>
           </div>

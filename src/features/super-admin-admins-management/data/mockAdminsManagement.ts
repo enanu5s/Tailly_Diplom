@@ -1,10 +1,7 @@
 // src/features/super-admin-admins-management/data/mockAdminsManagement.ts
 
 import { cloneDeep } from '@/shared/mock-db/cloneDeep';
-import {
-  ensureMockDatabaseLoaded,
-  unsafeMutableMockDb,
-} from '@/shared/mock-db/store';
+import { ensureMockDatabaseLoaded, unsafeMutableMockDb } from '@/shared/mock-db/store';
 
 import type { ManagedAdmin } from '../model/types';
 

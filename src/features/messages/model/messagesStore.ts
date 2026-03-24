@@ -47,9 +47,7 @@ class MessagesStore {
       return this.threads[0] ?? null;
     }
 
-    return (
-      this.threads.find((thread) => thread.id === this.activeThreadId) ?? null
-    );
+    return this.threads.find((thread) => thread.id === this.activeThreadId) ?? null;
   }
 
   get activeMessages(): ChatMessage[] {
@@ -59,9 +57,7 @@ class MessagesStore {
       return [];
     }
 
-    return this.messages.filter(
-      (message) => message.threadId === activeThread.id,
-    );
+    return this.messages.filter((message) => message.threadId === activeThread.id);
   }
 
   get canSendDraft(): boolean {
@@ -104,9 +100,7 @@ class MessagesStore {
     } catch (error) {
       runInAction(() => {
         this.error =
-          error instanceof Error
-            ? error.message
-            : 'Не удалось загрузить фотографии.';
+          error instanceof Error ? error.message : 'Не удалось загрузить фотографии.';
       });
     } finally {
       runInAction(() => {
@@ -162,8 +156,8 @@ class MessagesStore {
       snapshot.threads.some((thread) => thread.id === preferredThreadId);
 
     this.activeThreadId = hasPreferredThread
-      ? preferredThreadId ?? null
-      : snapshot.threads[0]?.id ?? null;
+      ? (preferredThreadId ?? null)
+      : (snapshot.threads[0]?.id ?? null);
   }
 
   async init(viewer: MessagesViewer): Promise<void> {
@@ -196,9 +190,7 @@ class MessagesStore {
     } catch (error) {
       runInAction(() => {
         this.error =
-          error instanceof Error
-            ? error.message
-            : 'Не удалось загрузить сообщения.';
+          error instanceof Error ? error.message : 'Не удалось загрузить сообщения.';
       });
     } finally {
       runInAction(() => {
@@ -242,11 +234,7 @@ class MessagesStore {
       );
 
       runInAction(() => {
-        this.applySnapshot(
-          params.viewer,
-          snapshot,
-          targetThread?.id ?? null,
-        );
+        this.applySnapshot(params.viewer, snapshot, targetThread?.id ?? null);
       });
 
       await this.syncUnread(params.viewer);
@@ -301,20 +289,14 @@ class MessagesStore {
       );
 
       runInAction(() => {
-        this.applySnapshot(
-          params.viewer,
-          snapshot,
-          targetThread?.id ?? null,
-        );
+        this.applySnapshot(params.viewer, snapshot, targetThread?.id ?? null);
       });
 
       await this.syncUnread(params.viewer);
     } catch (error) {
       runInAction(() => {
         this.error =
-          error instanceof Error
-            ? error.message
-            : 'Не удалось открыть чат с клиентом.';
+          error instanceof Error ? error.message : 'Не удалось открыть чат с клиентом.';
       });
     } finally {
       runInAction(() => {
@@ -365,9 +347,7 @@ class MessagesStore {
   async sendActiveMessage(params: { viewer: MessagesViewer }): Promise<void> {
     const text = this.draftMessage.trim();
     const activeThread = this.activeThread;
-    const attachments = messagesService.stripDraftAttachmentFiles(
-      this.draftAttachments,
-    );
+    const attachments = messagesService.stripDraftAttachmentFiles(this.draftAttachments);
     const replyTo = this.replyTo ?? undefined;
 
     if (
@@ -401,9 +381,7 @@ class MessagesStore {
     } catch (error) {
       runInAction(() => {
         this.error =
-          error instanceof Error
-            ? error.message
-            : 'Не удалось отправить сообщение.';
+          error instanceof Error ? error.message : 'Не удалось отправить сообщение.';
       });
     } finally {
       runInAction(() => {

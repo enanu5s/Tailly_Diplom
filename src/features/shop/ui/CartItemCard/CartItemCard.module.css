@@ -1,203 +1,203 @@
 /* src/features/shop/ui/CartItemCard/CartItemCard.module.css */
 .card {
-    display: grid;
-    grid-template-columns: 160px minmax(0, 1fr);
-    gap: 18px;
-    padding: 20px;
-    border: 1px solid #e5e7eb;
-    border-radius: 20px;
-    background: #ffffff;
-    box-shadow: 0 12px 30px rgba(15, 23, 42, 0.06);
+  display: grid;
+  grid-template-columns: 160px minmax(0, 1fr);
+  gap: 18px;
+  padding: 20px;
+  border: 1px solid #e5e7eb;
+  border-radius: 20px;
+  background: #ffffff;
+  box-shadow: 0 12px 30px rgba(15, 23, 42, 0.06);
 }
 
 .imageLink {
-    display: block;
-    width: 100%;
-    aspect-ratio: 1 / 1;
-    border-radius: 16px;
-    overflow: hidden;
-    background: #f8fafc;
+  display: block;
+  width: 100%;
+  aspect-ratio: 1 / 1;
+  border-radius: 16px;
+  overflow: hidden;
+  background: #f8fafc;
 }
 
 .image {
-    display: block;
-    width: 100%;
-    height: 100%;
-    object-fit: cover;
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
 }
 
 .imagePlaceholder {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    height: 100%;
-    padding: 12px;
-    color: #64748b;
-    font-size: 14px;
-    text-align: center;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 100%;
+  padding: 12px;
+  color: #64748b;
+  font-size: 14px;
+  text-align: center;
 }
 
 .content {
-    display: flex;
-    flex-direction: column;
-    gap: 16px;
-    min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  min-width: 0;
 }
 
 .topRow {
-    display: flex;
-    justify-content: space-between;
-    gap: 16px;
+  display: flex;
+  justify-content: space-between;
+  gap: 16px;
 }
 
 .meta {
-    min-width: 0;
+  min-width: 0;
 }
 
 .category {
-    margin-bottom: 6px;
-    color: #6366f1;
-    font-size: 13px;
-    font-weight: 700;
+  margin-bottom: 6px;
+  color: #6366f1;
+  font-size: 13px;
+  font-weight: 700;
 }
 
 .titleLink {
-    color: inherit;
-    text-decoration: none;
+  color: inherit;
+  text-decoration: none;
 }
 
 .title {
-    margin: 0;
-    color: #0f172a;
-    font-size: 22px;
-    line-height: 1.2;
+  margin: 0;
+  color: #0f172a;
+  font-size: 22px;
+  line-height: 1.2;
 }
 
 .description {
-    margin: 10px 0 0;
-    color: #475569;
-    font-size: 14px;
-    line-height: 1.6;
+  margin: 10px 0 0;
+  color: #475569;
+  font-size: 14px;
+  line-height: 1.6;
 }
 
 .topActions {
-    display: flex;
-    flex-direction: column;
-    gap: 10px;
-    flex-shrink: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  flex-shrink: 0;
 }
 
 .favoriteButton,
 .removeButton {
-    min-height: 40px;
-    padding: 0 14px;
-    border-radius: 12px;
-    font-size: 14px;
-    font-weight: 700;
-    cursor: pointer;
+  min-height: 40px;
+  padding: 0 14px;
+  border-radius: 12px;
+  font-size: 14px;
+  font-weight: 700;
+  cursor: pointer;
 }
 
 .favoriteButton {
-    border: 1px solid #c7d2fe;
-    background: #eef2ff;
-    color: #4338ca;
+  border: 1px solid #c7d2fe;
+  background: #eef2ff;
+  color: #4338ca;
 }
 
 .favoriteButtonActive {
-    border-color: #6366f1;
-    background: #6366f1;
-    color: #ffffff;
+  border-color: #6366f1;
+  background: #6366f1;
+  color: #ffffff;
 }
 
 .removeButton {
-    border: 1px solid #fecaca;
-    background: #fff1f2;
-    color: #be123c;
+  border: 1px solid #fecaca;
+  background: #fff1f2;
+  color: #be123c;
 }
 
 .bottomRow {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    gap: 16px;
-    flex-wrap: wrap;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  flex-wrap: wrap;
 }
 
 .priceBlock {
-    display: flex;
-    flex-direction: column;
-    gap: 6px;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
 }
 
 .price {
-    color: #0f172a;
-    font-size: 22px;
-    font-weight: 800;
+  color: #0f172a;
+  font-size: 22px;
+  font-weight: 800;
 }
 
 .lineTotal {
-    color: #334155;
-    font-size: 14px;
-    font-weight: 600;
+  color: #334155;
+  font-size: 14px;
+  font-weight: 600;
 }
 
 .controls {
-    display: flex;
-    align-items: center;
-    gap: 12px;
-    padding: 6px;
-    border: 1px solid #dbeafe;
-    border-radius: 14px;
-    background: #f8fbff;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 6px;
+  border: 1px solid #dbeafe;
+  border-radius: 14px;
+  background: #f8fbff;
 }
 
 .quantityButton {
-    width: 40px;
-    height: 40px;
-    border: none;
-    border-radius: 10px;
-    background: #e0e7ff;
-    color: #3730a3;
-    font-size: 24px;
-    line-height: 1;
-    cursor: pointer;
+  width: 40px;
+  height: 40px;
+  border: none;
+  border-radius: 10px;
+  background: #e0e7ff;
+  color: #3730a3;
+  font-size: 24px;
+  line-height: 1;
+  cursor: pointer;
 }
 
 .quantityButton:disabled {
-    background: #e5e7eb;
-    color: #94a3b8;
-    cursor: not-allowed;
+  background: #e5e7eb;
+  color: #94a3b8;
+  cursor: not-allowed;
 }
 
 .quantityValue {
-    min-width: 28px;
-    color: #0f172a;
-    font-size: 16px;
-    font-weight: 800;
-    text-align: center;
+  min-width: 28px;
+  color: #0f172a;
+  font-size: 16px;
+  font-weight: 800;
+  text-align: center;
 }
 
 .unavailable {
-    color: #dc2626;
-    font-size: 14px;
-    font-weight: 700;
+  color: #dc2626;
+  font-size: 14px;
+  font-weight: 700;
 }
 
 @media (max-width: 720px) {
-    .card {
-        grid-template-columns: 1fr;
-    }
+  .card {
+    grid-template-columns: 1fr;
+  }
 
-    .topRow {
-        flex-direction: column;
-    }
+  .topRow {
+    flex-direction: column;
+  }
 
-    .topActions {
-        width: 100%;
-    }
+  .topActions {
+    width: 100%;
+  }
 
-    .favoriteButton,
-    .removeButton {
-        width: 100%;
-    }
+  .favoriteButton,
+  .removeButton {
+    width: 100%;
+  }
 }

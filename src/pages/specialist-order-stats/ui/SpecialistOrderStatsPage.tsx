@@ -25,27 +25,27 @@ import {
 
 import type { ReactElement } from 'react';
 
-const PERIOD_OPTIONS: { value: SpecialistOrderStatsSettings["period"]; label: string }[] =
+const PERIOD_OPTIONS: { value: SpecialistOrderStatsSettings['period']; label: string }[] =
   [
-    { value: "7d", label: "Последние 7 дней" },
-    { value: "30d", label: "Последние 30 дней" },
-    { value: "90d", label: "Последние 90 дней" },
-    { value: "all", label: "За всё время" },
+    { value: '7d', label: 'Последние 7 дней' },
+    { value: '30d', label: 'Последние 30 дней' },
+    { value: '90d', label: 'Последние 90 дней' },
+    { value: 'all', label: 'За всё время' },
   ];
 
 function formatRub(value: number): string {
-  return new Intl.NumberFormat("ru-RU", {
-    style: "currency",
-    currency: "RUB",
+  return new Intl.NumberFormat('ru-RU', {
+    style: 'currency',
+    currency: 'RUB',
     maximumFractionDigits: 0,
   }).format(value);
 }
 
 export const SpecialistOrderStatsPage = (): ReactElement => {
   const { specialistSlug } = useParams<{ specialistSlug: string }>();
-  const slug = specialistSlug?.trim() ?? "";
-  const profilePath = slug ? `/specialists/${slug}` : "/";
-  const ordersPath = slug ? `/specialists/${slug}/orders` : "/";
+  const slug = specialistSlug?.trim() ?? '';
+  const profilePath = slug ? `/specialists/${slug}` : '/';
+  const ordersPath = slug ? `/specialists/${slug}/orders` : '/';
 
   const [orders, setOrders] = useState<ServiceOrder[]>([]);
   const [loading, setLoading] = useState(true);
@@ -69,7 +69,7 @@ export const SpecialistOrderStatsPage = (): ReactElement => {
     setError(null);
 
     void ordersService
-      .getServiceOrders("all")
+      .getServiceOrders('all')
       .then((list) => {
         if (!cancelled) {
           setOrders(list);
@@ -81,7 +81,7 @@ export const SpecialistOrderStatsPage = (): ReactElement => {
           setError(
             err instanceof Error
               ? err.message
-              : "Не удалось загрузить заказы для статистики",
+              : 'Не удалось загрузить заказы для статистики',
           );
           setLoading(false);
         }
@@ -135,8 +135,8 @@ export const SpecialistOrderStatsPage = (): ReactElement => {
         <header className={styles.header}>
           <h1 className={styles.title}>Статистика по заказам</h1>
           <p className={styles.subtitle}>
-            Сводка по вашим заказам услуг: статусы, выручка, услуги и клиенты. Период
-            и блоки на экране можно настроить — параметры сохраняются в этом браузере.
+            Сводка по вашим заказам услуг: статусы, выручка, услуги и клиенты. Период и
+            блоки на экране можно настроить — параметры сохраняются в этом браузере.
           </p>
         </header>
 
@@ -154,7 +154,7 @@ export const SpecialistOrderStatsPage = (): ReactElement => {
                 className={styles.select}
                 value={settings.period}
                 onChange={(e) => {
-                  const value = e.target.value as SpecialistOrderStatsSettings["period"];
+                  const value = e.target.value as SpecialistOrderStatsSettings['period'];
                   updateSettings({ period: value });
                 }}
               >
@@ -247,9 +247,7 @@ export const SpecialistOrderStatsPage = (): ReactElement => {
             <div className={styles.summaryGrid}>
               <div className={styles.summaryCard}>
                 <div className={styles.summaryValue}>{stats.totalInPeriod}</div>
-                <div className={styles.summaryLabel}>
-                  Заказов в выбранном периоде
-                </div>
+                <div className={styles.summaryLabel}>Заказов в выбранном периоде</div>
               </div>
               <div className={styles.summaryCard}>
                 <div className={styles.summaryValue}>{stats.completedCount}</div>
@@ -261,15 +259,11 @@ export const SpecialistOrderStatsPage = (): ReactElement => {
                     <div className={styles.summaryValue}>
                       {formatRub(stats.completedRevenueRub)}
                     </div>
-                    <div className={styles.summaryLabel}>
-                      Выручка по завершённым
-                    </div>
+                    <div className={styles.summaryLabel}>Выручка по завершённым</div>
                   </div>
                   <div className={styles.summaryCard}>
                     <div className={styles.summaryValue}>
-                      {stats.avgCheckRub !== null
-                        ? formatRub(stats.avgCheckRub)
-                        : "—"}
+                      {stats.avgCheckRub !== null ? formatRub(stats.avgCheckRub) : '—'}
                     </div>
                     <div className={styles.summaryLabel}>Средний чек</div>
                   </div>
@@ -300,7 +294,7 @@ export const SpecialistOrderStatsPage = (): ReactElement => {
                         <span className={styles.statusCount}>
                           {stats.cancellationRatePercent !== null
                             ? `${stats.cancellationRatePercent}%`
-                            : "—"}
+                            : '—'}
                         </span>
                       </li>
                     </ul>
@@ -320,7 +314,7 @@ export const SpecialistOrderStatsPage = (): ReactElement => {
                       <span className={styles.statusCount}>
                         {stats.cancellationRatePercent !== null
                           ? `${stats.cancellationRatePercent}%`
-                          : "—"}
+                          : '—'}
                       </span>
                     </li>
                   </ul>
@@ -339,16 +333,12 @@ export const SpecialistOrderStatsPage = (): ReactElement => {
                   <ul className={styles.statusList}>
                     <li className={styles.statusRow}>
                       <span>Завершённых заказов с отзывом</span>
-                      <span className={styles.statusCount}>
-                        {stats.ordersWithReview}
-                      </span>
+                      <span className={styles.statusCount}>{stats.ordersWithReview}</span>
                     </li>
                     <li className={styles.statusRow}>
                       <span>Средняя оценка (по завершённым с оценкой)</span>
                       <span className={styles.statusCount}>
-                        {stats.avgRating !== null
-                          ? stats.avgRating.toFixed(2)
-                          : "—"}
+                        {stats.avgRating !== null ? stats.avgRating.toFixed(2) : '—'}
                       </span>
                     </li>
                   </ul>
@@ -369,32 +359,30 @@ export const SpecialistOrderStatsPage = (): ReactElement => {
                         formatRub={formatRub}
                       />
                     ) : null}
-                  <div className={styles.tableWrap}>
-                    <table className={styles.table}>
-                      <thead>
-                        <tr>
-                          <th>Услуга</th>
-                          <th className={styles.numCell}>Заказов</th>
-                          <th className={styles.numCell}>Завершено</th>
-                          <th className={styles.numCell}>Выручка</th>
-                        </tr>
-                      </thead>
-                      <tbody>
-                        {stats.byService.map((row) => (
-                          <tr key={row.serviceTitle}>
-                            <td>{row.serviceTitle}</td>
-                            <td className={styles.numCell}>{row.totalCount}</td>
-                            <td className={styles.numCell}>
-                              {row.completedCount}
-                            </td>
-                            <td className={styles.numCell}>
-                              {formatRub(row.revenueRub)}
-                            </td>
+                    <div className={styles.tableWrap}>
+                      <table className={styles.table}>
+                        <thead>
+                          <tr>
+                            <th>Услуга</th>
+                            <th className={styles.numCell}>Заказов</th>
+                            <th className={styles.numCell}>Завершено</th>
+                            <th className={styles.numCell}>Выручка</th>
                           </tr>
-                        ))}
-                      </tbody>
-                    </table>
-                  </div>
+                        </thead>
+                        <tbody>
+                          {stats.byService.map((row) => (
+                            <tr key={row.serviceTitle}>
+                              <td>{row.serviceTitle}</td>
+                              <td className={styles.numCell}>{row.totalCount}</td>
+                              <td className={styles.numCell}>{row.completedCount}</td>
+                              <td className={styles.numCell}>
+                                {formatRub(row.revenueRub)}
+                              </td>
+                            </tr>
+                          ))}
+                        </tbody>
+                      </table>
+                    </div>
                   </>
                 )}
               </section>
@@ -428,9 +416,7 @@ export const SpecialistOrderStatsPage = (): ReactElement => {
                                 {row.clientName}
                               </Link>
                             </td>
-                            <td className={styles.numCell}>
-                              {row.completedCount}
-                            </td>
+                            <td className={styles.numCell}>{row.completedCount}</td>
                             <td className={styles.numCell}>
                               {formatRub(row.revenueRub)}
                             </td>

@@ -1,5 +1,5 @@
 // src/shared/ui/logo/Logo.tsx
-import clsx from 'clsx';           // npm install clsx    (очень удобно для классов)
+import clsx from 'clsx'; // npm install clsx    (очень удобно для классов)
 
 import styles from './Logo.module.css';
 
@@ -18,12 +18,7 @@ export const Logo: FC<LogoProps> = ({
   className,
   ...props
 }) => {
-  const rootClass = clsx(
-    styles.logo,
-    styles[variant],
-    styles[size],
-    className
-  );
+  const rootClass = clsx(styles.logo, styles[variant], styles[size], className);
 
   return (
     <div className={rootClass} {...props}>
@@ -63,9 +58,7 @@ export const Logo: FC<LogoProps> = ({
         />
       </svg>
 
-      {withText && (
-        <span className={styles.text}>Tailly</span>
-      )}
+      {withText && <span className={styles.text}>Tailly</span>}
     </div>
   );
 };

@@ -77,10 +77,7 @@ export function specialistDemoSlug(spec: DemoSpecialistSpec): string {
 
 function slugify(last: string, first: string, index: number): string {
   const ru = last + '-' + first;
-  const lat = ru
-    .toLowerCase()
-    .replace(/ё/g, 'e')
-    .replace(/\s+/g, '-');
+  const lat = ru.toLowerCase().replace(/ё/g, 'e').replace(/\s+/g, '-');
   const ascii = lat
     .normalize('NFD')
     .replace(/[\u0300-\u036f]/g, '')

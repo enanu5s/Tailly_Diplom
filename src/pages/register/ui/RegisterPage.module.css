@@ -56,7 +56,9 @@
   overflow: hidden;
   text-decoration: none;
   box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
-  transition: transform 0.3s ease, box-shadow 0.3s ease;
+  transition:
+    transform 0.3s ease,
+    box-shadow 0.3s ease;
 }
 
 .card:hover {
@@ -79,7 +81,7 @@
 .overlay {
   position: absolute;
   inset: 0;
-  background: linear-gradient(to top, rgba(0,0,0,0.75), rgba(0,0,0,0.2));
+  background: linear-gradient(to top, rgba(0, 0, 0, 0.75), rgba(0, 0, 0, 0.2));
   display: flex;
   flex-direction: column;
   justify-content: flex-end;
@@ -103,8 +105,10 @@
 
 .srOnly {
   position: absolute;
-  width: 1px; height: 1px;
-  padding: 0; margin: -1px;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
   overflow: hidden;
   clip: rect(0, 0, 0, 0);
   white-space: nowrap;
@@ -120,12 +124,18 @@
   outline-offset: 2px;
 }
 
-.card { height: 340px; }
-@media (min-width: 768px) { .card { height: 420px; } }
+.card {
+  height: 340px;
+}
+@media (min-width: 768px) {
+  .card {
+    height: 420px;
+  }
+}
 
 .cardClient .cardImage {
-  background-image: url("https://img.freepik.com/premium-photo/people-indoors-loving-their-dogs_23-2151565779.jpg?semt=ais_hybrid&w=740");
+  background-image: url('https://img.freepik.com/premium-photo/people-indoors-loving-their-dogs_23-2151565779.jpg?semt=ais_hybrid&w=740');
 }
 .cardSitter .cardImage {
-  background-image: url("https://images.unsplash.com/photo-1581888227599-779811939961?ixlib=rb-4.0.3&q=85&fm=jpg&crop=entropy&cs=srgb");
+  background-image: url('https://images.unsplash.com/photo-1581888227599-779811939961?ixlib=rb-4.0.3&q=85&fm=jpg&crop=entropy&cs=srgb');
 }

@@ -1,18 +1,18 @@
-import { makeAutoObservable, runInAction } from "mobx";
+import { makeAutoObservable, runInAction } from 'mobx';
 
-import { ordersService } from "../service/ordersService";
+import { ordersService } from '../service/ordersService';
 
-import type { ProductOrderRepeatCheckoutDraft } from "./productOrderRepeatCheckout";
+import type { ProductOrderRepeatCheckoutDraft } from './productOrderRepeatCheckout';
 import type {
   LeaveServiceReviewPayload,
   OrderStatus,
   ProductOrder,
   ServiceOrder,
   ServicesFilter,
-} from "./types";
+} from './types';
 
 export class OrdersStore {
-  servicesFilter: ServicesFilter = "all";
+  servicesFilter: ServicesFilter = 'all';
   serviceOrders: ServiceOrder[] = [];
   productOrders: ProductOrder[] = [];
   selectedProductOrder: ProductOrder | null = null;
@@ -44,10 +44,7 @@ export class OrdersStore {
     this.selectedProductLoading = false;
   }
 
-  private updateLocalOrder(
-    orderId: string,
-    patch: Partial<ServiceOrder>
-  ): void {
+  private updateLocalOrder(orderId: string, patch: Partial<ServiceOrder>): void {
     const index = this.serviceOrders.findIndex((item) => item.id === orderId);
 
     if (index === -1) {
@@ -61,10 +58,7 @@ export class OrdersStore {
   }
 
   /** Синхронно с бэкендом: новый статус, метка времени и событие в истории. */
-  private applyServiceOrderTransition(
-    orderId: string,
-    nextStatus: OrderStatus
-  ): void {
+  private applyServiceOrderTransition(orderId: string, nextStatus: OrderStatus): void {
     const index = this.serviceOrders.findIndex((item) => item.id === orderId);
 
     if (index === -1) {
@@ -75,13 +69,13 @@ export class OrdersStore {
     const changedAt = new Date().toISOString();
 
     const timestamps: Partial<ServiceOrder> = {};
-    if (nextStatus === "confirmed") {
+    if (nextStatus === 'confirmed') {
       timestamps.confirmedAt = changedAt;
-    } else if (nextStatus === "active") {
+    } else if (nextStatus === 'active') {
       timestamps.startedAt = changedAt;
-    } else if (nextStatus === "completed") {
+    } else if (nextStatus === 'completed') {
       timestamps.completedAt = changedAt;
-    } else if (nextStatus === "canceled") {
+    } else if (nextStatus === 'canceled') {
       timestamps.canceledAt = changedAt;
     }
 
@@ -89,17 +83,11 @@ export class OrdersStore {
       ...order,
       ...timestamps,
       status: nextStatus,
-      lifecycle: [
-        ...order.lifecycle,
-        { status: nextStatus, changedAt },
-      ],
+      lifecycle: [...order.lifecycle, { status: nextStatus, changedAt }],
     };
   }
 
-  private updateLocalProductOrder(
-    orderId: string,
-    patch: Partial<ProductOrder>
-  ): void {
+  private updateLocalProductOrder(orderId: string, patch: Partial<ProductOrder>): void {
     const index = this.productOrders.findIndex((item) => item.id === orderId);
 
     if (index !== -1) {
@@ -131,9 +119,7 @@ export class OrdersStore {
     } catch (error) {
       runInAction(() => {
         this.servicesError =
-          error instanceof Error
-            ? error.message
-            : "Не удалось загрузить заказы услуг";
+          error instanceof Error ? error.message : 'Не удалось загрузить заказы услуг';
         this.servicesLoading = false;
       });
     }
@@ -153,9 +139,7 @@ export class OrdersStore {
     } catch (error) {
       runInAction(() => {
         this.productsError =
-          error instanceof Error
-            ? error.message
-            : "Не удалось загрузить заказы товаров";
+          error instanceof Error ? error.message : 'Не удалось загрузить заказы товаров';
         this.productsLoading = false;
       });
     }
@@ -175,9 +159,7 @@ export class OrdersStore {
     } catch (error) {
       runInAction(() => {
         this.selectedProductError =
-          error instanceof Error
-            ? error.message
-            : "Не удалось загрузить заказ товара";
+          error instanceof Error ? error.message : 'Не удалось загрузить заказ товара';
         this.selectedProductLoading = false;
       });
     }
@@ -196,15 +178,13 @@ export class OrdersStore {
     } catch (error) {
       runInAction(() => {
         this.actionError =
-          error instanceof Error ? error.message : "Не удалось повторить заказ";
+          error instanceof Error ? error.message : 'Не удалось повторить заказ';
         this.actionLoadingId = null;
       });
     }
   }
 
-  async repeatProduct(
-    orderId: string
-  ): Promise<ProductOrderRepeatCheckoutDraft | null> {
+  async repeatProduct(orderId: string): Promise<ProductOrderRepeatCheckoutDraft | null> {
     this.actionLoadingId = orderId;
     this.actionError = null;
 
@@ -219,7 +199,7 @@ export class OrdersStore {
     } catch (error) {
       runInAction(() => {
         this.actionError =
-          error instanceof Error ? error.message : "Не удалось повторить заказ";
+          error instanceof Error ? error.message : 'Не удалось повторить заказ';
         this.actionLoadingId = null;
       });
 
@@ -239,22 +219,21 @@ export class OrdersStore {
       runInAction(() => {
         const currentLifecycle =
           this.selectedProductOrder?.id === orderId
-            ? this.selectedProductOrder.lifecycle ?? []
-            : this.productOrders.find((item) => item.id === orderId)
-                ?.lifecycle ?? [];
+            ? (this.selectedProductOrder.lifecycle ?? [])
+            : (this.productOrders.find((item) => item.id === orderId)?.lifecycle ?? []);
 
         this.updateLocalProductOrder(orderId, {
-          status: "canceled",
+          status: 'canceled',
           canceledAt,
-          cancelReason: "Отменено пользователем",
+          cancelReason: 'Отменено пользователем',
           payment:
             this.selectedProductOrder?.id === orderId
               ? this.selectedProductOrder.payment
                 ? {
                     ...this.selectedProductOrder.payment,
                     status:
-                      this.selectedProductOrder.payment.status === "paid"
-                        ? "refunded"
+                      this.selectedProductOrder.payment.status === 'paid'
+                        ? 'refunded'
                         : this.selectedProductOrder.payment.status,
                   }
                 : undefined
@@ -262,9 +241,9 @@ export class OrdersStore {
           lifecycle: [
             ...currentLifecycle,
             {
-              status: "canceled",
+              status: 'canceled',
               changedAt: canceledAt,
-              comment: "Пользователь отменил заказ",
+              comment: 'Пользователь отменил заказ',
             },
           ],
         });
@@ -273,7 +252,7 @@ export class OrdersStore {
     } catch (error) {
       runInAction(() => {
         this.actionError =
-          error instanceof Error ? error.message : "Не удалось отменить заказ";
+          error instanceof Error ? error.message : 'Не удалось отменить заказ';
         this.actionLoadingId = null;
       });
     }
@@ -287,15 +266,13 @@ export class OrdersStore {
       await ordersService.confirmServiceOrder(orderId);
 
       runInAction(() => {
-        this.applyServiceOrderTransition(orderId, "confirmed");
+        this.applyServiceOrderTransition(orderId, 'confirmed');
         this.actionLoadingId = null;
       });
     } catch (error) {
       runInAction(() => {
         this.actionError =
-          error instanceof Error
-            ? error.message
-            : "Не удалось подтвердить заказ";
+          error instanceof Error ? error.message : 'Не удалось подтвердить заказ';
         this.actionLoadingId = null;
       });
     }
@@ -309,13 +286,13 @@ export class OrdersStore {
       await ordersService.startServiceOrder(orderId);
 
       runInAction(() => {
-        this.applyServiceOrderTransition(orderId, "active");
+        this.applyServiceOrderTransition(orderId, 'active');
         this.actionLoadingId = null;
       });
     } catch (error) {
       runInAction(() => {
         this.actionError =
-          error instanceof Error ? error.message : "Не удалось начать заказ";
+          error instanceof Error ? error.message : 'Не удалось начать заказ';
         this.actionLoadingId = null;
       });
     }
@@ -329,13 +306,13 @@ export class OrdersStore {
       await ordersService.completeServiceOrder(orderId);
 
       runInAction(() => {
-        this.applyServiceOrderTransition(orderId, "completed");
+        this.applyServiceOrderTransition(orderId, 'completed');
         this.actionLoadingId = null;
       });
     } catch (error) {
       runInAction(() => {
         this.actionError =
-          error instanceof Error ? error.message : "Не удалось завершить заказ";
+          error instanceof Error ? error.message : 'Не удалось завершить заказ';
         this.actionLoadingId = null;
       });
     }
@@ -349,22 +326,19 @@ export class OrdersStore {
       await ordersService.cancelServiceOrder(orderId);
 
       runInAction(() => {
-        this.applyServiceOrderTransition(orderId, "canceled");
+        this.applyServiceOrderTransition(orderId, 'canceled');
         this.actionLoadingId = null;
       });
     } catch (error) {
       runInAction(() => {
         this.actionError =
-          error instanceof Error ? error.message : "Не удалось отменить заказ";
+          error instanceof Error ? error.message : 'Не удалось отменить заказ';
         this.actionLoadingId = null;
       });
     }
   }
 
-  async leaveReview(
-    orderId: string,
-    payload: LeaveServiceReviewPayload
-  ): Promise<void> {
+  async leaveReview(orderId: string, payload: LeaveServiceReviewPayload): Promise<void> {
     this.actionLoadingId = orderId;
     this.actionError = null;
 
@@ -388,7 +362,7 @@ export class OrdersStore {
     } catch (error) {
       runInAction(() => {
         this.actionError =
-          error instanceof Error ? error.message : "Не удалось отправить отзыв";
+          error instanceof Error ? error.message : 'Не удалось отправить отзыв';
         this.actionLoadingId = null;
       });
     }

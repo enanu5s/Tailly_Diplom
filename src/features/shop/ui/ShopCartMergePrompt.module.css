@@ -1,127 +1,127 @@
 .overlay {
-    position: fixed;
-    inset: 0;
-    z-index: 1200;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    padding: 20px;
-    background: rgba(15, 23, 42, 0.5);
-  }
-  
+  position: fixed;
+  inset: 0;
+  z-index: 1200;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 20px;
+  background: rgba(15, 23, 42, 0.5);
+}
+
+.modal {
+  width: 100%;
+  max-width: 560px;
+  border-radius: 18px;
+  background: #ffffff;
+  box-shadow: 0 24px 60px rgba(15, 23, 42, 0.22);
+  padding: 24px;
+  display: grid;
+  gap: 16px;
+}
+
+.badge {
+  display: inline-flex;
+  width: fit-content;
+  align-items: center;
+  min-height: 30px;
+  padding: 0 12px;
+  border-radius: 999px;
+  background: rgba(99, 102, 241, 0.12);
+  color: #4f46e5;
+  font-size: 13px;
+  font-weight: 700;
+}
+
+.title {
+  margin: 0;
+  color: #0f172a;
+  font-size: 1.5rem;
+  line-height: 1.2;
+}
+
+.text,
+.note {
+  margin: 0;
+  color: #475569;
+  line-height: 1.6;
+}
+
+.stats {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 12px;
+}
+
+.statCard {
+  border: 1px solid #e2e8f0;
+  border-radius: 16px;
+  padding: 14px 16px;
+  display: grid;
+  gap: 6px;
+  background: #f8fafc;
+}
+
+.statLabel {
+  color: #64748b;
+  font-size: 0.9rem;
+}
+
+.statValue {
+  color: #0f172a;
+  font-size: 1.2rem;
+  font-weight: 700;
+}
+
+.statMeta {
+  color: #475569;
+  font-size: 0.9rem;
+}
+
+.actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+
+.secondaryButton,
+.primaryButton {
+  min-height: 46px;
+  border-radius: 14px;
+  padding: 0 18px;
+  font-size: 0.95rem;
+  font-weight: 700;
+  cursor: pointer;
+  border: none;
+}
+
+.secondaryButton {
+  background: #e2e8f0;
+  color: #0f172a;
+}
+
+.primaryButton {
+  background: #6366f1;
+  color: #ffffff;
+  box-shadow: 0 14px 28px rgba(99, 102, 241, 0.22);
+}
+
+@media (max-width: 640px) {
   .modal {
-    width: 100%;
-    max-width: 560px;
-    border-radius: 18px;
-    background: #ffffff;
-    box-shadow: 0 24px 60px rgba(15, 23, 42, 0.22);
-    padding: 24px;
-    display: grid;
-    gap: 16px;
+    padding: 20px;
   }
-  
-  .badge {
-    display: inline-flex;
-    width: fit-content;
-    align-items: center;
-    min-height: 30px;
-    padding: 0 12px;
-    border-radius: 999px;
-    background: rgba(99, 102, 241, 0.12);
-    color: #4f46e5;
-    font-size: 13px;
-    font-weight: 700;
-  }
-  
-  .title {
-    margin: 0;
-    color: #0f172a;
-    font-size: 1.5rem;
-    line-height: 1.2;
-  }
-  
-  .text,
-  .note {
-    margin: 0;
-    color: #475569;
-    line-height: 1.6;
-  }
-  
+
   .stats {
-    display: grid;
-    grid-template-columns: repeat(2, minmax(0, 1fr));
-    gap: 12px;
+    grid-template-columns: 1fr;
   }
-  
-  .statCard {
-    border: 1px solid #e2e8f0;
-    border-radius: 16px;
-    padding: 14px 16px;
-    display: grid;
-    gap: 6px;
-    background: #f8fafc;
-  }
-  
-  .statLabel {
-    color: #64748b;
-    font-size: 0.9rem;
-  }
-  
-  .statValue {
-    color: #0f172a;
-    font-size: 1.2rem;
-    font-weight: 700;
-  }
-  
-  .statMeta {
-    color: #475569;
-    font-size: 0.9rem;
-  }
-  
+
   .actions {
-    display: flex;
-    justify-content: flex-end;
-    gap: 12px;
-    flex-wrap: wrap;
+    flex-direction: column-reverse;
   }
-  
+
   .secondaryButton,
   .primaryButton {
-    min-height: 46px;
-    border-radius: 14px;
-    padding: 0 18px;
-    font-size: 0.95rem;
-    font-weight: 700;
-    cursor: pointer;
-    border: none;
+    width: 100%;
   }
-  
-  .secondaryButton {
-    background: #e2e8f0;
-    color: #0f172a;
-  }
-  
-  .primaryButton {
-    background: #6366f1;
-    color: #ffffff;
-    box-shadow: 0 14px 28px rgba(99, 102, 241, 0.22);
-  }
-  
-  @media (max-width: 640px) {
-    .modal {
-      padding: 20px;
-    }
-  
-    .stats {
-      grid-template-columns: 1fr;
-    }
-  
-    .actions {
-      flex-direction: column-reverse;
-    }
-  
-    .secondaryButton,
-    .primaryButton {
-      width: 100%;
-    }
-  }
+}

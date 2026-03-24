@@ -2,10 +2,7 @@
 
 import styles from './SpecialistServicePolicyEditor.module.css';
 
-import type {
-  SpecialistBookingMode,
-  SpecialistServicePriceUnit,
-} from '../model/types';
+import type { SpecialistBookingMode, SpecialistServicePriceUnit } from '../model/types';
 
 type EditableServiceBookingPolicyForm = {
   mode: SpecialistBookingMode;
@@ -154,9 +151,7 @@ export function SpecialistServicePolicyEditor({
         <input
           className={styles.input}
           value={service.name}
-          onChange={(event) =>
-            onSetServiceField(index, 'name', event.target.value)
-          }
+          onChange={(event) => onSetServiceField(index, 'name', event.target.value)}
           placeholder="Название услуги"
         />
 
@@ -175,18 +170,14 @@ export function SpecialistServicePolicyEditor({
           min="0"
           step="1"
           value={service.price}
-          onChange={(event) =>
-            onSetServiceField(index, 'price', event.target.value)
-          }
+          onChange={(event) => onSetServiceField(index, 'price', event.target.value)}
           placeholder="Цена"
         />
 
         <select
           className={styles.select}
           value={service.priceUnit}
-          onChange={(event) =>
-            onSetServiceField(index, 'priceUnit', event.target.value)
-          }
+          onChange={(event) => onSetServiceField(index, 'priceUnit', event.target.value)}
         >
           <option value="hour">за час</option>
           <option value="day">за день</option>
@@ -203,10 +194,7 @@ export function SpecialistServicePolicyEditor({
           className={styles.select}
           value={bookingPolicy.mode}
           onChange={(event) =>
-            onSetServiceBookingMode(
-              index,
-              event.target.value as SpecialistBookingMode,
-            )
+            onSetServiceBookingMode(index, event.target.value as SpecialistBookingMode)
           }
         >
           {BOOKING_MODE_OPTIONS.map((option) => (
@@ -230,20 +218,17 @@ export function SpecialistServicePolicyEditor({
             )}
             {renderNumberInput(
               bookingPolicy.duration.minDurationMinutes,
-              (value) =>
-                onSetServiceDurationField(index, 'minDurationMinutes', value),
+              (value) => onSetServiceDurationField(index, 'minDurationMinutes', value),
               'Минимум, мин',
             )}
             {renderNumberInput(
               bookingPolicy.duration.maxDurationMinutes,
-              (value) =>
-                onSetServiceDurationField(index, 'maxDurationMinutes', value),
+              (value) => onSetServiceDurationField(index, 'maxDurationMinutes', value),
               'Максимум, мин',
             )}
             {renderNumberInput(
               bookingPolicy.duration.durationStepMinutes,
-              (value) =>
-                onSetServiceDurationField(index, 'durationStepMinutes', value),
+              (value) => onSetServiceDurationField(index, 'durationStepMinutes', value),
               'Шаг, мин',
             )}
           </div>
@@ -259,11 +244,7 @@ export function SpecialistServicePolicyEditor({
               type="checkbox"
               checked={bookingPolicy.buffer.hasBufferBefore}
               onChange={(event) =>
-                onSetServiceBufferField(
-                  index,
-                  'hasBufferBefore',
-                  event.target.checked,
-                )
+                onSetServiceBufferField(index, 'hasBufferBefore', event.target.checked)
               }
             />
             <span>Нужен буфер до услуги</span>
@@ -271,8 +252,7 @@ export function SpecialistServicePolicyEditor({
 
           {renderNumberInput(
             bookingPolicy.buffer.bufferBeforeMinutes,
-            (value) =>
-              onSetServiceBufferField(index, 'bufferBeforeMinutes', value),
+            (value) => onSetServiceBufferField(index, 'bufferBeforeMinutes', value),
             'Буфер до, мин',
           )}
 
@@ -281,11 +261,7 @@ export function SpecialistServicePolicyEditor({
               type="checkbox"
               checked={bookingPolicy.buffer.hasBufferAfter}
               onChange={(event) =>
-                onSetServiceBufferField(
-                  index,
-                  'hasBufferAfter',
-                  event.target.checked,
-                )
+                onSetServiceBufferField(index, 'hasBufferAfter', event.target.checked)
               }
             />
             <span>Нужен буфер после услуги</span>
@@ -293,8 +269,7 @@ export function SpecialistServicePolicyEditor({
 
           {renderNumberInput(
             bookingPolicy.buffer.bufferAfterMinutes,
-            (value) =>
-              onSetServiceBufferField(index, 'bufferAfterMinutes', value),
+            (value) => onSetServiceBufferField(index, 'bufferAfterMinutes', value),
             'Буфер после, мин',
           )}
         </div>
@@ -325,9 +300,7 @@ export function SpecialistServicePolicyEditor({
             ) : (
               compatibleOptions.map((item) => {
                 const isChecked =
-                  bookingPolicy.compatibility.compatibleServiceIds.includes(
-                    item.id,
-                  );
+                  bookingPolicy.compatibility.compatibleServiceIds.includes(item.id);
 
                 return (
                   <label key={item.id} className={styles.tagCheckbox}>
@@ -336,10 +309,7 @@ export function SpecialistServicePolicyEditor({
                       checked={isChecked}
                       onChange={(event) => {
                         const nextIds = event.target.checked
-                          ? [
-                              ...bookingPolicy.compatibility.compatibleServiceIds,
-                              item.id,
-                            ]
+                          ? [...bookingPolicy.compatibility.compatibleServiceIds, item.id]
                           : bookingPolicy.compatibility.compatibleServiceIds.filter(
                               (value) => value !== item.id,
                             );
@@ -366,14 +336,12 @@ export function SpecialistServicePolicyEditor({
         <div className={styles.grid2}>
           {renderNumberInput(
             bookingPolicy.advance.minAdvanceMinutes,
-            (value) =>
-              onSetServiceAdvanceField(index, 'minAdvanceMinutes', value),
+            (value) => onSetServiceAdvanceField(index, 'minAdvanceMinutes', value),
             'Минимум заранее, мин',
           )}
           {renderNumberInput(
             bookingPolicy.advance.maxAdvanceDays,
-            (value) =>
-              onSetServiceAdvanceField(index, 'maxAdvanceDays', value),
+            (value) => onSetServiceAdvanceField(index, 'maxAdvanceDays', value),
             'Максимум вперёд, дней',
           )}
         </div>
@@ -403,15 +371,13 @@ export function SpecialistServicePolicyEditor({
 
             {renderNumberInput(
               bookingPolicy.multiDay.minStayDays,
-              (value) =>
-                onSetServiceMultiDayField(index, 'minStayDays', value),
+              (value) => onSetServiceMultiDayField(index, 'minStayDays', value),
               'Минимум дней',
             )}
 
             {renderNumberInput(
               bookingPolicy.multiDay.maxStayDays,
-              (value) =>
-                onSetServiceMultiDayField(index, 'maxStayDays', value),
+              (value) => onSetServiceMultiDayField(index, 'maxStayDays', value),
               'Максимум дней',
             )}
 
@@ -445,11 +411,7 @@ export function SpecialistServicePolicyEditor({
               type="checkbox"
               checked={bookingPolicy.allowsClientComment}
               onChange={(event) =>
-                onSetServiceFlagField(
-                  index,
-                  'allowsClientComment',
-                  event.target.checked,
-                )
+                onSetServiceFlagField(index, 'allowsClientComment', event.target.checked)
               }
             />
             <span>Разрешить комментарий клиента</span>

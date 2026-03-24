@@ -38,10 +38,7 @@ export const OrdersProductsSection = observer(() => {
   const navigate = useAppNavigate();
 
   useEffect(() => {
-    if (
-      ordersStore.productOrders.length === 0 &&
-      !ordersStore.productsLoading
-    ) {
+    if (ordersStore.productOrders.length === 0 && !ordersStore.productsLoading) {
       void ordersStore.loadProducts();
     }
   }, []);

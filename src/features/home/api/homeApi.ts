@@ -3,18 +3,12 @@
 import { postsApi } from '@/features/posts/api/postsApi';
 import type { Post } from '@/features/posts/model/types';
 import { request } from '@/shared/api/http';
+import { isMockApiMode } from '@/shared/config/env';
 import type { ServiceConfig } from '@/shared/config/services';
 
-
-import {
-  mockGetLatestBanners,
-  mockGetServices,
-  mockGetTopReviews,
-} from './homeApi.mock';
+import { mockGetLatestBanners, mockGetServices, mockGetTopReviews } from './homeApi.mock';
 
 import type { HomeBanner, HomeReview } from '../model/types';
-
-const USE_MOCK = (import.meta.env.VITE_USE_MOCK_API ?? 'true') === 'true';
 
 function buildBannerSubtitle(content: string, maxLength = 120): string {
   const normalized = content.replace(/\s+/g, ' ').trim();
@@ -64,9 +58,9 @@ export type HomeService = ServiceConfig;
 
 export const homeApi = {
   getLatestBanners: () =>
-    USE_MOCK ? mockGetLatestBanners() : realGetLatestBanners(),
+    isMockApiMode ? mockGetLatestBanners() : realGetLatestBanners(),
 
-  getServices: () => (USE_MOCK ? mockGetServices() : realGetServices()),
+  getServices: () => (isMockApiMode ? mockGetServices() : realGetServices()),
 
-  getTopReviews: () => (USE_MOCK ? mockGetTopReviews() : realGetTopReviews()),
+  getTopReviews: () => (isMockApiMode ? mockGetTopReviews() : realGetTopReviews()),
 };

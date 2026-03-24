@@ -1,6 +1,7 @@
 // src/features/specialist-profile/api/specialistProfileApi.ts
 
 import { request } from '@/shared/api/http';
+import { isMockApiMode } from '@/shared/config/env';
 
 import {
   mockGetSpecialistProfileBySlug,
@@ -18,14 +19,10 @@ import type {
   SpecialistReviewReplyUpsertPayload,
 } from '../model/types';
 
-const USE_MOCK = (import.meta.env.VITE_USE_MOCK_API ?? 'true') === 'true';
-
 async function realGetSpecialistProfileBySlug(
   slug: string,
 ): Promise<SpecialistProfileResponse> {
-  return request<SpecialistProfileResponse>(
-    `/specialists/${encodeURIComponent(slug)}`,
-  );
+  return request<SpecialistProfileResponse>(`/specialists/${encodeURIComponent(slug)}`);
 }
 
 async function realUpdateMainInfo(
@@ -84,7 +81,7 @@ async function realUpsertReviewReply(
 
 export const specialistProfileApi = {
   getBySlug(slug: string): Promise<SpecialistProfileResponse> {
-    if (USE_MOCK) {
+    if (isMockApiMode) {
       return mockGetSpecialistProfileBySlug(slug);
     }
 
@@ -95,7 +92,7 @@ export const specialistProfileApi = {
     slug: string,
     payload: SpecialistMainInfoUpdatePayload,
   ): Promise<SpecialistProfileResponse> {
-    if (USE_MOCK) {
+    if (isMockApiMode) {
       return mockUpdateMainInfo(slug, payload);
     }
 
@@ -106,7 +103,7 @@ export const specialistProfileApi = {
     slug: string,
     payload: SpecialistDetailsUpdatePayload,
   ): Promise<SpecialistProfileResponse> {
-    if (USE_MOCK) {
+    if (isMockApiMode) {
       return mockUpdateDetails(slug, payload);
     }
 
@@ -117,7 +114,7 @@ export const specialistProfileApi = {
     slug: string,
     payload: SpecialistCalendarUpdatePayload,
   ): Promise<SpecialistProfileResponse> {
-    if (USE_MOCK) {
+    if (isMockApiMode) {
       return mockUpdateCalendar(slug, payload);
     }
 
@@ -128,7 +125,7 @@ export const specialistProfileApi = {
     slug: string,
     payload: SpecialistReviewReplyUpsertPayload,
   ): Promise<SpecialistProfileResponse> {
-    if (USE_MOCK) {
+    if (isMockApiMode) {
       return mockUpsertReviewReply(slug, payload);
     }
 

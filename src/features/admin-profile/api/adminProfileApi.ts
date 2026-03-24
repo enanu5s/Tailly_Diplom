@@ -1,5 +1,6 @@
 // src/features/admin-profile/api/adminProfileApi.ts
 import { request } from '@/shared/api/http';
+import { getOptionalApiBaseUrl, isMockApiMode } from '@/shared/config/env';
 
 import {
   mockCancelSuperAdminEmailChangeApi,
@@ -17,8 +18,7 @@ import type {
   UpdateAdminProfilePayload,
 } from '../model/types';
 
-const USE_MOCK = (import.meta.env.VITE_USE_MOCK_API ?? 'true') === 'true';
-const API_BASE_URL = import.meta.env.VITE_API_BASE_URL ?? '';
+const API_BASE_URL = getOptionalApiBaseUrl();
 
 async function realGetAdminProfile(): Promise<AdminProfile> {
   return request<AdminProfile>(`${API_BASE_URL}/admin/profile`);
@@ -48,13 +48,10 @@ async function realRequestSuperAdminEmailChange(
 async function realConfirmSuperAdminEmailChange(
   payload: ConfirmSuperAdminEmailChangePayload,
 ): Promise<AdminProfile> {
-  return request<AdminProfile>(
-    `${API_BASE_URL}/admin/profile/email-change/confirm`,
-    {
-      method: 'POST',
-      body: payload,
-    },
-  );
+  return request<AdminProfile>(`${API_BASE_URL}/admin/profile/email-change/confirm`, {
+    method: 'POST',
+    body: payload,
+  });
 }
 
 async function realCancelSuperAdminEmailChange(): Promise<void> {
@@ -65,17 +62,15 @@ async function realCancelSuperAdminEmailChange(): Promise<void> {
 
 export const adminProfileApi = {
   async getProfile(): Promise<AdminProfile> {
-    if (USE_MOCK) {
+    if (isMockApiMode) {
       return mockGetAdminProfile();
     }
 
     return realGetAdminProfile();
   },
 
-  async updateProfile(
-    payload: UpdateAdminProfilePayload,
-  ): Promise<AdminProfile> {
-    if (USE_MOCK) {
+  async updateProfile(payload: UpdateAdminProfilePayload): Promise<AdminProfile> {
+    if (isMockApiMode) {
       return mockUpdateAdminProfile(payload);
     }
 
@@ -85,7 +80,7 @@ export const adminProfileApi = {
   async requestSuperAdminEmailChange(
     payload: RequestSuperAdminEmailChangePayload,
   ): Promise<RequestSuperAdminEmailChangeResponse> {
-    if (USE_MOCK) {
+    if (isMockApiMode) {
       return mockRequestSuperAdminEmailChangeApi(payload);
     }
 
@@ -95,7 +90,7 @@ export const adminProfileApi = {
   async confirmSuperAdminEmailChange(
     payload: ConfirmSuperAdminEmailChangePayload,
   ): Promise<AdminProfile> {
-    if (USE_MOCK) {
+    if (isMockApiMode) {
       return mockConfirmSuperAdminEmailChangeApi(payload);
     }
 
@@ -103,7 +98,7 @@ export const adminProfileApi = {
   },
 
   async cancelSuperAdminEmailChange(): Promise<void> {
-    if (USE_MOCK) {
+    if (isMockApiMode) {
       return mockCancelSuperAdminEmailChangeApi();
     }
 

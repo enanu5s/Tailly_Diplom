@@ -14,11 +14,7 @@ import {
   syncBlockedState,
   wait,
 } from '../data/mockAuthAccounts';
-import {
-  LoginError,
-  type LoginPayload,
-  type LoginSuccessResponse,
-} from '../model/types';
+import { LoginError, type LoginPayload, type LoginSuccessResponse } from '../model/types';
 
 import type { UserRole } from '../model/authStore';
 
@@ -39,9 +35,7 @@ function formatRuDeadline(iso: string): string {
   });
 }
 
-export async function mockLogin(
-  payload: LoginPayload,
-): Promise<LoginSuccessResponse> {
+export async function mockLogin(payload: LoginPayload): Promise<LoginSuccessResponse> {
   await wait();
 
   const email = normalizeEmail(payload.email);
@@ -49,17 +43,13 @@ export async function mockLogin(
   const requestedRole = payload.requestedRole;
 
   const account =
-    getMockAuthAccounts().find(
-      (item) => item.email.toLowerCase() === email,
-    ) ?? null;
+    getMockAuthAccounts().find((item) => item.email.toLowerCase() === email) ?? null;
 
   if (account) {
     syncBlockedState(account);
   }
 
-  const isAdminAccount = Boolean(
-    account && hasAdminRole(account.roles),
-  );
+  const isAdminAccount = Boolean(account && hasAdminRole(account.roles));
 
   if (isAdminAccount) {
     const attemptState = getAdminAttemptState(email);
@@ -70,8 +60,7 @@ export async function mockLogin(
     ) {
       throw new LoginError({
         code: 'TOO_MANY_ATTEMPTS',
-        message:
-          'Лимит попыток для администратора исчерпан. Попробуйте позже.',
+        message: 'Лимит попыток для администратора исчерпан. Попробуйте позже.',
         attemptsLeft: 0,
         lockUntil: attemptState.lockUntil,
       });
@@ -82,10 +71,7 @@ export async function mockLogin(
     if (isAdminAccount) {
       const attemptState = getAdminAttemptState(email);
       const nextFailedAttempts = attemptState.failedAttempts + 1;
-      const attemptsLeft = Math.max(
-        MAX_ADMIN_LOGIN_ATTEMPTS - nextFailedAttempts,
-        0,
-      );
+      const attemptsLeft = Math.max(MAX_ADMIN_LOGIN_ATTEMPTS - nextFailedAttempts, 0);
 
       if (attemptsLeft <= 0) {
         const lockUntil = buildAdminLockUntilIso();
@@ -141,10 +127,7 @@ export async function mockLogin(
 
   if (hasAdminRole(account.roles)) {
     resetAdminAttempts(email);
-    return mapAccountToLoginSuccess(
-      account,
-      resolveAdminSessionRole(account.roles),
-    );
+    return mapAccountToLoginSuccess(account, resolveAdminSessionRole(account.roles));
   }
 
   if (!account.roles.includes(requestedRole)) {

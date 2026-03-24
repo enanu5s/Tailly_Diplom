@@ -1,12 +1,11 @@
 // src/features/specialists-search/api/specialistsSearchApi.ts
 
 import { request } from '@/shared/api/http';
+import { isMockApiMode } from '@/shared/config/env';
 
 import { mockGetSpecialists } from './specialistsSearchApi.mock';
 
 import type { Specialist } from '../model/types';
-
-const USE_MOCK = (import.meta.env.VITE_USE_MOCK_API ?? 'true') === 'true';
 
 /* REAL */
 async function realGetSpecialists(): Promise<Specialist[]> {
@@ -15,6 +14,6 @@ async function realGetSpecialists(): Promise<Specialist[]> {
 
 export const specialistsSearchApi = {
   getSpecialists(): Promise<Specialist[]> {
-    return USE_MOCK ? mockGetSpecialists() : realGetSpecialists();
+    return isMockApiMode ? mockGetSpecialists() : realGetSpecialists();
   },
 };

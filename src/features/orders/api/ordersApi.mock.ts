@@ -92,10 +92,7 @@ function isSlotInsideWindow(
   const windowStartMinutes = timeToMinutes(windowStart);
   const windowEndMinutes = timeToMinutes(windowEnd);
 
-  return (
-    slotStartMinutes >= windowStartMinutes &&
-    slotEndMinutes <= windowEndMinutes
-  );
+  return slotStartMinutes >= windowStartMinutes && slotEndMinutes <= windowEndMinutes;
 }
 
 function normalizeUpcomingFilter(
@@ -108,8 +105,7 @@ function normalizeUpcomingFilter(
 
   if (filter === 'upcoming') {
     return list.filter(
-      (item) =>
-        item.status === 'pending_confirmation' || item.status === 'confirmed',
+      (item) => item.status === 'pending_confirmation' || item.status === 'confirmed',
     );
   }
 
@@ -129,10 +125,7 @@ function getSpecialistProfileOrThrow(slug: string) {
   };
 }
 
-function getServiceOrThrow(
-  specialistSlug: string,
-  serviceId: string,
-): SpecialistService {
+function getServiceOrThrow(specialistSlug: string, serviceId: string): SpecialistService {
   const { profile } = getSpecialistProfileOrThrow(specialistSlug);
   const service = profile.services.find((item) => item.id === serviceId);
 
@@ -154,9 +147,7 @@ function getServiceBuffer(service: SpecialistService): {
   }
 
   return {
-    before: buffer.hasBufferBefore
-      ? Math.max(0, buffer.bufferBeforeMinutes)
-      : 0,
+    before: buffer.hasBufferBefore ? Math.max(0, buffer.bufferBeforeMinutes) : 0,
     after: buffer.hasBufferAfter ? Math.max(0, buffer.bufferAfterMinutes) : 0,
   };
 }
@@ -237,9 +228,7 @@ function validateAdvanceRules(
     return;
   }
 
-  const diffMinutes = Math.floor(
-    (relevantStart.getTime() - Date.now()) / (1000 * 60),
-  );
+  const diffMinutes = Math.floor((relevantStart.getTime() - Date.now()) / (1000 * 60));
 
   if (
     typeof policy.advance.minAdvanceMinutes === 'number' &&
@@ -265,9 +254,7 @@ function validateWindowsForSingleDate(
 ): void {
   const { profile } = getSpecialistProfileOrThrow(specialistSlug);
 
-  const dayOverride = profile.calendar.dayOverrides.find(
-    (item) => item.date === date,
-  );
+  const dayOverride = profile.calendar.dayOverrides.find((item) => item.date === date);
 
   if (dayOverride?.status === 'day_off') {
     throw new Error('На выбранную дату специалист недоступен.');
@@ -287,8 +274,7 @@ function validateWindowsForSingleDate(
 
   const matchingWindow = availabilityWindows.some((windowItem) => {
     const serviceAllowed =
-      windowItem.serviceIds.length === 0 ||
-      windowItem.serviceIds.includes(serviceId);
+      windowItem.serviceIds.length === 0 || windowItem.serviceIds.includes(serviceId);
 
     if (!serviceAllowed) {
       return false;
@@ -322,12 +308,7 @@ function validateConflictWithBookedSlots(
   const compatibility = service.bookingPolicy?.compatibility;
   const buffer = getServiceBuffer(service);
 
-  const candidateDays = buildDailyRanges(
-    startDate,
-    startTime,
-    endDate,
-    endTime,
-  );
+  const candidateDays = buildDailyRanges(startDate, startTime, endDate, endTime);
 
   const hasConflict = candidateDays.some((candidateRange) => {
     return profile.calendar.bookedSlots.some((slot) => {
@@ -402,8 +383,7 @@ function buildDailyRanges(
     return [{ date: startDate, startTime, endTime }];
   }
 
-  const result: Array<{ date: string; startTime: string; endTime: string }> =
-    [];
+  const result: Array<{ date: string; startTime: string; endTime: string }> = [];
   const cursor = new Date(`${startDate}T00:00:00`);
   const endCursor = new Date(`${endDate}T00:00:00`);
 
@@ -475,9 +455,7 @@ function validateScheduleShape(payload: CreateServiceOrderPayload): void {
 
   if (schedule.mode === 'open_request') {
     if (!payload.comment?.trim()) {
-      throw new Error(
-        'Для свободного запроса нужно описать детали в комментарии.',
-      );
+      throw new Error('Для свободного запроса нужно описать детали в комментарии.');
     }
   }
 }
@@ -498,10 +476,7 @@ function validateByMode(payload: CreateServiceOrderPayload): void {
     throw new Error('Не удалось определить клиента для заказа.');
   }
 
-  if (
-    payload.schedule.mode === 'fixed_slot' ||
-    payload.schedule.mode === 'time_range'
-  ) {
+  if (payload.schedule.mode === 'fixed_slot' || payload.schedule.mode === 'time_range') {
     if (mode !== payload.schedule.mode) {
       throw new Error('Некорректный формат бронирования для выбранной услуги.');
     }
@@ -517,9 +492,7 @@ function validateByMode(payload: CreateServiceOrderPayload): void {
     const startTime = toTimeValue(start.toISOString());
     const endTime = toTimeValue(end.toISOString());
 
-    const durationMinutes = Math.floor(
-      (end.getTime() - start.getTime()) / (1000 * 60),
-    );
+    const durationMinutes = Math.floor((end.getTime() - start.getTime()) / (1000 * 60));
 
     const durationPolicy = service.bookingPolicy?.duration;
 
@@ -589,12 +562,7 @@ function validateByMode(payload: CreateServiceOrderPayload): void {
     const endDate = toDateValue(payload.schedule.checkOutAt);
     const endTime = toTimeValue(payload.schedule.checkOutAt);
 
-    const dailyRanges = buildDailyRanges(
-      startDate,
-      startTime,
-      endDate,
-      endTime,
-    );
+    const dailyRanges = buildDailyRanges(startDate, startTime, endDate, endTime);
 
     dailyRanges.forEach((range) => {
       validateWindowsForSingleDate(
@@ -633,16 +601,11 @@ function validateByMode(payload: CreateServiceOrderPayload): void {
   throw new Error('Некорректный формат бронирования для выбранной услуги.');
 }
 
-function makeBookedSlotsFromOrder(
-  order: ServiceOrder,
-): SpecialistCalendarBookedSlot[] {
+function makeBookedSlotsFromOrder(order: ServiceOrder): SpecialistCalendarBookedSlot[] {
   const service = getServiceOrThrow(order.specialistSlug, order.serviceId);
   const buffer = getServiceBuffer(service);
 
-  if (
-    order.schedule.mode === 'fixed_slot' ||
-    order.schedule.mode === 'time_range'
-  ) {
+  if (order.schedule.mode === 'fixed_slot' || order.schedule.mode === 'time_range') {
     const date = toDateValue(order.dateFrom);
     const startTime = toTimeValue(order.dateFrom);
     const endTime = order.dateTo ? toTimeValue(order.dateTo) : startTime;
@@ -667,25 +630,21 @@ function makeBookedSlotsFromOrder(
     const endDate = toDateValue(order.schedule.checkOutAt);
     const endTime = toTimeValue(order.schedule.checkOutAt);
 
-    return buildDailyRanges(startDate, startTime, endDate, endTime).map(
-      (range) => ({
-        id: `booked-order-${order.id}-${range.date}`,
-        date: range.date,
-        startTime: range.startTime,
-        endTime: range.endTime,
-        serviceIds: [order.serviceId],
-        orderId: order.id,
-      }),
-    );
+    return buildDailyRanges(startDate, startTime, endDate, endTime).map((range) => ({
+      id: `booked-order-${order.id}-${range.date}`,
+      date: range.date,
+      startTime: range.startTime,
+      endTime: range.endTime,
+      serviceIds: [order.serviceId],
+      orderId: order.id,
+    }));
   }
 
   return [];
 }
 
 function syncBookedSlotsForOrder(order: ServiceOrder): void {
-  const { profileIndex, profile } = getSpecialistProfileOrThrow(
-    order.specialistSlug,
-  );
+  const { profileIndex, profile } = getSpecialistProfileOrThrow(order.specialistSlug);
 
   const nextSlots = profile.calendar.bookedSlots.filter(
     (slot) => slot.orderId !== order.id,
@@ -705,14 +664,11 @@ function syncBookedSlotsForOrder(order: ServiceOrder): void {
     return a.endTime.localeCompare(b.endTime);
   });
 
-  MOCK_SPECIALIST_PROFILES[profileIndex].calendar.bookedSlots =
-    clone(nextSlots);
+  MOCK_SPECIALIST_PROFILES[profileIndex].calendar.bookedSlots = clone(nextSlots);
 }
 
 function removeBookedSlotsForOrder(order: ServiceOrder): void {
-  const { profileIndex, profile } = getSpecialistProfileOrThrow(
-    order.specialistSlug,
-  );
+  const { profileIndex, profile } = getSpecialistProfileOrThrow(order.specialistSlug);
 
   MOCK_SPECIALIST_PROFILES[profileIndex].calendar.bookedSlots =
     profile.calendar.bookedSlots.filter((slot) => slot.orderId !== order.id);
@@ -754,13 +710,8 @@ function ensureAllowedTransition(
   }
 }
 
-function addReviewToSpecialist(
-  order: ServiceOrder,
-  review: ServiceOrderReview,
-): void {
-  const { profileIndex, profile } = getSpecialistProfileOrThrow(
-    order.specialistSlug,
-  );
+function addReviewToSpecialist(order: ServiceOrder, review: ServiceOrderReview): void {
+  const { profileIndex, profile } = getSpecialistProfileOrThrow(order.specialistSlug);
 
   const nextReview: SpecialistReview = {
     id: `review-from-order-${order.id}`,
@@ -805,9 +756,7 @@ export async function mockGetServiceOrders(
   return normalizeUpcomingFilter(sorted, filter);
 }
 
-export async function mockGetServiceOrderById(
-  orderId: string,
-): Promise<ServiceOrder> {
+export async function mockGetServiceOrderById(orderId: string): Promise<ServiceOrder> {
   await wait();
 
   const order = getMockServiceOrderById(orderId);
@@ -858,9 +807,7 @@ export async function mockConfirmServiceOrder(
   return { ok: true };
 }
 
-export async function mockStartServiceOrder(
-  orderId: string,
-): Promise<StartOrderResult> {
+export async function mockStartServiceOrder(orderId: string): Promise<StartOrderResult> {
   await wait();
 
   const existing = getMockServiceOrderById(orderId);
@@ -942,9 +889,7 @@ export async function mockGetProductOrders(): Promise<ProductOrder[]> {
   );
 }
 
-export async function mockGetProductOrderById(
-  orderId: string,
-): Promise<ProductOrder> {
+export async function mockGetProductOrderById(orderId: string): Promise<ProductOrder> {
   await wait();
 
   const order = readProductOrdersFromShop().find((item) => item.id === orderId);
@@ -987,9 +932,7 @@ export async function mockCancelProductOrder(
   return { ok: true };
 }
 
-export async function mockRepeatServiceOrder(
-  orderId: string,
-): Promise<RepeatResult> {
+export async function mockRepeatServiceOrder(orderId: string): Promise<RepeatResult> {
   await wait();
 
   const existing = getMockServiceOrderById(orderId);

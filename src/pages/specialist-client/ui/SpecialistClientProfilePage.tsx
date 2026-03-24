@@ -1,18 +1,18 @@
 // src/pages/specialist-client/ui/SpecialistClientProfilePage.tsx
 
-import { observer } from "mobx-react-lite";
-import { useEffect, useMemo } from "react";
-import { Link, useParams } from "react-router-dom";
+import { observer } from 'mobx-react-lite';
+import { useEffect, useMemo } from 'react';
+import { Link, useParams } from 'react-router-dom';
 
-import { useAuth } from "@/features/auth/model/useAuth";
-import { messagesStore } from "@/features/messages/model/messagesStore";
-import { getMessagesViewerFromUser } from "@/features/messages/model/messagesViewer";
-import { ordersStore } from "@/features/orders/model/ordersStore";
-import { useAppNavigate } from "@/shared/lib/navigation/useAppNavigate";
+import { useAuth } from '@/features/auth/model/useAuth';
+import { messagesStore } from '@/features/messages/model/messagesStore';
+import { getMessagesViewerFromUser } from '@/features/messages/model/messagesViewer';
+import { ordersStore } from '@/features/orders/model/ordersStore';
+import { useAppNavigate } from '@/shared/lib/navigation/useAppNavigate';
 
-import styles from "./SpecialistClientProfilePage.module.css";
+import styles from './SpecialistClientProfilePage.module.css';
 
-import type { ReactElement } from "react";
+import type { ReactElement } from 'react';
 
 export const SpecialistClientProfilePage = observer((): ReactElement => {
   const { specialistSlug, clientId: clientIdParam } = useParams<{
@@ -22,23 +22,21 @@ export const SpecialistClientProfilePage = observer((): ReactElement => {
   const navigate = useAppNavigate();
   const { user } = useAuth();
 
-  const slug = specialistSlug?.trim() ?? "";
-  const clientId = clientIdParam?.trim() ?? "";
-  const ordersPath = slug ? `/specialists/${slug}/orders` : "/";
-  const profilePath = slug ? `/specialists/${slug}` : "/";
+  const slug = specialistSlug?.trim() ?? '';
+  const clientId = clientIdParam?.trim() ?? '';
+  const ordersPath = slug ? `/specialists/${slug}/orders` : '/';
+  const profilePath = slug ? `/specialists/${slug}` : '/';
 
   useEffect(() => {
     void ordersStore.loadServices();
   }, []);
 
   const clientOrders = ordersStore.serviceOrders.filter(
-    (order) =>
-      order.clientId === clientId && order.specialistSlug === slug,
+    (order) => order.clientId === clientId && order.specialistSlug === slug,
   );
 
   const clientName =
-    clientOrders[0]?.clientName?.trim() ||
-    (clientId ? `Клиент ${clientId}` : "Клиент");
+    clientOrders[0]?.clientName?.trim() || (clientId ? `Клиент ${clientId}` : 'Клиент');
 
   const pets = useMemo(() => {
     const names = new Set<string>();
@@ -61,7 +59,7 @@ export const SpecialistClientProfilePage = observer((): ReactElement => {
       clientName,
     });
 
-    navigate("/messages");
+    navigate('/messages');
   };
 
   return (
@@ -76,8 +74,8 @@ export const SpecialistClientProfilePage = observer((): ReactElement => {
         <div className={styles.card}>
           <h1 className={styles.title}>{clientName}</h1>
           <p className={styles.subtitle}>
-            Краткая карточка по данным заказов. Полный профиль клиента доступен
-            в приложении после подключения бэкенда.
+            Краткая карточка по данным заказов. Полный профиль клиента доступен в
+            приложении после подключения бэкенда.
           </p>
 
           <div className={styles.sectionLabel}>Питомцы в заказах</div>
@@ -90,8 +88,8 @@ export const SpecialistClientProfilePage = observer((): ReactElement => {
           ) : (
             <p className={styles.empty}>
               {ordersStore.servicesLoading
-                ? "Загружаем заказы…"
-                : "Пока нет заказов с этим клиентом."}
+                ? 'Загружаем заказы…'
+                : 'Пока нет заказов с этим клиентом.'}
             </p>
           )}
 

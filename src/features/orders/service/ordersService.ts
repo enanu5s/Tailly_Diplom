@@ -33,9 +33,7 @@ export const ordersService = {
     const user = authStore.getState().user;
 
     if (!canClientBookService(user)) {
-      return Promise.reject(
-        new Error('Заказывать услуги могут только клиенты.'),
-      );
+      return Promise.reject(new Error('Заказывать услуги могут только клиенты.'));
     }
 
     return ordersApi.createServiceOrder(payload);

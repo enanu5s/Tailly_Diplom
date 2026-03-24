@@ -2,10 +2,7 @@
 import { INITIAL_ADMIN_MANAGED_BANNERS } from './mockAdminBanners';
 import { INITIAL_ADMIN_MANAGED_POSTS } from './mockAdminPosts';
 
-import type {
-  AdminManagedBanner,
-  AdminManagedPost,
-} from '../model/types';
+import type { AdminManagedBanner, AdminManagedPost } from '../model/types';
 
 const POSTS_STORAGE_KEY = 'tailly_admin_managed_posts';
 const BANNERS_STORAGE_KEY = 'tailly_admin_managed_banners';
@@ -185,9 +182,7 @@ export async function readAdminManagedPosts(): Promise<AdminManagedPost[]> {
   }
 }
 
-export async function writeAdminManagedPosts(
-  posts: AdminManagedPost[],
-): Promise<void> {
+export async function writeAdminManagedPosts(posts: AdminManagedPost[]): Promise<void> {
   const payload = sortPosts(posts.map(normalizePost));
   let db: IDBDatabase;
 
@@ -232,9 +227,7 @@ export function readAdminManagedBanners(): AdminManagedBanner[] {
   return sortBanners(banners.map(normalizeBanner));
 }
 
-export function writeAdminManagedBanners(
-  banners: AdminManagedBanner[],
-): void {
+export function writeAdminManagedBanners(banners: AdminManagedBanner[]): void {
   localStorage.setItem(
     BANNERS_STORAGE_KEY,
     JSON.stringify(sortBanners(banners.map(normalizeBanner))),

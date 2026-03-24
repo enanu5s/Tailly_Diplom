@@ -1,177 +1,83 @@
-````md
-<!-- /README.md -->
 # Tailly
 
-Tailly — frontend дипломного проекта платформы поиска петситтеров и специалистов по уходу за животными.
-
-Проект реализован как production-ready frontend-приложение с разделением на роли, feature-based архитектурой, строгой типизацией и поддержкой mock/API-режимов.
-
-## Возможности проекта
-
-Приложение включает:
-
-- публичные страницы: главная, услуги, о нас, новости, форма связи
-- клиентскую часть: регистрация, авторизация, профиль, безопасность, отзывы
-- поиск специалистов с фильтрами и картой
-- профиль специалиста
-- редактирование календаря специалиста
-- административную часть
-- модерацию заявок на роль специалиста
-- shop-раздел
-- поддержку mock-данных и backend-ready API-слоя
+Frontend дипломного проекта: платформа поиска петситтеров и специалистов по уходу за животными. SPA на React с разделением по ролям, feature-based структурой и переключением mock / реального API.
 
 ## Стек
 
-- React
-- TypeScript
-- Vite
-- React Router
-- MobX
-- CSS Modules
-- ESLint
+- React 19, TypeScript (strict), Vite 7
+- React Router 7, MobX
+- CSS Modules, Recharts, 2GIS MapGL
+- Zod — валидация ответов критичных эндпоинтов и тела ошибок API
+- ESLint, Prettier
+- Vitest + Testing Library — unit/component-тесты
+- E2E: Playwright через pytest (`tests/e2e`)
 
-## Архитектура
+## Структура `src/`
 
-Проект организован по feature-based подходу.
+| Каталог     | Назначение                                           |
+| ----------- | ---------------------------------------------------- |
+| `app/`      | layout, роутинг, guards                              |
+| `pages/`    | страницы (композиция features)                       |
+| `features/` | доменная логика: `api/`, `model/`, `service/`, `ui/` |
+| `shared/`   | UI-kit, `api/`, `config/`, `lib/`, mock-db           |
 
-Основные каталоги:
-
-```text
-src/
-  app/        # инициализация приложения, layout, роутинг
-  pages/      # страницы
-  features/   # бизнес-функциональность
-  shared/     # общий код, ui, api, config, lib
-````
-
-Типичная структура feature-модуля:
-
-```text
-feature-name/
-  api/
-  model/
-  service/
-  ui/
-  index.ts
-```
+Переменные окружения и флаг mock читаются централизованно из `src/shared/config/env.ts` (`isMockApiMode`, `resolveApiBaseUrl`, `get2GisApiKey`, и т.д.).
 
 ## Роли
 
-В приложении предусмотрены разные пользовательские зоны:
+Гость, клиент, специалист, администратор, super-admin. Доступ к маршрутам ограничен guard-компонентами; окончательная авторизация должна дублироваться на backend.
 
-* гость
-* клиент
-* специалист
-* администратор
-* super-admin
-
-Для маршрутов используются route guards и разделение роутов по зонам доступа.
-
-## Запуск проекта
-
-Установка зависимостей:
+## Скрипты
 
 ```bash
-npm install
-```
-
-Запуск dev-режима:
-
-```bash
-npm run dev
-```
-
-Проверка линтера:
-
-```bash
-npm run lint
-```
-
-Автоисправление ESLint:
-
-```bash
+npm install          # зависимости
+npm run dev          # dev-сервер (Vite)
+npm run build        # production-сборка
+npm run preview      # предпросмотр сборки
+npm run lint         # ESLint
 npm run lint:fix
+npm run format       # Prettier — запись
+npm run format:check # Prettier — проверка
+npm run typecheck    # tsc -b
+npm run test         # Vitest (unit/component)
+npm run test:watch
+npm run check        # lint + format + typecheck + test + build (используется в CI)
 ```
 
-Проверка типов:
+E2E (нужен запущенный `npm run dev`):
 
 ```bash
-npm run typecheck
-```
-
-Production build:
-
-```bash
-npm run build
-```
-
-Полная проверка проекта:
-
-```bash
-npm run check
-```
-
-Предпросмотр production-сборки:
-
-```bash
-npm run preview
+pip install -r tests/e2e/requirements.txt
+npm run test:e2e
 ```
 
 ## Переменные окружения
 
-Проект использует переменные окружения через Vite.
+Скопируйте `.env.example` в `.env` и при необходимости измените значения.
 
-Основная переменная:
+| Переменная           | Описание                                                                                                          |
+| -------------------- | ----------------------------------------------------------------------------------------------------------------- |
+| `VITE_API_BASE_URL`  | URL API без `/` в конце. В dev при отсутствии используется `http://localhost:3000`. В production **обязательна**. |
+| `VITE_USE_MOCK_API`  | `true` (по умолчанию) — mock; `false` — HTTP к backend.                                                           |
+| `VITE_2GIS_API_KEY`  | Ключ для карты и геоподсказок (попадает в бандл).                                                                 |
+| `VITE_SUPPORT_EMAIL` | Email поддержки в UI; если не задан — используется значение по умолчанию в коде.                                  |
 
-```env
-VITE_API_BASE_URL=http://localhost:3000
-```
+## HTTP-слой и ошибки
 
-Если `VITE_API_BASE_URL` не задан, в dev-режиме используется fallback на `http://localhost:3000`.
+- Клиент: `src/shared/api/http.ts` — таймауты, `AbortSignal`, `Authorization`, реакция на 401.
+- Ожидаемый JSON при ошибке от сервера (парсится через Zod): поля `message`, `code`, `errors` (объект строк) — см. `src/shared/api/schemas/apiErrorBodySchema.ts`.
+- Несоответствие ответа схеме после успешного HTTP даёт `ApiValidationError` (`src/shared/api/apiValidationError.ts`).
+- Для **логина клиента/специалиста**, **логина админа** и **профиля** (`/me/profile`, контакты, основные данные) ответы проверяются Zod при `VITE_USE_MOCK_API=false`.
 
-Для production-окружения рекомендуется всегда задавать `VITE_API_BASE_URL` явно.
+## CI
 
-## API и данные
-
-В проекте используется централизованный HTTP-слой в `shared/api`.
-
-Поддерживаются два сценария работы:
-
-* mock-режим
-* работа с реальным backend API
-
-Это позволяет разрабатывать и тестировать frontend независимо от готовности backend-части.
+Workflow GitHub Actions: `.github/workflows/ci.yml` — на push/PR выполняется `npm ci` и `npm run check`.
 
 ## Качество кода
 
-В проекте настроены:
+- TypeScript: `strict`, unused locals/parameters.
+- Тесты лежат рядом с кодом: `*.test.ts`, `*.test.tsx` (в основной сборке `tsc` они исключены, см. `tsconfig.app.json`).
 
-* строгая типизация TypeScript
-* ESLint
-* единый порядок импортов
-* проверка сборки и типов через `npm run check`
+## Лицензия / статус
 
-## Текущий статус
-
-На текущем этапе проект успешно проходит:
-
-* lint
-* typecheck
-* production build
-
-## Назначение проекта
-
-Проект выполнен как дипломная работа и демонстрирует:
-
-* построение масштабируемой frontend-архитектуры
-* разработку многостраничного SPA
-* организацию feature-based структуры
-* типизированную работу с API
-* реализацию пользовательских и административных сценариев
-
-````
-
-```env
-# /.env.example
-VITE_API_BASE_URL=http://localhost:3000
-````
+Проект учебный (диплом). Состояние репозитория: проходят `npm run check` и production build.

@@ -4,12 +4,12 @@ import { MOCK_PRODUCT_ORDERS_SEED } from '@/features/orders/data/mockProductOrde
 import { MOCK_BREEDS } from '@/features/pets/data/mockPets';
 import type { Pet } from '@/features/pets/model/types';
 import type { UserProfile } from '@/features/profile/model/types';
-import {
-  SHOP_CATEGORIES_MOCK,
-  SHOP_PRODUCTS_MOCK,
-} from '@/features/shop/data/mockShop';
+import { SHOP_CATEGORIES_MOCK, SHOP_PRODUCTS_MOCK } from '@/features/shop/data/mockShop';
 import { SHOP_DEMO_EXTRA_PRODUCTS } from '@/features/shop/data/mockShopExtraProducts';
-import { cloneApplications, INITIAL_APPLICATIONS } from '@/features/specialist-applications/data/mockSpecialistApplications';
+import {
+  cloneApplications,
+  INITIAL_APPLICATIONS,
+} from '@/features/specialist-applications/data/mockSpecialistApplications';
 
 import { cloneDeep } from './cloneDeep';
 import { MOCK_DB_VERSION } from './constants';
@@ -20,7 +20,6 @@ import { SEED_PICKUP_POINTS } from './seed/pickupPoints.seed';
 import { SEED_SUPER_ADMIN_ADMINS } from './seed/superAdminAdmins.seed';
 
 import type { MockDbSnapshot } from './types';
-
 
 const DEFAULT_CLIENT_ID = 'client-1';
 
@@ -111,10 +110,7 @@ export function buildInitialSnapshot(): MockDbSnapshot {
     },
     shop: {
       categories: cloneDeep(SHOP_CATEGORIES_MOCK),
-      products: cloneDeep([
-        ...SHOP_PRODUCTS_MOCK,
-        ...SHOP_DEMO_EXTRA_PRODUCTS,
-      ]),
+      products: cloneDeep([...SHOP_PRODUCTS_MOCK, ...SHOP_DEMO_EXTRA_PRODUCTS]),
       orders: [],
       pickupPoints: cloneDeep(SEED_PICKUP_POINTS),
     },

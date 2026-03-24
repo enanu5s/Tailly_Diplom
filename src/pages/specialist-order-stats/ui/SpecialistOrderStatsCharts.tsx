@@ -22,13 +22,7 @@ import {
 
 import type { CSSProperties, ReactElement } from 'react';
 
-const STATUS_COLORS = [
-  '#f59e0b',
-  '#3b82f6',
-  '#8b5cf6',
-  '#22c55e',
-  '#ef4444',
-];
+const STATUS_COLORS = ['#f59e0b', '#3b82f6', '#8b5cf6', '#22c55e', '#ef4444'];
 
 const SERVICE_BAR_COLOR = '#6366f1';
 
@@ -73,10 +67,7 @@ export function OrderStatusPieChart({
           </Pie>
           <Tooltip
             formatter={(value) => {
-              const n =
-                typeof value === 'number'
-                  ? value
-                  : Number(value ?? 0);
+              const n = typeof value === 'number' ? value : Number(value ?? 0);
               return [`${Number.isFinite(n) ? n : 0} заказ.`, 'Количество'];
             }}
             labelFormatter={(label) => String(label)}
@@ -90,10 +81,7 @@ export function OrderStatusPieChart({
       <ul className={styles.legendList} aria-label="Легенда диаграммы">
         {pieData.map((row) => (
           <li key={row.key} className={styles.legendItem}>
-            <span
-              className={styles.legendSwatch}
-              style={{ backgroundColor: row.fill }}
-            />
+            <span className={styles.legendSwatch} style={{ backgroundColor: row.fill }} />
             <span className={styles.legendLabel}>{row.name}</span>
             <span className={styles.legendValue}>{row.value}</span>
           </li>
@@ -118,8 +106,7 @@ export function OrderServiceRevenueBarChart({
 
   const rows = byService.slice(0, 10).map((row) => {
     const title = row.serviceTitle.trim() || 'Услуга';
-    const short =
-      title.length > 36 ? `${title.slice(0, 34).trim()}…` : title;
+    const short = title.length > 36 ? `${title.slice(0, 34).trim()}…` : title;
     return {
       key: title,
       name: short,
@@ -166,10 +153,7 @@ export function OrderServiceRevenueBarChart({
                 const payload = item?.payload as
                   | { fullName?: string; orders?: number }
                   | undefined;
-                const num =
-                  typeof value === 'number'
-                    ? value
-                    : Number(value ?? 0);
+                const num = typeof value === 'number' ? value : Number(value ?? 0);
                 const rub = Number.isFinite(num) ? formatRub(num) : String(value ?? '');
                 const ordersNote =
                   typeof payload?.orders === 'number'

@@ -1,6 +1,7 @@
 // src/features/auth/api/passwordRecoveryApi.ts
 
 import { request } from '@/shared/api/http';
+import { getOptionalApiBaseUrl, isMockApiMode } from '@/shared/config/env';
 
 import { passwordRecoveryMockApi } from './passwordRecoveryApi.mock';
 
@@ -12,14 +13,13 @@ import type {
   VerifyRecoveryCodePayload,
 } from '../model/types';
 
-const USE_MOCK = (import.meta.env.VITE_USE_MOCK_API ?? 'true') === 'true';
-const API_BASE_URL = import.meta.env.VITE_API_BASE_URL ?? '';
+const API_BASE_URL = getOptionalApiBaseUrl();
 
 export const passwordRecoveryApi = {
   async startRecovery(
     payload: StartPasswordRecoveryPayload,
   ): Promise<StartPasswordRecoveryResponse> {
-    if (USE_MOCK) {
+    if (isMockApiMode) {
       return passwordRecoveryMockApi.startRecovery(payload);
     }
 
@@ -33,7 +33,7 @@ export const passwordRecoveryApi = {
   },
 
   async sendCode(payload: SendRecoveryCodePayload): Promise<void> {
-    if (USE_MOCK) {
+    if (isMockApiMode) {
       return passwordRecoveryMockApi.sendCode(payload);
     }
 
@@ -44,7 +44,7 @@ export const passwordRecoveryApi = {
   },
 
   async verifyCode(payload: VerifyRecoveryCodePayload): Promise<void> {
-    if (USE_MOCK) {
+    if (isMockApiMode) {
       return passwordRecoveryMockApi.verifyCode(payload);
     }
 
@@ -55,7 +55,7 @@ export const passwordRecoveryApi = {
   },
 
   async resetPassword(payload: ResetPasswordPayload): Promise<void> {
-    if (USE_MOCK) {
+    if (isMockApiMode) {
       return passwordRecoveryMockApi.resetPassword(payload);
     }
 

@@ -77,9 +77,7 @@ export const ShopProductPage = observer(() => {
           </Link>
           <span className={styles.breadcrumbSeparator}>/</span>
 
-          <span className={styles.breadcrumbCurrent}>
-            {product?.title ?? 'Товар'}
-          </span>
+          <span className={styles.breadcrumbCurrent}>{product?.title ?? 'Товар'}</span>
         </nav>
 
         {isLoading ? (
@@ -108,10 +106,7 @@ export const ShopProductPage = observer(() => {
           <div className={styles.content}>
             <section className={styles.hero}>
               <div className={styles.galleryCol}>
-                <ProductGallery
-                  images={product.images}
-                  productTitle={product.title}
-                />
+                <ProductGallery images={product.images} productTitle={product.title} />
               </div>
 
               <div className={styles.infoCol}>

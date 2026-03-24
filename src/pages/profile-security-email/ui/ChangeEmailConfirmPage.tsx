@@ -5,7 +5,6 @@ import { useEffect, useState } from 'react';
 import { emailChangeFlowStore } from '@/features/profileSecurity';
 import { useAppNavigate } from '@/shared/lib/navigation/useAppNavigate';
 
-
 import styles from './ChangeEmailPage.module.css';
 
 export const ChangeEmailConfirmPage = observer(() => {
@@ -33,10 +32,13 @@ export const ChangeEmailConfirmPage = observer(() => {
           <h2 className={styles.h2}>Подтверждение смены почты</h2>
 
           <p className={styles.text}>
-            Код отправлен на: <span className={styles.inlineStrong}>{masked ?? 'вашу почту'}</span>
+            Код отправлен на:{' '}
+            <span className={styles.inlineStrong}>{masked ?? 'вашу почту'}</span>
           </p>
 
-          {emailChangeFlowStore.confirmError && <div className={styles.error}>{emailChangeFlowStore.confirmError}</div>}
+          {emailChangeFlowStore.confirmError && (
+            <div className={styles.error}>{emailChangeFlowStore.confirmError}</div>
+          )}
           {emailChangeFlowStore.success && (
             <div className={styles.success}>Почта успешно изменена.</div>
           )}
@@ -69,10 +71,14 @@ export const ChangeEmailConfirmPage = observer(() => {
             <button
               className={styles.primaryBtn}
               type="button"
-              disabled={emailChangeFlowStore.confirmLoading || emailChangeFlowStore.success}
+              disabled={
+                emailChangeFlowStore.confirmLoading || emailChangeFlowStore.success
+              }
               onClick={() => void emailChangeFlowStore.confirm({ code, newEmail })}
             >
-              {emailChangeFlowStore.confirmLoading ? 'Проверяем...' : 'Подтвердить и изменить'}
+              {emailChangeFlowStore.confirmLoading
+                ? 'Проверяем...'
+                : 'Подтвердить и изменить'}
             </button>
 
             <button

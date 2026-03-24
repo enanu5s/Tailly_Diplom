@@ -4,10 +4,7 @@ import { makeAutoObservable, runInAction } from 'mobx';
 
 import { adminUsersManagementService } from '../service/adminUsersManagementService';
 
-import type {
-  ManagedUser,
-  ManagedUserRole,
-} from './types';
+import type { ManagedUser, ManagedUserRole } from './types';
 
 type RoleFilter = 'all' | ManagedUserRole;
 
@@ -134,10 +131,7 @@ class AdminUsersManagementStore {
       return false;
     }
 
-    if (
-      !this.editFirstName.trim() ||
-      !this.editLastName.trim()
-    ) {
+    if (!this.editFirstName.trim() || !this.editLastName.trim()) {
       return false;
     }
 
@@ -169,8 +163,7 @@ class AdminUsersManagementStore {
     const normalizedSearch = this.search.trim().toLowerCase();
 
     return this.users.filter((user) => {
-      const matchesRole =
-        this.roleFilter === 'all' || user.role === this.roleFilter;
+      const matchesRole = this.roleFilter === 'all' || user.role === this.roleFilter;
 
       if (!matchesRole) {
         return false;
@@ -219,9 +212,7 @@ class AdminUsersManagementStore {
     } catch (error) {
       runInAction(() => {
         this.loadError =
-          error instanceof Error
-            ? error.message
-            : 'Не удалось загрузить пользователей.';
+          error instanceof Error ? error.message : 'Не удалось загрузить пользователей.';
       });
     } finally {
       runInAction(() => {
@@ -244,14 +235,13 @@ class AdminUsersManagementStore {
     });
 
     try {
-      const updatedUser =
-        await adminUsersManagementService.updateBlockedStatus({
-          userId: targetUser.id,
-          isBlocked: true,
-          blockReason: this.blockReason.trim(),
-          blockedUntil: this.isPermanentBlock ? undefined : this.blockedUntil,
-          isPermanentBlock: this.isPermanentBlock,
-        });
+      const updatedUser = await adminUsersManagementService.updateBlockedStatus({
+        userId: targetUser.id,
+        isBlocked: true,
+        blockReason: this.blockReason.trim(),
+        blockedUntil: this.isPermanentBlock ? undefined : this.blockedUntil,
+        isPermanentBlock: this.isPermanentBlock,
+      });
 
       runInAction(() => {
         this.users = this.users.map((item) =>
@@ -298,9 +288,7 @@ class AdminUsersManagementStore {
         lastName: this.editLastName.trim(),
         middleName: this.editMiddleName.trim() || undefined,
         specialistSlug:
-          target.role === 'specialist'
-            ? this.editSpecialistSlug.trim()
-            : undefined,
+          target.role === 'specialist' ? this.editSpecialistSlug.trim() : undefined,
       });
 
       runInAction(() => {
@@ -313,9 +301,7 @@ class AdminUsersManagementStore {
     } catch (error) {
       runInAction(() => {
         this.changeError =
-          error instanceof Error
-            ? error.message
-            : 'Не удалось сохранить изменения.';
+          error instanceof Error ? error.message : 'Не удалось сохранить изменения.';
       });
     } finally {
       runInAction(() => {
@@ -332,10 +318,9 @@ class AdminUsersManagementStore {
     });
 
     try {
-      const updatedUser =
-        await adminUsersManagementService.restoreUserFromDeletion({
-          userId: user.id,
-        });
+      const updatedUser = await adminUsersManagementService.restoreUserFromDeletion({
+        userId: user.id,
+      });
 
       runInAction(() => {
         this.users = this.users.map((item) =>
@@ -346,9 +331,7 @@ class AdminUsersManagementStore {
     } catch (error) {
       runInAction(() => {
         this.changeError =
-          error instanceof Error
-            ? error.message
-            : 'Не удалось восстановить аккаунт.';
+          error instanceof Error ? error.message : 'Не удалось восстановить аккаунт.';
       });
     } finally {
       runInAction(() => {
@@ -365,11 +348,10 @@ class AdminUsersManagementStore {
     });
 
     try {
-      const updatedUser =
-        await adminUsersManagementService.updateBlockedStatus({
-          userId: user.id,
-          isBlocked: false,
-        });
+      const updatedUser = await adminUsersManagementService.updateBlockedStatus({
+        userId: user.id,
+        isBlocked: false,
+      });
 
       runInAction(() => {
         this.users = this.users.map((item) =>
@@ -397,5 +379,4 @@ class AdminUsersManagementStore {
   }
 }
 
-export const adminUsersManagementStore =
-  new AdminUsersManagementStore();
+export const adminUsersManagementStore = new AdminUsersManagementStore();

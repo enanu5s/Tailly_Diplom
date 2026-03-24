@@ -88,17 +88,12 @@ export function normalizeSuggestItems(
         typeof item.subtype === 'string' && item.subtype.trim()
           ? item.subtype.trim()
           : null,
-      point:
-        typeof lon === 'number' && typeof lat === 'number'
-          ? { lon, lat }
-          : null,
+      point: typeof lon === 'number' && typeof lat === 'number' ? { lon, lat } : null,
     };
   });
 }
 
-export function dedupeSuggestItems(
-  items: GeoSuggestItem[],
-): GeoSuggestItem[] {
+export function dedupeSuggestItems(items: GeoSuggestItem[]): GeoSuggestItem[] {
   const seen = new Set<string>();
 
   return items.filter((item) => {
@@ -113,10 +108,7 @@ export function dedupeSuggestItems(
   });
 }
 
-export function buildDirect2GisUrl(
-  path: string,
-  params: URLSearchParams,
-): string {
+export function buildDirect2GisUrl(path: string, params: URLSearchParams): string {
   return `https://catalog.api.2gis.com${path}?${params.toString()}`;
 }
 

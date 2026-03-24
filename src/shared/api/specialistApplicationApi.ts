@@ -15,9 +15,7 @@ export type SpecialistApplicationResponse = {
 };
 
 export const specialistApplicationApi = {
-  async send(
-    dto: SpecialistApplicationRequest,
-  ): Promise<SpecialistApplicationResponse> {
+  async send(dto: SpecialistApplicationRequest): Promise<SpecialistApplicationResponse> {
     await specialistApplicationsService.createApplication({
       fullName: dto.name,
       email: dto.email,

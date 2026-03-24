@@ -1,138 +1,138 @@
 /* src/pages/shop/ui/ShopFavoritesPage.module.css */
 .page {
-    min-height: calc(100vh - 160px);
-    padding: 32px 20px 80px;
-    background:
-        radial-gradient(circle at top left, rgba(99, 102, 241, 0.08), transparent 28%),
-        #f8fafc;
+  min-height: calc(100vh - 160px);
+  padding: 32px 20px 80px;
+  background:
+    radial-gradient(circle at top left, rgba(99, 102, 241, 0.08), transparent 28%),
+    #f8fafc;
 }
 
 .container {
-    max-width: 1280px;
-    margin: 0 auto;
+  max-width: 1280px;
+  margin: 0 auto;
 }
 
 .topBar {
-    margin-bottom: 18px;
+  margin-bottom: 18px;
 }
 
 .breadcrumbs {
-    display: flex;
-    align-items: center;
-    gap: 8px;
-    margin-bottom: 22px;
-    color: #64748b;
-    font-size: 14px;
-    flex-wrap: wrap;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 22px;
+  color: #64748b;
+  font-size: 14px;
+  flex-wrap: wrap;
 }
 
 .breadcrumbLink {
-    color: #6366f1;
-    text-decoration: none;
+  color: #6366f1;
+  text-decoration: none;
 }
 
 .breadcrumbSeparator {
-    color: #94a3b8;
+  color: #94a3b8;
 }
 
 .breadcrumbCurrent {
-    color: #475569;
+  color: #475569;
 }
 
 .header {
-    display: flex;
-    align-items: flex-end;
-    justify-content: space-between;
-    gap: 20px;
-    margin-bottom: 24px;
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: 20px;
+  margin-bottom: 24px;
 }
 
 .title {
-    margin: 0 0 10px;
-    color: #0f172a;
-    font-size: 40px;
-    line-height: 1.1;
+  margin: 0 0 10px;
+  color: #0f172a;
+  font-size: 40px;
+  line-height: 1.1;
 }
 
 .subtitle {
-    margin: 0;
-    color: #475569;
-    font-size: 16px;
-    line-height: 1.6;
+  margin: 0;
+  color: #475569;
+  font-size: 16px;
+  line-height: 1.6;
 }
 
 .clearButton {
-    min-height: 46px;
-    padding: 0 16px;
-    border: 1px solid #c7d2fe;
-    border-radius: 14px;
-    background: #eef2ff;
-    color: #4338ca;
-    font-size: 14px;
-    font-weight: 700;
-    cursor: pointer;
+  min-height: 46px;
+  padding: 0 16px;
+  border: 1px solid #c7d2fe;
+  border-radius: 14px;
+  background: #eef2ff;
+  color: #4338ca;
+  font-size: 14px;
+  font-weight: 700;
+  cursor: pointer;
 }
 
 .items {
-    display: flex;
-    flex-direction: column;
-    gap: 18px;
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
 }
 
 .stateCard {
-    padding: 32px;
-    border: 1px solid #e5e7eb;
-    border-radius: 22px;
-    background: #ffffff;
-    box-shadow: 0 12px 32px rgba(15, 23, 42, 0.06);
+  padding: 32px;
+  border: 1px solid #e5e7eb;
+  border-radius: 22px;
+  background: #ffffff;
+  box-shadow: 0 12px 32px rgba(15, 23, 42, 0.06);
 }
 
 .stateTitle {
-    margin: 0 0 10px;
-    color: #0f172a;
-    font-size: 24px;
+  margin: 0 0 10px;
+  color: #0f172a;
+  font-size: 24px;
 }
 
 .stateText {
-    margin: 0;
-    color: #475569;
-    font-size: 15px;
-    line-height: 1.6;
+  margin: 0;
+  color: #475569;
+  font-size: 15px;
+  line-height: 1.6;
 }
 
 .retryButton,
 .catalogButton {
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    margin-top: 18px;
-    min-height: 46px;
-    padding: 0 18px;
-    border: none;
-    border-radius: 14px;
-    background: #6366f1;
-    color: #ffffff;
-    font-size: 14px;
-    font-weight: 700;
-    text-decoration: none;
-    cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  margin-top: 18px;
+  min-height: 46px;
+  padding: 0 18px;
+  border: none;
+  border-radius: 14px;
+  background: #6366f1;
+  color: #ffffff;
+  font-size: 14px;
+  font-weight: 700;
+  text-decoration: none;
+  cursor: pointer;
 }
 
 @media (max-width: 720px) {
-    .page {
-        padding: 24px 16px 64px;
-    }
+  .page {
+    padding: 24px 16px 64px;
+  }
 
-    .header {
-        flex-direction: column;
-        align-items: stretch;
-    }
+  .header {
+    flex-direction: column;
+    align-items: stretch;
+  }
 
-    .title {
-        font-size: 32px;
-    }
+  .title {
+    font-size: 32px;
+  }
 
-    .clearButton {
-        width: 100%;
-    }
+  .clearButton {
+    width: 100%;
+  }
 }

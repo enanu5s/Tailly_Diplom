@@ -112,14 +112,10 @@ export function getMockAdminProfile(): AdminProfile {
   return mapRecordToProfile(record);
 }
 
-export function updateMockAdminProfile(
-  payload: UpdateAdminProfilePayload,
-): AdminProfile {
+export function updateMockAdminProfile(payload: UpdateAdminProfilePayload): AdminProfile {
   const record = getCurrentAdminRecord();
   const admins = getSuperAdminAdminsMutable();
-  const recordIndex = admins.findIndex(
-    (item) => item.adminId === record.adminId,
-  );
+  const recordIndex = admins.findIndex((item) => item.adminId === record.adminId);
 
   if (recordIndex === -1) {
     throw new AdminProfileError('Администратор не найден.');
@@ -202,17 +198,14 @@ export function mockRequestSuperAdminEmailChange(
   }
 
   const emailTaken = getSuperAdminAdminsMutable().some(
-    (item) =>
-      normalizeEmail(item.email) === newEmail && item.adminId !== record.adminId,
+    (item) => normalizeEmail(item.email) === newEmail && item.adminId !== record.adminId,
   );
 
   if (emailTaken) {
     throw new AdminProfileError('Этот email уже используется.');
   }
 
-  const account = MOCK_ADMIN_ACCOUNTS.find(
-    (item) => item.adminId === record.adminId,
-  );
+  const account = MOCK_ADMIN_ACCOUNTS.find((item) => item.adminId === record.adminId);
 
   if (!account || account.password !== payload.password) {
     throw new AdminProfileError('Неверный пароль.');
@@ -246,9 +239,7 @@ export function mockConfirmSuperAdminEmailChange(
   const pending = pendingSuperAdminEmailChangeByAdminId.get(record.adminId);
 
   if (!pending) {
-    throw new AdminProfileError(
-      'Сначала запросите код: укажите новый email и пароль.',
-    );
+    throw new AdminProfileError('Сначала запросите код: укажите новый email и пароль.');
   }
 
   if (Date.now() - pending.createdAt > EMAIL_CHANGE_CODE_TTL_MS) {
@@ -263,9 +254,7 @@ export function mockConfirmSuperAdminEmailChange(
   }
 
   const admins = getSuperAdminAdminsMutable();
-  const recordIndex = admins.findIndex(
-    (item) => item.adminId === record.adminId,
-  );
+  const recordIndex = admins.findIndex((item) => item.adminId === record.adminId);
 
   if (recordIndex === -1) {
     throw new AdminProfileError('Администратор не найден.');

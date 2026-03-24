@@ -9,9 +9,7 @@ export type ProductOrderStatusTone =
   | 'delivered'
   | 'canceled';
 
-export function getProductOrderStatusLabel(
-  status: ProductOrderStatus,
-): string {
+export function getProductOrderStatusLabel(status: ProductOrderStatus): string {
   switch (status) {
     case 'created':
       return 'Создан';

@@ -44,7 +44,8 @@ export function mergeLegacyLocalStorageIfNeeded(db: MockDbSnapshot): MockDbSnaps
   if (softRaw) {
     const parsed = safeParse<Record<string, unknown>>(softRaw, {});
     if (parsed && typeof parsed === 'object') {
-      next.accountDeletion.softDeleteByUserId = parsed as MockDbSnapshot['accountDeletion']['softDeleteByUserId'];
+      next.accountDeletion.softDeleteByUserId =
+        parsed as MockDbSnapshot['accountDeletion']['softDeleteByUserId'];
     }
   }
 
@@ -62,7 +63,8 @@ export function mergeLegacyLocalStorageIfNeeded(db: MockDbSnapshot): MockDbSnaps
   if (delMailRaw) {
     const parsed = safeParse<unknown[]>(delMailRaw, []);
     if (Array.isArray(parsed)) {
-      next.accountDeletion.deletionEmailOutbox = parsed as MockDbSnapshot['accountDeletion']['deletionEmailOutbox'];
+      next.accountDeletion.deletionEmailOutbox =
+        parsed as MockDbSnapshot['accountDeletion']['deletionEmailOutbox'];
     }
   }
 
@@ -86,7 +88,8 @@ export function mergeLegacyLocalStorageIfNeeded(db: MockDbSnapshot): MockDbSnaps
   if (appRaw) {
     const parsed = safeParse<unknown[]>(appRaw, []);
     if (Array.isArray(parsed) && parsed.length > 0) {
-      next.applications.specialist = parsed as MockDbSnapshot['applications']['specialist'];
+      next.applications.specialist =
+        parsed as MockDbSnapshot['applications']['specialist'];
     }
   }
 

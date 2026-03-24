@@ -1,7 +1,6 @@
 // src/shared/api/feedbackApi.ts
 import { request } from '@/shared/api/http';
-
-const USE_MOCK = (import.meta.env.VITE_USE_MOCK_API ?? 'true') === 'true';
+import { isMockApiMode } from '@/shared/config/env';
 
 export type FeedbackRequest = {
   name: string;
@@ -24,7 +23,7 @@ async function mockSend(): Promise<FeedbackResponse> {
 // POST /support/feedback -> { ok: true }
 export const feedbackApi = {
   send: (dto: FeedbackRequest) => {
-    if (USE_MOCK) return mockSend();
+    if (isMockApiMode) return mockSend();
     return request<FeedbackResponse>('/support/feedback', { method: 'POST', body: dto });
   },
 };

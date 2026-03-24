@@ -3,7 +3,6 @@
 import type { ServiceConfig } from '@/shared/config/services';
 import { useAppNavigate } from '@/shared/lib/navigation/useAppNavigate';
 
-
 import styles from './ServicesMenu.module.css';
 
 type Props = {
@@ -20,9 +19,7 @@ export function ServicesMenu({ items }: Props) {
           key={s.id}
           type="button"
           className={styles.card}
-          onClick={() =>
-            navigate(`/services?service=${encodeURIComponent(s.id)}`)
-          }
+          onClick={() => navigate(`/services?service=${encodeURIComponent(s.id)}`)}
         >
           <div className={styles.iconWrap}>
             <img className={styles.icon} src={s.iconUrl} alt={s.title} />

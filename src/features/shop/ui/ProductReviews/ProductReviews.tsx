@@ -24,9 +24,7 @@ export const ProductReviews = ({ reviews }: Props) => {
               <div className={styles.cardHeader}>
                 <div>
                   <div className={styles.author}>{review.authorName}</div>
-                  <div className={styles.date}>
-                    {formatDate(review.createdAt)}
-                  </div>
+                  <div className={styles.date}>{formatDate(review.createdAt)}</div>
                 </div>
 
                 <div

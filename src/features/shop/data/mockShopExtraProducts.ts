@@ -76,7 +76,13 @@ export const SHOP_DEMO_EXTRA_PRODUCTS = [
     stockQuantity: 60,
     images: [IMG('img-demo-03', '/images/shop/product-3.jpg', 'Пелёнки')],
     reviews: [
-      { id: 'r-d3', authorName: 'Олег', rating: 4, text: 'Норм.', createdAt: '2026-02-20T12:00:00.000Z' },
+      {
+        id: 'r-d3',
+        authorName: 'Олег',
+        rating: 4,
+        text: 'Норм.',
+        createdAt: '2026-02-20T12:00:00.000Z',
+      },
     ],
     createdAt: '2026-02-19T10:00:00.000Z',
     updatedAt: '2026-03-03T10:00:00.000Z',
@@ -122,7 +128,13 @@ export const SHOP_DEMO_EXTRA_PRODUCTS = [
     stockQuantity: 33,
     images: [IMG('img-demo-05', '/images/shop/product-2.jpg', 'Колесо')],
     reviews: [
-      { id: 'r-d5', authorName: 'Ксения', rating: 5, text: 'Тихое!', createdAt: '2026-03-05T09:00:00.000Z' },
+      {
+        id: 'r-d5',
+        authorName: 'Ксения',
+        rating: 5,
+        text: 'Тихое!',
+        createdAt: '2026-03-05T09:00:00.000Z',
+      },
     ],
     createdAt: '2026-02-22T10:00:00.000Z',
     updatedAt: '2026-03-05T10:00:00.000Z',
@@ -168,7 +180,13 @@ export const SHOP_DEMO_EXTRA_PRODUCTS = [
     stockQuantity: 44,
     images: [IMG('img-demo-07', '/images/shop/product-1.jpg', 'Шампунь')],
     reviews: [
-      { id: 'r-d7', authorName: 'Марина', rating: 5, text: 'Пахнет нейтрально.', createdAt: '2026-02-28T15:00:00.000Z' },
+      {
+        id: 'r-d7',
+        authorName: 'Марина',
+        rating: 5,
+        text: 'Пахнет нейтрально.',
+        createdAt: '2026-02-28T15:00:00.000Z',
+      },
     ],
     createdAt: '2026-02-16T10:00:00.000Z',
     updatedAt: '2026-03-07T10:00:00.000Z',
@@ -236,7 +254,13 @@ export const SHOP_DEMO_EXTRA_PRODUCTS = [
     stockQuantity: 70,
     images: [IMG('img-demo-10', '/images/shop/product-1.jpg', 'Канат')],
     reviews: [
-      { id: 'r-d10', authorName: 'Денис', rating: 4, text: 'Собака довольна.', createdAt: '2026-03-08T18:00:00.000Z' },
+      {
+        id: 'r-d10',
+        authorName: 'Денис',
+        rating: 4,
+        text: 'Собака довольна.',
+        createdAt: '2026-03-08T18:00:00.000Z',
+      },
     ],
     createdAt: '2026-02-21T10:00:00.000Z',
     updatedAt: '2026-03-10T10:00:00.000Z',
@@ -282,7 +306,13 @@ export const SHOP_DEMO_EXTRA_PRODUCTS = [
     stockQuantity: 9,
     images: [IMG('img-demo-12', '/images/shop/product-3.jpg', 'Лоток')],
     reviews: [
-      { id: 'r-d12', authorName: 'Анна', rating: 5, text: 'Удобно чистить.', createdAt: '2026-03-10T11:00:00.000Z' },
+      {
+        id: 'r-d12',
+        authorName: 'Анна',
+        rating: 5,
+        text: 'Удобно чистить.',
+        createdAt: '2026-03-10T11:00:00.000Z',
+      },
     ],
     createdAt: '2026-02-08T10:00:00.000Z',
     updatedAt: '2026-03-12T10:00:00.000Z',

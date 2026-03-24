@@ -1,4 +1,6 @@
 // src/features/admin-posts-banners-management/api/adminPostsBannersManagementApi.ts
+import { isMockApiMode } from '@/shared/config/env';
+
 import {
   mockDeleteAdminBanner,
   mockDeleteAdminPost,
@@ -14,11 +16,6 @@ import type {
   SaveAdminBannerPayload,
   SaveAdminPostPayload,
 } from '../model/types';
-
-const USE_MOCK = (import.meta.env.VITE_USE_MOCK_API ?? 'true') === 'true';
-const API_BASE_URL = import.meta.env.VITE_API_BASE_URL ?? '';
-
-void API_BASE_URL;
 
 async function getRequest() {
   const httpModule = await import('@/shared/api/http');
@@ -90,25 +87,23 @@ async function realDeleteAdminBanner(bannerId: string): Promise<void> {
 
 export const adminPostsBannersManagementApi = {
   getContent(): Promise<AdminPostsBannersResponse> {
-    return USE_MOCK ? mockGetAdminPostsBanners() : realGetAdminPostsBanners();
+    return isMockApiMode ? mockGetAdminPostsBanners() : realGetAdminPostsBanners();
   },
 
   savePost(payload: SaveAdminPostPayload): Promise<AdminManagedPost> {
-    return USE_MOCK ? mockSaveAdminPost(payload) : realSaveAdminPost(payload);
+    return isMockApiMode ? mockSaveAdminPost(payload) : realSaveAdminPost(payload);
   },
 
   deletePost(postId: string): Promise<void> {
-    return USE_MOCK ? mockDeleteAdminPost(postId) : realDeleteAdminPost(postId);
+    return isMockApiMode ? mockDeleteAdminPost(postId) : realDeleteAdminPost(postId);
   },
 
   saveBanner(payload: SaveAdminBannerPayload): Promise<AdminManagedBanner> {
-    return USE_MOCK
-      ? mockSaveAdminBanner(payload)
-      : realSaveAdminBanner(payload);
+    return isMockApiMode ? mockSaveAdminBanner(payload) : realSaveAdminBanner(payload);
   },
 
   deleteBanner(bannerId: string): Promise<void> {
-    return USE_MOCK
+    return isMockApiMode
       ? mockDeleteAdminBanner(bannerId)
       : realDeleteAdminBanner(bannerId);
   },

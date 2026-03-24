@@ -91,8 +91,7 @@ function getResizedDimensions(
   }
 
   const longestSide = Math.max(sourceWidth, sourceHeight);
-  const scale =
-    longestSide > maxDimension ? maxDimension / longestSide : 1;
+  const scale = longestSide > maxDimension ? maxDimension / longestSide : 1;
 
   return {
     width: Math.max(1, Math.round(sourceWidth * scale)),
@@ -184,9 +183,7 @@ class MessagesService {
     return messagesApi.getUnreadSummary(viewer);
   }
 
-  ensureSupportThread(
-    payload: EnsureSupportThreadPayload,
-  ): Promise<MessagesSnapshot> {
+  ensureSupportThread(payload: EnsureSupportThreadPayload): Promise<MessagesSnapshot> {
     return messagesApi.ensureSupportThread(payload);
   }
 
@@ -196,15 +193,11 @@ class MessagesService {
     return messagesApi.ensureSpecialistThread(payload);
   }
 
-  ensureClientThread(
-    payload: EnsureClientThreadPayload,
-  ): Promise<MessagesSnapshot> {
+  ensureClientThread(payload: EnsureClientThreadPayload): Promise<MessagesSnapshot> {
     return messagesApi.ensureClientThread(payload);
   }
 
-  markMessagesAsRead(
-    payload: MarkMessagesAsReadPayload,
-  ): Promise<MessagesSnapshot> {
+  markMessagesAsRead(payload: MarkMessagesAsReadPayload): Promise<MessagesSnapshot> {
     return messagesApi.markMessagesAsRead(payload);
   }
 

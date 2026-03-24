@@ -6,9 +6,8 @@ import type { UserProfile } from '../model/types';
 export const profileService = {
   getProfile: (): Promise<UserProfile> => profileApi.getProfile(),
 
-  updateContacts: (
-    payload: Pick<UserProfile, 'city' | 'phone'>,
-  ): Promise<UserProfile> => profileApi.updateContacts(payload),
+  updateContacts: (payload: Pick<UserProfile, 'city' | 'phone'>): Promise<UserProfile> =>
+    profileApi.updateContacts(payload),
 
   updateMain: (
     payload: Pick<UserProfile, 'firstName' | 'lastName' | 'middleName' | 'avatarUrl'>,

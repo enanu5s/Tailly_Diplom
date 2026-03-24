@@ -1,10 +1,10 @@
 // src/features/shop/model/shopCartStore.ts
-import { makeAutoObservable } from "mobx";
+import { makeAutoObservable } from 'mobx';
 
-import { authStore } from "@/features/auth";
-import type { AuthUser } from "@/features/auth/model/authStore";
+import { authStore } from '@/features/auth';
+import type { AuthUser } from '@/features/auth/model/authStore';
 
-import type { Product } from "./types";
+import type { Product } from './types';
 
 type StoredCartItem = {
   productId: string;
@@ -23,19 +23,19 @@ type PendingCartMergePrompt = {
   userLinesCount: number;
 };
 
-const STORAGE_KEY_PREFIX = "tailly_shop_cart";
+const STORAGE_KEY_PREFIX = 'tailly_shop_cart';
 const GUEST_STORAGE_KEY = `${STORAGE_KEY_PREFIX}_guest`;
 
 function isStoredCartItem(value: unknown): value is StoredCartItem {
-  if (typeof value !== "object" || value === null) {
+  if (typeof value !== 'object' || value === null) {
     return false;
   }
 
   const candidate = value as Partial<StoredCartItem>;
 
   return (
-    typeof candidate.productId === "string" &&
-    typeof candidate.quantity === "number" &&
+    typeof candidate.productId === 'string' &&
+    typeof candidate.quantity === 'number' &&
     Number.isFinite(candidate.quantity)
   );
 }
@@ -73,13 +73,13 @@ function parseStoredItems(raw: string | null): StoredCartItem[] {
     }
 
     if (
-      typeof parsed === "object" &&
+      typeof parsed === 'object' &&
       parsed !== null &&
-      "items" in parsed &&
+      'items' in parsed &&
       Array.isArray((parsed as CartStoragePayload).items)
     ) {
       return normalizeItems(
-        (parsed as CartStoragePayload).items.filter(isStoredCartItem)
+        (parsed as CartStoragePayload).items.filter(isStoredCartItem),
       );
     }
 
@@ -102,23 +102,23 @@ function getUserStorageIdentity(user: AuthUser | null): string | null {
     return null;
   }
 
-  if (typeof user.id === "string") {
+  if (typeof user.id === 'string') {
     return user.id;
   }
 
-  if ("clientId" in user && typeof user.clientId === "string") {
+  if ('clientId' in user && typeof user.clientId === 'string') {
     return user.clientId;
   }
 
-  if ("specialistId" in user && typeof user.specialistId === "string") {
+  if ('specialistId' in user && typeof user.specialistId === 'string') {
     return user.specialistId;
   }
 
-  if ("adminId" in user && typeof user.adminId === "string") {
+  if ('adminId' in user && typeof user.adminId === 'string') {
     return user.adminId;
   }
 
-  if (typeof user.email === "string") {
+  if (typeof user.email === 'string') {
     return user.email.toLowerCase();
   }
 
@@ -136,17 +136,17 @@ function buildUserStorageKey(user: AuthUser | null): string {
 }
 
 function debugCartStorage(): void {
-    if (typeof window === 'undefined') {
-      return;
-    }
-  
-    console.log('[CART STORAGE]', {
-      guest: window.localStorage.getItem(GUEST_STORAGE_KEY),
-      allKeys: Object.keys(window.localStorage).filter((key) =>
-        key.startsWith(STORAGE_KEY_PREFIX),
-      ),
-    });
+  if (typeof window === 'undefined') {
+    return;
   }
+
+  console.log('[CART STORAGE]', {
+    guest: window.localStorage.getItem(GUEST_STORAGE_KEY),
+    allKeys: Object.keys(window.localStorage).filter((key) =>
+      key.startsWith(STORAGE_KEY_PREFIX),
+    ),
+  });
+}
 
 export class ShopCartStore {
   items: StoredCartItem[] = [];
@@ -176,7 +176,7 @@ export class ShopCartStore {
   }
 
   private handleAuthChanged(): void {
-    console.log("[CART] auth changed", {
+    console.log('[CART] auth changed', {
       prevUser: this.previousUserKey,
       nextUser: getUserStorageIdentity(authStore.getState().user),
       user: authStore.getState().user,
@@ -192,7 +192,7 @@ export class ShopCartStore {
       nextUserKey !== null &&
       this.previousUserKey !== nextUserKey;
 
-    console.log("[CART] flags", {
+    console.log('[CART] flags', {
       didLogin,
       didLogout,
       didSwitchUser,
@@ -216,13 +216,13 @@ export class ShopCartStore {
   }
 
   private handleLogin(user: AuthUser, userKey: string): void {
-    console.log("[CART] handleLogin start");
+    console.log('[CART] handleLogin start');
     debugCartStorage();
     const guestItems = this.readItemsByStorageKey(GUEST_STORAGE_KEY);
     const userStorageKey = buildUserStorageKey(user);
     const userItems = this.readItemsByStorageKey(userStorageKey);
 
-    console.log("[CART] carts before decision", {
+    console.log('[CART] carts before decision', {
       guestItems,
       userItems,
     });
@@ -230,7 +230,7 @@ export class ShopCartStore {
     this.items = userItems;
 
     if (guestItems.length > 0) {
-      console.log("[CART] SHOW PROMPT");
+      console.log('[CART] SHOW PROMPT');
       this.pendingCartMergePrompt = {
         userKey,
         guestItemsCount: getItemsCount(guestItems),
@@ -258,10 +258,10 @@ export class ShopCartStore {
     const userItems = this.readItemsByStorageKey(userStorageKey);
 
     console.log('[CART] confirm merge', {
-        guestItems,
-        userItems,
-        userStorageKey,
-      });
+      guestItems,
+      userItems,
+      userStorageKey,
+    });
     const mergedItems = normalizeItems([...userItems, ...guestItems]);
 
     this.activeStorageKey = userStorageKey;
@@ -287,9 +287,9 @@ export class ShopCartStore {
     this.activeStorageKey = userStorageKey;
     this.items = userItems;
     console.log('[CART] discard guest cart after login', {
-        userStorageKey,
-        userItems,
-      });
+      userStorageKey,
+      userItems,
+    });
     this.clearStorageKey(GUEST_STORAGE_KEY);
     this.pendingCartMergePrompt = null;
   }
@@ -298,7 +298,7 @@ export class ShopCartStore {
     this.activeStorageKey = GUEST_STORAGE_KEY;
     this.items = this.readItemsByStorageKey(GUEST_STORAGE_KEY);
 
-    console.log("[CART] switched to guest cart", {
+    console.log('[CART] switched to guest cart', {
       activeStorageKey: this.activeStorageKey,
       items: this.items,
     });
@@ -306,18 +306,15 @@ export class ShopCartStore {
   }
 
   private readItemsByStorageKey(storageKey: string): StoredCartItem[] {
-    if (typeof window === "undefined") {
+    if (typeof window === 'undefined') {
       return [];
     }
 
     return parseStoredItems(window.localStorage.getItem(storageKey));
   }
 
-  private writeItemsByStorageKey(
-    storageKey: string,
-    items: StoredCartItem[]
-  ): void {
-    if (typeof window === "undefined") {
+  private writeItemsByStorageKey(storageKey: string, items: StoredCartItem[]): void {
+    if (typeof window === 'undefined') {
       return;
     }
 
@@ -325,12 +322,12 @@ export class ShopCartStore {
       storageKey,
       JSON.stringify({
         items: normalizeItems(items),
-      } satisfies CartStoragePayload)
+      } satisfies CartStoragePayload),
     );
   }
 
   private clearStorageKey(storageKey: string): void {
-    if (typeof window === "undefined") {
+    if (typeof window === 'undefined') {
       return;
     }
 
@@ -338,14 +335,14 @@ export class ShopCartStore {
   }
 
   private persist(): void {
-    console.log("[CART] persist", {
+    console.log('[CART] persist', {
       activeStorageKey: this.activeStorageKey,
       items: this.items,
     });
 
     this.writeItemsByStorageKey(this.activeStorageKey, this.items);
     debugCartStorage();
-}
+  }
 
   getQuantity(productId: string): number {
     const item = this.items.find((entry) => entry.productId === productId);
@@ -359,7 +356,7 @@ export class ShopCartStore {
       activeStorageKey: this.activeStorageKey,
       currentItems: this.items,
     });
-  
+
     const normalizedQuantity = Math.floor(quantity);
 
     if (normalizedQuantity <= 0) {
@@ -376,9 +373,9 @@ export class ShopCartStore {
 
     this.items = normalizeItems(this.items);
     console.log('[CART] add result before persist', {
-        activeStorageKey: this.activeStorageKey,
-        items: this.items,
-      });
+      activeStorageKey: this.activeStorageKey,
+      items: this.items,
+    });
     this.persist();
   }
 
@@ -431,8 +428,8 @@ export class ShopCartStore {
     return this.items.reduce((sum, item) => sum + item.quantity, 0);
   }
 
-  get activeCartScope(): "guest" | "user" {
-    return this.activeStorageKey === GUEST_STORAGE_KEY ? "guest" : "user";
+  get activeCartScope(): 'guest' | 'user' {
+    return this.activeStorageKey === GUEST_STORAGE_KEY ? 'guest' : 'user';
   }
 
   get snapshot(): StoredCartItem[] {

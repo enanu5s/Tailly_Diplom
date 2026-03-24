@@ -1,5 +1,6 @@
 // src/features/admin-password-recovery-management/api/adminPasswordRecoveryManagementApi.ts
 import { request } from '@/shared/api/http';
+import { getOptionalApiBaseUrl, isMockApiMode } from '@/shared/config/env';
 
 import {
   mockGetAdminPasswordRecoveryRequests,
@@ -12,8 +13,7 @@ import type {
   ProcessAdminPasswordRecoveryResponse,
 } from '../model/types';
 
-const USE_MOCK = (import.meta.env.VITE_USE_MOCK_API ?? 'true') === 'true';
-const API_BASE_URL = import.meta.env.VITE_API_BASE_URL ?? '';
+const API_BASE_URL = getOptionalApiBaseUrl();
 
 async function realGetAdminPasswordRecoveryRequests(): Promise<
   AdminPasswordRecoveryRequestItem[]
@@ -36,7 +36,7 @@ async function realProcessAdminPasswordRecoveryRequest(
 
 export const adminPasswordRecoveryManagementApi = {
   async getRequests(): Promise<AdminPasswordRecoveryRequestItem[]> {
-    if (USE_MOCK) {
+    if (isMockApiMode) {
       return mockGetAdminPasswordRecoveryRequests();
     }
 
@@ -46,7 +46,7 @@ export const adminPasswordRecoveryManagementApi = {
   async processRequest(
     payload: ProcessAdminPasswordRecoveryPayload,
   ): Promise<ProcessAdminPasswordRecoveryResponse> {
-    if (USE_MOCK) {
+    if (isMockApiMode) {
       return mockProcessAdminPasswordRecoveryRequest(payload);
     }
 

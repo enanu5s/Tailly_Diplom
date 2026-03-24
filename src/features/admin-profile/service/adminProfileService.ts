@@ -14,9 +14,7 @@ export const adminProfileService = {
     return adminProfileApi.getProfile();
   },
 
-  updateProfile(
-    payload: UpdateAdminProfilePayload,
-  ): Promise<AdminProfile> {
+  updateProfile(payload: UpdateAdminProfilePayload): Promise<AdminProfile> {
     return adminProfileApi.updateProfile(payload);
   },
 

@@ -180,8 +180,7 @@ export const SHOP_PRODUCTS_MOCK: Product[] = [
     description:
       'Подходит для игр дома и на улице.\nПомогает снизить тревожность, поддерживать активность и отвлекать питомца.',
     descriptionContent: {
-      summary:
-        'Прочная игрушка для активных игр с собакой дома и на прогулке.',
+      summary: 'Прочная игрушка для активных игр с собакой дома и на прогулке.',
       suitableFor: [
         'Активных собак',
         'Совместных игр с хозяином',
@@ -398,8 +397,7 @@ export const SHOP_PRODUCTS_MOCK: Product[] = [
     description:
       'Комплекс витаминов и минералов для кошек и собак.\nПодходит для курсового применения.',
     descriptionContent: {
-      summary:
-        'Витаминный комплекс для поддержки иммунитета и общего тонуса питомца.',
+      summary: 'Витаминный комплекс для поддержки иммунитета и общего тонуса питомца.',
       suitableFor: [
         'Кошек и собак',
         'Курсового применения',
@@ -505,20 +503,18 @@ export function levenshteinDistance(a: string, b: string): number {
     return a.length;
   }
 
-  const matrix: number[][] = Array.from(
-    { length: a.length + 1 },
-    (_, rowIndex) =>
-      Array.from({ length: b.length + 1 }, (_, columnIndex) => {
-        if (rowIndex === 0) {
-          return columnIndex;
-        }
+  const matrix: number[][] = Array.from({ length: a.length + 1 }, (_, rowIndex) =>
+    Array.from({ length: b.length + 1 }, (_, columnIndex) => {
+      if (rowIndex === 0) {
+        return columnIndex;
+      }
 
-        if (columnIndex === 0) {
-          return rowIndex;
-        }
+      if (columnIndex === 0) {
+        return rowIndex;
+      }
 
-        return 0;
-      }),
+      return 0;
+    }),
   );
 
   for (let row = 1; row <= a.length; row += 1) {
@@ -577,8 +573,7 @@ export function applySort(items: Product[], sort: ProductSort): Product[] {
 
     case 'newest':
       return copy.sort(
-        (a, b) =>
-          new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime(),
+        (a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime(),
       );
 
     case 'popular':
@@ -587,10 +582,7 @@ export function applySort(items: Product[], sort: ProductSort): Product[] {
   }
 }
 
-export function applyFilters(
-  items: Product[],
-  filters: CatalogFilterState,
-): Product[] {
+export function applyFilters(items: Product[], filters: CatalogFilterState): Product[] {
   return items.filter((product) => {
     const isMatchedBySearch = matchesSearch(product, filters.search);
     const isMatchedByCategory =
@@ -600,8 +592,7 @@ export function applyFilters(
       filters.minPrice === null || product.price >= filters.minPrice;
     const isMatchedByMaxPrice =
       filters.maxPrice === null || product.price <= filters.maxPrice;
-    const isMatchedByAvailability =
-      !filters.onlyAvailable || product.isAvailable;
+    const isMatchedByAvailability = !filters.onlyAvailable || product.isAvailable;
 
     return (
       isMatchedBySearch &&
@@ -623,13 +614,7 @@ export function buildCatalogMetaForLists(
     categories,
     minPrice: prices.length > 0 ? Math.min(...prices) : 0,
     maxPrice: prices.length > 0 ? Math.max(...prices) : 0,
-    availableSorts: [
-      'popular',
-      'newest',
-      'rating-desc',
-      'price-asc',
-      'price-desc',
-    ],
+    availableSorts: ['popular', 'newest', 'rating-desc', 'price-asc', 'price-desc'],
   };
 }
 

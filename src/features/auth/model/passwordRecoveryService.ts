@@ -3,9 +3,7 @@
 import { passwordRecoveryFlowStore } from './passwordRecoveryFlowStore';
 import { passwordRecoveryApi } from '../api/passwordRecoveryApi';
 
-import type {
-  StartPasswordRecoveryResponse,
-} from './types';
+import type { StartPasswordRecoveryResponse } from './types';
 
 export const passwordRecoveryService = {
   async startRecovery(email: string): Promise<StartPasswordRecoveryResponse> {

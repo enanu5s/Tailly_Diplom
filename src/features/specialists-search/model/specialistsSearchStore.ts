@@ -126,8 +126,10 @@ export class SpecialistsSearchStore {
       }
 
       // price
-      const pa = getServicePriceFor(a, f.serviceId, f.petType) ?? Number.POSITIVE_INFINITY;
-      const pb = getServicePriceFor(b, f.serviceId, f.petType) ?? Number.POSITIVE_INFINITY;
+      const pa =
+        getServicePriceFor(a, f.serviceId, f.petType) ?? Number.POSITIVE_INFINITY;
+      const pb =
+        getServicePriceFor(b, f.serviceId, f.petType) ?? Number.POSITIVE_INFINITY;
       return pa - pb;
     });
 
@@ -173,10 +175,7 @@ export class SpecialistsSearchStore {
     } catch (e) {
       runInAction(() => {
         this.loading = false;
-        this.error =
-          e instanceof Error
-            ? e.message
-            : 'Ошибка загрузки специалистов';
+        this.error = e instanceof Error ? e.message : 'Ошибка загрузки специалистов';
       });
     }
   }
@@ -207,7 +206,6 @@ export class SpecialistsSearchStore {
     this.mapBounds = bounds;
     this.persist(0);
   }
-
 
   persist(scrollY: number) {
     servicesSearchPersist.save({

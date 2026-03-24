@@ -21,10 +21,7 @@ export function AdminChangePasswordPage(): ReactElement {
   const [error, setError] = useState<string | null>(null);
   const [success, setSuccess] = useState(false);
 
-  const canRevealOld = useMemo(
-    () => oldPassword.trim().length > 0,
-    [oldPassword],
-  );
+  const canRevealOld = useMemo(() => oldPassword.trim().length > 0, [oldPassword]);
 
   const [revealOld, setRevealOld] = useState(false);
 
@@ -72,91 +69,87 @@ export function AdminChangePasswordPage(): ReactElement {
         />
 
         <div className={formStyles.container}>
-            <h1 className={formStyles.h1}>Безопасность</h1>
+          <h1 className={formStyles.h1}>Безопасность</h1>
 
-            <div className={formStyles.card}>
-              <h2 className={formStyles.h2}>Смена пароля</h2>
+          <div className={formStyles.card}>
+            <h2 className={formStyles.h2}>Смена пароля</h2>
 
-              {error ? <div className={formStyles.error}>{error}</div> : null}
-              {success ? (
-                <div className={formStyles.success}>Пароль успешно изменён.</div>
-              ) : null}
+            {error ? <div className={formStyles.error}>{error}</div> : null}
+            {success ? (
+              <div className={formStyles.success}>Пароль успешно изменён.</div>
+            ) : null}
 
-              <div className={formStyles.formGrid}>
-                <label className={formStyles.field}>
-                  <div className={formStyles.label}>Текущий пароль</div>
-                  <div className={formStyles.passRow}>
-                    <input
-                      className={formStyles.input}
-                      type={canRevealOld && revealOld ? 'text' : 'password'}
-                      value={oldPassword}
-                      onChange={(e) => setOldPassword(e.target.value)}
-                      placeholder="Введите текущий пароль"
-                      required
-                      autoComplete="current-password"
-                    />
-                    <button
-                      className={formStyles.eyeBtn}
-                      type="button"
-                      disabled={!canRevealOld}
-                      onClick={() => setRevealOld((v) => !v)}
-                      title={
-                        canRevealOld
-                          ? 'Показать/скрыть'
-                          : 'Введите текущий пароль'
-                      }
-                    >
-                      {revealOld ? '🙈' : '👁'}
-                    </button>
-                  </div>
-                </label>
-
-                <label className={formStyles.field}>
-                  <div className={formStyles.label}>Новый пароль</div>
+            <div className={formStyles.formGrid}>
+              <label className={formStyles.field}>
+                <div className={formStyles.label}>Текущий пароль</div>
+                <div className={formStyles.passRow}>
                   <input
                     className={formStyles.input}
-                    type="password"
-                    value={new1}
-                    onChange={(e) => setNew1(e.target.value)}
-                    placeholder="Минимум 8 символов"
+                    type={canRevealOld && revealOld ? 'text' : 'password'}
+                    value={oldPassword}
+                    onChange={(e) => setOldPassword(e.target.value)}
+                    placeholder="Введите текущий пароль"
                     required
-                    autoComplete="new-password"
+                    autoComplete="current-password"
                   />
-                </label>
+                  <button
+                    className={formStyles.eyeBtn}
+                    type="button"
+                    disabled={!canRevealOld}
+                    onClick={() => setRevealOld((v) => !v)}
+                    title={canRevealOld ? 'Показать/скрыть' : 'Введите текущий пароль'}
+                  >
+                    {revealOld ? '🙈' : '👁'}
+                  </button>
+                </div>
+              </label>
 
-                <label className={formStyles.field}>
-                  <div className={formStyles.label}>Повторите новый пароль</div>
-                  <input
-                    className={formStyles.input}
-                    type="password"
-                    value={new2}
-                    onChange={(e) => setNew2(e.target.value)}
-                    placeholder="Повторите новый пароль"
-                    required
-                    autoComplete="new-password"
-                  />
-                </label>
-              </div>
+              <label className={formStyles.field}>
+                <div className={formStyles.label}>Новый пароль</div>
+                <input
+                  className={formStyles.input}
+                  type="password"
+                  value={new1}
+                  onChange={(e) => setNew1(e.target.value)}
+                  placeholder="Минимум 8 символов"
+                  required
+                  autoComplete="new-password"
+                />
+              </label>
 
-              <div className={formStyles.actions}>
-                <button
-                  className={formStyles.primaryBtn}
-                  type="button"
-                  disabled={loading}
-                  onClick={submit}
-                >
-                  {loading ? 'Сохраняем...' : 'Сохранить'}
-                </button>
-                <button
-                  className={formStyles.secondaryBtn}
-                  type="button"
-                  disabled={loading}
-                  onClick={() => navigate('/admin/profile')}
-                >
-                  Назад в профиль
-                </button>
-              </div>
+              <label className={formStyles.field}>
+                <div className={formStyles.label}>Повторите новый пароль</div>
+                <input
+                  className={formStyles.input}
+                  type="password"
+                  value={new2}
+                  onChange={(e) => setNew2(e.target.value)}
+                  placeholder="Повторите новый пароль"
+                  required
+                  autoComplete="new-password"
+                />
+              </label>
             </div>
+
+            <div className={formStyles.actions}>
+              <button
+                className={formStyles.primaryBtn}
+                type="button"
+                disabled={loading}
+                onClick={submit}
+              >
+                {loading ? 'Сохраняем...' : 'Сохранить'}
+              </button>
+              <button
+                className={formStyles.secondaryBtn}
+                type="button"
+                disabled={loading}
+                onClick={() => navigate('/admin/profile')}
+              >
+                Назад в профиль
+              </button>
+            </div>
+          </div>
         </div>
       </div>
     </section>

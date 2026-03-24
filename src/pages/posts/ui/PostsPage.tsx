@@ -6,7 +6,6 @@ import { consumeScrollPosition } from '@/shared/lib/scroll';
 
 import styles from './PostsPage.module.css';
 
-
 export const PostsPage = () => {
   const navigate = useAppNavigate();
 

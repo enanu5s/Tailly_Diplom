@@ -7,9 +7,7 @@ import type {
 } from '../model/types';
 
 export const adminPasswordRecoveryService = {
-  send(
-    payload: AdminPasswordRecoveryRequest,
-  ): Promise<AdminPasswordRecoveryResponse> {
+  send(payload: AdminPasswordRecoveryRequest): Promise<AdminPasswordRecoveryResponse> {
     return adminPasswordRecoveryApi.send(payload);
   },
 };

@@ -54,8 +54,7 @@ export function findPendingAdminPasswordRecoveryRequestByEmail(
   return (
     unsafeMutableMockDb().adminPasswordRecovery.requests.find(
       (item) =>
-        item.email.trim().toLowerCase() === normalizedEmail &&
-        item.status === 'pending',
+        item.email.trim().toLowerCase() === normalizedEmail && item.status === 'pending',
     ) ?? null
   );
 }

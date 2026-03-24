@@ -1,47 +1,47 @@
 /* src/features/shop/ui/CatalogPagination/CatalogPagination.module.css */
 .pagination {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    gap: 14px;
-    flex-wrap: wrap;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 14px;
+  flex-wrap: wrap;
 }
 
 .pages {
-    display: flex;
-    align-items: center;
-    gap: 8px;
-    flex-wrap: wrap;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
 }
 
 .pageButton,
 .navButton {
-    min-width: 44px;
-    min-height: 44px;
-    padding: 0 14px;
-    border: 1px solid #dbe3ee;
-    border-radius: 12px;
-    background: #ffffff;
-    color: #0f172a;
-    font-size: 14px;
-    font-weight: 700;
-    cursor: pointer;
+  min-width: 44px;
+  min-height: 44px;
+  padding: 0 14px;
+  border: 1px solid #dbe3ee;
+  border-radius: 12px;
+  background: #ffffff;
+  color: #0f172a;
+  font-size: 14px;
+  font-weight: 700;
+  cursor: pointer;
 }
 
 .pageButtonActive {
-    border-color: #6366f1;
-    background: #6366f1;
-    color: #ffffff;
+  border-color: #6366f1;
+  background: #6366f1;
+  color: #ffffff;
 }
 
 .pageButton:disabled,
 .navButton:disabled {
-    opacity: 0.5;
-    cursor: not-allowed;
+  opacity: 0.5;
+  cursor: not-allowed;
 }
 
 .dots {
-    min-width: 20px;
-    color: #64748b;
-    text-align: center;
+  min-width: 20px;
+  color: #64748b;
+  text-align: center;
 }

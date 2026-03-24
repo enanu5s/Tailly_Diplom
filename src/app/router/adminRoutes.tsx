@@ -66,26 +66,16 @@ export const adminRoutes: RouteObject[] = [
   },
   {
     path: '/admin',
-    element: (
-      <AdminRouteGuard>
-        {withSuspense(<AdminDashboardPage />)}
-      </AdminRouteGuard>
-    ),
+    element: <AdminRouteGuard>{withSuspense(<AdminDashboardPage />)}</AdminRouteGuard>,
   },
   {
     path: '/admin/profile',
-    element: (
-      <AdminRouteGuard>
-        {withSuspense(<AdminProfilePage />)}
-      </AdminRouteGuard>
-    ),
+    element: <AdminRouteGuard>{withSuspense(<AdminProfilePage />)}</AdminRouteGuard>,
   },
   {
     path: '/admin/profile/security/password',
     element: (
-      <AdminRouteGuard>
-        {withSuspense(<AdminChangePasswordPage />)}
-      </AdminRouteGuard>
+      <AdminRouteGuard>{withSuspense(<AdminChangePasswordPage />)}</AdminRouteGuard>
     ),
   },
   {
@@ -98,19 +88,11 @@ export const adminRoutes: RouteObject[] = [
   },
   {
     path: '/admin/users',
-    element: (
-      <AdminRouteGuard>
-        {withSuspense(<AdminUsersPage />)}
-      </AdminRouteGuard>
-    ),
+    element: <AdminRouteGuard>{withSuspense(<AdminUsersPage />)}</AdminRouteGuard>,
   },
   {
     path: '/admin/posts',
-    element: (
-      <AdminRouteGuard>
-        {withSuspense(<AdminPostsPage />)}
-      </AdminRouteGuard>
-    ),
+    element: <AdminRouteGuard>{withSuspense(<AdminPostsPage />)}</AdminRouteGuard>,
   },
   {
     path: '/super-admin/admins',

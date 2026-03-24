@@ -136,9 +136,7 @@ export const PostsList = observer(() => {
       ) : null}
 
       {!postsStore.list.loading && postsStore.list.items.length === 0 ? (
-        <div className={styles.emptyState}>
-          По текущим параметрам посты не найдены.
-        </div>
+        <div className={styles.emptyState}>По текущим параметрам посты не найдены.</div>
       ) : null}
 
       <div className={styles.grid}>
@@ -212,8 +210,7 @@ export const PostsList = observer(() => {
             void postsStore.loadList();
           }}
           disabled={
-            postsStore.list.loading ||
-            postsStore.list.page >= postsStore.totalPages
+            postsStore.list.loading || postsStore.list.page >= postsStore.totalPages
           }
         >
           Вперёд →

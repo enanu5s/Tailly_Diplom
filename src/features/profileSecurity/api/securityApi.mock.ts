@@ -1,10 +1,6 @@
 // src/features/profileSecurity/api/securityApi.mock.ts
 
-import {
-  getMockOldEmail,
-  maskEmail,
-  setMockOldEmail,
-} from '../data/mockSecurity';
+import { getMockOldEmail, maskEmail, setMockOldEmail } from '../data/mockSecurity';
 
 export async function mockRequestEmailChangeCode(): Promise<{
   requestId: string;

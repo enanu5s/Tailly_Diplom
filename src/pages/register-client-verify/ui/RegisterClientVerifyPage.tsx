@@ -1,7 +1,6 @@
 // src/pages/register-client/verify/ui/RegisterClientVerifyPage.tsx
 import { useEffect, useState } from 'react';
 
-
 import { registerService } from '@/features/auth/model/registerService';
 import { useRegisterFlow } from '@/features/auth/model/useRegisterFlow';
 import { useAppNavigate } from '@/shared/lib/navigation/useAppNavigate';
@@ -36,8 +35,7 @@ export const RegisterClientVerifyPage = () => {
       await registerService.verify(flow.registrationId, code);
       navigate('/register/client/profile');
     } catch (error: unknown) {
-      const message =
-        error instanceof Error ? error.message : 'Ошибка проверки кода';
+      const message = error instanceof Error ? error.message : 'Ошибка проверки кода';
 
       setError(message);
     } finally {
@@ -68,11 +66,7 @@ export const RegisterClientVerifyPage = () => {
 
             {error && <div className={styles.error}>{error}</div>}
 
-            <button
-              className={styles.submitButton}
-              disabled={loading}
-              type="submit"
-            >
+            <button className={styles.submitButton} disabled={loading} type="submit">
               {loading ? 'Проверяем...' : 'Подтвердить'}
             </button>
 

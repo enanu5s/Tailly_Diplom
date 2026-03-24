@@ -1,8 +1,8 @@
 .footer {
-  background: #1f2937;           /* тёмный фон */
+  background: #1f2937; /* тёмный фон */
   color: #f3f4f6;
   padding: 60px 0 20px;
-  margin-top: auto;              /* прижимает к низу, если контент короткий */
+  margin-top: auto; /* прижимает к низу, если контент короткий */
 }
 
 .container {
@@ -78,7 +78,7 @@
 }
 
 .link:hover {
-  color: #a5b4fc;                /* светло-фиолетовый акцент */
+  color: #a5b4fc; /* светло-фиолетовый акцент */
 }
 
 .address {

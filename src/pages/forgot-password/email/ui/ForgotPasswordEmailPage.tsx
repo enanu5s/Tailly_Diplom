@@ -6,7 +6,6 @@ import { Link } from 'react-router-dom';
 import { passwordRecoveryService } from '@/features/auth/model/passwordRecoveryService';
 import { useAppNavigate } from '@/shared/lib/navigation/useAppNavigate';
 
-
 import styles from '../../ForgotPassword.module.css';
 
 export function ForgotPasswordEmailPage() {
@@ -18,9 +17,7 @@ export function ForgotPasswordEmailPage() {
   const [success, setSuccess] = useState('');
   const [isAdminRequestCreated, setIsAdminRequestCreated] = useState(false);
 
-  const handleSubmit = async (
-    event: React.FormEvent<HTMLFormElement>,
-  ) => {
+  const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
 
     if (submitting || isAdminRequestCreated) {
@@ -39,9 +36,7 @@ export function ForgotPasswordEmailPage() {
       setError('');
       setSuccess('');
 
-      const result = await passwordRecoveryService.startRecovery(
-        normalizedEmail,
-      );
+      const result = await passwordRecoveryService.startRecovery(normalizedEmail);
 
       if (result.flow === 'default') {
         navigate('/forgot-password/verify', { replace: true });
@@ -75,9 +70,9 @@ export function ForgotPasswordEmailPage() {
       <h1 className={styles.title}>Восстановление пароля</h1>
 
       <p className={styles.text}>
-        Введите email, который привязан к вашему аккаунту. Для клиентов и
-        специалистов будет отправлен код подтверждения. Для администратора
-        будет создана заявка на восстановление пароля.
+        Введите email, который привязан к вашему аккаунту. Для клиентов и специалистов
+        будет отправлен код подтверждения. Для администратора будет создана заявка на
+        восстановление пароля.
       </p>
 
       <form className={styles.form} onSubmit={handleSubmit}>
@@ -111,11 +106,7 @@ export function ForgotPasswordEmailPage() {
         </button>
       </form>
 
-      <Link
-        className={styles.linkButton}
-        to="/login"
-        onClick={handleBackClick}
-      >
+      <Link className={styles.linkButton} to="/login" onClick={handleBackClick}>
         Вернуться ко входу
       </Link>
     </div>

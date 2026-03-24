@@ -90,7 +90,9 @@
   background: #fff;
   color: #111827;
   cursor: pointer;
-  transition: background 160ms ease, border-color 160ms ease,
+  transition:
+    background 160ms ease,
+    border-color 160ms ease,
     color 160ms ease;
 }
 
@@ -137,7 +139,9 @@
   box-shadow: 0 10px 30px rgba(17, 24, 39, 0.08);
   padding: 16px;
   min-height: 160px;
-  transition: transform 160ms ease, box-shadow 160ms ease;
+  transition:
+    transform 160ms ease,
+    box-shadow 160ms ease;
   text-align: left;
   cursor: pointer;
 }

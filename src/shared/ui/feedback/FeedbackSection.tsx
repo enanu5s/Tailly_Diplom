@@ -1,10 +1,10 @@
 //src/shared/ui/feedback/FeedbackSection.tsx
 
-import { useState } from "react";
+import { useState } from 'react';
 
-import { feedbackApi } from "@/shared/api/feedbackApi";
+import { feedbackApi } from '@/shared/api/feedbackApi';
 
-import styles from "./FeedbackSection.module.css";
+import styles from './FeedbackSection.module.css';
 
 type Props = {
   phone?: string;
@@ -15,15 +15,15 @@ type Props = {
 };
 
 export const FeedbackSection = ({
-  phone = "+7 (495) 123-45-67",
-  email = "support@tailly.ru",
-  imageSrc = "/images/feedback-pets.png",
-  imageAlt = "Служба поддержки Tailly",
+  phone = '+7 (495) 123-45-67',
+  email = 'support@tailly.ru',
+  imageSrc = '/images/feedback-pets.png',
+  imageAlt = 'Служба поддержки Tailly',
   className,
 }: Props) => {
-  const [name, setName] = useState("");
-  const [userEmail, setUserEmail] = useState("");
-  const [message, setMessage] = useState("");
+  const [name, setName] = useState('');
+  const [userEmail, setUserEmail] = useState('');
+  const [message, setMessage] = useState('');
   const [consent, setConsent] = useState(false);
 
   const [loading, setLoading] = useState(false);
@@ -36,7 +36,7 @@ export const FeedbackSection = ({
     setSuccess(false);
 
     if (!consent) {
-      setError("Нужно согласие на обработку персональных данных");
+      setError('Нужно согласие на обработку персональных данных');
       return;
     }
 
@@ -44,13 +44,13 @@ export const FeedbackSection = ({
     try {
       await feedbackApi.send({ name, email: userEmail, message });
       setSuccess(true);
-      setName("");
-      setUserEmail("");
-      setMessage("");
+      setName('');
+      setUserEmail('');
+      setMessage('');
       setConsent(false);
     } catch (error: unknown) {
       const message =
-        error instanceof Error ? error.message : "Не удалось отправить вопрос";
+        error instanceof Error ? error.message : 'Не удалось отправить вопрос';
 
       setError(message);
     } finally {
@@ -59,7 +59,7 @@ export const FeedbackSection = ({
   };
 
   return (
-    <section className={`${styles.section} ${className ?? ""}`}>
+    <section className={`${styles.section} ${className ?? ''}`}>
       <div className={styles.container}>
         <div className={styles.grid}>
           {/* Левая колонка */}
@@ -69,15 +69,12 @@ export const FeedbackSection = ({
             </h2>
 
             <p className={styles.text}>
-              Наша команда готова помочь в любое время — отвечаем на вопросы,
-              подбираем идеального петситтера и поддерживаем на каждом этапе.
+              Наша команда готова помочь в любое время — отвечаем на вопросы, подбираем
+              идеального петситтера и поддерживаем на каждом этапе.
             </p>
 
             <div className={styles.contacts}>
-              <a
-                className={styles.contactLink}
-                href={`tel:${phone.replace(/\D/g, "")}`}
-              >
+              <a className={styles.contactLink} href={`tel:${phone.replace(/\D/g, '')}`}>
                 {phone}
               </a>
               <a className={styles.contactLink} href={`mailto:${email}`}>
@@ -138,7 +135,7 @@ export const FeedbackSection = ({
                     onChange={(e) => setConsent(e.target.checked)}
                   />
                   <span className={styles.consentText}>
-                    Я согласен на обработку персональных данных.{" "}
+                    Я согласен на обработку персональных данных.{' '}
                     <a href="/docs/personal-data-agreement.pdf" download>
                       Скачать документ
                     </a>
@@ -152,12 +149,8 @@ export const FeedbackSection = ({
                   </div>
                 )}
 
-                <button
-                  className={styles.submitButton}
-                  type="submit"
-                  disabled={loading}
-                >
-                  {loading ? "Отправляем..." : "Отправить вопрос"}
+                <button className={styles.submitButton} type="submit" disabled={loading}>
+                  {loading ? 'Отправляем...' : 'Отправить вопрос'}
                 </button>
               </form>
             </div>

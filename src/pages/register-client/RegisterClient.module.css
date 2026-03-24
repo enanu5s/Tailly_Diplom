@@ -103,7 +103,8 @@
   color: #6b7280;
 }
 
-.input, .select {
+.input,
+.select {
   width: 100%;
   padding: 14px 16px;
   border: 2px solid #e5e7eb;
@@ -111,7 +112,8 @@
   font-size: 1.05rem;
 }
 
-.input:focus, .select:focus {
+.input:focus,
+.select:focus {
   outline: none;
   border-color: #6366f1;
 }

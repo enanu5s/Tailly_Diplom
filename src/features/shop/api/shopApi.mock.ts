@@ -1,10 +1,6 @@
 // src/features/shop/api/shopApi.mock.ts
 
-import {
-  applyFilters,
-  applySort,
-  buildCatalogMetaForLists,
-} from '../data/mockShop';
+import { applyFilters, applySort, buildCatalogMetaForLists } from '../data/mockShop';
 import {
   getShopCategoriesSnapshot,
   getShopProductsSnapshot,
@@ -18,10 +14,7 @@ import type {
 } from '../model/types';
 
 export async function mockGetCatalogMeta(): Promise<CatalogMetaResponse> {
-  return buildCatalogMetaForLists(
-    getShopProductsSnapshot(),
-    getShopCategoriesSnapshot(),
-  );
+  return buildCatalogMetaForLists(getShopProductsSnapshot(), getShopCategoriesSnapshot());
 }
 
 export async function mockGetCatalogProducts(
@@ -41,9 +34,7 @@ export async function mockGetCatalogProducts(
   };
 }
 
-export async function mockGetProductsByIds(
-  productIds: string[],
-): Promise<Product[]> {
+export async function mockGetProductsByIds(productIds: string[]): Promise<Product[]> {
   if (productIds.length === 0) {
     return [];
   }
@@ -51,10 +42,7 @@ export async function mockGetProductsByIds(
   const productIdsSet = new Set(productIds);
   const catalog = getShopProductsSnapshot();
   const orderedProducts = productIds
-    .map(
-      (productId) =>
-        catalog.find((product) => product.id === productId) ?? null,
-    )
+    .map((productId) => catalog.find((product) => product.id === productId) ?? null)
     .filter((product): product is Product => product !== null);
 
   const uniqueOrderedProducts: Product[] = [];
@@ -72,8 +60,6 @@ export async function mockGetProductsByIds(
   return uniqueOrderedProducts;
 }
 
-export async function mockGetProductBySlug(
-  slug: string,
-): Promise<Product | null> {
+export async function mockGetProductBySlug(slug: string): Promise<Product | null> {
   return getShopProductsSnapshot().find((product) => product.slug === slug) ?? null;
 }

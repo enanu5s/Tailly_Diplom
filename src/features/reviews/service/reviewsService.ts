@@ -5,5 +5,6 @@ import type { Review, ReviewContext, ReviewCreatePayload } from '../model/types'
 
 export const reviewsService = {
   getContext: (orderId: string): Promise<ReviewContext> => reviewsApi.getContext(orderId),
-  createReview: (payload: ReviewCreatePayload): Promise<Review> => reviewsApi.createReview(payload),
+  createReview: (payload: ReviewCreatePayload): Promise<Review> =>
+    reviewsApi.createReview(payload),
 };

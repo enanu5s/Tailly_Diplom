@@ -55,7 +55,7 @@ export function BannerCarousel({ items: rawItems }: Props) {
       });
       return;
     }
-  
+
     if (current.postId) {
       navigate(`/posts/${encodeURIComponent(current.postId)}`, {
         state: {

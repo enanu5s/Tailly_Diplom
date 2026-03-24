@@ -1,16 +1,10 @@
-import type {
-  OrderStatus,
-  ServiceOrder,
-} from '@/features/orders/model/types';
+import type { OrderStatus, ServiceOrder } from '@/features/orders/model/types';
 import type { Order as ShopOrder } from '@/features/shop/model/types';
 import type { SpecialistApplicationStatus } from '@/features/specialist-applications/model/types';
 
 import { getSupportEmail } from './config';
 import { sendMockMail } from './mockMailer';
-import {
-  resolveClientEmailByUserId,
-  resolveSpecialistEmailBySlug,
-} from './recipients';
+import { resolveClientEmailByUserId, resolveSpecialistEmailBySlug } from './recipients';
 import {
   formatServiceOrderWhen,
   getServiceOrderStartInstant,

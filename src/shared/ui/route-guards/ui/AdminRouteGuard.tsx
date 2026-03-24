@@ -5,40 +5,31 @@ import { Navigate, useLocation } from 'react-router-dom';
 
 import { authStore } from '@/features/auth/model/authStore';
 import {
-    canAccessAdminArea,
-    canAccessSuperAdminArea,
+  canAccessAdminArea,
+  canAccessSuperAdminArea,
 } from '@/shared/lib/auth/roleAccess';
 
 import type { ReactNode, ReactElement } from 'react';
 
 type Props = {
-    children: ReactNode;
-    requireSuperAdmin?: boolean;
+  children: ReactNode;
+  requireSuperAdmin?: boolean;
 };
 
 export function AdminRouteGuard({
-    children,
-    requireSuperAdmin = false,
+  children,
+  requireSuperAdmin = false,
 }: Props): ReactElement {
-    const location = useLocation();
-    const authState = useSyncExternalStore(
-        authStore.subscribe,
-        authStore.getState,
-    );
+  const location = useLocation();
+  const authState = useSyncExternalStore(authStore.subscribe, authStore.getState);
 
-    const hasAccess = requireSuperAdmin
-        ? canAccessSuperAdminArea(authState.user)
-        : canAccessAdminArea(authState.user);
+  const hasAccess = requireSuperAdmin
+    ? canAccessSuperAdminArea(authState.user)
+    : canAccessAdminArea(authState.user);
 
-    if (!hasAccess) {
-        return (
-            <Navigate
-                to="/login"
-                replace
-                state={{ from: location.pathname }}
-            />
-        );
-    }
+  if (!hasAccess) {
+    return <Navigate to="/login" replace state={{ from: location.pathname }} />;
+  }
 
-    return <>{children}</>;
+  return <>{children}</>;
 }

@@ -19,9 +19,7 @@ function normalizeItems(items?: string[]): string[] {
     return [];
   }
 
-  return items
-    .map((item) => item.trim())
-    .filter(Boolean);
+  return items.map((item) => item.trim()).filter(Boolean);
 }
 
 function buildSectionsFromStructuredContent(
@@ -174,10 +172,9 @@ export function buildProductDescriptionViewModel(
 
   const availabilityLabel = product.isAvailable ? 'В наличии' : 'Нет в наличии';
 
-  const sections =
-    structuredContent
-      ? buildSectionsFromStructuredContent(structuredContent)
-      : buildFallbackSections(product);
+  const sections = structuredContent
+    ? buildSectionsFromStructuredContent(structuredContent)
+    : buildFallbackSections(product);
 
   const safeSections =
     sections.length > 0

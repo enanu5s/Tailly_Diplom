@@ -2,7 +2,6 @@
 import { observer } from 'mobx-react-lite';
 import { useEffect, useRef, useState } from 'react';
 
-
 import { SERVICES } from '@/shared/config/services';
 import type { ServiceId } from '@/shared/config/services';
 
@@ -463,9 +462,7 @@ export const FiltersPanel = observer(({ store }: Props) => {
             onChange={(event) =>
               store.updateFilters({
                 priceMin:
-                  event.target.value.trim() === ''
-                    ? null
-                    : Number(event.target.value),
+                  event.target.value.trim() === '' ? null : Number(event.target.value),
               })
             }
             placeholder="0"
@@ -481,9 +478,7 @@ export const FiltersPanel = observer(({ store }: Props) => {
             onChange={(event) =>
               store.updateFilters({
                 priceMax:
-                  event.target.value.trim() === ''
-                    ? null
-                    : Number(event.target.value),
+                  event.target.value.trim() === '' ? null : Number(event.target.value),
               })
             }
             placeholder="100"
@@ -500,6 +495,6 @@ export const FiltersPanel = observer(({ store }: Props) => {
       </button>
 
       {expanded && <AdditionalFilters store={store} />}
-    </div >
+    </div>
   );
 });

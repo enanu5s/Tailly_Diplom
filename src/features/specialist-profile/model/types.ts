@@ -1,27 +1,12 @@
 //src/features/specialist-profile/model/types.ts
 
-export type SpecialistHousingType =
-  | 'apartment'
-  | 'house'
-  | 'townhouse'
-  | 'other';
+export type SpecialistHousingType = 'apartment' | 'house' | 'townhouse' | 'other';
 
-export type SpecialistPetSize =
-  | 'small'
-  | 'medium'
-  | 'large'
-  | 'giant';
+export type SpecialistPetSize = 'small' | 'medium' | 'large' | 'giant';
 
-export type SpecialistPetAge =
-  | 'baby'
-  | 'young'
-  | 'adult'
-  | 'senior';
+export type SpecialistPetAge = 'baby' | 'young' | 'adult' | 'senior';
 
-export type SpecialistChildrenPolicy =
-  | 'yes'
-  | 'no'
-  | 'sometimes';
+export type SpecialistChildrenPolicy = 'yes' | 'no' | 'sometimes';
 
 export type SpecialistPetType =
   | 'cat'
@@ -33,12 +18,7 @@ export type SpecialistPetType =
   | 'reptile'
   | 'other';
 
-export type SpecialistServicePriceUnit =
-  | 'hour'
-  | 'day'
-  | 'service'
-  | 'walk'
-  | 'visit';
+export type SpecialistServicePriceUnit = 'hour' | 'day' | 'service' | 'walk' | 'visit';
 
 export type SpecialistExperienceUnit = 'years' | 'months';
 
@@ -54,9 +34,7 @@ export type SpecialistRecurrenceFrequency =
   | 'every_n_days'
   | 'every_n_weeks';
 
-export type SpecialistOccurrenceEditScope =
-  | 'single'
-  | 'this_and_future';
+export type SpecialistOccurrenceEditScope = 'single' | 'this_and_future';
 
 export type SpecialistMainInfo = {
   avatarUrl?: string;

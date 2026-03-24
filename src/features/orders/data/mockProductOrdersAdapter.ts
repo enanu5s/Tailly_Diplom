@@ -60,18 +60,14 @@ export function readProductOrdersFromShop(): ProductOrder[] {
               ? 'refunded'
               : 'pending',
       },
-      cancelReason:
-        order.status === 'cancelled' ? 'Отменено пользователем' : undefined,
-      canceledAt:
-        order.status === 'cancelled' ? order.createdAt : undefined,
+      cancelReason: order.status === 'cancelled' ? 'Отменено пользователем' : undefined,
+      canceledAt: order.status === 'cancelled' ? order.createdAt : undefined,
       lifecycle: [
         {
           status: mapStatus(order.status),
           changedAt: order.createdAt,
           comment:
-            order.status === 'cancelled'
-              ? 'Пользователь отменил заказ'
-              : undefined,
+            order.status === 'cancelled' ? 'Пользователь отменил заказ' : undefined,
         },
       ],
     };

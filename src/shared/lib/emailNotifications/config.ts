@@ -1,6 +1,7 @@
+import { getSupportEmailFromEnv } from '@/shared/config/env';
+
 export function getSupportEmail(): string {
-  const raw = import.meta.env.VITE_SUPPORT_EMAIL as string | undefined;
-  const trimmed = raw?.trim();
+  const trimmed = getSupportEmailFromEnv();
 
   return trimmed && trimmed.includes('@') ? trimmed : 'support@tailly.ru';
 }

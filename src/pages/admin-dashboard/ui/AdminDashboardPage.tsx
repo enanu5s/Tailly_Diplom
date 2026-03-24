@@ -1,14 +1,13 @@
 // src/pages/admin-dashboard/ui/AdminDashboardPage.tsx
-import { useMemo, useSyncExternalStore } from "react";
+import { useMemo, useSyncExternalStore } from 'react';
 
-
-import { adminProfileStore } from "@/features/admin-profile";
-import { authStore } from "@/features/auth/model/authStore";
+import { adminProfileStore } from '@/features/admin-profile';
+import { authStore } from '@/features/auth/model/authStore';
 import { useAppNavigate } from '@/shared/lib/navigation/useAppNavigate';
 
-import styles from "./AdminDashboardPage.module.css";
+import styles from './AdminDashboardPage.module.css';
 
-import type { ReactElement } from "react";
+import type { ReactElement } from 'react';
 
 type AdminAction = {
   title: string;
@@ -19,62 +18,58 @@ type AdminAction = {
 
 export function AdminDashboardPage(): ReactElement {
   const navigate = useAppNavigate();
-  const authState = useSyncExternalStore(
-    authStore.subscribe,
-    authStore.getState
-  );
+  const authState = useSyncExternalStore(authStore.subscribe, authStore.getState);
 
   const user = authState.user;
-  const isSuperAdmin = user?.role === "super_admin";
+  const isSuperAdmin = user?.role === 'super_admin';
 
   const actions = useMemo<AdminAction[]>(() => {
     const result: AdminAction[] = [
       {
-        title: "Профиль администратора",
+        title: 'Профиль администратора',
         description:
-          "Просмотр основных данных и входной точки для личного кабинета администратора.",
-        actionLabel: "Открыть профиль",
-        onClick: () => navigate("/admin/profile"),
+          'Просмотр основных данных и входной точки для личного кабинета администратора.',
+        actionLabel: 'Открыть профиль',
+        onClick: () => navigate('/admin/profile'),
       },
       {
-        title: "Модерация анкет специалистов",
-        description:
-          "Раздел для последующей реализации проверки заявок специалистов.",
-        actionLabel: "Открыть раздел",
-        onClick: () => navigate("/admin/moderation/specialists"),
+        title: 'Модерация анкет специалистов',
+        description: 'Раздел для последующей реализации проверки заявок специалистов.',
+        actionLabel: 'Открыть раздел',
+        onClick: () => navigate('/admin/moderation/specialists'),
       },
       {
-        title: "Управление пользователями",
+        title: 'Управление пользователями',
         description:
-          "Раздел для последующей реализации блокировки и разблокировки клиентов и специалистов.",
-        actionLabel: "Открыть раздел",
-        onClick: () => navigate("/admin/users"),
+          'Раздел для последующей реализации блокировки и разблокировки клиентов и специалистов.',
+        actionLabel: 'Открыть раздел',
+        onClick: () => navigate('/admin/users'),
       },
       {
-        title: "Посты и баннеры",
+        title: 'Посты и баннеры',
         description:
-          "Раздел для последующей реализации управления публикациями и баннерами.",
-        actionLabel: "Открыть раздел",
-        onClick: () => navigate("/admin/posts"),
+          'Раздел для последующей реализации управления публикациями и баннерами.',
+        actionLabel: 'Открыть раздел',
+        onClick: () => navigate('/admin/posts'),
       },
     ];
 
     if (isSuperAdmin) {
       result.unshift(
         {
-          title: "Управление администраторами",
+          title: 'Управление администраторами',
           description:
-            "Раздел главного администратора для создания и управления обычными администраторами.",
-          actionLabel: "Открыть раздел",
-          onClick: () => navigate("/super-admin/admins"),
+            'Раздел главного администратора для создания и управления обычными администраторами.',
+          actionLabel: 'Открыть раздел',
+          onClick: () => navigate('/super-admin/admins'),
         },
         {
-          title: "Восстановление паролей администраторов",
+          title: 'Восстановление паролей администраторов',
           description:
-            "Просмотр и обработка заявок на восстановление паролей администраторов.",
-          actionLabel: "Открыть раздел",
-          onClick: () => navigate("/super-admin/password-recovery"),
-        }
+            'Просмотр и обработка заявок на восстановление паролей администраторов.',
+          actionLabel: 'Открыть раздел',
+          onClick: () => navigate('/super-admin/password-recovery'),
+        },
       );
     }
 
@@ -87,13 +82,13 @@ export function AdminDashboardPage(): ReactElement {
         <div className={styles.header}>
           <div>
             <span className={styles.badge}>
-              {isSuperAdmin ? "Главный администратор" : "Администратор"}
+              {isSuperAdmin ? 'Главный администратор' : 'Администратор'}
             </span>
 
             <h1 className={styles.title}>Панель администратора</h1>
 
             <p className={styles.subtitle}>
-              Добро пожаловать, {user?.name ?? user?.email ?? "администратор"}.
+              Добро пожаловать, {user?.name ?? user?.email ?? 'администратор'}.
             </p>
           </div>
 
@@ -103,7 +98,7 @@ export function AdminDashboardPage(): ReactElement {
             onClick={() => {
               adminProfileStore.reset();
               authStore.logout();
-              navigate("/login", {
+              navigate('/login', {
                 replace: true,
                 preserveRouteMemory: false,
               });
@@ -118,11 +113,7 @@ export function AdminDashboardPage(): ReactElement {
             <article key={item.title} className={styles.card}>
               <h2 className={styles.cardTitle}>{item.title}</h2>
               <p className={styles.cardDescription}>{item.description}</p>
-              <button
-                className={styles.cardButton}
-                type="button"
-                onClick={item.onClick}
-              >
+              <button className={styles.cardButton} type="button" onClick={item.onClick}>
                 {item.actionLabel}
               </button>
             </article>

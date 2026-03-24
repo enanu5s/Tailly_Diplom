@@ -1,17 +1,11 @@
 // src/features/pets/api/petsApi.ts
 
 import { request } from '@/shared/api/http';
+import { isMockApiMode } from '@/shared/config/env';
 
-import {
-  mockDeletePet,
-  mockGetBreeds,
-  mockGetPets,
-  mockUpsertPet,
-} from './petsApi.mock';
+import { mockDeletePet, mockGetBreeds, mockGetPets, mockUpsertPet } from './petsApi.mock';
 
 import type { Breed, Pet } from '../model/types';
-
-const USE_MOCK = (import.meta.env.VITE_USE_MOCK_API ?? 'true') === 'true';
 
 /* REAL */
 async function realGetPets(): Promise<Pet[]> {
@@ -36,8 +30,8 @@ async function realDeletePet(id: string): Promise<{ id: string }> {
 }
 
 export const petsApi = {
-  getPets: () => (USE_MOCK ? mockGetPets() : realGetPets()),
-  getBreeds: () => (USE_MOCK ? mockGetBreeds() : realGetBreeds()),
-  upsertPet: (pet: Pet) => (USE_MOCK ? mockUpsertPet(pet) : realUpsertPet(pet)),
-  deletePet: (id: string) => (USE_MOCK ? mockDeletePet(id) : realDeletePet(id)),
+  getPets: () => (isMockApiMode ? mockGetPets() : realGetPets()),
+  getBreeds: () => (isMockApiMode ? mockGetBreeds() : realGetBreeds()),
+  upsertPet: (pet: Pet) => (isMockApiMode ? mockUpsertPet(pet) : realUpsertPet(pet)),
+  deletePet: (id: string) => (isMockApiMode ? mockDeletePet(id) : realDeletePet(id)),
 };

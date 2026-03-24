@@ -2,7 +2,6 @@
 
 import { useMemo, useState } from 'react';
 
-
 import { ReviewCard } from '@/features/reviews';
 import type { Review } from '@/features/reviews/model/types';
 
@@ -30,7 +29,7 @@ export function ReviewsCarousel(props: { items: HomeReview[] }) {
       </div>
 
       <div className={styles.cardWrap}>
-        <ReviewCard review={review} fixedLayout/>
+        <ReviewCard review={review} fixedLayout />
       </div>
 
       {items.length > 1 && (

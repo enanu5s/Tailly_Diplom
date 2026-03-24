@@ -23,14 +23,8 @@ export async function mockGetLatestBanners(): Promise<HomeBanner[]> {
   const allBanners = readAdminManagedBanners();
 
   const filtered = allBanners
-    .filter(
-      (b) =>
-        b.status === 'published' &&
-        b.placement === 'home_hero',
-    )
-    .sort((a, b) =>
-      a.createdAt < b.createdAt ? 1 : -1,
-    )
+    .filter((b) => b.status === 'published' && b.placement === 'home_hero')
+    .sort((a, b) => (a.createdAt < b.createdAt ? 1 : -1))
     .slice(0, 5)
     .map(mapAdminBannerToHomeBanner);
 
@@ -50,9 +44,7 @@ export async function mockGetTopReviews(): Promise<HomeReview[]> {
     return review.rating === 5 && now - time <= days30;
   });
 
-  const sorted = filtered.sort((a, b) =>
-    a.createdAtIso < b.createdAtIso ? 1 : -1,
-  );
+  const sorted = filtered.sort((a, b) => (a.createdAtIso < b.createdAtIso ? 1 : -1));
 
   return deepCopy(sorted.slice(0, 5));
 }

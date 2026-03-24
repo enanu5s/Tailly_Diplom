@@ -14,7 +14,6 @@ import type {
   VerifyCodeResponse,
 } from './registerApi';
 
-
 export async function mockStartRegister(
   dto: StartRegisterRequest,
 ): Promise<StartRegisterResponse> {

@@ -35,8 +35,7 @@ function isValidToObject(value: unknown): value is To {
   const search = value.search;
   const hash = value.hash;
 
-  const isPathnameValid =
-    pathname === undefined || typeof pathname === 'string';
+  const isPathnameValid = pathname === undefined || typeof pathname === 'string';
   const isSearchValid = search === undefined || typeof search === 'string';
   const isHashValid = hash === undefined || typeof hash === 'string';
 
@@ -90,12 +89,7 @@ export function BackButton({
   };
 
   return (
-    <button
-      type="button"
-      className={className}
-      onClick={handleClick}
-      disabled={disabled}
-    >
+    <button type="button" className={className} onClick={handleClick} disabled={disabled}>
       {children ?? label}
     </button>
   );

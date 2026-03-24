@@ -46,11 +46,7 @@ class LoginStore {
   }
 
   get canSubmit(): boolean {
-    return (
-      !this.isSubmitting &&
-      this.email.trim().length > 0 &&
-      this.password.length > 0
-    );
+    return !this.isSubmitting && this.email.trim().length > 0 && this.password.length > 0;
   }
 
   async submit(): Promise<boolean> {

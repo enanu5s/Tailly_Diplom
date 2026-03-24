@@ -45,7 +45,9 @@ export function ReviewCard({
                   aria-label="Открыть фото"
                 >
                   <img className={styles.photo} src={mainPhoto} alt="Фото отзыва" />
-                  {photos.length > 1 && <div className={styles.moreBadge}>+{photos.length - 1}</div>}
+                  {photos.length > 1 && (
+                    <div className={styles.moreBadge}>+{photos.length - 1}</div>
+                  )}
                 </button>
               </>
             ) : (
@@ -79,7 +81,15 @@ export function ReviewCard({
         </div>
       ) : null}
 
-      <div className={showPhotoCol ? styles.textCol : fixedLayout ? styles.textColFixedFull : styles.textColFull}>
+      <div
+        className={
+          showPhotoCol
+            ? styles.textCol
+            : fixedLayout
+              ? styles.textColFixedFull
+              : styles.textColFull
+        }
+      >
         <div className={styles.header}>
           <div className={styles.titleRow}>
             <div className={styles.serviceTitle}>{review.serviceTitle}</div>
@@ -106,19 +116,17 @@ export function ReviewCard({
           </Link>
         </div>
 
-        {showThanks && (
-          <div className={styles.thanksBottom}>
-            Спасибо за отзыв!
-          </div>
-        )}
+        {showThanks && <div className={styles.thanksBottom}>Спасибо за отзыв!</div>}
       </div>
 
-      {
-        hasPhotos && modalOpen ? (
-          <ReviewPhotoModal photos={photos} startIndex={idx} onClose={() => setModalOpen(false)} />
-        ) : null
-      }
-    </div >
+      {hasPhotos && modalOpen ? (
+        <ReviewPhotoModal
+          photos={photos}
+          startIndex={idx}
+          onClose={() => setModalOpen(false)}
+        />
+      ) : null}
+    </div>
   );
 }
 

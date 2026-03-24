@@ -1,24 +1,24 @@
 // src/features/specialist-profile/ui/SpecialistProfileSection.tsx
 
-import { observer } from "mobx-react-lite";
-import { useEffect } from "react";
-import { useParams } from "react-router-dom";
+import { observer } from 'mobx-react-lite';
+import { useEffect } from 'react';
+import { useParams } from 'react-router-dom';
 
-import { useAuth } from "@/features/auth/model/useAuth";
-import { canClientBookService } from "@/shared/lib/auth/roleAccess";
-import { useAppNavigate } from "@/shared/lib/navigation/useAppNavigate";
+import { useAuth } from '@/features/auth/model/useAuth';
+import { canClientBookService } from '@/shared/lib/auth/roleAccess';
+import { useAppNavigate } from '@/shared/lib/navigation/useAppNavigate';
 
-import { SpecialistProfileView } from "./SpecialistProfileView";
-import { specialistProfileStore } from "../model/specialistProfileStore";
+import { SpecialistProfileView } from './SpecialistProfileView';
+import { specialistProfileStore } from '../model/specialistProfileStore';
 
-import type { ReactElement } from "react";
+import type { ReactElement } from 'react';
 
 export const SpecialistProfileSection = observer((): ReactElement => {
   const navigate = useAppNavigate();
   const { user } = useAuth();
   const params = useParams<{ slug: string }>();
 
-  const slug = params.slug?.trim() ?? "";
+  const slug = params.slug?.trim() ?? '';
 
   useEffect(() => {
     void specialistProfileStore.load(slug);
@@ -39,10 +39,10 @@ export const SpecialistProfileSection = observer((): ReactElement => {
       return;
     }
 
-    navigate("/messages", {
+    navigate('/messages', {
       state: {
         specialistSlug: profile.slug,
-        source: "specialist-profile",
+        source: 'specialist-profile',
       },
     });
   };
@@ -52,7 +52,7 @@ export const SpecialistProfileSection = observer((): ReactElement => {
       return;
     }
 
-    navigate("/service-booking", {
+    navigate('/service-booking', {
       state: {
         specialistSlug: profile.slug,
         serviceId,
@@ -99,32 +99,22 @@ export const SpecialistProfileSection = observer((): ReactElement => {
       onSetServiceBookingMode={specialistProfileStore.setServiceBookingMode}
       onSetServiceDurationField={specialistProfileStore.setServiceDurationField}
       onSetServiceBufferField={specialistProfileStore.setServiceBufferField}
-      onSetServiceCompatibilityField={
-        specialistProfileStore.setServiceCompatibilityField
-      }
+      onSetServiceCompatibilityField={specialistProfileStore.setServiceCompatibilityField}
       onSetServiceAdvanceField={specialistProfileStore.setServiceAdvanceField}
       onSetServiceMultiDayField={specialistProfileStore.setServiceMultiDayField}
       onSetServiceFlagField={specialistProfileStore.setServiceFlagField}
-      onSetSpecialistGalleryUrlInput={
-        specialistProfileStore.setSpecialistGalleryUrlInput
-      }
+      onSetSpecialistGalleryUrlInput={specialistProfileStore.setSpecialistGalleryUrlInput}
       onAddSpecialistGalleryImageByUrl={
         specialistProfileStore.addSpecialistGalleryImageByUrl
       }
-      onAddSpecialistGalleryFiles={
-        specialistProfileStore.addSpecialistGalleryFiles
-      }
-      onRemoveSpecialistGalleryImage={
-        specialistProfileStore.removeSpecialistGalleryImage
-      }
+      onAddSpecialistGalleryFiles={specialistProfileStore.addSpecialistGalleryFiles}
+      onRemoveSpecialistGalleryImage={specialistProfileStore.removeSpecialistGalleryImage}
       onSaveDetails={specialistProfileStore.saveDetails}
       onContactSpecialist={
         profile && !profile.isOwner ? handleContactSpecialist : undefined
       }
       onBookService={
-        profile &&
-        !profile.isOwner &&
-        canClientBookService(user ?? null)
+        profile && !profile.isOwner && canClientBookService(user ?? null)
           ? handleBookService
           : undefined
       }

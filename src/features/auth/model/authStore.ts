@@ -1,13 +1,8 @@
 // src/features/auth/model/authStore.ts
 
-import { clearLastRoute } from "@/shared/lib/navigation/persistedLastRoute";
+import { clearLastRoute } from '@/shared/lib/navigation/persistedLastRoute';
 
-export type UserRole =
-  | "guest"
-  | "client"
-  | "specialist"
-  | "admin"
-  | "super_admin";
+export type UserRole = 'guest' | 'client' | 'specialist' | 'admin' | 'super_admin';
 
 export type AuthUser = {
   id: string;
@@ -29,41 +24,41 @@ type AuthState = {
   user: AuthUser | null;
 };
 
-const TOKEN_KEY = "tailly_token";
-const USER_KEY = "tailly_user";
+const TOKEN_KEY = 'tailly_token';
+const USER_KEY = 'tailly_user';
 
 function normalizeRole(role?: string): UserRole {
   if (
-    role === "client" ||
-    role === "specialist" ||
-    role === "admin" ||
-    role === "super_admin"
+    role === 'client' ||
+    role === 'specialist' ||
+    role === 'admin' ||
+    role === 'super_admin'
   ) {
     return role;
   }
 
-  return "guest";
+  return 'guest';
 }
 
 function buildDisplayName(user: Partial<AuthUser>): string | undefined {
-  if (typeof user.name === "string" && user.name.trim()) {
+  if (typeof user.name === 'string' && user.name.trim()) {
     return user.name.trim();
   }
 
   const value = [
-    typeof user.lastName === "string" ? user.lastName.trim() : "",
-    typeof user.firstName === "string" ? user.firstName.trim() : "",
-    typeof user.middleName === "string" ? user.middleName.trim() : "",
+    typeof user.lastName === 'string' ? user.lastName.trim() : '',
+    typeof user.firstName === 'string' ? user.firstName.trim() : '',
+    typeof user.middleName === 'string' ? user.middleName.trim() : '',
   ]
     .filter(Boolean)
-    .join(" ")
+    .join(' ')
     .trim();
 
   return value || undefined;
 }
 
 function normalizeUser(user: Partial<AuthUser>): AuthUser | null {
-  if (typeof user.id !== "string" || typeof user.email !== "string") {
+  if (typeof user.id !== 'string' || typeof user.email !== 'string') {
     return null;
   }
 
@@ -73,33 +68,24 @@ function normalizeUser(user: Partial<AuthUser>): AuthUser | null {
     role: normalizeRole(user.role),
     name: buildDisplayName(user),
     firstName:
-      typeof user.firstName === "string"
-        ? user.firstName.trim() || undefined
-        : undefined,
+      typeof user.firstName === 'string' ? user.firstName.trim() || undefined : undefined,
     lastName:
-      typeof user.lastName === "string"
-        ? user.lastName.trim() || undefined
-        : undefined,
+      typeof user.lastName === 'string' ? user.lastName.trim() || undefined : undefined,
     middleName:
-      typeof user.middleName === "string"
+      typeof user.middleName === 'string'
         ? user.middleName.trim() || undefined
         : undefined,
-    phone:
-      typeof user.phone === "string"
-        ? user.phone.trim() || undefined
-        : undefined,
+    phone: typeof user.phone === 'string' ? user.phone.trim() || undefined : undefined,
     specialistId:
-      typeof user.specialistId === "string"
+      typeof user.specialistId === 'string'
         ? user.specialistId.trim() || undefined
         : undefined,
     specialistSlug:
-      typeof user.specialistSlug === "string"
+      typeof user.specialistSlug === 'string'
         ? user.specialistSlug.trim() || undefined
         : undefined,
     adminId:
-      typeof user.adminId === "string"
-        ? user.adminId.trim() || undefined
-        : undefined,
+      typeof user.adminId === 'string' ? user.adminId.trim() || undefined : undefined,
     isBlocked: Boolean(user.isBlocked),
   };
 }
@@ -204,14 +190,14 @@ export const authStore = {
       token: null,
       user: null,
     };
-  
+
     localStorage.removeItem(TOKEN_KEY);
     localStorage.removeItem(USER_KEY);
-  
+
     sessionStorage.setItem('tailly_logged_out', '1');
-    
+
     clearLastRoute();
-  
+
     emit();
-  }
+  },
 };

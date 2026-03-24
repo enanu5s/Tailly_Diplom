@@ -7,7 +7,6 @@ import { useAppNavigate } from '@/shared/lib/navigation/useAppNavigate';
 import styles from './AdminProfileSection.module.css';
 import { adminProfileStore } from '../model/adminProfileStore';
 
-
 import type { ReactElement } from 'react';
 
 function formatBirthDate(value?: string): string {
@@ -48,9 +47,7 @@ export const AdminProfileSection = observer((): ReactElement => {
 
   if (!store.profile) {
     return (
-      <div className={styles.stateCard}>
-        Профиль администратора пока недоступен.
-      </div>
+      <div className={styles.stateCard}>Профиль администратора пока недоступен.</div>
     );
   }
 
@@ -70,16 +67,16 @@ export const AdminProfileSection = observer((): ReactElement => {
           {isSuperAdmin ? (
             <p className={styles.subtitle}>
               Вы можете редактировать ФИО, телефон и дату рождения. Смена email
-              выполняется отдельно: сначала укажите новый адрес и пароль от
-              аккаунта — на текущую почту придёт код; после ввода кода почта
-              обновится. Роль, должность и отдел здесь не меняются.
+              выполняется отдельно: сначала укажите новый адрес и пароль от аккаунта — на
+              текущую почту придёт код; после ввода кода почта обновится. Роль, должность
+              и отдел здесь не меняются.
             </p>
           ) : (
             <p className={styles.subtitle}>
-              Здесь можно просматривать и редактировать часть персональных
-              данных. Email, дата рождения, роль, должность и отдел заполняются
-              системой и в этом разделе не меняются. Должность и отдел назначает
-              главный администратор в разделе «Управление администраторами».
+              Здесь можно просматривать и редактировать часть персональных данных. Email,
+              дата рождения, роль, должность и отдел заполняются системой и в этом разделе
+              не меняются. Должность и отдел назначает главный администратор в разделе
+              «Управление администраторами».
             </p>
           )}
         </div>
@@ -145,9 +142,7 @@ export const AdminProfileSection = observer((): ReactElement => {
 
             <div className={styles.infoItem}>
               <span className={styles.label}>Дата рождения</span>
-              <span className={styles.value}>
-                {formatBirthDate(profile.birthDate)}
-              </span>
+              <span className={styles.value}>{formatBirthDate(profile.birthDate)}</span>
             </div>
 
             <div className={styles.infoItem}>
@@ -181,9 +176,7 @@ export const AdminProfileSection = observer((): ReactElement => {
               <input
                 className={styles.input}
                 value={store.form.lastName}
-                onChange={(event) =>
-                  store.setFormField('lastName', event.target.value)
-                }
+                onChange={(event) => store.setFormField('lastName', event.target.value)}
                 placeholder="Фамилия"
                 required
               />
@@ -194,9 +187,7 @@ export const AdminProfileSection = observer((): ReactElement => {
               <input
                 className={styles.input}
                 value={store.form.firstName}
-                onChange={(event) =>
-                  store.setFormField('firstName', event.target.value)
-                }
+                onChange={(event) => store.setFormField('firstName', event.target.value)}
                 placeholder="Имя"
                 required
               />
@@ -207,9 +198,7 @@ export const AdminProfileSection = observer((): ReactElement => {
               <input
                 className={styles.input}
                 value={store.form.middleName}
-                onChange={(event) =>
-                  store.setFormField('middleName', event.target.value)
-                }
+                onChange={(event) => store.setFormField('middleName', event.target.value)}
                 placeholder="Отчество"
               />
             </label>
@@ -219,9 +208,7 @@ export const AdminProfileSection = observer((): ReactElement => {
               <input
                 className={styles.input}
                 value={store.form.phone}
-                onChange={(event) =>
-                  store.setFormField('phone', event.target.value)
-                }
+                onChange={(event) => store.setFormField('phone', event.target.value)}
                 placeholder="+7 (900) 000-00-00"
               />
             </label>
@@ -295,11 +282,9 @@ export const AdminProfileSection = observer((): ReactElement => {
               <>
                 <p className={styles.modalLead}>
                   Текущий адрес:{' '}
-                  <strong className={styles.modalEmphasis}>
-                    {profile.email}
-                  </strong>
-                  . После проверки пароля на эту почту будет отправлен код.
-                  Новый адрес вступит в силу только после ввода кода.
+                  <strong className={styles.modalEmphasis}>{profile.email}</strong>. После
+                  проверки пароля на эту почту будет отправлен код. Новый адрес вступит в
+                  силу только после ввода кода.
                 </p>
 
                 <label className={styles.field}>
@@ -324,10 +309,7 @@ export const AdminProfileSection = observer((): ReactElement => {
                     autoComplete="current-password"
                     value={store.emailChangePassword}
                     onChange={(event) =>
-                      store.setEmailChangeField(
-                        'password',
-                        event.target.value,
-                      )
+                      store.setEmailChangeField('password', event.target.value)
                     }
                   />
                 </label>
@@ -336,10 +318,7 @@ export const AdminProfileSection = observer((): ReactElement => {
               <>
                 <p className={styles.modalLead}>
                   Введите код из письма, отправленного на{' '}
-                  <strong className={styles.modalEmphasis}>
-                    {profile.email}
-                  </strong>
-                  .
+                  <strong className={styles.modalEmphasis}>{profile.email}</strong>.
                 </p>
 
                 <label className={styles.field}>
@@ -371,17 +350,13 @@ export const AdminProfileSection = observer((): ReactElement => {
             )}
 
             {store.emailChangeInfoMessage ? (
-              <div className={styles.infoBanner}>
-                {store.emailChangeInfoMessage}
-              </div>
+              <div className={styles.infoBanner}>{store.emailChangeInfoMessage}</div>
             ) : null}
 
             {store.emailChangeMockHint ? (
               <div className={styles.mockHintBanner}>
                 Демо-режим: код из «письма» —{' '}
-                <span className={styles.mockHintCode}>
-                  {store.emailChangeMockHint}
-                </span>
+                <span className={styles.mockHintCode}>{store.emailChangeMockHint}</span>
               </div>
             ) : null}
 
@@ -408,9 +383,7 @@ export const AdminProfileSection = observer((): ReactElement => {
                       void store.requestSuperAdminEmailChange();
                     }}
                   >
-                    {store.isRequestingEmailChange
-                      ? 'Отправка...'
-                      : 'Отправить код'}
+                    {store.isRequestingEmailChange ? 'Отправка...' : 'Отправить код'}
                   </button>
                 </>
               ) : (

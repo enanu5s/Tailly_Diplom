@@ -45,9 +45,7 @@ export async function mockCreateAdmin(
   );
 
   if (existingAdmin) {
-    throw new AdminManagementError(
-      'Администратор с таким email уже существует.',
-    );
+    throw new AdminManagementError('Администратор с таким email уже существует.');
   }
 
   const adminId = buildAdminId();
@@ -78,8 +76,7 @@ export async function mockCreateAdmin(
 
   notifyNewAdminPasswordFromSuperAdmin({
     adminEmail: normalizedEmail,
-    adminName:
-      `${payload.firstName.trim()} ${payload.lastName.trim()}`.trim(),
+    adminName: `${payload.firstName.trim()} ${payload.lastName.trim()}`.trim(),
     temporaryPassword,
   });
 
@@ -89,24 +86,18 @@ export async function mockCreateAdmin(
   };
 }
 
-export async function mockDeleteAdmin(
-  payload: DeleteAdminPayload,
-): Promise<void> {
+export async function mockDeleteAdmin(payload: DeleteAdminPayload): Promise<void> {
   await wait();
 
   const admins = getSuperAdminAdminsMutable();
-  const adminIndex = admins.findIndex(
-    (admin) => admin.adminId === payload.adminId,
-  );
+  const adminIndex = admins.findIndex((admin) => admin.adminId === payload.adminId);
 
   if (adminIndex === -1) {
     throw new AdminManagementError('Администратор не найден.');
   }
 
   if (admins[adminIndex].role === 'super_admin') {
-    throw new AdminManagementError(
-      'Главного администратора удалить нельзя.',
-    );
+    throw new AdminManagementError('Главного администратора удалить нельзя.');
   }
 
   patchMockDatabase((db) => {
@@ -122,9 +113,7 @@ export async function mockUpdateAdmin(
   await wait();
 
   const admins = getSuperAdminAdminsMutable();
-  const adminIndex = admins.findIndex(
-    (admin) => admin.adminId === payload.adminId,
-  );
+  const adminIndex = admins.findIndex((admin) => admin.adminId === payload.adminId);
 
   if (adminIndex === -1) {
     throw new AdminManagementError('Администратор не найден.');

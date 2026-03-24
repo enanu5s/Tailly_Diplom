@@ -1,19 +1,14 @@
 // src/features/auth/api/authApi.ts
 
-import { request } from '@/shared/api/http';
+import { requestParsed } from '@/shared/api/requestParsed';
+import { loginSuccessResponseSchema } from '@/shared/api/schemas/authUserSchema';
+import { isMockApiMode } from '@/shared/config/env';
 
 import { mockLogin } from './authApi.mock';
-import {
-  type LoginPayload,
-  type LoginSuccessResponse,
-} from '../model/types';
+import { type LoginPayload, type LoginSuccessResponse } from '../model/types';
 
-const USE_MOCK = (import.meta.env.VITE_USE_MOCK_API ?? 'true') === 'true';
-
-async function realLogin(
-  payload: LoginPayload,
-): Promise<LoginSuccessResponse> {
-  return request<LoginSuccessResponse>('/auth/login', {
+async function realLogin(payload: LoginPayload): Promise<LoginSuccessResponse> {
+  return requestParsed('/auth/login', loginSuccessResponseSchema, {
     method: 'POST',
     body: payload,
   });
@@ -21,7 +16,7 @@ async function realLogin(
 
 export const authApi = {
   async login(payload: LoginPayload): Promise<LoginSuccessResponse> {
-    if (USE_MOCK) {
+    if (isMockApiMode) {
       return mockLogin(payload);
     }
 

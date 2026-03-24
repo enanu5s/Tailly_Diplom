@@ -5,10 +5,10 @@ export { superAdminAdminsManagementService } from './service/superAdminAdminsMan
 export { superAdminAdminsManagementStore } from './model/superAdminAdminsManagementStore';
 export { SuperAdminAdminsManagementSection } from './ui/SuperAdminAdminsManagementSection';
 export type {
-    CreateAdminPayload,
-    CreateAdminResponse,
-    ManagedAdmin,
-    ManagedAdminRole,
-    ManagedAdminStatus,
+  CreateAdminPayload,
+  CreateAdminResponse,
+  ManagedAdmin,
+  ManagedAdminRole,
+  ManagedAdminStatus,
 } from './model/types';
 export { AdminManagementError } from './model/types';

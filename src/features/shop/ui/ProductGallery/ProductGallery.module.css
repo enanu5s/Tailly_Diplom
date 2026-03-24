@@ -1,70 +1,70 @@
 /* src/features/shop/ui/ProductGallery/ProductGallery.module.css */
 .gallery {
-    display: flex;
-    flex-direction: column;
-    gap: 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
 }
 
 .mainImageWrap {
-    border: 1px solid #e5e7eb;
-    border-radius: 24px;
-    background: #ffffff;
-    box-shadow: 0 12px 32px rgba(15, 23, 42, 0.06);
-    overflow: hidden;
-    aspect-ratio: 1 / 1;
+  border: 1px solid #e5e7eb;
+  border-radius: 24px;
+  background: #ffffff;
+  box-shadow: 0 12px 32px rgba(15, 23, 42, 0.06);
+  overflow: hidden;
+  aspect-ratio: 1 / 1;
 }
 
 .mainImage {
-    display: block;
-    width: 100%;
-    height: 100%;
-    object-fit: cover;
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
 }
 
 .emptyState {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    height: 100%;
-    padding: 24px;
-    color: #64748b;
-    font-size: 15px;
-    text-align: center;
-    background: #f8fafc;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 100%;
+  padding: 24px;
+  color: #64748b;
+  font-size: 15px;
+  text-align: center;
+  background: #f8fafc;
 }
 
 .thumbs {
-    display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(88px, 1fr));
-    gap: 12px;
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(88px, 1fr));
+  gap: 12px;
 }
 
 .thumbButton {
-    display: block;
-    padding: 0;
-    border: 1px solid #e5e7eb;
-    border-radius: 16px;
-    background: #ffffff;
-    overflow: hidden;
-    cursor: pointer;
-    transition:
-        border-color 0.2s ease,
-        transform 0.2s ease,
-        box-shadow 0.2s ease;
+  display: block;
+  padding: 0;
+  border: 1px solid #e5e7eb;
+  border-radius: 16px;
+  background: #ffffff;
+  overflow: hidden;
+  cursor: pointer;
+  transition:
+    border-color 0.2s ease,
+    transform 0.2s ease,
+    box-shadow 0.2s ease;
 }
 
 .thumbButton:hover {
-    transform: translateY(-1px);
+  transform: translateY(-1px);
 }
 
 .thumbButtonActive {
-    border-color: #6366f1;
-    box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.12);
+  border-color: #6366f1;
+  box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.12);
 }
 
 .thumbImage {
-    display: block;
-    width: 100%;
-    aspect-ratio: 1 / 1;
-    object-fit: cover;
+  display: block;
+  width: 100%;
+  aspect-ratio: 1 / 1;
+  object-fit: cover;
 }

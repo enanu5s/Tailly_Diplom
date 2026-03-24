@@ -4,8 +4,8 @@ import {
   readAdminManagedPosts,
   writeAdminManagedBanners,
   writeAdminManagedPosts,
-} from "../data/adminPostsBannersStorage";
-import { AdminPostsBannersManagementError } from "../model/types";
+} from '../data/adminPostsBannersStorage';
+import { AdminPostsBannersManagementError } from '../model/types';
 
 import type {
   AdminManagedBanner,
@@ -14,7 +14,7 @@ import type {
   BannerLinkTarget,
   SaveAdminBannerPayload,
   SaveAdminPostPayload,
-} from "../model/types";
+} from '../model/types';
 
 function createId(prefix: string): string {
   return `${prefix}-${Date.now()}-${Math.random().toString(36).slice(2, 8)}`;
@@ -30,10 +30,7 @@ function normalizeImageUrls(imageUrls: string[]): string[] {
   return imageUrls.map((item) => item.trim()).filter(Boolean);
 }
 
-function resolveBannerLinkUrl(
-  target: BannerLinkTarget,
-  linkedPostId?: string,
-): string {
+function resolveBannerLinkUrl(target: BannerLinkTarget, linkedPostId?: string): string {
   switch (target) {
     case 'home':
       return '/';
@@ -58,7 +55,7 @@ export async function mockGetAdminPostsBanners(): Promise<AdminPostsBannersRespo
 }
 
 export async function mockSaveAdminPost(
-  payload: SaveAdminPostPayload
+  payload: SaveAdminPostPayload,
 ): Promise<AdminManagedPost> {
   const title = payload.title.trim();
   const content = payload.content.trim();
@@ -66,16 +63,16 @@ export async function mockSaveAdminPost(
   const coverImageUrl = normalizeOptionalString(payload.coverImageUrl);
 
   if (!title) {
-    throw new AdminPostsBannersManagementError("Укажите заголовок публикации.");
+    throw new AdminPostsBannersManagementError('Укажите заголовок публикации.');
   }
 
   if (!content) {
-    throw new AdminPostsBannersManagementError("Укажите текст публикации.");
+    throw new AdminPostsBannersManagementError('Укажите текст публикации.');
   }
 
   if (coverImageUrl && !imageUrls.includes(coverImageUrl)) {
     throw new AdminPostsBannersManagementError(
-      "Обложка должна быть выбрана из загруженных изображений."
+      'Обложка должна быть выбрана из загруженных изображений.',
     );
   }
 
@@ -88,7 +85,7 @@ export async function mockSaveAdminPost(
 
         if (!existingPost) {
           throw new AdminPostsBannersManagementError(
-            "Публикация для редактирования не найдена."
+            'Публикация для редактирования не найдена.',
           );
         }
 
@@ -103,21 +100,21 @@ export async function mockSaveAdminPost(
           tags: payload.tags,
           status: nextStatus,
           publishedAt:
-            nextStatus === "published"
-              ? existingPost.publishedAt ?? nowIso
+            nextStatus === 'published'
+              ? (existingPost.publishedAt ?? nowIso)
               : existingPost.publishedAt,
           updatedAt: nowIso,
         };
       })()
     : {
-        id: createId("admin-post"),
+        id: createId('admin-post'),
         title,
         content,
         imageUrls,
         coverImageUrl,
         tags: payload.tags,
         status: payload.status,
-        publishedAt: payload.status === "published" ? nowIso : undefined,
+        publishedAt: payload.status === 'published' ? nowIso : undefined,
         createdAt: nowIso,
         updatedAt: nowIso,
       };
@@ -136,7 +133,7 @@ export async function mockDeleteAdminPost(postId: string): Promise<void> {
   const nextPosts = posts.filter((post) => post.id !== postId);
 
   if (nextPosts.length === posts.length) {
-    throw new AdminPostsBannersManagementError("Публикация не найдена.");
+    throw new AdminPostsBannersManagementError('Публикация не найдена.');
   }
 
   await writeAdminManagedPosts(nextPosts);
@@ -157,9 +154,7 @@ export async function mockSaveAdminBanner(
   }
 
   if (!payload.linkTarget) {
-    throw new AdminPostsBannersManagementError(
-      'Выберите, куда ведёт баннер.',
-    );
+    throw new AdminPostsBannersManagementError('Выберите, куда ведёт баннер.');
   }
 
   const posts = await readAdminManagedPosts();
@@ -195,9 +190,7 @@ export async function mockSaveAdminBanner(
 
   const nextBanner: AdminManagedBanner = payload.id
     ? (() => {
-        const existingBanner = banners.find(
-          (banner) => banner.id === payload.id,
-        );
+        const existingBanner = banners.find((banner) => banner.id === payload.id);
 
         if (!existingBanner) {
           throw new AdminPostsBannersManagementError(
@@ -237,9 +230,7 @@ export async function mockSaveAdminBanner(
       };
 
   const updatedBanners = payload.id
-    ? banners.map((banner) =>
-        banner.id === nextBanner.id ? nextBanner : banner,
-      )
+    ? banners.map((banner) => (banner.id === nextBanner.id ? nextBanner : banner))
     : [nextBanner, ...banners];
 
   writeAdminManagedBanners(updatedBanners);
@@ -252,7 +243,7 @@ export async function mockDeleteAdminBanner(bannerId: string): Promise<void> {
   const nextBanners = banners.filter((banner) => banner.id !== bannerId);
 
   if (nextBanners.length === banners.length) {
-    throw new AdminPostsBannersManagementError("Баннер не найден.");
+    throw new AdminPostsBannersManagementError('Баннер не найден.');
   }
 
   writeAdminManagedBanners(nextBanners);

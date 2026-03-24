@@ -1,6 +1,7 @@
 // src/features/shop/api/shopOrderApi.ts
 
 import { request } from '@/shared/api/http';
+import { isMockApiMode } from '@/shared/config/env';
 
 import {
   mockCancelOrder,
@@ -10,13 +11,7 @@ import {
   mockPayShopOrder,
 } from './shopOrderApi.mock';
 
-import type {
-  CheckoutForm,
-  Order,
-  PickupPoint,
-} from '../model/types';
-
-const USE_MOCK = (import.meta.env.VITE_USE_MOCK_API ?? 'true') === 'true';
+import type { CheckoutForm, Order, PickupPoint } from '../model/types';
 
 type OrderLineInput = {
   productId: string;
@@ -44,18 +39,13 @@ async function createOrderReal(payload: CreateOrderPayload): Promise<Order> {
 }
 
 async function getOrderByIdReal(orderId: string): Promise<Order | null> {
-  return request<Order | null>(
-    `/shop/orders/${encodeURIComponent(orderId)}`,
-  );
+  return request<Order | null>(`/shop/orders/${encodeURIComponent(orderId)}`);
 }
 
 async function cancelOrderReal(orderId: string): Promise<Order> {
-  return request<Order>(
-    `/shop/orders/${encodeURIComponent(orderId)}/cancel`,
-    {
-      method: 'POST',
-    },
-  );
+  return request<Order>(`/shop/orders/${encodeURIComponent(orderId)}/cancel`, {
+    method: 'POST',
+  });
 }
 
 export type PayShopOrderPayload = {
@@ -66,18 +56,15 @@ async function payShopOrderReal(
   orderId: string,
   payload: PayShopOrderPayload,
 ): Promise<Order> {
-  return request<Order>(
-    `/shop/orders/${encodeURIComponent(orderId)}/pay`,
-    {
-      method: 'POST',
-      body: payload,
-    },
-  );
+  return request<Order>(`/shop/orders/${encodeURIComponent(orderId)}/pay`, {
+    method: 'POST',
+    body: payload,
+  });
 }
 
 export const shopOrderApi = {
   async getPickupPoints(city?: string): Promise<PickupPoint[]> {
-    if (USE_MOCK) {
+    if (isMockApiMode) {
       return mockGetPickupPoints(city);
     }
 
@@ -85,7 +72,7 @@ export const shopOrderApi = {
   },
 
   async createOrder(payload: CreateOrderPayload): Promise<Order> {
-    if (USE_MOCK) {
+    if (isMockApiMode) {
       return mockCreateOrder(payload);
     }
 
@@ -93,7 +80,7 @@ export const shopOrderApi = {
   },
 
   async getOrderById(orderId: string): Promise<Order | null> {
-    if (USE_MOCK) {
+    if (isMockApiMode) {
       return mockGetOrderById(orderId);
     }
 
@@ -101,18 +88,15 @@ export const shopOrderApi = {
   },
 
   async cancelOrder(orderId: string): Promise<Order> {
-    if (USE_MOCK) {
+    if (isMockApiMode) {
       return mockCancelOrder(orderId);
     }
 
     return cancelOrderReal(orderId);
   },
 
-  async payShopOrder(
-    orderId: string,
-    payload: PayShopOrderPayload,
-  ): Promise<Order> {
-    if (USE_MOCK) {
+  async payShopOrder(orderId: string, payload: PayShopOrderPayload): Promise<Order> {
+    if (isMockApiMode) {
       return mockPayShopOrder(orderId, payload.paymentMethod);
     }
 

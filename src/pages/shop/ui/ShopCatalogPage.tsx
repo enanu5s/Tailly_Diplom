@@ -1,24 +1,20 @@
 // src/pages/shop/ui/ShopCatalogPage.tsx
 
-import { observer } from "mobx-react-lite";
-import { useEffect, useRef } from "react";
-import { Link, useLocation } from "react-router-dom";
+import { observer } from 'mobx-react-lite';
+import { useEffect, useRef } from 'react';
+import { Link, useLocation } from 'react-router-dom';
 
-import { useAuth } from "@/features/auth/model/useAuth";
-import { ordersStore } from "@/features/orders/model/ordersStore";
-import { shouldOpenProductOrderDetails } from "@/features/orders/model/types";
-import { shopCartStore } from "@/features/shop/model/shopCartStore";
-import { shopCatalogStore } from "@/features/shop/model/shopCatalogStore";
-import { shopFavoritesStore } from "@/features/shop/model/shopFavoritesStore";
-import {
-  CatalogFilters,
-  CatalogPagination,
-  ProductCard,
-} from "@/features/shop/ui";
-import { shouldShowShopConsumerControls } from "@/shared/lib/auth/roleAccess";
-import { useAppNavigate } from "@/shared/lib/navigation/useAppNavigate";
+import { useAuth } from '@/features/auth/model/useAuth';
+import { ordersStore } from '@/features/orders/model/ordersStore';
+import { shouldOpenProductOrderDetails } from '@/features/orders/model/types';
+import { shopCartStore } from '@/features/shop/model/shopCartStore';
+import { shopCatalogStore } from '@/features/shop/model/shopCatalogStore';
+import { shopFavoritesStore } from '@/features/shop/model/shopFavoritesStore';
+import { CatalogFilters, CatalogPagination, ProductCard } from '@/features/shop/ui';
+import { shouldShowShopConsumerControls } from '@/shared/lib/auth/roleAccess';
+import { useAppNavigate } from '@/shared/lib/navigation/useAppNavigate';
 
-import styles from "./ShopCatalogPage.module.css";
+import styles from './ShopCatalogPage.module.css';
 
 type ShopCatalogPageLocationState = {
   restoreScrollY?: number;
@@ -32,29 +28,22 @@ export const ShopCatalogPage = observer(() => {
   const { user } = useAuth();
   const showShopConsumerUi = shouldShowShopConsumerControls(user);
 
-  const { filters, products, total, error, isLoading, isInitialized } =
-    shopCatalogStore;
+  const { filters, products, total, error, isLoading, isInitialized } = shopCatalogStore;
 
-  const categoryIdsKey = filters.categoryIds.join("|");
+  const categoryIdsKey = filters.categoryIds.join('|');
 
   useEffect(() => {
     if (!showShopConsumerUi) {
       return;
     }
 
-    if (
-      ordersStore.productOrders.length === 0 &&
-      !ordersStore.productsLoading
-    ) {
+    if (ordersStore.productOrders.length === 0 && !ordersStore.productsLoading) {
       void ordersStore.loadProducts();
     }
   }, [showShopConsumerUi]);
 
   useEffect(() => {
-    if (
-      !shopCatalogStore.isMetaInitialized &&
-      !shopCatalogStore.isMetaLoading
-    ) {
+    if (!shopCatalogStore.isMetaInitialized && !shopCatalogStore.isMetaLoading) {
       void shopCatalogStore.loadMeta();
     }
   }, []);
@@ -73,8 +62,7 @@ export const ShopCatalogPage = observer(() => {
   ]);
 
   useEffect(() => {
-    const state = (location.state ??
-      null) as ShopCatalogPageLocationState | null;
+    const state = (location.state ?? null) as ShopCatalogPageLocationState | null;
 
     if (!state || restoredRef.current) {
       return;
@@ -90,7 +78,7 @@ export const ShopCatalogPage = observer(() => {
       }
 
       const element = document.querySelector<HTMLElement>(
-        `[data-shop-product-id="${state.restoreProductId}"]`
+        `[data-shop-product-id="${state.restoreProductId}"]`,
       );
 
       if (!element) {
@@ -98,8 +86,8 @@ export const ShopCatalogPage = observer(() => {
       }
 
       element.scrollIntoView({
-        block: "center",
-        behavior: "auto",
+        block: 'center',
+        behavior: 'auto',
       });
 
       return true;
@@ -108,10 +96,10 @@ export const ShopCatalogPage = observer(() => {
     const timerId = window.setTimeout(() => {
       const restoredByProduct = restoreToProduct();
 
-      if (!restoredByProduct && typeof state.restoreScrollY === "number") {
+      if (!restoredByProduct && typeof state.restoreScrollY === 'number') {
         window.scrollTo({
           top: state.restoreScrollY,
-          behavior: "auto",
+          behavior: 'auto',
         });
       }
 
@@ -156,7 +144,7 @@ export const ShopCatalogPage = observer(() => {
       search: location.search,
       hash: location.hash,
       scrollY: window.scrollY,
-      productId: "",
+      productId: '',
     },
   };
 
@@ -166,13 +154,11 @@ export const ShopCatalogPage = observer(() => {
       search: location.search,
       hash: location.hash,
       scrollY: window.scrollY,
-      productId: "",
+      productId: '',
     },
   };
 
-  const activeOrders = ordersStore.productOrders.filter(
-    shouldOpenProductOrderDetails,
-  );
+  const activeOrders = ordersStore.productOrders.filter(shouldOpenProductOrderDetails);
 
   return (
     <div className={styles.page}>
@@ -185,25 +171,17 @@ export const ShopCatalogPage = observer(() => {
           <span className={styles.breadcrumbCurrent}>Магазин</span>
         </div>
 
-        {showShopConsumerUi &&
-        !ordersStore.productsLoading &&
-        activeOrders.length > 0 ? (
+        {showShopConsumerUi && !ordersStore.productsLoading && activeOrders.length > 0 ? (
           <section className={styles.activeOrdersBanner}>
             <div className={styles.activeOrdersHeader}>
               <div>
-                <h2 className={styles.activeOrdersTitle}>
-                  У вас есть активные заказы
-                </h2>
+                <h2 className={styles.activeOrdersTitle}>У вас есть активные заказы</h2>
                 <p className={styles.activeOrdersSubtitle}>
-                  Открой заказ, чтобы посмотреть детали и при необходимости
-                  отменить его.
+                  Открой заказ, чтобы посмотреть детали и при необходимости отменить его.
                 </p>
               </div>
 
-              <Link
-                to="/shop/orders"
-                className={styles.activeOrdersProfileLink}
-              >
+              <Link to="/shop/orders" className={styles.activeOrdersProfileLink}>
                 Все заказы
               </Link>
             </div>
@@ -215,9 +193,7 @@ export const ShopCatalogPage = observer(() => {
                   to={`/shop/order/${encodeURIComponent(order.id)}`}
                   className={styles.activeOrderItem}
                 >
-                  <span className={styles.activeOrderNumber}>
-                    {order.number}
-                  </span>
+                  <span className={styles.activeOrderNumber}>{order.number}</span>
                   <span className={styles.activeOrderMeta}>
                     {mapProductStatus(order.status)}
                   </span>
@@ -242,20 +218,12 @@ export const ShopCatalogPage = observer(() => {
                 state={favoritesLinkState}
                 className={styles.quickCard}
               >
-                <span className={styles.quickCardValue}>
-                  {shopFavoritesStore.total}
-                </span>
+                <span className={styles.quickCardValue}>{shopFavoritesStore.total}</span>
                 <span className={styles.quickCardLabel}>В избранном</span>
               </Link>
 
-              <Link
-                to="/shop/cart"
-                state={cartLinkState}
-                className={styles.quickCard}
-              >
-                <span className={styles.quickCardValue}>
-                  {shopCartStore.totalItems}
-                </span>
+              <Link to="/shop/cart" state={cartLinkState} className={styles.quickCard}>
+                <span className={styles.quickCardValue}>{shopCartStore.totalItems}</span>
                 <span className={styles.quickCardLabel}>В корзине</span>
               </Link>
             </div>
@@ -271,7 +239,7 @@ export const ShopCatalogPage = observer(() => {
             <div className={styles.toolbar}>
               <div className={styles.results}>
                 {isLoading && !isInitialized
-                  ? "Загрузка каталога..."
+                  ? 'Загрузка каталога...'
                   : `Найдено товаров: ${total}`}
               </div>
 
@@ -282,16 +250,13 @@ export const ShopCatalogPage = observer(() => {
 
             {shopCatalogStore.metaError ? (
               <div className={styles.metaWarning}>
-                Не удалось загрузить метаданные каталога:{" "}
-                {shopCatalogStore.metaError}
+                Не удалось загрузить метаданные каталога: {shopCatalogStore.metaError}
               </div>
             ) : null}
 
             {error ? (
               <div className={styles.stateCard}>
-                <h2 className={styles.stateTitle}>
-                  Не удалось загрузить каталог
-                </h2>
+                <h2 className={styles.stateTitle}>Не удалось загрузить каталог</h2>
                 <p className={styles.stateText}>{error}</p>
                 <button
                   className={styles.retryButton}
@@ -351,11 +316,11 @@ export const ShopCatalogPage = observer(() => {
 });
 
 function mapProductStatus(status: string): string {
-  if (status === "created") return "Создан";
-  if (status === "paid") return "Оплачен";
-  if (status === "shipped") return "Отправлен";
-  if (status === "delivered") return "Доставлен";
-  if (status === "canceled") return "Отменён";
+  if (status === 'created') return 'Создан';
+  if (status === 'paid') return 'Оплачен';
+  if (status === 'shipped') return 'Отправлен';
+  if (status === 'delivered') return 'Доставлен';
+  if (status === 'canceled') return 'Отменён';
 
   return status;
 }

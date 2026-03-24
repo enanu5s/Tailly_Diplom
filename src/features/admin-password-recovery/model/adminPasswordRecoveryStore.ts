@@ -42,9 +42,7 @@ class AdminPasswordRecoveryStore {
     } catch (error) {
       runInAction(() => {
         this.submitError =
-          error instanceof Error
-            ? error.message
-            : 'Ошибка восстановления пароля';
+          error instanceof Error ? error.message : 'Ошибка восстановления пароля';
       });
     } finally {
       runInAction(() => {
@@ -61,5 +59,4 @@ class AdminPasswordRecoveryStore {
   }
 }
 
-export const adminPasswordRecoveryStore =
-  new AdminPasswordRecoveryStore();
+export const adminPasswordRecoveryStore = new AdminPasswordRecoveryStore();

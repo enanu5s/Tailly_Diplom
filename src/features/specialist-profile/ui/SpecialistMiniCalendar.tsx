@@ -1,22 +1,19 @@
 // src/features/specialist-profile/ui/SpecialistMiniCalendar.tsx
 
-import { useState } from "react";
+import { useState } from 'react';
 
 import { useAppNavigate } from '@/shared/lib/navigation/useAppNavigate';
 
-import styles from "./SpecialistMiniCalendar.module.css";
+import styles from './SpecialistMiniCalendar.module.css';
 import {
   buildCalendarMonthDays,
   CALENDAR_STATUS_LABELS,
   CALENDAR_WEEKDAY_LABELS,
   toIsoDate,
-} from "../model/calendarUtils";
+} from '../model/calendarUtils';
 
-import type {
-  SpecialistCalendar,
-  SpecialistCalendarDayStatus,
-} from "../model/types";
-import type { ReactElement } from "react";
+import type { SpecialistCalendar, SpecialistCalendarDayStatus } from '../model/types';
+import type { ReactElement } from 'react';
 
 type Props = {
   calendar: SpecialistCalendar;
@@ -32,9 +29,9 @@ const STATUS_CLASS_NAMES: Record<SpecialistCalendarDayStatus, string> = {
 };
 
 const LEGEND_ITEMS: SpecialistCalendarDayStatus[] = [
-  "partially_booked",
-  "fully_booked",
-  "day_off",
+  'partially_booked',
+  'fully_booked',
+  'day_off',
 ];
 
 export function SpecialistMiniCalendar({
@@ -42,25 +39,24 @@ export function SpecialistMiniCalendar({
   monthDate = new Date(),
   editHref,
 }: Props): ReactElement {
-
   const navigate = useAppNavigate();
 
   const [currentMonth, setCurrentMonth] = useState<Date>(monthDate);
   const { days } = buildCalendarMonthDays(currentMonth, calendar);
 
-  const monthLabel = currentMonth.toLocaleDateString("ru-RU", {
-    month: "long",
-    year: "numeric",
+  const monthLabel = currentMonth.toLocaleDateString('ru-RU', {
+    month: 'long',
+    year: 'numeric',
   });
   const todayIsoDate = toIsoDate(new Date());
 
   const handleEditCalendarClick = (): void => {
-    console.log("MINI CALENDAR EDIT CLICK");
-    console.log("EDIT_HREF:", editHref);
-    console.log("CURRENT_PATH:", window.location.pathname);
+    console.log('MINI CALENDAR EDIT CLICK');
+    console.log('EDIT_HREF:', editHref);
+    console.log('CURRENT_PATH:', window.location.pathname);
 
     if (!editHref) {
-      console.error("EDIT_HREF IS EMPTY");
+      console.error('EDIT_HREF IS EMPTY');
       return;
     }
 
@@ -135,26 +131,24 @@ export function SpecialistMiniCalendar({
           const isoDate = day.isoDate;
 
           const isPast =
-            isoDate !== null &&
-            isoDate !== todayIsoDate &&
-            isoDate < todayIsoDate;
+            isoDate !== null && isoDate !== todayIsoDate && isoDate < todayIsoDate;
 
           return (
             <div
               key={day.isoDate ?? `empty-${index}`}
               className={`${styles.dayCell} ${
                 day.isCurrentMonth ? styles.dayCellCurrent : styles.dayCellEmpty
-              } ${day.status ? STATUS_CLASS_NAMES[day.status] : ""} ${
-                isToday ? styles.today : ""
-              } ${isPast ? styles.pastDay : ""}`}
+              } ${day.status ? STATUS_CLASS_NAMES[day.status] : ''} ${
+                isToday ? styles.today : ''
+              } ${isPast ? styles.pastDay : ''}`}
             >
               {day.dayNumber ? (
                 <>
                   <span className={styles.dayNumber}>{day.dayNumber}</span>
 
                   {day.status &&
-                  day.status !== "available" &&
-                  day.status !== "day_off" ? (
+                  day.status !== 'available' &&
+                  day.status !== 'day_off' ? (
                     <span className={styles.dot} aria-hidden="true" />
                   ) : null}
                 </>

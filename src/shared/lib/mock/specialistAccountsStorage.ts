@@ -1,6 +1,5 @@
 // src/shared/lib/mock/specialistAccountsStorage.ts
 
-
 import { cloneDeep } from '@/shared/mock-db/cloneDeep';
 import { SEED_MANAGED_SPECIALISTS } from '@/shared/mock-db/seed/managedSpecialists.seed';
 import {
@@ -42,9 +41,7 @@ function normalizeOptionalString(value: unknown): string | undefined {
   return typeof value === 'string' && value.trim() ? value : undefined;
 }
 
-function normalizeAccounts(
-  value: unknown,
-): ManagedSpecialistMockAccount[] {
+function normalizeAccounts(value: unknown): ManagedSpecialistMockAccount[] {
   if (!Array.isArray(value)) {
     return cloneAccounts(SEED_MANAGED_SPECIALISTS);
   }
@@ -165,9 +162,7 @@ export function upsertManagedSpecialistAccount(
 
 export function updateManagedSpecialistAccount(
   specialistId: string,
-  updater: (
-    account: ManagedSpecialistMockAccount,
-  ) => ManagedSpecialistMockAccount,
+  updater: (account: ManagedSpecialistMockAccount) => ManagedSpecialistMockAccount,
 ): ManagedSpecialistMockAccount {
   ensureMockDatabaseLoaded();
 

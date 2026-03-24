@@ -136,9 +136,7 @@ function persistSpecialistBlockState(account: ExtendedMockAuthAccount): void {
 
   updateManagedSpecialistAccount(
     specialistKey,
-    (
-      currentAccount: ManagedSpecialistMockAccount,
-    ): ManagedSpecialistMockAccount => ({
+    (currentAccount: ManagedSpecialistMockAccount): ManagedSpecialistMockAccount => ({
       ...currentAccount,
       isBlocked: account.isBlocked,
       blockReason: account.blockReason,
@@ -225,8 +223,7 @@ export function updateManagedUserBlockedStatus(
   const accounts = getMockAuthAccounts() as ExtendedMockAuthAccount[];
 
   const account = accounts.find(
-    (item) =>
-      item.id === payload.userId && getAccountManagedRole(item) !== null,
+    (item) => item.id === payload.userId && getAccountManagedRole(item) !== null,
   );
 
   if (!account) {
@@ -246,17 +243,13 @@ export function updateManagedUserBlockedStatus(
 
     if (!isPermanentBlock) {
       if (!normalizedBlockedUntil) {
-        throw new AdminUsersManagementError(
-          'Укажите дату окончания блокировки.',
-        );
+        throw new AdminUsersManagementError('Укажите дату окончания блокировки.');
       }
 
       const blockedUntilTime = new Date(normalizedBlockedUntil).getTime();
 
       if (Number.isNaN(blockedUntilTime)) {
-        throw new AdminUsersManagementError(
-          'Некорректная дата окончания блокировки.',
-        );
+        throw new AdminUsersManagementError('Некорректная дата окончания блокировки.');
       }
 
       if (blockedUntilTime <= Date.now()) {
@@ -268,9 +261,7 @@ export function updateManagedUserBlockedStatus(
 
     account.isBlocked = true;
     account.blockReason = normalizedReason;
-    account.blockedUntil = isPermanentBlock
-      ? undefined
-      : normalizedBlockedUntil;
+    account.blockedUntil = isPermanentBlock ? undefined : normalizedBlockedUntil;
     account.isPermanentBlock = isPermanentBlock;
 
     const userName =
@@ -307,8 +298,7 @@ export function updateManagedUserProfile(
 ): ManagedUser {
   const accounts = getMockAuthAccounts();
   const account = accounts.find(
-    (item) =>
-      item.id === payload.userId && getAccountManagedRole(item) !== null,
+    (item) => item.id === payload.userId && getAccountManagedRole(item) !== null,
   ) as ExtendedMockAuthAccount | undefined;
 
   if (!account) {
@@ -363,9 +353,7 @@ export function updateManagedUserProfile(
       });
 
       if (slugTaken) {
-        throw new AdminUsersManagementError(
-          'Такой slug уже занят другим специалистом.',
-        );
+        throw new AdminUsersManagementError('Такой slug уже занят другим специалистом.');
       }
 
       account.specialistSlug = raw;
@@ -400,8 +388,7 @@ export function restoreManagedUserFromDeletion(
   const accounts = getMockAuthAccounts() as ExtendedMockAuthAccount[];
 
   const account = accounts.find(
-    (item) =>
-      item.id === payload.userId && getAccountManagedRole(item) !== null,
+    (item) => item.id === payload.userId && getAccountManagedRole(item) !== null,
   );
 
   if (!account) {

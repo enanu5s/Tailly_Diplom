@@ -7,15 +7,9 @@ import {
   unsafeMutableMockDb,
 } from '@/shared/mock-db/store';
 
-import type {
-  Review,
-  ReviewContext,
-  ReviewCreatePayload,
-} from '../model/types';
+import type { Review, ReviewContext, ReviewCreatePayload } from '../model/types';
 
-export async function mockGetContext(
-  orderId: string,
-): Promise<ReviewContext> {
+export async function mockGetContext(orderId: string): Promise<ReviewContext> {
   ensureMockDatabaseLoaded();
 
   const context = unsafeMutableMockDb().reviews.contexts[orderId];
@@ -27,9 +21,7 @@ export async function mockGetContext(
   return cloneDeep(context);
 }
 
-export async function mockCreateReview(
-  payload: ReviewCreatePayload,
-): Promise<Review> {
+export async function mockCreateReview(payload: ReviewCreatePayload): Promise<Review> {
   const context = await mockGetContext(payload.orderId);
 
   const review: Review = {

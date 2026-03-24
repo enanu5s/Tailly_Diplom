@@ -18,7 +18,6 @@ import {
   type CreateSpecialistAccountResponse,
 } from '../model/types';
 
-
 export async function mockCreateSpecialistAccount(
   payload: CreateSpecialistAccountPayload,
 ): Promise<CreateSpecialistAccountResponse> {
@@ -32,16 +31,11 @@ export async function mockCreateSpecialistAccount(
   );
 
   if (emailTaken) {
-    throw new AdminSpecialistsManagementError(
-      'Специалист с таким email уже существует.',
-    );
+    throw new AdminSpecialistsManagementError('Специалист с таким email уже существует.');
   }
 
   const specialistId = generateId('specialist');
-  const specialistSlug = buildSpecialistSlug(
-    payload.firstName,
-    payload.lastName,
-  );
+  const specialistSlug = buildSpecialistSlug(payload.firstName, payload.lastName);
   const temporaryPassword = generateTemporaryPassword();
 
   const createdAccount: ManagedSpecialistMockAccount = {

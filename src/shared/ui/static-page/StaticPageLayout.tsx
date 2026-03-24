@@ -1,18 +1,14 @@
 // src/shared/ui/static-page/StaticPageLayout.tsx
-import styles from "./StaticPageLayout.module.css";
+import styles from './StaticPageLayout.module.css';
 
-import type { ReactNode } from "react";
-
+import type { ReactNode } from 'react';
 
 type StaticPageLayoutProps = {
   title: string;
   children: ReactNode;
 };
 
-export const StaticPageLayout = ({
-  title,
-  children,
-}: StaticPageLayoutProps) => {
+export const StaticPageLayout = ({ title, children }: StaticPageLayoutProps) => {
   return (
     <main className={styles.page}>
       <div className={styles.container}>

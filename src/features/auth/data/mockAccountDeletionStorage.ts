@@ -90,8 +90,7 @@ export function getActiveSoftDeleteRecord(
 ): AccountSoftDeleteRecord | null {
   purgeExpiredSoftDeletes();
 
-  const rec =
-    unsafeMutableMockDb().accountDeletion.softDeleteByUserId[userId];
+  const rec = unsafeMutableMockDb().accountDeletion.softDeleteByUserId[userId];
 
   if (!rec) {
     return null;

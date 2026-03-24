@@ -5,58 +5,58 @@ export type ManagedAdminRole = 'admin' | 'super_admin';
 export type ManagedAdminStatus = 'active' | 'inactive';
 
 export type ManagedAdmin = {
-    id: string;
-    adminId: string;
-    email: string;
-    firstName: string;
-    lastName: string;
-    middleName?: string;
-    birthDate: string;
-    phone?: string;
-    position?: string;
-    department?: string;
-    status: ManagedAdminStatus;
-    role: ManagedAdminRole;
-    createdAt: string;
-    createdBy: string;
-    lastLoginAt?: string | null;
+  id: string;
+  adminId: string;
+  email: string;
+  firstName: string;
+  lastName: string;
+  middleName?: string;
+  birthDate: string;
+  phone?: string;
+  position?: string;
+  department?: string;
+  status: ManagedAdminStatus;
+  role: ManagedAdminRole;
+  createdAt: string;
+  createdBy: string;
+  lastLoginAt?: string | null;
 };
 
 export type CreateAdminPayload = {
-    email: string;
-    firstName: string;
-    lastName: string;
-    middleName?: string;
-    birthDate: string;
-    phone?: string;
-    position?: string;
-    department?: string;
-    consent: boolean;
+  email: string;
+  firstName: string;
+  lastName: string;
+  middleName?: string;
+  birthDate: string;
+  phone?: string;
+  position?: string;
+  department?: string;
+  consent: boolean;
 };
 
 export type CreateAdminResponse = {
-    admin: ManagedAdmin;
-    temporaryPassword: string;
+  admin: ManagedAdmin;
+  temporaryPassword: string;
 };
 
 export type DeleteAdminPayload = {
-    adminId: string;
+  adminId: string;
 };
 
 export type UpdateAdminPayload = {
-    adminId: string;
-    firstName: string;
-    lastName: string;
-    middleName?: string;
-    birthDate: string;
-    phone?: string;
-    position?: string;
-    department?: string;
+  adminId: string;
+  firstName: string;
+  lastName: string;
+  middleName?: string;
+  birthDate: string;
+  phone?: string;
+  position?: string;
+  department?: string;
 };
 
 export class AdminManagementError extends Error {
-    constructor(message: string) {
-        super(message);
-        this.name = 'AdminManagementError';
-    }
+  constructor(message: string) {
+    super(message);
+    this.name = 'AdminManagementError';
+  }
 }

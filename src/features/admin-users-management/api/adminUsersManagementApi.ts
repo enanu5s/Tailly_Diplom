@@ -1,6 +1,7 @@
 // src/features/admin-users-management/api/adminUsersManagementApi.ts
 
 import { request } from '@/shared/api/http';
+import { getOptionalApiBaseUrl, isMockApiMode } from '@/shared/config/env';
 
 import {
   mockGetManagedUsers,
@@ -16,8 +17,7 @@ import type {
   UpdateUserBlockStatusPayload,
 } from '../model/types';
 
-const USE_MOCK = (import.meta.env.VITE_USE_MOCK_API ?? 'true') === 'true';
-const API_BASE_URL = import.meta.env.VITE_API_BASE_URL ?? '';
+const API_BASE_URL = getOptionalApiBaseUrl();
 
 async function realGetManagedUsers(): Promise<ManagedUser[]> {
   return request<ManagedUser[]>(`${API_BASE_URL}/admin/users`);
@@ -43,18 +43,15 @@ async function realUpdateManagedUserBlockedStatus(
 async function realUpdateManagedUserProfile(
   payload: UpdateManagedUserProfilePayload,
 ): Promise<ManagedUser> {
-  return request<ManagedUser>(
-    `${API_BASE_URL}/admin/users/${payload.userId}/profile`,
-    {
-      method: 'PATCH',
-      body: {
-        firstName: payload.firstName,
-        lastName: payload.lastName,
-        middleName: payload.middleName,
-        specialistSlug: payload.specialistSlug,
-      },
+  return request<ManagedUser>(`${API_BASE_URL}/admin/users/${payload.userId}/profile`, {
+    method: 'PATCH',
+    body: {
+      firstName: payload.firstName,
+      lastName: payload.lastName,
+      middleName: payload.middleName,
+      specialistSlug: payload.specialistSlug,
     },
-  );
+  });
 }
 
 async function realRestoreManagedUserFromDeletion(
@@ -70,17 +67,15 @@ async function realRestoreManagedUserFromDeletion(
 
 export const adminUsersManagementApi = {
   async getUsers(): Promise<ManagedUser[]> {
-    if (USE_MOCK) {
+    if (isMockApiMode) {
       return mockGetManagedUsers();
     }
 
     return realGetManagedUsers();
   },
 
-  async updateBlockedStatus(
-    payload: UpdateUserBlockStatusPayload,
-  ): Promise<ManagedUser> {
-    if (USE_MOCK) {
+  async updateBlockedStatus(payload: UpdateUserBlockStatusPayload): Promise<ManagedUser> {
+    if (isMockApiMode) {
       return mockUpdateManagedUserBlockedStatus(payload);
     }
 
@@ -90,7 +85,7 @@ export const adminUsersManagementApi = {
   async updateUserProfile(
     payload: UpdateManagedUserProfilePayload,
   ): Promise<ManagedUser> {
-    if (USE_MOCK) {
+    if (isMockApiMode) {
       return mockUpdateManagedUserProfile(payload);
     }
 
@@ -100,7 +95,7 @@ export const adminUsersManagementApi = {
   async restoreUserFromDeletion(
     payload: RestoreManagedUserFromDeletionPayload,
   ): Promise<ManagedUser> {
-    if (USE_MOCK) {
+    if (isMockApiMode) {
       return mockRestoreManagedUserFromDeletion(payload);
     }
 

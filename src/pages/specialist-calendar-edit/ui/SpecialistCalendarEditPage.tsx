@@ -134,8 +134,8 @@ export const SpecialistCalendarEditPage = observer(() => {
             <span className={styles.eyebrow}>Календарь специалиста</span>
             <h1 className={styles.title}>Редактирование доступности</h1>
             <p className={styles.description}>
-              Сначала задай правила бронирования, а затем отмечай конкретные дни
-              и окна доступности. Клиент будет видеть только эти даты и слоты.
+              Сначала задай правила бронирования, а затем отмечай конкретные дни и окна
+              доступности. Клиент будет видеть только эти даты и слоты.
             </p>
           </div>
 
@@ -162,8 +162,8 @@ export const SpecialistCalendarEditPage = observer(() => {
 
         {store.hasUnsavedChanges ? (
           <div className={styles.warningBanner}>
-            Есть несохранённые изменения. Они попадут в профиль после нажатия
-            кнопки «Сохранить календарь».
+            Есть несохранённые изменения. Они попадут в профиль после нажатия кнопки
+            «Сохранить календарь».
           </div>
         ) : null}
 
@@ -180,8 +180,8 @@ export const SpecialistCalendarEditPage = observer(() => {
             <div className={styles.panel}>
               <h2 className={styles.panelTitle}>1. Правила бронирования</h2>
               <p className={styles.panelDescription}>
-                Эти настройки используются для генерации слотов, которые потом
-                увидит клиент на странице оформления заказа.
+                Эти настройки используются для генерации слотов, которые потом увидит
+                клиент на странице оформления заказа.
               </p>
 
               <div className={styles.fieldRow}>
@@ -192,10 +192,7 @@ export const SpecialistCalendarEditPage = observer(() => {
                     type="time"
                     value={store.bookingSettings.dayStartTime}
                     onChange={(event) =>
-                      store.setBookingSettingsField(
-                        'dayStartTime',
-                        event.target.value,
-                      )
+                      store.setBookingSettingsField('dayStartTime', event.target.value)
                     }
                   />
                 </label>
@@ -207,10 +204,7 @@ export const SpecialistCalendarEditPage = observer(() => {
                     type="time"
                     value={store.bookingSettings.dayEndTime}
                     onChange={(event) =>
-                      store.setBookingSettingsField(
-                        'dayEndTime',
-                        event.target.value,
-                      )
+                      store.setBookingSettingsField('dayEndTime', event.target.value)
                     }
                   />
                 </label>
@@ -255,15 +249,13 @@ export const SpecialistCalendarEditPage = observer(() => {
               </div>
 
               {store.bookingSettingsError ? (
-                <div className={styles.fieldError}>
-                  {store.bookingSettingsError}
-                </div>
+                <div className={styles.fieldError}>{store.bookingSettingsError}</div>
               ) : null}
 
               <div className={styles.note}>
-                Например, если рабочий день 10:00–19:00, шаг 30 минут, а
-                длительность слота 60 минут, клиент увидит слоты вроде 10:00–
-                11:00, 10:30–11:30 и так далее.
+                Например, если рабочий день 10:00–19:00, шаг 30 минут, а длительность
+                слота 60 минут, клиент увидит слоты вроде 10:00– 11:00, 10:30–11:30 и так
+                далее.
               </div>
             </div>
 
@@ -295,9 +287,7 @@ export const SpecialistCalendarEditPage = observer(() => {
                   <input
                     type="checkbox"
                     checked={store.isMultiSelectMode}
-                    onChange={(event) =>
-                      store.setMultiSelectMode(event.target.checked)
-                    }
+                    onChange={(event) => store.setMultiSelectMode(event.target.checked)}
                   />
                   <span>Множественный выбор дат</span>
                 </label>
@@ -332,9 +322,7 @@ export const SpecialistCalendarEditPage = observer(() => {
                       key={day.isoDate ?? `empty-${index}`}
                       type="button"
                       className={`${styles.dayButton} ${
-                        day.isoDate
-                          ? styles.dayButtonActive
-                          : styles.dayButtonEmpty
+                        day.isoDate ? styles.dayButtonActive : styles.dayButtonEmpty
                       } ${isSelected ? styles.dayButtonSelected : ''} ${
                         day.status === 'day_off'
                           ? styles.dayOff
@@ -353,9 +341,7 @@ export const SpecialistCalendarEditPage = observer(() => {
                     >
                       {day.dayNumber ? (
                         <>
-                          <span className={styles.dayNumber}>
-                            {day.dayNumber}
-                          </span>
+                          <span className={styles.dayNumber}>{day.dayNumber}</span>
                           {day.status && day.status !== 'available' ? (
                             <span className={styles.dayDot} />
                           ) : null}
@@ -372,9 +358,7 @@ export const SpecialistCalendarEditPage = observer(() => {
                   <span>{CALENDAR_STATUS_LABELS.available}</span>
                 </div>
                 <div className={styles.legendItem}>
-                  <span
-                    className={`${styles.legendMark} ${styles.legendPartial}`}
-                  />
+                  <span className={`${styles.legendMark} ${styles.legendPartial}`} />
                   <span>{CALENDAR_STATUS_LABELS.partially_booked}</span>
                 </div>
                 <div className={styles.legendItem}>
@@ -382,9 +366,7 @@ export const SpecialistCalendarEditPage = observer(() => {
                   <span>{CALENDAR_STATUS_LABELS.fully_booked}</span>
                 </div>
                 <div className={styles.legendItem}>
-                  <span
-                    className={`${styles.legendMark} ${styles.legendDayOff}`}
-                  />
+                  <span className={`${styles.legendMark} ${styles.legendDayOff}`} />
                   <span>{CALENDAR_STATUS_LABELS.day_off}</span>
                 </div>
               </div>
@@ -396,9 +378,7 @@ export const SpecialistCalendarEditPage = observer(() => {
               <span className={styles.selectedDateCaption}>
                 {store.selectedDatesCount > 1 ? 'Выбранные даты' : 'Выбранная дата'}
               </span>
-              <div className={styles.selectedDateValue}>
-                {store.selectedDatesLabel}
-              </div>
+              <div className={styles.selectedDateValue}>{store.selectedDatesLabel}</div>
               <div className={styles.selectedDateMeta}>
                 <span className={styles.metaChip}>
                   Текущий статус активной даты:{' '}
@@ -443,8 +423,8 @@ export const SpecialistCalendarEditPage = observer(() => {
             <div className={styles.panel}>
               <h2 className={styles.panelTitle}>2. Пакетное создание окон</h2>
               <p className={styles.panelDescription}>
-                Этот блок позволяет одной операцией добавить одинаковую
-                доступность сразу на все выбранные даты.
+                Этот блок позволяет одной операцией добавить одинаковую доступность сразу
+                на все выбранные даты.
               </p>
 
               <div className={styles.selectedDateInline}>
@@ -508,17 +488,16 @@ export const SpecialistCalendarEditPage = observer(() => {
                 <span className={styles.fieldLabel}>Какие услуги доступны</span>
                 <div className={styles.servicesList}>
                   {store.services.map((service) => {
-                    const isChecked =
-                      store.bulkTemplateForm.serviceIds.includes(service.id);
+                    const isChecked = store.bulkTemplateForm.serviceIds.includes(
+                      service.id,
+                    );
 
                     return (
                       <label key={service.id} className={styles.checkboxCard}>
                         <input
                           type="checkbox"
                           checked={isChecked}
-                          onChange={() =>
-                            store.toggleBulkTemplateService(service.id)
-                          }
+                          onChange={() => store.toggleBulkTemplateService(service.id)}
                         />
                         <span>{service.name}</span>
                       </label>
@@ -538,9 +517,7 @@ export const SpecialistCalendarEditPage = observer(() => {
               </div>
 
               {store.bulkTemplateError ? (
-                <div className={styles.fieldError}>
-                  {store.bulkTemplateError}
-                </div>
+                <div className={styles.fieldError}>{store.bulkTemplateError}</div>
               ) : null}
 
               <div className={styles.inlineActions}>
@@ -562,8 +539,8 @@ export const SpecialistCalendarEditPage = observer(() => {
               </div>
 
               <div className={styles.note}>
-                При пакетном создании ручные статусы у выбранных дат снимаются,
-                чтобы эти дни можно было бронировать по созданным окнам.
+                При пакетном создании ручные статусы у выбранных дат снимаются, чтобы эти
+                дни можно было бронировать по созданным окнам.
               </div>
 
               <div className={styles.windowsList}>
@@ -594,9 +571,7 @@ export const SpecialistCalendarEditPage = observer(() => {
                         </div>
 
                         {item.comment ? (
-                          <div className={styles.windowComment}>
-                            {item.comment}
-                          </div>
+                          <div className={styles.windowComment}>{item.comment}</div>
                         ) : null}
                       </div>
                     );
@@ -621,8 +596,8 @@ export const SpecialistCalendarEditPage = observer(() => {
               </div>
 
               <div className={styles.note}>
-                Эти окна должны попадать в рабочее время, заданное в правилах
-                бронирования выше.
+                Эти окна должны попадать в рабочее время, заданное в правилах бронирования
+                выше.
               </div>
 
               <div className={styles.fieldRow}>
@@ -678,9 +653,7 @@ export const SpecialistCalendarEditPage = observer(() => {
                 <span className={styles.fieldLabel}>Какие услуги доступны</span>
                 <div className={styles.servicesList}>
                   {store.services.map((service) => {
-                    const isChecked = store.windowForm.serviceIds.includes(
-                      service.id,
-                    );
+                    const isChecked = store.windowForm.serviceIds.includes(service.id);
 
                     return (
                       <label key={service.id} className={styles.checkboxCard}>
@@ -736,17 +709,15 @@ export const SpecialistCalendarEditPage = observer(() => {
                         </div>
 
                         {item.comment ? (
-                          <div className={styles.windowComment}>
-                            {item.comment}
-                          </div>
+                          <div className={styles.windowComment}>{item.comment}</div>
                         ) : null}
                       </div>
                     );
                   })
                 ) : (
                   <div className={styles.emptyState}>
-                    Для даты {store.selectedDateLabel} частичная доступность пока
-                    не настроена.
+                    Для даты {store.selectedDateLabel} частичная доступность пока не
+                    настроена.
                   </div>
                 )}
               </div>
@@ -755,8 +726,8 @@ export const SpecialistCalendarEditPage = observer(() => {
             <div className={styles.panel}>
               <h2 className={styles.panelTitle}>4. Уже занятые слоты</h2>
               <p className={styles.panelDescription}>
-                Эти интервалы показываются только для просмотра и помогают не
-                забыть, где уже есть записи.
+                Эти интервалы показываются только для просмотра и помогают не забыть, где
+                уже есть записи.
               </p>
 
               <div className={styles.bookedList}>

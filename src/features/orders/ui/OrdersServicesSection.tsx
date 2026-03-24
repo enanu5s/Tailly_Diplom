@@ -1,27 +1,26 @@
 // src/features/orders/ui/OrdersServicesSection.tsx
 
-import { observer } from "mobx-react-lite";
-import { useEffect, useRef, useState } from "react";
-import { useLocation, useParams } from "react-router-dom";
+import { observer } from 'mobx-react-lite';
+import { useEffect, useRef, useState } from 'react';
+import { useLocation, useParams } from 'react-router-dom';
 
-import { useAuth } from "@/features/auth/model/useAuth";
-import { messagesStore } from "@/features/messages/model/messagesStore";
-import { getMessagesViewerFromUser } from "@/features/messages/model/messagesViewer";
-import { useAppNavigate } from "@/shared/lib/navigation/useAppNavigate";
+import { useAuth } from '@/features/auth/model/useAuth';
+import { messagesStore } from '@/features/messages/model/messagesStore';
+import { getMessagesViewerFromUser } from '@/features/messages/model/messagesViewer';
+import { useAppNavigate } from '@/shared/lib/navigation/useAppNavigate';
 
-
-import styles from "./OrdersServicesSection.module.css";
-import { ordersStore } from "../model/ordersStore";
+import styles from './OrdersServicesSection.module.css';
+import { ordersStore } from '../model/ordersStore';
 
 import type {
   LeaveServiceReviewPayload,
   OrderStatus,
   ServiceOrder,
   ServicesFilter,
-} from "../model/types";
-import type { ChangeEvent, ReactElement } from "react";
+} from '../model/types';
+import type { ChangeEvent, ReactElement } from 'react';
 
-type ViewerRole = "client" | "specialist" | "admin" | "super_admin";
+type ViewerRole = 'client' | 'specialist' | 'admin' | 'super_admin';
 
 type ProfileOrdersLocationState = {
   activeTab?: string;
@@ -36,167 +35,167 @@ type Props = {
 type ReviewDraftState = LeaveServiceReviewPayload;
 
 const FILTERS: Array<{ value: ServicesFilter; label: string }> = [
-  { value: "all", label: "Все" },
-  { value: "upcoming", label: "Будущие" },
-  { value: "pending_confirmation", label: "Ждут подтверждения" },
-  { value: "confirmed", label: "Подтверждённые" },
-  { value: "active", label: "Активные" },
-  { value: "completed", label: "Завершённые" },
-  { value: "canceled", label: "Отменённые" },
+  { value: 'all', label: 'Все' },
+  { value: 'upcoming', label: 'Будущие' },
+  { value: 'pending_confirmation', label: 'Ждут подтверждения' },
+  { value: 'confirmed', label: 'Подтверждённые' },
+  { value: 'active', label: 'Активные' },
+  { value: 'completed', label: 'Завершённые' },
+  { value: 'canceled', label: 'Отменённые' },
 ];
 
 function formatDateTime(iso: string): string {
-  return new Date(iso).toLocaleString("ru-RU", {
-    day: "2-digit",
-    month: "long",
-    year: "numeric",
-    hour: "2-digit",
-    minute: "2-digit",
+  return new Date(iso).toLocaleString('ru-RU', {
+    day: '2-digit',
+    month: 'long',
+    year: 'numeric',
+    hour: '2-digit',
+    minute: '2-digit',
   });
 }
 
 function formatDateOnly(isoOrDate: string): string {
   const value = isoOrDate.length === 10 ? `${isoOrDate}T00:00:00` : isoOrDate;
 
-  return new Date(value).toLocaleDateString("ru-RU", {
-    day: "2-digit",
-    month: "long",
-    year: "numeric",
+  return new Date(value).toLocaleDateString('ru-RU', {
+    day: '2-digit',
+    month: 'long',
+    year: 'numeric',
   });
 }
 
 function formatStatus(status: OrderStatus): string {
-  if (status === "pending_confirmation") {
-    return "Ждёт подтверждения";
+  if (status === 'pending_confirmation') {
+    return 'Ждёт подтверждения';
   }
 
-  if (status === "confirmed") {
-    return "Подтверждён";
+  if (status === 'confirmed') {
+    return 'Подтверждён';
   }
 
-  if (status === "active") {
-    return "Выполняется";
+  if (status === 'active') {
+    return 'Выполняется';
   }
 
-  if (status === "completed") {
-    return "Завершён";
+  if (status === 'completed') {
+    return 'Завершён';
   }
 
-  if (status === "canceled") {
-    return "Отменён";
+  if (status === 'canceled') {
+    return 'Отменён';
   }
 
   return status;
 }
 
 function getStatusTone(status: OrderStatus): string {
-  if (status === "pending_confirmation") {
+  if (status === 'pending_confirmation') {
     return styles.statusPending;
   }
 
-  if (status === "confirmed") {
+  if (status === 'confirmed') {
     return styles.statusConfirmed;
   }
 
-  if (status === "active") {
+  if (status === 'active') {
     return styles.statusActive;
   }
 
-  if (status === "completed") {
+  if (status === 'completed') {
     return styles.statusCompleted;
   }
 
-  if (status === "canceled") {
+  if (status === 'canceled') {
     return styles.statusCanceled;
   }
 
   return styles.statusNeutral;
 }
 
-function formatPrice(value: number, currency: "RUB"): string {
-  return new Intl.NumberFormat("ru-RU", {
-    style: "currency",
+function formatPrice(value: number, currency: 'RUB'): string {
+  return new Intl.NumberFormat('ru-RU', {
+    style: 'currency',
     currency,
     maximumFractionDigits: 0,
   }).format(value);
 }
 
-function formatBookingMode(mode: ServiceOrder["schedule"]["mode"]): string {
-  if (mode === "fixed_slot") {
-    return "Фиксированный слот";
+function formatBookingMode(mode: ServiceOrder['schedule']['mode']): string {
+  if (mode === 'fixed_slot') {
+    return 'Фиксированный слот';
   }
 
-  if (mode === "time_range") {
-    return "Произвольный интервал";
+  if (mode === 'time_range') {
+    return 'Произвольный интервал';
   }
 
-  if (mode === "multi_day_stay") {
-    return "Передержка";
+  if (mode === 'multi_day_stay') {
+    return 'Передержка';
   }
 
-  if (mode === "open_request") {
-    return "Свободный запрос";
+  if (mode === 'open_request') {
+    return 'Свободный запрос';
   }
 
   return mode;
 }
 
 function buildOrderTimeLabel(order: ServiceOrder): string {
-  if (order.schedule.mode === "fixed_slot") {
+  if (order.schedule.mode === 'fixed_slot') {
     const start = new Date(order.schedule.startAt);
     const end = new Date(order.schedule.endAt);
 
     const sameDay = start.toDateString() === end.toDateString();
 
     if (sameDay) {
-      return `${start.toLocaleDateString("ru-RU", {
-        day: "2-digit",
-        month: "long",
-        year: "numeric",
-      })}, ${start.toLocaleTimeString("ru-RU", {
-        hour: "2-digit",
-        minute: "2-digit",
-      })} – ${end.toLocaleTimeString("ru-RU", {
-        hour: "2-digit",
-        minute: "2-digit",
+      return `${start.toLocaleDateString('ru-RU', {
+        day: '2-digit',
+        month: 'long',
+        year: 'numeric',
+      })}, ${start.toLocaleTimeString('ru-RU', {
+        hour: '2-digit',
+        minute: '2-digit',
+      })} – ${end.toLocaleTimeString('ru-RU', {
+        hour: '2-digit',
+        minute: '2-digit',
       })}`;
     }
 
     return `${formatDateTime(order.schedule.startAt)} – ${formatDateTime(order.schedule.endAt)}`;
   }
 
-  if (order.schedule.mode === "time_range") {
+  if (order.schedule.mode === 'time_range') {
     return `${formatDateTime(order.schedule.startAt)} – ${formatDateTime(order.schedule.endAt)}`;
   }
 
-  if (order.schedule.mode === "multi_day_stay") {
+  if (order.schedule.mode === 'multi_day_stay') {
     return `Заезд: ${formatDateTime(order.schedule.checkInAt)} • Выезд: ${formatDateTime(order.schedule.checkOutAt)}`;
   }
 
   if (order.schedule.requestedDate) {
     const startTime = order.schedule.requestedStartTime
       ? `, c ${order.schedule.requestedStartTime}`
-      : "";
+      : '';
     const endTime = order.schedule.requestedEndTime
       ? ` до ${order.schedule.requestedEndTime}`
-      : "";
+      : '';
 
     return `${formatDateOnly(order.schedule.requestedDate)}${startTime}${endTime}`;
   }
 
-  return "По согласованию со специалистом";
+  return 'По согласованию со специалистом';
 }
 
 function buildOrderSecondaryLabel(order: ServiceOrder): string | null {
-  if (order.schedule.mode === "multi_day_stay") {
+  if (order.schedule.mode === 'multi_day_stay') {
     return `${order.schedule.stayDays} дн.`;
   }
 
-  if (order.schedule.mode === "open_request") {
-    return "Время будет согласовано после подтверждения";
+  if (order.schedule.mode === 'open_request') {
+    return 'Время будет согласовано после подтверждения';
   }
 
-  if (order.schedule.mode === "time_range") {
+  if (order.schedule.mode === 'time_range') {
     const start = new Date(order.schedule.startAt);
     const end = new Date(order.schedule.endAt);
     const durationMinutes = Math.max(
@@ -219,50 +218,44 @@ function buildOrderSecondaryLabel(order: ServiceOrder): string | null {
 }
 
 function canLeaveReview(order: ServiceOrder, viewerRole: ViewerRole): boolean {
-  return (
-    viewerRole === "client" && order.status === "completed" && !order.hasReview
-  );
+  return viewerRole === 'client' && order.status === 'completed' && !order.hasReview;
 }
 
 function canRepeat(order: ServiceOrder, viewerRole: ViewerRole): boolean {
-  return viewerRole === "client" && order.status === "completed";
+  return viewerRole === 'client' && order.status === 'completed';
 }
 
 function canCancel(order: ServiceOrder, viewerRole: ViewerRole): boolean {
   return (
-    viewerRole === "client" &&
-    (order.status === "pending_confirmation" || order.status === "confirmed")
+    viewerRole === 'client' &&
+    (order.status === 'pending_confirmation' || order.status === 'confirmed')
   );
 }
 
 function canConfirm(order: ServiceOrder, viewerRole: ViewerRole): boolean {
-  return viewerRole === "specialist" && order.status === "pending_confirmation";
+  return viewerRole === 'specialist' && order.status === 'pending_confirmation';
 }
 
 function canStart(order: ServiceOrder, viewerRole: ViewerRole): boolean {
-  return viewerRole === "specialist" && order.status === "confirmed";
+  return viewerRole === 'specialist' && order.status === 'confirmed';
 }
 
 function canComplete(order: ServiceOrder, viewerRole: ViewerRole): boolean {
-  return viewerRole === "specialist" && order.status === "active";
+  return viewerRole === 'specialist' && order.status === 'active';
 }
 
-function isRelevantProfileState(
-  state: ProfileOrdersLocationState | null,
-): boolean {
+function isRelevantProfileState(state: ProfileOrdersLocationState | null): boolean {
   if (!state) {
     return false;
   }
 
-  return Boolean(
-    state.highlightedOrderId || state.justCreatedOrderId || state.activeTab,
-  );
+  return Boolean(state.highlightedOrderId || state.justCreatedOrderId || state.activeTab);
 }
 
 function getDefaultReviewDraft(): ReviewDraftState {
   return {
     rating: 5,
-    comment: "",
+    comment: '',
     photos: [],
   };
 }
@@ -270,7 +263,7 @@ function getDefaultReviewDraft(): ReviewDraftState {
 function renderStars(rating: number): string {
   const safeRating = Math.max(1, Math.min(5, rating));
 
-  return `${"★".repeat(safeRating)}${"☆".repeat(5 - safeRating)}`;
+  return `${'★'.repeat(safeRating)}${'☆'.repeat(5 - safeRating)}`;
 }
 
 function readFileAsDataUrl(file: File): Promise<string> {
@@ -278,16 +271,16 @@ function readFileAsDataUrl(file: File): Promise<string> {
     const reader = new FileReader();
 
     reader.onload = () => {
-      if (typeof reader.result === "string") {
+      if (typeof reader.result === 'string') {
         resolve(reader.result);
         return;
       }
 
-      reject(new Error("Не удалось прочитать изображение."));
+      reject(new Error('Не удалось прочитать изображение.'));
     };
 
     reader.onerror = () => {
-      reject(new Error("Не удалось прочитать изображение."));
+      reject(new Error('Не удалось прочитать изображение.'));
     };
 
     reader.readAsDataURL(file);
@@ -295,21 +288,20 @@ function readFileAsDataUrl(file: File): Promise<string> {
 }
 
 export const OrdersServicesSection = observer(
-  ({ viewerRole = "client" }: Props): ReactElement => {
-    const isSpecialistViewer = viewerRole === "specialist";
+  ({ viewerRole = 'client' }: Props): ReactElement => {
+    const isSpecialistViewer = viewerRole === 'specialist';
     const navigate = useAppNavigate();
     const location = useLocation();
     const { specialistSlug: specialistSlugParam } = useParams<{
       specialistSlug?: string;
     }>();
     const { user } = useAuth();
-    const specialistSlug = specialistSlugParam?.trim() ?? "";
-    const locationState =
-      (location.state as ProfileOrdersLocationState | null) ?? null;
+    const specialistSlug = specialistSlugParam?.trim() ?? '';
+    const locationState = (location.state as ProfileOrdersLocationState | null) ?? null;
 
-    const [reviewDrafts, setReviewDrafts] = useState<
-      Record<string, ReviewDraftState>
-    >({});
+    const [reviewDrafts, setReviewDrafts] = useState<Record<string, ReviewDraftState>>(
+      {},
+    );
     const [freshOrderId, setFreshOrderId] = useState<string | null>(
       locationState?.justCreatedOrderId ?? null,
     );
@@ -322,10 +314,7 @@ export const OrdersServicesSection = observer(
     }, []);
 
     useEffect(() => {
-      if (
-        !locationState?.highlightedOrderId &&
-        !locationState?.justCreatedOrderId
-      ) {
+      if (!locationState?.highlightedOrderId && !locationState?.justCreatedOrderId) {
         return;
       }
 
@@ -341,8 +330,8 @@ export const OrdersServicesSection = observer(
 
         if (node) {
           node.scrollIntoView({
-            block: "center",
-            behavior: "smooth",
+            block: 'center',
+            behavior: 'smooth',
           });
         }
       }, 150);
@@ -426,11 +415,11 @@ export const OrdersServicesSection = observer(
       }
 
       const imageFiles = Array.from(files).filter((file) =>
-        file.type.startsWith("image/"),
+        file.type.startsWith('image/'),
       );
 
       if (imageFiles.length === 0) {
-        event.target.value = "";
+        event.target.value = '';
         return;
       }
 
@@ -451,14 +440,11 @@ export const OrdersServicesSection = observer(
           };
         });
       } finally {
-        event.target.value = "";
+        event.target.value = '';
       }
     };
 
-    const handleRemoveReviewPhoto = (
-      orderId: string,
-      photoIndex: number,
-    ): void => {
+    const handleRemoveReviewPhoto = (orderId: string, photoIndex: number): void => {
       setReviewDrafts((prev) => {
         const current = prev[orderId] ?? getDefaultReviewDraft();
 
@@ -513,14 +499,11 @@ export const OrdersServicesSection = observer(
         return;
       }
 
-      navigate(
-        `/specialists/${slug}/clients/${encodeURIComponent(clientKey)}`,
-        {
-          state: {
-            from: `${location.pathname}${location.search}`,
-          },
+      navigate(`/specialists/${slug}/clients/${encodeURIComponent(clientKey)}`, {
+        state: {
+          from: `${location.pathname}${location.search}`,
         },
-      );
+      });
     };
 
     const handleContactClient = async (order: ServiceOrder): Promise<void> => {
@@ -534,7 +517,7 @@ export const OrdersServicesSection = observer(
         clientName: order.clientName,
       });
 
-      navigate("/messages");
+      navigate('/messages');
     };
 
     return (
@@ -542,12 +525,12 @@ export const OrdersServicesSection = observer(
         <div className={styles.header}>
           <div>
             <h2 className={styles.title}>
-              {isSpecialistViewer ? "Заказы клиентов" : "Заказы услуг"}
+              {isSpecialistViewer ? 'Заказы клиентов' : 'Заказы услуг'}
             </h2>
             <p className={styles.subtitle}>
               {isSpecialistViewer
-                ? "Новые заявки, подтверждённые и активные визиты, завершённые заказы и отзывы клиентов — в одном списке."
-                : "Здесь собраны все этапы заказа: создание, подтверждение, выполнение, завершение, отзыв и повторный заказ."}
+                ? 'Новые заявки, подтверждённые и активные визиты, завершённые заказы и отзывы клиентов — в одном списке.'
+                : 'Здесь собраны все этапы заказа: создание, подтверждение, выполнение, завершение, отзыв и повторный заказ.'}
             </p>
           </div>
         </div>
@@ -560,9 +543,7 @@ export const OrdersServicesSection = observer(
               <button
                 key={filter.value}
                 type="button"
-                className={
-                  isActive ? styles.filterButtonActive : styles.filterButton
-                }
+                className={isActive ? styles.filterButtonActive : styles.filterButton}
                 onClick={() => {
                   handleSetFilter(filter.value);
                 }}
@@ -586,9 +567,7 @@ export const OrdersServicesSection = observer(
         ) : null}
 
         {!ordersStore.servicesLoading && serviceOrders.length === 0 ? (
-          <div className={styles.emptyState}>
-            По выбранному фильтру заказов пока нет.
-          </div>
+          <div className={styles.emptyState}>По выбранному фильтру заказов пока нет.</div>
         ) : null}
 
         <div className={styles.listScroll}>
@@ -611,9 +590,7 @@ export const OrdersServicesSection = observer(
                   <div className={styles.cardHeader}>
                     <div className={styles.cardHeaderMain}>
                       <div className={styles.orderTitleRow}>
-                        <h3 className={styles.orderTitle}>
-                          {order.serviceTitle}
-                        </h3>
+                        <h3 className={styles.orderTitle}>{order.serviceTitle}</h3>
                         <span
                           className={`${styles.statusBadge} ${getStatusTone(order.status)}`}
                         >
@@ -658,15 +635,11 @@ export const OrdersServicesSection = observer(
 
                         <div className={styles.metaItem}>
                           <span className={styles.metaLabel}>Питомец</span>
-                          <span className={styles.metaValue}>
-                            {order.petName}
-                          </span>
+                          <span className={styles.metaValue}>{order.petName}</span>
                         </div>
 
                         <div className={styles.metaItem}>
-                          <span className={styles.metaLabel}>
-                            Формат бронирования
-                          </span>
+                          <span className={styles.metaLabel}>Формат бронирования</span>
                           <span className={styles.metaValue}>
                             {formatBookingMode(order.schedule.mode)}
                           </span>
@@ -680,12 +653,8 @@ export const OrdersServicesSection = observer(
                         </div>
 
                         <div className={styles.metaItem}>
-                          <span className={styles.metaLabel}>
-                            Формат услуги
-                          </span>
-                          <span className={styles.metaValue}>
-                            {order.locationLabel}
-                          </span>
+                          <span className={styles.metaLabel}>Формат услуги</span>
+                          <span className={styles.metaValue}>{order.locationLabel}</span>
                         </div>
 
                         <div className={styles.metaItem}>
@@ -704,12 +673,8 @@ export const OrdersServicesSection = observer(
 
                         {secondaryLabel ? (
                           <div className={styles.metaItem}>
-                            <span className={styles.metaLabel}>
-                              Дополнительно
-                            </span>
-                            <span className={styles.metaValue}>
-                              {secondaryLabel}
-                            </span>
+                            <span className={styles.metaLabel}>Дополнительно</span>
+                            <span className={styles.metaValue}>{secondaryLabel}</span>
                           </div>
                         ) : null}
                       </div>
@@ -738,9 +703,7 @@ export const OrdersServicesSection = observer(
                             {formatDateTime(item.changedAt)}
                           </div>
                           {item.comment ? (
-                            <div className={styles.timelineComment}>
-                              {item.comment}
-                            </div>
+                            <div className={styles.timelineComment}>{item.comment}</div>
                           ) : null}
                         </div>
                       </div>
@@ -852,11 +815,10 @@ export const OrdersServicesSection = observer(
                     <div className={styles.reviewView}>
                       <div className={styles.reviewViewHeader}>
                         <div className={styles.reviewViewTitle}>
-                          {isSpecialistViewer ? "Отзыв клиента" : "Ваш отзыв"}
+                          {isSpecialistViewer ? 'Отзыв клиента' : 'Ваш отзыв'}
                         </div>
                         <div className={styles.reviewViewRating}>
-                          {renderStars(order.review.rating)} (
-                          {order.review.rating}/5)
+                          {renderStars(order.review.rating)} ({order.review.rating}/5)
                         </div>
                       </div>
 
@@ -889,9 +851,7 @@ export const OrdersServicesSection = observer(
 
                           <div className={styles.replyBody}>
                             <div className={styles.replyDate}>
-                              {formatDateTime(
-                                order.review.specialistReply.createdAt,
-                              )}
+                              {formatDateTime(order.review.specialistReply.createdAt)}
                             </div>
                             <div className={styles.replyComment}>
                               {order.review.specialistReply.comment}
@@ -915,7 +875,7 @@ export const OrdersServicesSection = observer(
                             onChange={(event) => {
                               handleReviewFieldChange(
                                 order.id,
-                                "rating",
+                                'rating',
                                 Number(event.target.value) as 1 | 2 | 3 | 4 | 5,
                               );
                             }}
@@ -937,7 +897,7 @@ export const OrdersServicesSection = observer(
                           onChange={(event) => {
                             handleReviewFieldChange(
                               order.id,
-                              "comment",
+                              'comment',
                               event.target.value,
                             );
                           }}
@@ -947,9 +907,7 @@ export const OrdersServicesSection = observer(
                       </label>
 
                       <div className={styles.reviewPhotosBlock}>
-                        <div className={styles.reviewPhotosTitle}>
-                          Фото к отзыву
-                        </div>
+                        <div className={styles.reviewPhotosTitle}>Фото к отзыву</div>
 
                         <label className={styles.uploadButton}>
                           Добавить фото
@@ -1013,16 +971,12 @@ export const OrdersServicesSection = observer(
                     </div>
                   ) : null}
 
-                  {order.status === "completed" &&
-                  order.hasReview &&
-                  !order.review ? (
+                  {order.status === 'completed' && order.hasReview && !order.review ? (
                     <div className={styles.successBox}>Отзыв уже оставлен.</div>
                   ) : null}
 
                   {isFresh ? (
-                    <div className={styles.freshBadge}>
-                      Новый заказ успешно создан
-                    </div>
+                    <div className={styles.freshBadge}>Новый заказ успешно создан</div>
                   ) : null}
                 </article>
               );

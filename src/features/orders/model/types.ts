@@ -16,12 +16,7 @@ export type ServicesFilter =
   | 'completed'
   | 'canceled';
 
-export type ServicePriceUnit =
-  | 'hour'
-  | 'day'
-  | 'service'
-  | 'walk'
-  | 'visit';
+export type ServicePriceUnit = 'hour' | 'day' | 'service' | 'walk' | 'visit';
 
 export type ServiceBookingMode =
   | 'fixed_slot'
@@ -291,9 +286,7 @@ export function isProductOrderCanceled(order: ProductOrder): boolean {
 
 export function isProductOrderActive(order: ProductOrder): boolean {
   return (
-    order.status === 'created' ||
-    order.status === 'paid' ||
-    order.status === 'shipped'
+    order.status === 'created' || order.status === 'paid' || order.status === 'shipped'
   );
 }
 

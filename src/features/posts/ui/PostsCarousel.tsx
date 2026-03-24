@@ -30,12 +30,7 @@ function PostCardImages({ post }: { post: Post }) {
   return (
     <div className={styles.cardMedia}>
       <div className={styles.cardMainImageWrap}>
-        <img
-          className={styles.cardMainImage}
-          src={main}
-          alt=""
-          loading="lazy"
-        />
+        <img className={styles.cardMainImage} src={main} alt="" loading="lazy" />
         {urls.length > 1 ? (
           <span className={styles.photoCount}>{urls.length} фото</span>
         ) : null}
@@ -47,9 +42,7 @@ function PostCardImages({ post }: { post: Post }) {
               <img src={url} alt="" loading="lazy" />
             </div>
           ))}
-          {hidden > 0 ? (
-            <div className={styles.cardThumbMore}>+{hidden}</div>
-          ) : null}
+          {hidden > 0 ? <div className={styles.cardThumbMore}>+{hidden}</div> : null}
         </div>
       ) : null}
     </div>
@@ -117,7 +110,9 @@ export const PostsCarousel = observer(() => {
           </div>
         </div>
 
-        {postsStore.latest.error && <div className={styles.error}>{postsStore.latest.error}</div>}
+        {postsStore.latest.error && (
+          <div className={styles.error}>{postsStore.latest.error}</div>
+        )}
 
         <div className={styles.scroller} ref={scrollerRef}>
           {postsStore.latest.loading && items.length === 0 ? (

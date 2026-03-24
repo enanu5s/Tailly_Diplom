@@ -7,7 +7,6 @@ import { Link } from 'react-router-dom';
 import styles from './ProfileMainCard.module.css';
 import { profileStore } from '../model/profileStore';
 
-
 function buildFullName(params: {
   lastName?: string;
   firstName?: string;
@@ -86,11 +85,7 @@ export const ProfileMainCard = observer((): ReactElement => {
           <div className={styles.avatarCol}>
             <div className={styles.avatarWrap}>
               {avatarSrc ? (
-                <img
-                  className={styles.avatar}
-                  src={avatarSrc}
-                  alt={fullName}
-                />
+                <img className={styles.avatar} src={avatarSrc} alt={fullName} />
               ) : (
                 <div className={styles.avatarPlaceholder}>Фото</div>
               )}
@@ -165,9 +160,7 @@ export const ProfileMainCard = observer((): ReactElement => {
                 <input
                   className={styles.input}
                   value={profileStore.draftCity}
-                  onChange={(event) =>
-                    profileStore.setDraftCity(event.target.value)
-                  }
+                  onChange={(event) => profileStore.setDraftCity(event.target.value)}
                   placeholder="Введите город"
                   required
                 />
@@ -183,9 +176,7 @@ export const ProfileMainCard = observer((): ReactElement => {
                 <input
                   className={styles.input}
                   value={profileStore.draftPhone}
-                  onChange={(event) =>
-                    profileStore.setDraftPhone(event.target.value)
-                  }
+                  onChange={(event) => profileStore.setDraftPhone(event.target.value)}
                   placeholder="+7 ..."
                   required
                 />
@@ -213,10 +204,7 @@ export const ProfileMainCard = observer((): ReactElement => {
                 Сменить почту
               </Link>
 
-              <Link
-                className={styles.secondaryBtn}
-                to="/profile/security/password"
-              >
+              <Link className={styles.secondaryBtn} to="/profile/security/password">
                 Сменить пароль
               </Link>
 

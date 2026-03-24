@@ -55,9 +55,7 @@ function normalizeThread(value: unknown): MessageThread | null {
   const updatedAt = asString(value.updatedAt)?.trim();
   const lastMessagePreview = asString(value.lastMessagePreview)?.trim() ?? '';
 
-  const participants = Array.isArray(value.participants)
-    ? value.participants
-    : [];
+  const participants = Array.isArray(value.participants) ? value.participants : [];
 
   if (
     !id ||
@@ -123,9 +121,7 @@ function normalizeMessage(value: unknown): ChatMessage | null {
     text,
     attachments: [],
     createdAt,
-    readByUserIds: Array.isArray(value.readByUserIds)
-      ? value.readByUserIds
-      : [],
+    readByUserIds: Array.isArray(value.readByUserIds) ? value.readByUserIds : [],
   };
 }
 
@@ -175,24 +171,18 @@ function seedSupportWelcomeMessage(threadId: string): ChatMessage {
   };
 }
 
-export function getMessagesSnapshot(
-  viewerUserId: string,
-): MessagesSnapshot {
+export function getMessagesSnapshot(viewerUserId: string): MessagesSnapshot {
   const threads = readThreads().filter((thread) =>
     thread.participants.some((p) => p.userId === viewerUserId),
   );
 
   const threadIds = new Set(threads.map((thread) => thread.id));
 
-  const messages = readMessages().filter((message) =>
-    threadIds.has(message.threadId),
-  );
+  const messages = readMessages().filter((message) => threadIds.has(message.threadId));
 
   return {
     threads: sortThreads(threads),
-    messages: [...messages].sort((l, r) =>
-      l.createdAt.localeCompare(r.createdAt),
-    ),
+    messages: [...messages].sort((l, r) => l.createdAt.localeCompare(r.createdAt)),
   };
 }
 
@@ -205,9 +195,7 @@ export function ensureSupportThread(
   const allMessages = readMessages();
 
   const existing = allThreads.find(
-    (t) =>
-      t.kind === 'support' &&
-      t.participants.some((p) => p.userId === viewer.userId),
+    (t) => t.kind === 'support' && t.participants.some((p) => p.userId === viewer.userId),
   );
 
   if (existing) {
@@ -302,8 +290,7 @@ export function sendMessage(
 
   const threadIndex = allThreads.findIndex(
     (t) =>
-      t.id === payload.threadId &&
-      t.participants.some((p) => p.userId === viewerUserId),
+      t.id === payload.threadId && t.participants.some((p) => p.userId === viewerUserId),
   );
 
   if (threadIndex === -1) {
@@ -316,8 +303,7 @@ export function sendMessage(
     id: createId('message'),
     threadId: payload.threadId,
     authorId: payload.viewer.userId,
-    authorRole:
-      payload.viewer.role === 'guest' ? 'client' : payload.viewer.role,
+    authorRole: payload.viewer.role === 'guest' ? 'client' : payload.viewer.role,
     authorName: payload.viewer.displayName,
     text,
     attachments: [],

@@ -12,12 +12,7 @@ import {
 } from '../data/mockShopOrders';
 
 import type { CreateOrderPayload } from './shopOrderApi';
-import type {
-  CartDetailedItem,
-  Order,
-  PickupPoint,
-  Product,
-} from '../model/types';
+import type { CartDetailedItem, Order, PickupPoint, Product } from '../model/types';
 
 type OrderLineInput = {
   productId: string;
@@ -45,9 +40,7 @@ function buildDetailedItems(
     .filter((item): item is CartDetailedItem => item !== null);
 }
 
-export async function mockGetPickupPoints(
-  city?: string,
-): Promise<PickupPoint[]> {
+export async function mockGetPickupPoints(city?: string): Promise<PickupPoint[]> {
   const normalizedCity = city?.trim().toLowerCase() ?? '';
 
   const points = getPickupPointsSnapshot();
@@ -56,23 +49,16 @@ export async function mockGetPickupPoints(
     return points;
   }
 
-  return points.filter((point) =>
-    point.address.toLowerCase().includes(normalizedCity),
-  );
+  return points.filter((point) => point.address.toLowerCase().includes(normalizedCity));
 }
 
-export async function mockCreateOrder(
-  payload: CreateOrderPayload,
-): Promise<Order> {
+export async function mockCreateOrder(payload: CreateOrderPayload): Promise<Order> {
   const productIds = payload.items.map((item) => item.productId);
   const products = getShopProductsSnapshot().filter((product) =>
     productIds.includes(product.id),
   );
   const detailedItems = buildDetailedItems(payload.items, products);
-  const totalPrice = detailedItems.reduce(
-    (sum, item) => sum + item.lineTotal,
-    0,
-  );
+  const totalPrice = detailedItems.reduce((sum, item) => sum + item.lineTotal, 0);
 
   const estimatedDeliveryDate =
     payload.form.deliveryMethod === 'courier'
@@ -104,9 +90,7 @@ export async function mockCreateOrder(
   return order;
 }
 
-export async function mockGetOrderById(
-  orderId: string,
-): Promise<Order | null> {
+export async function mockGetOrderById(orderId: string): Promise<Order | null> {
   const orders = readStoredOrders();
   return orders.find((order) => order.id === orderId) ?? null;
 }
@@ -150,9 +134,7 @@ export async function mockPayShopOrder(
   return updated;
 }
 
-export async function mockCancelOrder(
-  orderId: string,
-): Promise<Order> {
+export async function mockCancelOrder(orderId: string): Promise<Order> {
   const orders = readStoredOrders();
   const index = orders.findIndex((order) => order.id === orderId);
 

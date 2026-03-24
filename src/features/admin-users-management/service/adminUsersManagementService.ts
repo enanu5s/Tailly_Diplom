@@ -14,15 +14,11 @@ export const adminUsersManagementService = {
     return adminUsersManagementApi.getUsers();
   },
 
-  updateBlockedStatus(
-    payload: UpdateUserBlockStatusPayload,
-  ): Promise<ManagedUser> {
+  updateBlockedStatus(payload: UpdateUserBlockStatusPayload): Promise<ManagedUser> {
     return adminUsersManagementApi.updateBlockedStatus(payload);
   },
 
-  updateUserProfile(
-    payload: UpdateManagedUserProfilePayload,
-  ): Promise<ManagedUser> {
+  updateUserProfile(payload: UpdateManagedUserProfilePayload): Promise<ManagedUser> {
     return adminUsersManagementApi.updateUserProfile(payload);
   },
 

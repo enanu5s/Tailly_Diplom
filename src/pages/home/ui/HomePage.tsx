@@ -3,7 +3,13 @@
 import { observer } from 'mobx-react-lite';
 import { useEffect } from 'react';
 
-import { homeStore, BannerCarousel, ServicesMenu, ReviewsCarousel, Faq } from '@/features/home';
+import {
+  homeStore,
+  BannerCarousel,
+  ServicesMenu,
+  ReviewsCarousel,
+  Faq,
+} from '@/features/home';
 import { FeedbackSection } from '@/shared/ui/feedback';
 
 import styles from './HomePage.module.css';

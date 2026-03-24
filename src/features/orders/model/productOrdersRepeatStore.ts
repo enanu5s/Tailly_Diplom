@@ -54,9 +54,7 @@ class ProductOrdersRepeatStore {
         this.loadingOrderIds.delete(order.id);
         this.errorByOrderId.set(
           order.id,
-          error instanceof Error
-            ? error.message
-            : 'Не удалось повторить заказ.',
+          error instanceof Error ? error.message : 'Не удалось повторить заказ.',
         );
       });
 

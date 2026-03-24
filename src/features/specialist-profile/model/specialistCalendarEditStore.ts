@@ -54,8 +54,7 @@ function createDefaultWindowForm(
 
   return {
     startTime: settings.dayStartTime,
-    endTime:
-      endTime <= settings.dayEndTime ? endTime : settings.dayEndTime,
+    endTime: endTime <= settings.dayEndTime ? endTime : settings.dayEndTime,
     serviceIds: [],
     comment: '',
   };
@@ -82,21 +81,18 @@ function normalizeBookingSettings(
   }
 
   return {
-    dayStartTime:
-      /^\d{2}:\d{2}$/.test(value.dayStartTime)
-        ? value.dayStartTime
-        : fallback.dayStartTime,
-    dayEndTime:
-      /^\d{2}:\d{2}$/.test(value.dayEndTime)
-        ? value.dayEndTime
-        : fallback.dayEndTime,
+    dayStartTime: /^\d{2}:\d{2}$/.test(value.dayStartTime)
+      ? value.dayStartTime
+      : fallback.dayStartTime,
+    dayEndTime: /^\d{2}:\d{2}$/.test(value.dayEndTime)
+      ? value.dayEndTime
+      : fallback.dayEndTime,
     slotStepMinutes:
       Number.isFinite(value.slotStepMinutes) && value.slotStepMinutes > 0
         ? Math.round(value.slotStepMinutes)
         : fallback.slotStepMinutes,
     defaultDurationMinutes:
-      Number.isFinite(value.defaultDurationMinutes) &&
-      value.defaultDurationMinutes > 0
+      Number.isFinite(value.defaultDurationMinutes) && value.defaultDurationMinutes > 0
         ? Math.round(value.defaultDurationMinutes)
         : fallback.defaultDurationMinutes,
   };
@@ -180,14 +176,12 @@ export class SpecialistCalendarEditStore {
   selectedDates: string[] = [];
   isMultiSelectMode = false;
 
-  selectedStatus: Exclude<SpecialistCalendarDayStatus, 'partially_booked'> =
-    'available';
+  selectedStatus: Exclude<SpecialistCalendarDayStatus, 'partially_booked'> = 'available';
 
   windowForm: AvailabilityWindowForm = createDefaultWindowForm();
   windowFormError: string | null = null;
 
-  bulkTemplateForm: BulkAvailabilityTemplateForm =
-    createDefaultBulkTemplateForm();
+  bulkTemplateForm: BulkAvailabilityTemplateForm = createDefaultBulkTemplateForm();
   bulkTemplateError: string | null = null;
 
   bookingSettingsError: string | null = null;
@@ -224,9 +218,7 @@ export class SpecialistCalendarEditStore {
     const selected = new Set(this.effectiveSelectedDates);
 
     return sortWindows(
-      this.editableCalendar.availabilityWindows.filter((item) =>
-        selected.has(item.date),
-      ),
+      this.editableCalendar.availabilityWindows.filter((item) => selected.has(item.date)),
     );
   }
 
@@ -240,9 +232,10 @@ export class SpecialistCalendarEditStore {
     );
   }
 
-  get selectedDateOverrideStatus():
-    | Exclude<SpecialistCalendarDayStatus, 'partially_booked'>
-    | null {
+  get selectedDateOverrideStatus(): Exclude<
+    SpecialistCalendarDayStatus,
+    'partially_booked'
+  > | null {
     if (!this.editableCalendar) {
       return null;
     }
@@ -266,10 +259,7 @@ export class SpecialistCalendarEditStore {
       };
     }
 
-    const summary = getDateBookingSummary(
-      this.editableCalendar,
-      this.selectedDate,
-    );
+    const summary = getDateBookingSummary(this.editableCalendar, this.selectedDate);
 
     return {
       status: summary.status,
@@ -323,8 +313,8 @@ export class SpecialistCalendarEditStore {
 
     return this.effectiveSelectedDates.some((date) => {
       const currentOverride =
-        this.editableCalendar?.dayOverrides.find((item) => item.date === date)
-          ?.status ?? 'available';
+        this.editableCalendar?.dayOverrides.find((item) => item.date === date)?.status ??
+        'available';
 
       return currentOverride !== this.selectedStatus;
     });
@@ -500,10 +490,7 @@ export class SpecialistCalendarEditStore {
       );
     }
 
-    if (
-      this.selectedStatus === 'day_off' ||
-      this.selectedStatus === 'fully_booked'
-    ) {
+    if (this.selectedStatus === 'day_off' || this.selectedStatus === 'fully_booked') {
       this.editableCalendar.availabilityWindows =
         this.editableCalendar.availabilityWindows.filter(
           (item) => !targetDates.includes(item.date),
@@ -581,9 +568,10 @@ export class SpecialistCalendarEditStore {
     this.saveSuccess = false;
   }
 
-  setBookingSettingsField<
-    K extends keyof SpecialistCalendarBookingSettings,
-  >(field: K, value: SpecialistCalendarBookingSettings[K]): void {
+  setBookingSettingsField<K extends keyof SpecialistCalendarBookingSettings>(
+    field: K,
+    value: SpecialistCalendarBookingSettings[K],
+  ): void {
     if (!this.editableCalendar) {
       return;
     }
@@ -626,12 +614,8 @@ export class SpecialistCalendarEditStore {
       return false;
     }
 
-    if (
-      !Number.isFinite(settings.slotStepMinutes) ||
-      settings.slotStepMinutes < 15
-    ) {
-      this.bookingSettingsError =
-        'Шаг слотов должен быть не меньше 15 минут.';
+    if (!Number.isFinite(settings.slotStepMinutes) || settings.slotStepMinutes < 15) {
+      this.bookingSettingsError = 'Шаг слотов должен быть не меньше 15 минут.';
       return false;
     }
 
@@ -639,8 +623,7 @@ export class SpecialistCalendarEditStore {
       !Number.isFinite(settings.defaultDurationMinutes) ||
       settings.defaultDurationMinutes < 15
     ) {
-      this.bookingSettingsError =
-        'Длительность слота должна быть не меньше 15 минут.';
+      this.bookingSettingsError = 'Длительность слота должна быть не меньше 15 минут.';
       return false;
     }
 
@@ -672,8 +655,7 @@ export class SpecialistCalendarEditStore {
     }
 
     if (this.windowForm.serviceIds.length === 0) {
-      this.windowFormError =
-        'Выбери хотя бы одну услугу для выбранной даты.';
+      this.windowFormError = 'Выбери хотя бы одну услугу для выбранной даты.';
       return;
     }
 
@@ -725,10 +707,7 @@ export class SpecialistCalendarEditStore {
     }
 
     if (
-      !isValidTimeRange(
-        this.bulkTemplateForm.startTime,
-        this.bulkTemplateForm.endTime,
-      )
+      !isValidTimeRange(this.bulkTemplateForm.startTime, this.bulkTemplateForm.endTime)
     ) {
       this.bulkTemplateError =
         'Укажи корректный диапазон времени для пакетного создания.';
@@ -736,8 +715,7 @@ export class SpecialistCalendarEditStore {
     }
 
     if (this.bulkTemplateForm.serviceIds.length === 0) {
-      this.bulkTemplateError =
-        'Выбери хотя бы одну услугу для пакетного создания.';
+      this.bulkTemplateError = 'Выбери хотя бы одну услугу для пакетного создания.';
       return;
     }
 
@@ -806,9 +784,7 @@ export class SpecialistCalendarEditStore {
     }
 
     this.editableCalendar.availabilityWindows =
-      this.editableCalendar.availabilityWindows.filter(
-        (item) => item.id !== windowId,
-      );
+      this.editableCalendar.availabilityWindows.filter((item) => item.id !== windowId);
 
     this.saveSuccess = false;
     this.hasUnsavedChanges = true;

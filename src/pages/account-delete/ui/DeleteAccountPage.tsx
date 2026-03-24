@@ -26,9 +26,7 @@ export function DeleteAccountPage() {
       ? `/specialists/${user.specialistSlug.trim()}`
       : '/profile';
 
-  const handleSubmit = async (
-    event: React.FormEvent<HTMLFormElement>,
-  ): Promise<void> => {
+  const handleSubmit = async (event: React.FormEvent<HTMLFormElement>): Promise<void> => {
     event.preventDefault();
     setError(null);
 
@@ -72,9 +70,9 @@ export function DeleteAccountPage() {
 
         <div className={styles.card}>
           <p className={styles.lead}>
-            Аккаунт будет заблокирован для входа. В течение 30 дней его можно
-            восстановить по ссылке из письма на вашу почту. По истечении срока
-            данные удаляются безвозвратно.
+            Аккаунт будет заблокирован для входа. В течение 30 дней его можно восстановить
+            по ссылке из письма на вашу почту. По истечении срока данные удаляются
+            безвозвратно.
           </p>
 
           {error ? <div className={styles.error}>{error}</div> : null}
@@ -93,11 +91,7 @@ export function DeleteAccountPage() {
             </label>
 
             <div className={styles.actions}>
-              <button
-                className={styles.dangerBtn}
-                type="submit"
-                disabled={loading}
-              >
+              <button className={styles.dangerBtn} type="submit" disabled={loading}>
                 {loading ? 'Обработка...' : 'Запланировать удаление аккаунта'}
               </button>
 

@@ -1,15 +1,12 @@
 // /src/shared/api/http.ts
-const DEFAULT_DEV_API_BASE_URL = 'http://localhost:3000';
+import { apiErrorBodySchema } from '@/shared/api/schemas/apiErrorBodySchema';
+import { resolveApiBaseUrl } from '@/shared/config/env';
+
 const DEFAULT_REQUEST_TIMEOUT_MS = 15000;
 
 export type HttpMethod = 'GET' | 'POST' | 'PUT' | 'PATCH' | 'DELETE';
 
-export type RequestQueryValue =
-  | string
-  | number
-  | boolean
-  | null
-  | undefined;
+export type RequestQueryValue = string | number | boolean | null | undefined;
 
 export type RequestHeaders = Record<string, string>;
 
@@ -76,22 +73,6 @@ export function configureHttpClient(params: HttpClientConfig): void {
   unauthorizedHandler = params.onUnauthorized ?? null;
 }
 
-function resolveApiBaseUrl(): string {
-  const rawBaseUrl = import.meta.env.VITE_API_BASE_URL?.trim();
-
-  if (rawBaseUrl) {
-    return rawBaseUrl.replace(/\/+$/, '');
-  }
-
-  if (import.meta.env.DEV) {
-    return DEFAULT_DEV_API_BASE_URL;
-  }
-
-  throw new Error(
-    'VITE_API_BASE_URL is not defined. Set it in the environment before running the app.',
-  );
-}
-
 export const API_BASE_URL = resolveApiBaseUrl();
 
 function buildUrl(path: string, query?: RequestQuery): string {
@@ -138,22 +119,22 @@ async function parseResponseBody(response: Response): Promise<unknown> {
 }
 
 function extractErrorPayload(body: unknown): ApiErrorPayload | null {
-  if (!body || typeof body !== 'object') {
+  const parsed = apiErrorBodySchema.safeParse(body);
+  if (!parsed.success) {
     return null;
   }
 
-  const maybePayload = body as ApiErrorPayload;
-
   return {
-    message: maybePayload.message,
-    code: maybePayload.code,
-    errors: maybePayload.errors,
+    message: parsed.data.message,
+    code: parsed.data.code,
+    errors: parsed.data.errors,
   };
 }
 
-function createTimeoutSignal(
-  timeoutMs: number,
-): { signal: AbortSignal; cleanup: () => void } {
+function createTimeoutSignal(timeoutMs: number): {
+  signal: AbortSignal;
+  cleanup: () => void;
+} {
   const controller = new AbortController();
   const timeoutId = window.setTimeout(() => {
     controller.abort(new HttpTimeoutError(timeoutMs));
@@ -208,10 +189,7 @@ function normalizeAbortError(error: unknown, timeoutMs: number): never {
   throw error;
 }
 
-export async function request<T>(
-  path: string,
-  options: RequestOptions = {},
-): Promise<T> {
+export async function request<T>(path: string, options: RequestOptions = {}): Promise<T> {
   const {
     method = 'GET',
     body,
@@ -235,16 +213,15 @@ export async function request<T>(
     if (isBodyInit(body)) {
       requestBody = body;
     } else {
-      finalHeaders['Content-Type'] =
-        finalHeaders['Content-Type'] ?? 'application/json';
+      finalHeaders['Content-Type'] = finalHeaders['Content-Type'] ?? 'application/json';
       requestBody = JSON.stringify(body);
     }
   }
 
   const timeoutController = createTimeoutSignal(timeoutMs);
-  const finalSignal = mergeAbortSignals([timeoutController.signal, signal].filter(
-    Boolean,
-  ) as AbortSignal[]);
+  const finalSignal = mergeAbortSignals(
+    [timeoutController.signal, signal].filter(Boolean) as AbortSignal[],
+  );
 
   let response: Response;
 

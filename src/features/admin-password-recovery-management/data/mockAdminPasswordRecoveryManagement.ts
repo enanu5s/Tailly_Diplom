@@ -32,9 +32,8 @@ export function getRecoveryRequestById(
   requestId: string,
 ): MockAdminPasswordRecoveryRequest | null {
   return (
-    getAdminPasswordRecoveryRequestsSnapshot().find(
-      (item) => item.id === requestId,
-    ) ?? null
+    getAdminPasswordRecoveryRequestsSnapshot().find((item) => item.id === requestId) ??
+    null
   );
 }
 
@@ -51,9 +50,7 @@ export function processRecoveryRequest(
   const currentItem = list[requestIndex];
 
   if (currentItem.status === 'processed') {
-    throw new AdminPasswordRecoveryManagementError(
-      'Заявка уже была обработана.',
-    );
+    throw new AdminPasswordRecoveryManagementError('Заявка уже была обработана.');
   }
 
   const temporaryPassword = buildTemporaryPassword();

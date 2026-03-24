@@ -1,39 +1,39 @@
 // src/pages/become-specialist-form/ui/BecomeSpecialistFormPage.tsx
 
-import { useState } from "react";
-import { Link } from "react-router-dom";
+import { useState } from 'react';
+import { Link } from 'react-router-dom';
 
-import { specialistApplicationsService } from "@/features/specialist-applications";
-import type { SpecialistApplicationQuestionnaire } from "@/features/specialist-applications/model/types";
-import { BackButton } from "@/shared/ui/back-button";
+import { specialistApplicationsService } from '@/features/specialist-applications';
+import type { SpecialistApplicationQuestionnaire } from '@/features/specialist-applications/model/types';
+import { BackButton } from '@/shared/ui/back-button';
 
-import styles from "./BecomeSpecialistFormPage.module.css";
+import styles from './BecomeSpecialistFormPage.module.css';
 
-import type { FormEvent, ReactElement } from "react";
+import type { FormEvent, ReactElement } from 'react';
 
 const ANIMAL_TYPE_OPTIONS = [
-  "Собаки",
-  "Кошки",
-  "Птицы",
-  "Грызуны",
-  "Рыбы",
-  "Рептилии",
-  "Другие",
+  'Собаки',
+  'Кошки',
+  'Птицы',
+  'Грызуны',
+  'Рыбы',
+  'Рептилии',
+  'Другие',
 ] as const;
 
 const SERVICE_FORMAT_OPTIONS = [
-  "Выгул",
-  "Дневной присмотр",
-  "Ночной присмотр",
-  "Передержка у клиента",
-  "Передержка у себя",
-  "Сопровождение в ветклинику",
-  "Регулярные визиты",
+  'Выгул',
+  'Дневной присмотр',
+  'Ночной присмотр',
+  'Передержка у клиента',
+  'Передержка у себя',
+  'Сопровождение в ветклинику',
+  'Регулярные визиты',
 ] as const;
 
 function createInitialQuestionnaire(): SpecialistApplicationQuestionnaire {
   return {
-    experienceYears: "",
+    experienceYears: '',
     animalTypes: [],
     serviceFormats: [],
     canGiveMedication: false,
@@ -41,12 +41,12 @@ function createInitialQuestionnaire(): SpecialistApplicationQuestionnaire {
     canTakeOvernightOrders: false,
     hasOwnPets: false,
     hasPetFirstAidBasics: false,
-    housingType: "",
-    districtPreferences: "",
-    schedulePreferences: "",
-    portfolioUrl: "",
-    motivation: "",
-    additionalInfo: "",
+    housingType: '',
+    districtPreferences: '',
+    schedulePreferences: '',
+    portfolioUrl: '',
+    motivation: '',
+    additionalInfo: '',
   };
 }
 
@@ -59,24 +59,22 @@ function toggleArrayValue(values: string[], value: string): string[] {
 }
 
 export const BecomeSpecialistFormPage = (): ReactElement => {
-
-  const [name, setName] = useState("");
-  const [email, setEmail] = useState("");
-  const [phone, setPhone] = useState("");
-  const [city, setCity] = useState("");
-  const [about, setAbout] = useState("");
-  const [questionnaire, setQuestionnaire] =
-    useState<SpecialistApplicationQuestionnaire>(createInitialQuestionnaire());
+  const [name, setName] = useState('');
+  const [email, setEmail] = useState('');
+  const [phone, setPhone] = useState('');
+  const [city, setCity] = useState('');
+  const [about, setAbout] = useState('');
+  const [questionnaire, setQuestionnaire] = useState<SpecialistApplicationQuestionnaire>(
+    createInitialQuestionnaire(),
+  );
   const [consent, setConsent] = useState(false);
   const [loading, setLoading] = useState(false);
-  const [error, setError] = useState("");
+  const [error, setError] = useState('');
   const [success, setSuccess] = useState(false);
 
-  const setQuestionnaireField = <
-    K extends keyof SpecialistApplicationQuestionnaire
-  >(
+  const setQuestionnaireField = <K extends keyof SpecialistApplicationQuestionnaire>(
     key: K,
-    value: SpecialistApplicationQuestionnaire[K]
+    value: SpecialistApplicationQuestionnaire[K],
   ): void => {
     setQuestionnaire((prev) => ({
       ...prev,
@@ -86,31 +84,31 @@ export const BecomeSpecialistFormPage = (): ReactElement => {
 
   const validateForm = (): string | null => {
     if (!consent) {
-      return "Нужно согласие на обработку персональных данных.";
+      return 'Нужно согласие на обработку персональных данных.';
     }
 
     if (!questionnaire.experienceYears.trim()) {
-      return "Укажи опыт работы с животными.";
+      return 'Укажи опыт работы с животными.';
     }
 
     if (questionnaire.animalTypes.length === 0) {
-      return "Выбери хотя бы один тип животных.";
+      return 'Выбери хотя бы один тип животных.';
     }
 
     if (questionnaire.serviceFormats.length === 0) {
-      return "Выбери хотя бы один формат услуг.";
+      return 'Выбери хотя бы один формат услуг.';
     }
 
     if (!questionnaire.housingType.trim()) {
-      return "Опиши условия, в которых будешь работать с питомцем.";
+      return 'Опиши условия, в которых будешь работать с питомцем.';
     }
 
     if (!questionnaire.schedulePreferences.trim()) {
-      return "Укажи предпочитаемый график работы.";
+      return 'Укажи предпочитаемый график работы.';
     }
 
     if (!questionnaire.motivation.trim()) {
-      return "Расскажи, почему хочешь стать специалистом Tailly.";
+      return 'Расскажи, почему хочешь стать специалистом Tailly.';
     }
 
     return null;
@@ -118,7 +116,7 @@ export const BecomeSpecialistFormPage = (): ReactElement => {
 
   const handleSubmit = async (event: FormEvent): Promise<void> => {
     event.preventDefault();
-    setError("");
+    setError('');
     setSuccess(false);
 
     const validationError = validateForm();
@@ -150,18 +148,18 @@ export const BecomeSpecialistFormPage = (): ReactElement => {
       });
 
       setSuccess(true);
-      setName("");
-      setEmail("");
-      setPhone("");
-      setCity("");
-      setAbout("");
+      setName('');
+      setEmail('');
+      setPhone('');
+      setCity('');
+      setAbout('');
       setQuestionnaire(createInitialQuestionnaire());
       setConsent(false);
     } catch (submitError) {
       setError(
         submitError instanceof Error
           ? submitError.message
-          : "Не удалось отправить заявку."
+          : 'Не удалось отправить заявку.',
       );
     } finally {
       setLoading(false);
@@ -181,9 +179,8 @@ export const BecomeSpecialistFormPage = (): ReactElement => {
           <div className={styles.badge}>Tailly</div>
           <h1 className={styles.title}>Анкета специалиста</h1>
           <p className={styles.subtitle}>
-            Мы собираем не просто контактные данные, а структурированную анкету,
-            чтобы администраторам было легче провести интервью и быстрее принять
-            решение.
+            Мы собираем не просто контактные данные, а структурированную анкету, чтобы
+            администраторам было легче провести интервью и быстрее принять решение.
           </p>
         </div>
 
@@ -261,10 +258,7 @@ export const BecomeSpecialistFormPage = (): ReactElement => {
                     className={styles.input}
                     value={questionnaire.experienceYears}
                     onChange={(event) =>
-                      setQuestionnaireField(
-                        "experienceYears",
-                        event.target.value
-                      )
+                      setQuestionnaireField('experienceYears', event.target.value)
                     }
                     placeholder="Например: 2 года, 5+ лет, с 2021 года"
                     required
@@ -272,9 +266,7 @@ export const BecomeSpecialistFormPage = (): ReactElement => {
                 </label>
 
                 <label className={styles.fieldWide}>
-                  <span className={styles.label}>
-                    С какими животными работаешь
-                  </span>
+                  <span className={styles.label}>С какими животными работаешь</span>
                   <div className={styles.checkboxGrid}>
                     {ANIMAL_TYPE_OPTIONS.map((option) => (
                       <label key={option} className={styles.checkboxCard}>
@@ -283,11 +275,8 @@ export const BecomeSpecialistFormPage = (): ReactElement => {
                           checked={questionnaire.animalTypes.includes(option)}
                           onChange={() =>
                             setQuestionnaireField(
-                              "animalTypes",
-                              toggleArrayValue(
-                                questionnaire.animalTypes,
-                                option
-                              )
+                              'animalTypes',
+                              toggleArrayValue(questionnaire.animalTypes, option),
                             )
                           }
                         />
@@ -298,24 +287,17 @@ export const BecomeSpecialistFormPage = (): ReactElement => {
                 </label>
 
                 <label className={styles.fieldWide}>
-                  <span className={styles.label}>
-                    Какие услуги готов оказывать
-                  </span>
+                  <span className={styles.label}>Какие услуги готов оказывать</span>
                   <div className={styles.checkboxGrid}>
                     {SERVICE_FORMAT_OPTIONS.map((option) => (
                       <label key={option} className={styles.checkboxCard}>
                         <input
                           type="checkbox"
-                          checked={questionnaire.serviceFormats.includes(
-                            option
-                          )}
+                          checked={questionnaire.serviceFormats.includes(option)}
                           onChange={() =>
                             setQuestionnaireField(
-                              "serviceFormats",
-                              toggleArrayValue(
-                                questionnaire.serviceFormats,
-                                option
-                              )
+                              'serviceFormats',
+                              toggleArrayValue(questionnaire.serviceFormats, option),
                             )
                           }
                         />
@@ -339,7 +321,7 @@ export const BecomeSpecialistFormPage = (): ReactElement => {
                     className={styles.textarea}
                     value={questionnaire.housingType}
                     onChange={(event) =>
-                      setQuestionnaireField("housingType", event.target.value)
+                      setQuestionnaireField('housingType', event.target.value)
                     }
                     placeholder="Например: квартира / дом, есть ли отдельная комната, дети, другие животные."
                     required
@@ -347,17 +329,12 @@ export const BecomeSpecialistFormPage = (): ReactElement => {
                 </label>
 
                 <label className={styles.fieldWide}>
-                  <span className={styles.label}>
-                    Районы и география выезда
-                  </span>
+                  <span className={styles.label}>Районы и география выезда</span>
                   <textarea
                     className={styles.textarea}
                     value={questionnaire.districtPreferences}
                     onChange={(event) =>
-                      setQuestionnaireField(
-                        "districtPreferences",
-                        event.target.value
-                      )
+                      setQuestionnaireField('districtPreferences', event.target.value)
                     }
                     placeholder="Например: центр города, северные районы, до 30 минут на авто."
                   />
@@ -369,10 +346,7 @@ export const BecomeSpecialistFormPage = (): ReactElement => {
                     className={styles.textarea}
                     value={questionnaire.schedulePreferences}
                     onChange={(event) =>
-                      setQuestionnaireField(
-                        "schedulePreferences",
-                        event.target.value
-                      )
+                      setQuestionnaireField('schedulePreferences', event.target.value)
                     }
                     placeholder="Например: будни после 18:00, выходные, беру ночные заказы."
                     required
@@ -394,10 +368,7 @@ export const BecomeSpecialistFormPage = (): ReactElement => {
                         type="checkbox"
                         checked={questionnaire.canGiveMedication}
                         onChange={(event) =>
-                          setQuestionnaireField(
-                            "canGiveMedication",
-                            event.target.checked
-                          )
+                          setQuestionnaireField('canGiveMedication', event.target.checked)
                         }
                       />
                       <span>Готов(а) давать лекарства по инструкции</span>
@@ -409,8 +380,8 @@ export const BecomeSpecialistFormPage = (): ReactElement => {
                         checked={questionnaire.canHandleDifficultBehavior}
                         onChange={(event) =>
                           setQuestionnaireField(
-                            "canHandleDifficultBehavior",
-                            event.target.checked
+                            'canHandleDifficultBehavior',
+                            event.target.checked,
                           )
                         }
                       />
@@ -423,8 +394,8 @@ export const BecomeSpecialistFormPage = (): ReactElement => {
                         checked={questionnaire.canTakeOvernightOrders}
                         onChange={(event) =>
                           setQuestionnaireField(
-                            "canTakeOvernightOrders",
-                            event.target.checked
+                            'canTakeOvernightOrders',
+                            event.target.checked,
                           )
                         }
                       />
@@ -436,10 +407,7 @@ export const BecomeSpecialistFormPage = (): ReactElement => {
                         type="checkbox"
                         checked={questionnaire.hasOwnPets}
                         onChange={(event) =>
-                          setQuestionnaireField(
-                            "hasOwnPets",
-                            event.target.checked
-                          )
+                          setQuestionnaireField('hasOwnPets', event.target.checked)
                         }
                       />
                       <span>Есть свои питомцы</span>
@@ -451,8 +419,8 @@ export const BecomeSpecialistFormPage = (): ReactElement => {
                         checked={questionnaire.hasPetFirstAidBasics}
                         onChange={(event) =>
                           setQuestionnaireField(
-                            "hasPetFirstAidBasics",
-                            event.target.checked
+                            'hasPetFirstAidBasics',
+                            event.target.checked,
                           )
                         }
                       />
@@ -468,14 +436,12 @@ export const BecomeSpecialistFormPage = (): ReactElement => {
 
               <div className={styles.grid}>
                 <label className={styles.field}>
-                  <span className={styles.label}>
-                    Ссылка на портфолио или соцсети
-                  </span>
+                  <span className={styles.label}>Ссылка на портфолио или соцсети</span>
                   <input
                     className={styles.input}
                     value={questionnaire.portfolioUrl}
                     onChange={(event) =>
-                      setQuestionnaireField("portfolioUrl", event.target.value)
+                      setQuestionnaireField('portfolioUrl', event.target.value)
                     }
                     placeholder="https://..."
                   />
@@ -489,7 +455,7 @@ export const BecomeSpecialistFormPage = (): ReactElement => {
                     className={styles.textarea}
                     value={questionnaire.motivation}
                     onChange={(event) =>
-                      setQuestionnaireField("motivation", event.target.value)
+                      setQuestionnaireField('motivation', event.target.value)
                     }
                     placeholder="Что важно в этой роли, почему тебе подходит платформа и как видишь свою работу."
                     required
@@ -497,17 +463,12 @@ export const BecomeSpecialistFormPage = (): ReactElement => {
                 </label>
 
                 <label className={styles.fieldWide}>
-                  <span className={styles.label}>
-                    Дополнительная информация
-                  </span>
+                  <span className={styles.label}>Дополнительная информация</span>
                   <textarea
                     className={styles.textarea}
                     value={questionnaire.additionalInfo}
                     onChange={(event) =>
-                      setQuestionnaireField(
-                        "additionalInfo",
-                        event.target.value
-                      )
+                      setQuestionnaireField('additionalInfo', event.target.value)
                     }
                     placeholder="Можно добавить сертификаты, особенности графика, ограничения или важные детали."
                   />
@@ -523,7 +484,7 @@ export const BecomeSpecialistFormPage = (): ReactElement => {
                 onChange={(event) => setConsent(event.target.checked)}
               />
               <span className={styles.consentText}>
-                Я согласен на обработку персональных данных.{" "}
+                Я согласен на обработку персональных данных.{' '}
                 <a href="/docs/personal-data-agreement.pdf" download>
                   Скачать документ
                 </a>
@@ -543,12 +504,8 @@ export const BecomeSpecialistFormPage = (): ReactElement => {
               </div>
             ) : null}
 
-            <button
-              className={styles.submitButton}
-              type="submit"
-              disabled={loading}
-            >
-              {loading ? "Отправляем..." : "Отправить заявку"}
+            <button className={styles.submitButton} type="submit" disabled={loading}>
+              {loading ? 'Отправляем...' : 'Отправить заявку'}
             </button>
           </form>
         </div>

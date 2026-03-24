@@ -1,6 +1,7 @@
 // src/features/shop/api/shopApi.ts
 
 import { request } from '@/shared/api/http';
+import { isMockApiMode } from '@/shared/config/env';
 
 import {
   mockGetCatalogMeta,
@@ -16,8 +17,6 @@ import type {
   Product,
 } from '../model/types';
 
-const USE_MOCK = (import.meta.env.VITE_USE_MOCK_API ?? 'true') === 'true';
-
 async function getCatalogMetaReal(): Promise<CatalogMetaResponse> {
   return request<CatalogMetaResponse>('/shop/catalog/meta');
 }
@@ -28,9 +27,7 @@ async function getCatalogProductsReal(
   return request<CatalogProductsResponse>('/shop/products', {
     query: {
       search: filters.search.trim() || undefined,
-      categoryIds: filters.categoryIds.length
-        ? filters.categoryIds.join(',')
-        : undefined,
+      categoryIds: filters.categoryIds.length ? filters.categoryIds.join(',') : undefined,
       minPrice: filters.minPrice ?? undefined,
       maxPrice: filters.maxPrice ?? undefined,
       onlyAvailable: filters.onlyAvailable || undefined,
@@ -53,17 +50,13 @@ async function getProductsByIdsReal(productIds: string[]): Promise<Product[]> {
   });
 }
 
-async function getProductBySlugReal(
-  slug: string,
-): Promise<Product | null> {
-  return request<Product | null>(
-    `/shop/products/${encodeURIComponent(slug)}`,
-  );
+async function getProductBySlugReal(slug: string): Promise<Product | null> {
+  return request<Product | null>(`/shop/products/${encodeURIComponent(slug)}`);
 }
 
 export const shopApi = {
   async getCatalogMeta(): Promise<CatalogMetaResponse> {
-    if (USE_MOCK) {
+    if (isMockApiMode) {
       return mockGetCatalogMeta();
     }
 
@@ -73,7 +66,7 @@ export const shopApi = {
   async getCatalogProducts(
     filters: CatalogFilterState,
   ): Promise<CatalogProductsResponse> {
-    if (USE_MOCK) {
+    if (isMockApiMode) {
       return mockGetCatalogProducts(filters);
     }
 
@@ -81,7 +74,7 @@ export const shopApi = {
   },
 
   async getProductsByIds(productIds: string[]): Promise<Product[]> {
-    if (USE_MOCK) {
+    if (isMockApiMode) {
       return mockGetProductsByIds(productIds);
     }
 
@@ -89,7 +82,7 @@ export const shopApi = {
   },
 
   async getProductBySlug(slug: string): Promise<Product | null> {
-    if (USE_MOCK) {
+    if (isMockApiMode) {
       return mockGetProductBySlug(slug);
     }
 

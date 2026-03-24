@@ -5,7 +5,6 @@ import { useEffect } from 'react';
 import { emailChangeFlowStore } from '@/features/profileSecurity';
 import { useAppNavigate } from '@/shared/lib/navigation/useAppNavigate';
 
-
 import styles from './ChangeEmailPage.module.css';
 
 export const ChangeEmailPage = observer(() => {
@@ -31,10 +30,13 @@ export const ChangeEmailPage = observer(() => {
         <div className={styles.card}>
           <h2 className={styles.h2}>Смена почты</h2>
           <p className={styles.text}>
-            Мы отправим код подтверждения на вашу текущую (старую) почту. После этого вы сможете указать новую почту.
+            Мы отправим код подтверждения на вашу текущую (старую) почту. После этого вы
+            сможете указать новую почту.
           </p>
 
-          {emailChangeFlowStore.error && <div className={styles.error}>{emailChangeFlowStore.error}</div>}
+          {emailChangeFlowStore.error && (
+            <div className={styles.error}>{emailChangeFlowStore.error}</div>
+          )}
 
           <div className={styles.actions}>
             <button
@@ -48,10 +50,16 @@ export const ChangeEmailPage = observer(() => {
                 }
               }}
             >
-              {emailChangeFlowStore.loading ? 'Отправляем...' : 'Отправить код на старую почту'}
+              {emailChangeFlowStore.loading
+                ? 'Отправляем...'
+                : 'Отправить код на старую почту'}
             </button>
 
-            <button className={styles.secondaryBtn} type="button" onClick={() => navigate('/profile')}>
+            <button
+              className={styles.secondaryBtn}
+              type="button"
+              onClick={() => navigate('/profile')}
+            >
               Назад в профиль
             </button>
           </div>

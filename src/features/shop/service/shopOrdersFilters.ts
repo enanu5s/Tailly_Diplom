@@ -1,16 +1,8 @@
 // src/features/shop/service/shopOrdersFilters.ts
 
-export type ShopOrdersFilterValue =
-  | 'all'
-  | 'active'
-  | 'completed'
-  | 'cancelled';
+export type ShopOrdersFilterValue = 'all' | 'active' | 'completed' | 'cancelled';
 
-export type ShopOrderStatusTone =
-  | 'active'
-  | 'completed'
-  | 'cancelled'
-  | 'neutral';
+export type ShopOrderStatusTone = 'active' | 'completed' | 'cancelled' | 'neutral';
 
 export function mapShopOrderStatusLabel(status: string): string {
   switch (status) {
@@ -33,9 +25,7 @@ export function mapShopOrderStatusLabel(status: string): string {
   }
 }
 
-export function getShopOrderStatusTone(
-  status: string,
-): ShopOrderStatusTone {
+export function getShopOrderStatusTone(status: string): ShopOrderStatusTone {
   switch (status) {
     case 'created':
     case 'paid':

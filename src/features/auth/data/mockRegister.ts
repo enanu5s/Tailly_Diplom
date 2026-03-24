@@ -29,9 +29,7 @@ export function getMockRegisterState(): {
 export function cloneCities(): City[] {
   ensureMockDatabaseLoaded();
 
-  return JSON.parse(
-    JSON.stringify(unsafeMutableMockDb().register.cities),
-  ) as City[];
+  return JSON.parse(JSON.stringify(unsafeMutableMockDb().register.cities)) as City[];
 }
 
 export function patchMockRegisterState(

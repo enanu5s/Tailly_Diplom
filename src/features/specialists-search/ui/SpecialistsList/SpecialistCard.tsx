@@ -11,7 +11,11 @@ type Props = {
   onClick: () => void;
 };
 
-function getPriceText(sp: Specialist, serviceId: ServiceId | 'any', petType: PetType | 'any') {
+function getPriceText(
+  sp: Specialist,
+  serviceId: ServiceId | 'any',
+  petType: PetType | 'any',
+) {
   const candidates = sp.services.filter((s) => {
     if (serviceId !== 'any' && s.serviceId !== serviceId) return false;
     if (petType !== 'any' && !s.petTypes.includes(petType)) return false;
@@ -22,7 +26,12 @@ function getPriceText(sp: Specialist, serviceId: ServiceId | 'any', petType: Pet
   return `${min} €`;
 }
 
-export function SpecialistCard({ specialist, currentServiceId, currentPetType, onClick }: Props) {
+export function SpecialistCard({
+  specialist,
+  currentServiceId,
+  currentPetType,
+  onClick,
+}: Props) {
   const priceText = getPriceText(specialist, currentServiceId, currentPetType);
 
   return (
@@ -32,7 +41,11 @@ export function SpecialistCard({ specialist, currentServiceId, currentPetType, o
       <div className={styles.top}>
         <div className={styles.avatarWrap}>
           {specialist.avatarUrl ? (
-            <img className={styles.avatar} src={specialist.avatarUrl} alt={specialist.name} />
+            <img
+              className={styles.avatar}
+              src={specialist.avatarUrl}
+              alt={specialist.name}
+            />
           ) : (
             <div className={styles.avatarPlaceholder} />
           )}

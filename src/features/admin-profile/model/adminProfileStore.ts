@@ -5,10 +5,7 @@ import { authStore } from '@/features/auth/model/authStore';
 
 import { adminProfileService } from '../service/adminProfileService';
 
-import type {
-  AdminProfile,
-  UpdateAdminProfilePayload,
-} from './types';
+import type { AdminProfile, UpdateAdminProfilePayload } from './types';
 
 type AdminProfileForm = {
   firstName: string;
@@ -50,11 +47,7 @@ function applyUpdatedProfileToAuth(updatedProfile: AdminProfile): void {
     adminId: updatedProfile.adminId,
     email: updatedProfile.email,
     role: updatedProfile.role,
-    name: [
-      updatedProfile.lastName,
-      updatedProfile.firstName,
-      updatedProfile.middleName,
-    ]
+    name: [updatedProfile.lastName, updatedProfile.firstName, updatedProfile.middleName]
       .filter(Boolean)
       .join(' ')
       .trim(),
@@ -118,10 +111,7 @@ class AdminProfileStore {
   }
 
   get canSubmitEmailChangeConfirm(): boolean {
-    return (
-      !this.isConfirmingEmailChange &&
-      this.emailChangeCode.trim().length > 0
-    );
+    return !this.isConfirmingEmailChange && this.emailChangeCode.trim().length > 0;
   }
 
   setFormField<K extends keyof AdminProfileForm>(
@@ -131,10 +121,7 @@ class AdminProfileStore {
     this.form[key] = value;
   }
 
-  setEmailChangeField(
-    key: 'newEmail' | 'password' | 'code',
-    value: string,
-  ): void {
+  setEmailChangeField(key: 'newEmail' | 'password' | 'code', value: string): void {
     if (key === 'newEmail') {
       this.emailChangeNewEmail = value;
     } else if (key === 'password') {
@@ -186,9 +173,7 @@ class AdminProfileStore {
   cancelEdit(): void {
     this.isEditing = false;
     this.saveError = '';
-    this.form = this.profile
-      ? mapProfileToForm(this.profile)
-      : createInitialForm();
+    this.form = this.profile ? mapProfileToForm(this.profile) : createInitialForm();
   }
 
   openEmailChangeModal(): void {
@@ -257,9 +242,7 @@ class AdminProfileStore {
     } catch (error) {
       runInAction(() => {
         this.emailChangeError =
-          error instanceof Error
-            ? error.message
-            : 'Не удалось отправить код.';
+          error instanceof Error ? error.message : 'Не удалось отправить код.';
       });
     } finally {
       runInAction(() => {
@@ -279,10 +262,9 @@ class AdminProfileStore {
     });
 
     try {
-      const updatedProfile =
-        await adminProfileService.confirmSuperAdminEmailChange({
-          code: this.emailChangeCode.trim(),
-        });
+      const updatedProfile = await adminProfileService.confirmSuperAdminEmailChange({
+        code: this.emailChangeCode.trim(),
+      });
 
       runInAction(() => {
         this.profile = updatedProfile;
@@ -301,9 +283,7 @@ class AdminProfileStore {
     } catch (error) {
       runInAction(() => {
         this.emailChangeError =
-          error instanceof Error
-            ? error.message
-            : 'Не удалось подтвердить смену email.';
+          error instanceof Error ? error.message : 'Не удалось подтвердить смену email.';
       });
     } finally {
       runInAction(() => {

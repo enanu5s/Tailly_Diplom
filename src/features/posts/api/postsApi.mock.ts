@@ -54,26 +54,20 @@ function sortPosts(posts: Post[], sort: PostsSort = 'newest'): Post[] {
     case 'oldest':
       return copy.sort(
         (left, right) =>
-          new Date(left.publishedAt).getTime() -
-          new Date(right.publishedAt).getTime(),
+          new Date(left.publishedAt).getTime() - new Date(right.publishedAt).getTime(),
       );
 
     case 'title_asc':
-      return copy.sort((left, right) =>
-        left.title.localeCompare(right.title, 'ru'),
-      );
+      return copy.sort((left, right) => left.title.localeCompare(right.title, 'ru'));
 
     case 'title_desc':
-      return copy.sort((left, right) =>
-        right.title.localeCompare(left.title, 'ru'),
-      );
+      return copy.sort((left, right) => right.title.localeCompare(left.title, 'ru'));
 
     case 'newest':
     default:
       return copy.sort(
         (left, right) =>
-          new Date(right.publishedAt).getTime() -
-          new Date(left.publishedAt).getTime(),
+          new Date(right.publishedAt).getTime() - new Date(left.publishedAt).getTime(),
       );
   }
 }

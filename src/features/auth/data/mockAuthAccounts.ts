@@ -105,10 +105,7 @@ export function getAdminAttemptState(email: string): MockAttemptState {
   return initialState;
 }
 
-export function putAdminAttemptState(
-  email: string,
-  state: MockAttemptState,
-): void {
+export function putAdminAttemptState(email: string, state: MockAttemptState): void {
   ensureMockDatabaseLoaded();
 
   const db = unsafeMutableMockDb();
@@ -141,9 +138,7 @@ export function setMockAuthBaseAccountPasswordByEmail(
 }
 
 export function buildAdminLockUntilIso(): string {
-  return new Date(
-    Date.now() + ADMIN_LOCK_MINUTES * 60_000,
-  ).toISOString();
+  return new Date(Date.now() + ADMIN_LOCK_MINUTES * 60_000).toISOString();
 }
 
 export function mapManagedSpecialistAccountToAuthAccount(
@@ -173,20 +168,14 @@ export function mapManagedSpecialistAccountToAuthAccount(
 }
 
 function buildDeduplicationKey(account: MockAuthAccount): string {
-  if (
-    account.roles.includes('specialist') &&
-    account.specialistId?.trim()
-  ) {
+  if (account.roles.includes('specialist') && account.specialistId?.trim()) {
     return `specialist:${account.specialistId.trim().toLowerCase()}`;
   }
 
   return `email:${normalizeEmail(account.email)}`;
 }
 
-function mergeRoles(
-  currentRoles: UserRole[],
-  nextRoles: UserRole[],
-): UserRole[] {
+function mergeRoles(currentRoles: UserRole[], nextRoles: UserRole[]): UserRole[] {
   return Array.from(new Set([...currentRoles, ...nextRoles]));
 }
 
@@ -214,8 +203,7 @@ function chooseMoreCompleteAccount(
     Number(Boolean(nextAccount.blockReason)) +
     Number(Boolean(nextAccount.blockedUntil));
 
-  const baseAccount =
-    nextScore > currentScore ? nextAccount : currentAccount;
+  const baseAccount = nextScore > currentScore ? nextAccount : currentAccount;
 
   return {
     ...baseAccount,
@@ -248,10 +236,7 @@ export function getMockAuthAccounts(): MockAuthAccount[] {
       continue;
     }
 
-    uniqueAccountsMap.set(
-      key,
-      chooseMoreCompleteAccount(existingAccount, account),
-    );
+    uniqueAccountsMap.set(key, chooseMoreCompleteAccount(existingAccount, account));
   }
 
   return Array.from(uniqueAccountsMap.values())

@@ -20,7 +20,9 @@ export const SpecialistsList = observer(({ store, onOpenSpecialist }: Props) => 
     return <div className={styles.state}>Ошибка: {store.error}</div>;
   }
   if (store.filtered.length === 0) {
-    return <div className={styles.state}>Никого не найдено — попробуйте изменить фильтры.</div>;
+    return (
+      <div className={styles.state}>Никого не найдено — попробуйте изменить фильтры.</div>
+    );
   }
 
   return (

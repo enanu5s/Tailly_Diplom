@@ -1,10 +1,7 @@
 //src/features/admin-specialists-management/data/mockAdminSpecialistsManagement.ts
 import type { ManagedSpecialistMockAccount } from '@/shared/lib/mock/specialistAccountsStorage';
 
-import type {
-  CreateSpecialistAccountResponse,
-} from '../model/types';
-
+import type { CreateSpecialistAccountResponse } from '../model/types';
 
 export function wait(delay = 300): Promise<void> {
   return new Promise((resolve) => {
@@ -65,13 +62,8 @@ export function transliterate(value: string): string {
     .join('');
 }
 
-export function buildSpecialistSlug(
-  firstName: string,
-  lastName: string,
-): string {
-  const base = slugify(
-    transliterate(`${firstName.trim()} ${lastName.trim()}`),
-  );
+export function buildSpecialistSlug(firstName: string, lastName: string): string {
+  const base = slugify(transliterate(`${firstName.trim()} ${lastName.trim()}`));
 
   return base || `specialist-${Math.random().toString(36).slice(2, 8)}`;
 }

@@ -1,6 +1,5 @@
 // src/features/auth/model/registerService.ts
 
-
 import { authStore } from './authStore';
 import { registerFlowStore } from './registerFlowStore';
 import { registerApi } from '../api/registerApi';

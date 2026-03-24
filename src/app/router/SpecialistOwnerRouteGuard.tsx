@@ -17,13 +17,7 @@ export const SpecialistOwnerRouteGuard = () => {
   const userSlug = normalizeSlug(user?.specialistSlug);
 
   if (!isAuth) {
-    return (
-      <Navigate
-        to="/login"
-        replace
-        state={{ from: location.pathname }}
-      />
-    );
+    return <Navigate to="/login" replace state={{ from: location.pathname }} />;
   }
 
   if (!isSpecialist) {

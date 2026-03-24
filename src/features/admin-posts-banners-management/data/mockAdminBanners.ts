@@ -5,8 +5,7 @@ export const INITIAL_ADMIN_MANAGED_BANNERS: AdminManagedBanner[] = [
   {
     id: 'banner-1',
     title: 'Найдите проверенного петситтера рядом',
-    description:
-      'Главный баннер на главной странице с переходом в поиск специалистов.',
+    description: 'Главный баннер на главной странице с переходом в поиск специалистов.',
     imageUrl: '/images/banner-home-hero.png',
     linkUrl: '/services?service=boarding',
     linkTarget: 'specialists',
@@ -19,8 +18,7 @@ export const INITIAL_ADMIN_MANAGED_BANNERS: AdminManagedBanner[] = [
   {
     id: 'banner-2',
     title: 'Полезные статьи по уходу за питомцами',
-    description:
-      'Баннер внутри раздела постов для повышения просмотров публикаций.',
+    description: 'Баннер внутри раздела постов для повышения просмотров публикаций.',
     imageUrl: '/images/banner-posts.png',
     linkUrl: '/posts/admin-post-1',
     linkTarget: 'posts',
@@ -34,8 +32,7 @@ export const INITIAL_ADMIN_MANAGED_BANNERS: AdminManagedBanner[] = [
   {
     id: 'banner-3',
     title: 'Весенний спецпроект',
-    description:
-      'Черновой баннер для будущей кампании в каталоге специалистов.',
+    description: 'Черновой баннер для будущей кампании в каталоге специалистов.',
     imageUrl: '/images/banner-specialists.png',
     linkUrl: '/specialists',
     linkTarget: 'specialists',

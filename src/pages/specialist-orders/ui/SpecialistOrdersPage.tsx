@@ -25,8 +25,8 @@ export const SpecialistOrdersPage = (): ReactElement => {
         <header className={styles.header}>
           <h1 className={styles.title}>Заказы клиентов</h1>
           <p className={styles.subtitle}>
-            Подтверждайте новые заявки, начинайте и завершайте услуги. Связанные отзывы можно открыть со
-            страницы ответов.
+            Подтверждайте новые заявки, начинайте и завершайте услуги. Связанные отзывы
+            можно открыть со страницы ответов.
           </p>
           <div className={styles.headerLinks}>
             <Link

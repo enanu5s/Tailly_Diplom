@@ -6,9 +6,7 @@ type BuildMessagesChatLinkParams = {
   specialistAvatarUrl?: string;
 };
 
-export function buildMessagesChatLink(
-  params: BuildMessagesChatLinkParams,
-): string {
+export function buildMessagesChatLink(params: BuildMessagesChatLinkParams): string {
   const searchParams = new URLSearchParams();
 
   searchParams.set('specialistId', params.specialistId.trim());

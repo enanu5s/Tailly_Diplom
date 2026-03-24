@@ -14,10 +14,7 @@ import styles from './ProfilePage.module.css';
 import type { ReactElement } from 'react';
 
 export const ProfilePage = (): ReactElement => {
-  const authState = useSyncExternalStore(
-    authStore.subscribe,
-    authStore.getState,
-  );
+  const authState = useSyncExternalStore(authStore.subscribe, authStore.getState);
 
   const user = authState.user;
   const role = user?.role ?? 'guest';
@@ -42,12 +39,7 @@ export const ProfilePage = (): ReactElement => {
     const specialistSlug = user.specialistSlug?.trim();
 
     if (specialistSlug) {
-      return (
-        <Navigate
-          to={`/specialists/${specialistSlug}`}
-          replace
-        />
-      );
+      return <Navigate to={`/specialists/${specialistSlug}`} replace />;
     }
 
     return <Navigate to="/" replace />;

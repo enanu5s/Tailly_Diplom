@@ -5,11 +5,7 @@ import styles from './OrdersServicesSection.module.css';
 type Props = {
   orderId: string;
   loading: boolean;
-  onSubmit: (payload: {
-    rating: number;
-    comment: string;
-    photos: string[];
-  }) => void;
+  onSubmit: (payload: { rating: number; comment: string; photos: string[] }) => void;
 };
 
 export const ReviewForm = ({ loading, onSubmit }: Props) => {

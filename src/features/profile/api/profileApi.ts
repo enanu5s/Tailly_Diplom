@@ -1,25 +1,21 @@
 // src/features/profile/api/profileApi.ts
 
-import { request } from '@/shared/api/http';
+import { requestParsed } from '@/shared/api/requestParsed';
+import { userProfileSchema } from '@/shared/api/schemas/userProfileSchema';
+import { isMockApiMode } from '@/shared/config/env';
 
-import {
-  mockGetProfile,
-  mockUpdateContacts,
-  mockUpdateMain,
-} from './profileApi.mock';
+import { mockGetProfile, mockUpdateContacts, mockUpdateMain } from './profileApi.mock';
 
 import type { UserProfile } from '../model/types';
 
-const USE_MOCK = (import.meta.env.VITE_USE_MOCK_API ?? 'true') === 'true';
-
 async function realGetProfile(): Promise<UserProfile> {
-  return request<UserProfile>('/me/profile');
+  return requestParsed('/me/profile', userProfileSchema);
 }
 
 async function realUpdateContacts(
   payload: Pick<UserProfile, 'city' | 'phone'>,
 ): Promise<UserProfile> {
-  return request<UserProfile>('/me/profile/contacts', {
+  return requestParsed('/me/profile/contacts', userProfileSchema, {
     method: 'PUT',
     body: payload,
   });
@@ -28,7 +24,7 @@ async function realUpdateContacts(
 async function realUpdateMain(
   payload: Pick<UserProfile, 'firstName' | 'lastName' | 'middleName' | 'avatarUrl'>,
 ): Promise<UserProfile> {
-  return request<UserProfile>('/me/profile/main', {
+  return requestParsed('/me/profile/main', userProfileSchema, {
     method: 'PUT',
     body: payload,
   });
@@ -36,15 +32,13 @@ async function realUpdateMain(
 
 export const profileApi = {
   getProfile: (): Promise<UserProfile> =>
-    USE_MOCK ? mockGetProfile() : realGetProfile(),
+    isMockApiMode ? mockGetProfile() : realGetProfile(),
 
-  updateContacts: (
-    payload: Pick<UserProfile, 'city' | 'phone'>,
-  ): Promise<UserProfile> =>
-    USE_MOCK ? mockUpdateContacts(payload) : realUpdateContacts(payload),
+  updateContacts: (payload: Pick<UserProfile, 'city' | 'phone'>): Promise<UserProfile> =>
+    isMockApiMode ? mockUpdateContacts(payload) : realUpdateContacts(payload),
 
   updateMain: (
     payload: Pick<UserProfile, 'firstName' | 'lastName' | 'middleName' | 'avatarUrl'>,
   ): Promise<UserProfile> =>
-    USE_MOCK ? mockUpdateMain(payload) : realUpdateMain(payload),
+    isMockApiMode ? mockUpdateMain(payload) : realUpdateMain(payload),
 };

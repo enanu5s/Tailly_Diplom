@@ -104,9 +104,7 @@ export function RestoreAccountPage() {
         <h1 className={styles.h1}>Восстановление аккаунта</h1>
 
         <div className={styles.card}>
-          {loading ? (
-            <div className={styles.state}>Загрузка...</div>
-          ) : null}
+          {loading ? <div className={styles.state}>Загрузка...</div> : null}
 
           {!loading && error && !preview ? (
             <div className={styles.error}>{error}</div>
@@ -122,9 +120,7 @@ export function RestoreAccountPage() {
               <ul className={styles.summary}>
                 <li>
                   <span className={styles.summaryLabel}>Имя</span>
-                  <span className={styles.summaryValue}>
-                    {preview.displayName}
-                  </span>
+                  <span className={styles.summaryValue}>{preview.displayName}</span>
                 </li>
                 <li>
                   <span className={styles.summaryLabel}>Почта</span>
@@ -132,9 +128,7 @@ export function RestoreAccountPage() {
                 </li>
                 <li>
                   <span className={styles.summaryLabel}>Тип аккаунта</span>
-                  <span className={styles.summaryValue}>
-                    {preview.roleLabel}
-                  </span>
+                  <span className={styles.summaryValue}>{preview.roleLabel}</span>
                 </li>
               </ul>
 

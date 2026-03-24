@@ -17,10 +17,7 @@ export function maskEmail(email: string): string {
     return '***';
   }
 
-  const maskedName =
-    name.length <= 2
-      ? `${name[0] ?? '*'}*`
-      : `${name.slice(0, 2)}***`;
+  const maskedName = name.length <= 2 ? `${name[0] ?? '*'}*` : `${name.slice(0, 2)}***`;
 
   return `${maskedName}@${domain}`;
 }

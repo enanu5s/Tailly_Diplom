@@ -4,7 +4,6 @@ import { useEffect, type ChangeEvent, type ReactElement } from 'react';
 import styles from './PetsSection.module.css';
 import { petsStore } from '../model/petsStore';
 
-
 import type {
   Pet,
   PetAttitude,
@@ -75,8 +74,8 @@ const PetCard = observer(({ id }: { id: string }): ReactElement | null => {
   );
 
   const breedTitle = view.breedId
-    ? petsStore.breeds.find((breed) => String(breed.id) === String(view.breedId))
-        ?.title ?? '—'
+    ? (petsStore.breeds.find((breed) => String(breed.id) === String(view.breedId))
+        ?.title ?? '—')
     : '—';
 
   const handlePhotoChange = (event: ChangeEvent<HTMLInputElement>): void => {
@@ -96,7 +95,11 @@ const PetCard = observer(({ id }: { id: string }): ReactElement | null => {
         <div className={styles.photoCol}>
           <div className={styles.photoWrap}>
             {view.photoUrl ? (
-              <img className={styles.photo} src={view.photoUrl} alt={view.name || 'Питомец'} />
+              <img
+                className={styles.photo}
+                src={view.photoUrl}
+                alt={view.name || 'Питомец'}
+              />
             ) : (
               <div className={styles.photoPlaceholder}>Фото</div>
             )}
@@ -150,10 +153,7 @@ const PetCard = observer(({ id }: { id: string }): ReactElement | null => {
                     min={0}
                     value={String(view.ageYears)}
                     onChange={(event) =>
-                      petsStore.setDraft(
-                        'ageYears',
-                        Number(event.target.value || 0),
-                      )
+                      petsStore.setDraft('ageYears', Number(event.target.value || 0))
                     }
                     placeholder="годы"
                   />
@@ -165,10 +165,7 @@ const PetCard = observer(({ id }: { id: string }): ReactElement | null => {
                     max={11}
                     value={String(view.ageMonths)}
                     onChange={(event) =>
-                      petsStore.setDraft(
-                        'ageMonths',
-                        Number(event.target.value || 0),
-                      )
+                      petsStore.setDraft('ageMonths', Number(event.target.value || 0))
                     }
                     placeholder="мес"
                   />
@@ -189,9 +186,7 @@ const PetCard = observer(({ id }: { id: string }): ReactElement | null => {
                 <select
                   className={styles.select}
                   value={view.breedId ?? ''}
-                  onChange={(event) =>
-                    petsStore.setBreed(event.target.value || null)
-                  }
+                  onChange={(event) => petsStore.setBreed(event.target.value || null)}
                 >
                   <option value="">Не выбрано</option>
 
@@ -249,10 +244,7 @@ const PetCard = observer(({ id }: { id: string }): ReactElement | null => {
                     ['female', 'Самка'],
                   ]}
                   onChange={(value) =>
-                    petsStore.setDraft(
-                      'gender',
-                      (value || null) as PetGender | null,
-                    )
+                    petsStore.setDraft('gender', (value || null) as PetGender | null)
                   }
                 />
 
@@ -338,9 +330,7 @@ const PetCard = observer(({ id }: { id: string }): ReactElement | null => {
                   <textarea
                     className={styles.textarea}
                     value={view.notes}
-                    onChange={(event) =>
-                      petsStore.setDraft('notes', event.target.value)
-                    }
+                    onChange={(event) => petsStore.setDraft('notes', event.target.value)}
                     placeholder="Например: особенности кормления, страхи, любимые игрушки..."
                     rows={4}
                   />
@@ -358,9 +348,7 @@ const PetCard = observer(({ id }: { id: string }): ReactElement | null => {
                   <button
                     className={styles.dangerBtn}
                     type="button"
-                    disabled={
-                      petsStore.deleteLoadingId === id || petsStore.saveLoading
-                    }
+                    disabled={petsStore.deleteLoadingId === id || petsStore.saveLoading}
                     onClick={() => {
                       const confirmed = window.confirm(
                         'Удалить питомца? Действие необратимо.',
@@ -373,9 +361,7 @@ const PetCard = observer(({ id }: { id: string }): ReactElement | null => {
                       void petsStore.deletePet(id);
                     }}
                   >
-                    {petsStore.deleteLoadingId === id
-                      ? 'Удаляем...'
-                      : 'Удалить питомца'}
+                    {petsStore.deleteLoadingId === id ? 'Удаляем...' : 'Удалить питомца'}
                   </button>
                 </div>
               ) : null}

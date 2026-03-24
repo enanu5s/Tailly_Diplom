@@ -1,39 +1,39 @@
 // src/pages/shop-orders/ui/ShopOrdersPage.tsx
 
-import { observer } from "mobx-react-lite";
-import { useEffect, useState } from "react";
-import { Link } from "react-router-dom";
+import { observer } from 'mobx-react-lite';
+import { useEffect, useState } from 'react';
+import { Link } from 'react-router-dom';
 
-import { ordersStore } from "@/features/orders/model/ordersStore";
+import { ordersStore } from '@/features/orders/model/ordersStore';
 import {
   getShopOrderStatusTone,
   mapShopOrderStatusLabel,
   matchesShopOrdersFilter,
   type ShopOrdersFilterValue,
-} from "@/features/shop/service/shopOrdersFilters";
-import { useAppNavigate } from "@/shared/lib/navigation/useAppNavigate";
+} from '@/features/shop/service/shopOrdersFilters';
+import { useAppNavigate } from '@/shared/lib/navigation/useAppNavigate';
 
-import styles from "./ShopOrdersPage.module.css";
+import styles from './ShopOrdersPage.module.css';
 
 const FILTER_OPTIONS: Array<{
   value: ShopOrdersFilterValue;
   label: string;
 }> = [
   {
-    value: "all",
-    label: "Все",
+    value: 'all',
+    label: 'Все',
   },
   {
-    value: "active",
-    label: "Активные",
+    value: 'active',
+    label: 'Активные',
   },
   {
-    value: "completed",
-    label: "Завершённые",
+    value: 'completed',
+    label: 'Завершённые',
   },
   {
-    value: "cancelled",
-    label: "Отменённые",
+    value: 'cancelled',
+    label: 'Отменённые',
   },
 ];
 
@@ -53,34 +53,31 @@ function formatItemsLabel(quantity: number): string {
 }
 
 function formatPrice(value: number): string {
-  return new Intl.NumberFormat("ru-RU").format(value);
+  return new Intl.NumberFormat('ru-RU').format(value);
 }
 
 function formatDate(value: string): string {
   const date = new Date(value);
 
   if (Number.isNaN(date.getTime())) {
-    return "Дата уточняется";
+    return 'Дата уточняется';
   }
 
-  return new Intl.DateTimeFormat("ru-RU", {
-    day: "2-digit",
-    month: "long",
-    year: "numeric",
+  return new Intl.DateTimeFormat('ru-RU', {
+    day: '2-digit',
+    month: 'long',
+    year: 'numeric',
   }).format(date);
 }
 
 export const ShopOrdersPage = observer(() => {
   const navigate = useAppNavigate();
 
-  const [search, setSearch] = useState("");
-  const [filter, setFilter] = useState<ShopOrdersFilterValue>("all");
+  const [search, setSearch] = useState('');
+  const [filter, setFilter] = useState<ShopOrdersFilterValue>('all');
 
   useEffect(() => {
-    if (
-      ordersStore.productOrders.length === 0 &&
-      !ordersStore.productsLoading
-    ) {
+    if (ordersStore.productOrders.length === 0 && !ordersStore.productsLoading) {
       void ordersStore.loadProducts();
     }
   }, []);
@@ -100,13 +97,13 @@ export const ShopOrdersPage = observer(() => {
   const counts = {
     all: ordersStore.productOrders.length,
     active: ordersStore.productOrders.filter((order) =>
-      matchesShopOrdersFilter(order.status, "active")
+      matchesShopOrdersFilter(order.status, 'active'),
     ).length,
     completed: ordersStore.productOrders.filter((order) =>
-      matchesShopOrdersFilter(order.status, "completed")
+      matchesShopOrdersFilter(order.status, 'completed'),
     ).length,
     cancelled: ordersStore.productOrders.filter((order) =>
-      matchesShopOrdersFilter(order.status, "cancelled")
+      matchesShopOrdersFilter(order.status, 'cancelled'),
     ).length,
   };
 
@@ -129,15 +126,15 @@ export const ShopOrdersPage = observer(() => {
           <div className={styles.heroContent}>
             <h1 className={styles.title}>Заказы магазина</h1>
             <p className={styles.subtitle}>
-              Здесь можно посмотреть все заказы, найти нужный по номеру и
-              отфильтровать список по статусу.
+              Здесь можно посмотреть все заказы, найти нужный по номеру и отфильтровать
+              список по статусу.
             </p>
           </div>
 
           <button
             type="button"
             className={styles.backButton}
-            onClick={() => navigate("/shop")}
+            onClick={() => navigate('/shop')}
           >
             Вернуться в магазин
           </button>
@@ -168,7 +165,7 @@ export const ShopOrdersPage = observer(() => {
                   key={option.value}
                   type="button"
                   className={styles.filterTab}
-                  data-active={isActive ? "true" : "false"}
+                  data-active={isActive ? 'true' : 'false'}
                   onClick={() => setFilter(option.value)}
                 >
                   <span>{option.label}</span>
@@ -182,14 +179,11 @@ export const ShopOrdersPage = observer(() => {
         {ordersStore.productsLoading ? (
           <section className={styles.stateCard}>
             <h2 className={styles.stateTitle}>Загружаем заказы</h2>
-            <p className={styles.stateText}>
-              Подготавливаем список заказов магазина.
-            </p>
+            <p className={styles.stateText}>Подготавливаем список заказов магазина.</p>
           </section>
         ) : null}
 
-        {!ordersStore.productsLoading &&
-        ordersStore.productOrders.length === 0 ? (
+        {!ordersStore.productsLoading && ordersStore.productOrders.length === 0 ? (
           <section className={styles.stateCard}>
             <h2 className={styles.stateTitle}>Заказов пока нет</h2>
             <p className={styles.stateText}>
@@ -213,8 +207,8 @@ export const ShopOrdersPage = observer(() => {
               type="button"
               className={styles.resetButton}
               onClick={() => {
-                setSearch("");
-                setFilter("all");
+                setSearch('');
+                setFilter('all');
               }}
             >
               Сбросить фильтры

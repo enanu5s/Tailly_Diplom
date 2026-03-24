@@ -1,11 +1,12 @@
 // src/features/specialists-search/api/specialistsGeoApi.ts
 
+import { get2GisApiKey, isMockApiMode } from '@/shared/config/env';
+
 import { specialistsGeoMockApi } from './specialistsGeoApi.mock';
 
 import type { GeoPoint, GeoSuggestItem } from '../data/mockSpecialistsGeo';
 
-const USE_MOCK = (import.meta.env.VITE_USE_MOCK_API ?? 'true') === 'true';
-const MAPS_API_KEY = import.meta.env.VITE_2GIS_API_KEY ?? '';
+const MAPS_API_KEY = get2GisApiKey();
 
 async function realSuggestCities(query: string): Promise<GeoSuggestItem[]> {
   return specialistsGeoMockApi.suggestCities(query);
@@ -42,7 +43,7 @@ export const specialistsGeoApi = {
       throw new Error('VITE_2GIS_API_KEY is not set');
     }
 
-    if (USE_MOCK) {
+    if (isMockApiMode) {
       return specialistsGeoMockApi.suggestCities(normalizedQuery);
     }
 
@@ -60,7 +61,7 @@ export const specialistsGeoApi = {
       throw new Error('VITE_2GIS_API_KEY is not set');
     }
 
-    if (USE_MOCK) {
+    if (isMockApiMode) {
       return specialistsGeoMockApi.suggestLocalities(normalizedQuery);
     }
 
@@ -78,7 +79,7 @@ export const specialistsGeoApi = {
       throw new Error('VITE_2GIS_API_KEY is not set');
     }
 
-    if (USE_MOCK) {
+    if (isMockApiMode) {
       return specialistsGeoMockApi.geocodeLocation(normalizedQuery);
     }
 
@@ -99,11 +100,8 @@ export const specialistsGeoApi = {
       throw new Error('VITE_2GIS_API_KEY is not set');
     }
 
-    if (USE_MOCK) {
-      return specialistsGeoMockApi.suggestDistricts(
-        normalizedDistrictQuery,
-        cityQuery,
-      );
+    if (isMockApiMode) {
+      return specialistsGeoMockApi.suggestDistricts(normalizedDistrictQuery, cityQuery);
     }
 
     return realSuggestDistricts(normalizedDistrictQuery, cityQuery);
@@ -120,7 +118,7 @@ export const specialistsGeoApi = {
       throw new Error('VITE_2GIS_API_KEY is not set');
     }
 
-    if (USE_MOCK) {
+    if (isMockApiMode) {
       return specialistsGeoMockApi.geocodeCity(normalizedQuery);
     }
 

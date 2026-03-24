@@ -1,6 +1,7 @@
 // src/features/auth/api/registerApi.ts
 
 import { request } from '@/shared/api/http';
+import { isMockApiMode } from '@/shared/config/env';
 
 import {
   mockCompleteProfile,
@@ -10,9 +11,6 @@ import {
 } from './registerApi.mock';
 
 import type { AuthUser } from '../model/authStore';
-
-
-const USE_MOCK = (import.meta.env.VITE_USE_MOCK_API ?? 'true') === 'true';
 
 export type StartRegisterRequest = {
   email: string;
@@ -61,9 +59,7 @@ async function realStartRegister(
   });
 }
 
-async function realVerifyCode(
-  dto: VerifyCodeRequest,
-): Promise<VerifyCodeResponse> {
+async function realVerifyCode(dto: VerifyCodeRequest): Promise<VerifyCodeResponse> {
   return request<VerifyCodeResponse>('/auth/register/verify', {
     method: 'POST',
     body: dto,
@@ -85,7 +81,7 @@ async function realCompleteProfile(
 
 export const registerApi = {
   startRegister(dto: StartRegisterRequest): Promise<StartRegisterResponse> {
-    if (USE_MOCK) {
+    if (isMockApiMode) {
       return mockStartRegister(dto);
     }
 
@@ -93,7 +89,7 @@ export const registerApi = {
   },
 
   verifyCode(dto: VerifyCodeRequest): Promise<VerifyCodeResponse> {
-    if (USE_MOCK) {
+    if (isMockApiMode) {
       return mockVerifyCode(dto);
     }
 
@@ -101,7 +97,7 @@ export const registerApi = {
   },
 
   getCities(): Promise<City[]> {
-    if (USE_MOCK) {
+    if (isMockApiMode) {
       return mockGetCities();
     }
 
@@ -109,7 +105,7 @@ export const registerApi = {
   },
 
   completeProfile(dto: CompleteProfileRequest): Promise<CompleteProfileResponse> {
-    if (USE_MOCK) {
+    if (isMockApiMode) {
       return mockCompleteProfile(dto);
     }
 

@@ -83,7 +83,11 @@ export const SpecialistReviewsPage = observer((): ReactElement => {
       <div className={styles.page}>
         <div className={styles.stateCard}>
           <p>{store.error}</p>
-          <button type="button" className={styles.primaryButton} onClick={() => void store.load(slug)}>
+          <button
+            type="button"
+            className={styles.primaryButton}
+            onClick={() => void store.load(slug)}
+          >
             Повторить
           </button>
         </div>
@@ -105,8 +109,8 @@ export const SpecialistReviewsPage = observer((): ReactElement => {
         <header className={styles.header}>
           <h1 className={styles.title}>Отзывы и ответы</h1>
           <p className={styles.subtitle}>
-            Все отзывы клиентов в одном месте. Текст справа обновляется при вводе. После сохранения ответ
-            виден в профиле и в карточке заказа.
+            Все отзывы клиентов в одном месте. Текст справа обновляется при вводе. После
+            сохранения ответ виден в профиле и в карточке заказа.
           </p>
           <Link to={ordersPath} className={styles.secondaryLink}>
             Перейти к заказам клиентов
@@ -129,9 +133,7 @@ export const SpecialistReviewsPage = observer((): ReactElement => {
                   void handleSave(review);
                 }}
                 onOpenOrder={
-                  review.orderId
-                    ? () => openOrder(review.orderId as string)
-                    : undefined
+                  review.orderId ? () => openOrder(review.orderId as string) : undefined
                 }
               />
             ))}

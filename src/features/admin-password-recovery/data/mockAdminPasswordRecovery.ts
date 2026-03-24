@@ -17,9 +17,7 @@ export function sendRecoveryRequest(email: string): void {
   );
 
   if (!admin) {
-    throw new AdminPasswordRecoveryError(
-      'Администратор с таким email не найден.',
-    );
+    throw new AdminPasswordRecoveryError('Администратор с таким email не найден.');
   }
 
   // ❗ ключевая бизнес-логика:

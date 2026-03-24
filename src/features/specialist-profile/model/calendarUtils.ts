@@ -1,9 +1,6 @@
 // src/features/specialist-profile/model/calendarUtils.ts
 
-import type {
-  SpecialistCalendar,
-  SpecialistCalendarDayStatus,
-} from './types';
+import type { SpecialistCalendar, SpecialistCalendarDayStatus } from './types';
 
 type CalendarMonthDay = {
   isoDate: string | null;
@@ -82,10 +79,7 @@ function getManualOverrideStatus(
   return override?.status ?? null;
 }
 
-function getAvailabilityWindowsForDate(
-  calendar: SpecialistCalendar,
-  isoDate: string,
-) {
+function getAvailabilityWindowsForDate(calendar: SpecialistCalendar, isoDate: string) {
   return calendar.availabilityWindows.filter((item) => item.date === isoDate);
 }
 
@@ -103,10 +97,7 @@ export const CALENDAR_WEEKDAY_LABELS = [
   'Вс',
 ] as const;
 
-export const CALENDAR_STATUS_LABELS: Record<
-  SpecialistCalendarDayStatus,
-  string
-> = {
+export const CALENDAR_STATUS_LABELS: Record<SpecialistCalendarDayStatus, string> = {
   available: 'Свободно',
   partially_booked: 'Частично занято',
   fully_booked: 'Занято',

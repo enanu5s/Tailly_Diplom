@@ -1,14 +1,15 @@
 // src/main.tsx
-import React from "react";
-import ReactDOM from "react-dom/client";
-import { RouterProvider, createBrowserRouter } from "react-router-dom";
+import React from 'react';
+import ReactDOM from 'react-dom/client';
+import { RouterProvider, createBrowserRouter } from 'react-router-dom';
 
-import { routes } from "@/app/router/routes";
-import { authStore } from "@/features/auth/model/authStore";
-import { seedDemoMessagesIfEmpty } from "@/features/messages/data/messagesStorage";
-import { configureHttpClient } from "@/shared/api/http";
-import { runEmailNotificationScheduler } from "@/shared/lib/emailNotifications";
-import { ensureMockDatabaseLoaded } from "@/shared/mock-db/store";
+import { routes } from '@/app/router/routes';
+import { authStore } from '@/features/auth/model/authStore';
+import { seedDemoMessagesIfEmpty } from '@/features/messages/data/messagesStorage';
+import { configureHttpClient } from '@/shared/api/http';
+import { isMockApiMode } from '@/shared/config/env';
+import { runEmailNotificationScheduler } from '@/shared/lib/emailNotifications';
+import { ensureMockDatabaseLoaded } from '@/shared/mock-db/store';
 
 const router = createBrowserRouter(routes);
 
@@ -20,7 +21,7 @@ export function getUnauthorizedRedirectPath(pathname: string): string {
 }
 
 function bootstrap() {
-  if ((import.meta.env.VITE_USE_MOCK_API ?? "true") === "true") {
+  if (isMockApiMode) {
     ensureMockDatabaseLoaded();
     seedDemoMessagesIfEmpty();
   }
@@ -31,20 +32,20 @@ function bootstrap() {
       const currentPath = window.location.pathname;
       const currentSearch = window.location.search;
       const redirectPath = getUnauthorizedRedirectPath(currentPath);
-  
+
       authStore.logout();
-  
+
       if (currentPath === '/login') {
         return;
       }
-  
+
       if (`${currentPath}${currentSearch}` !== redirectPath) {
         window.location.replace(redirectPath);
       }
     },
   });
 
-  ReactDOM.createRoot(document.getElementById("root")!).render(
+  ReactDOM.createRoot(document.getElementById('root')!).render(
     <React.StrictMode>
       <RouterProvider router={router} />
     </React.StrictMode>,

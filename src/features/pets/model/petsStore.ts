@@ -34,7 +34,10 @@ export class PetsStore {
     this.loading = true;
     this.error = null;
     try {
-      const [pets, breeds] = await Promise.all([petsService.getPets(), petsService.getBreeds()]);
+      const [pets, breeds] = await Promise.all([
+        petsService.getPets(),
+        petsService.getBreeds(),
+      ]);
       runInAction(() => {
         this.pets = pets;
         this.breeds = breeds;
@@ -127,7 +130,11 @@ export class PetsStore {
       this.saveError = 'Укажите кличку питомца';
       return;
     }
-    if (this.draft.ageYears < 0 || this.draft.ageMonths < 0 || this.draft.ageMonths > 11) {
+    if (
+      this.draft.ageYears < 0 ||
+      this.draft.ageMonths < 0 ||
+      this.draft.ageMonths > 11
+    ) {
       this.saveError = 'Возраст указан некорректно';
       return;
     }

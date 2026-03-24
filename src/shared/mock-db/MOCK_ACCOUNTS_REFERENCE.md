@@ -4,12 +4,12 @@
 
 ## Где в коде заданы логины и пароли
 
-| Роль | Файл | Что смотреть |
-|------|------|----------------|
-| Клиенты, специалисты, админы и суперадмин для входа через **`/login`** | `src/shared/mock-db/seed/authBaseAccounts.seed.ts` | массив `CORE_AUTH_ACCOUNTS` + `SEED_AUTH_BASE_ACCOUNTS` (доп. клиенты/специалисты/админы из `demoDataset.seed.ts`) |
-| Доп. шаблоны email и паролей для массовых клиентов/специалистов/админов | `src/shared/mock-db/seed/demoDataset.seed.ts` | `DEMO_CLIENT_SPECIALIST_PASSWORD`, `DEMO_ADMIN_PANEL_PASSWORD`, функции `buildExtraClientAccounts`, `buildExtraSpecialistAuthAccounts`, `buildExtraAdminAuthAccounts` |
-| Вход в **админ-панель** (отдельная форма админа) | `src/features/admin-auth/data/mockAdminAccounts.ts` | `MOCK_ADMIN_ACCOUNTS` + `buildExtraMockAdminPanelAccounts()` из `demoDataset.seed.ts` |
-| Список администраторов для **суперадмина** | `src/shared/mock-db/seed/superAdminAdmins.seed.ts` | `SEED_SUPER_ADMIN_ADMINS` |
+| Роль                                                                    | Файл                                                | Что смотреть                                                                                                                                                          |
+| ----------------------------------------------------------------------- | --------------------------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Клиенты, специалисты, админы и суперадмин для входа через **`/login`**  | `src/shared/mock-db/seed/authBaseAccounts.seed.ts`  | массив `CORE_AUTH_ACCOUNTS` + `SEED_AUTH_BASE_ACCOUNTS` (доп. клиенты/специалисты/админы из `demoDataset.seed.ts`)                                                    |
+| Доп. шаблоны email и паролей для массовых клиентов/специалистов/админов | `src/shared/mock-db/seed/demoDataset.seed.ts`       | `DEMO_CLIENT_SPECIALIST_PASSWORD`, `DEMO_ADMIN_PANEL_PASSWORD`, функции `buildExtraClientAccounts`, `buildExtraSpecialistAuthAccounts`, `buildExtraAdminAuthAccounts` |
+| Вход в **админ-панель** (отдельная форма админа)                        | `src/features/admin-auth/data/mockAdminAccounts.ts` | `MOCK_ADMIN_ACCOUNTS` + `buildExtraMockAdminPanelAccounts()` из `demoDataset.seed.ts`                                                                                 |
+| Список администраторов для **суперадмина**                              | `src/shared/mock-db/seed/superAdminAdmins.seed.ts`  | `SEED_SUPER_ADMIN_ADMINS`                                                                                                                                             |
 
 ## Пароли (кратко)
 

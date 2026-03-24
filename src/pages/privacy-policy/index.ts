@@ -1,2 +1,2 @@
 // src/pages/privacy-policy/index.ts
-export { PrivacyPolicyPage } from "./ui/PrivacyPolicyPage";
+export { PrivacyPolicyPage } from './ui/PrivacyPolicyPage';

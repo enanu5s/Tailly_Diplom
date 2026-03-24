@@ -7,14 +7,9 @@ import {
   unsafeMutableMockDb,
 } from '@/shared/mock-db/store';
 
-import {
-  createEmptySpecialistApplicationQuestionnaire,
-} from '../model/types';
+import { createEmptySpecialistApplicationQuestionnaire } from '../model/types';
 
-import type {
-  SpecialistApplication,
-  SpecialistApplicationStatus,
-} from '../model/types';
+import type { SpecialistApplication, SpecialistApplicationStatus } from '../model/types';
 
 const BULK_APPLICANT_NAMES: [string, string][] = [
   ['Артём', 'Воронов'],
@@ -55,7 +50,8 @@ function buildBulkSpecialistApplications(): SpecialistApplication[] {
   const out: SpecialistApplication[] = [];
 
   for (let i = 3; i <= 20; i += 1) {
-    const [firstName, lastName] = BULK_APPLICANT_NAMES[(i - 3) % BULK_APPLICANT_NAMES.length];
+    const [firstName, lastName] =
+      BULK_APPLICANT_NAMES[(i - 3) % BULK_APPLICANT_NAMES.length];
     const city = BULK_CITIES[(i - 3) % BULK_CITIES.length];
     const status = BULK_STATUSES[(i - 3) % BULK_STATUSES.length];
     const day = String(3 + (i % 25)).padStart(2, '0');
@@ -86,16 +82,14 @@ function buildBulkSpecialistApplications(): SpecialistApplication[] {
       status,
       createdAt: `2026-03-${day}T09:00:00.000Z`,
       updatedAt: `2026-03-${day}T12:00:00.000Z`,
-      interviewDate:
-        status === 'interview_assigned' ? `2026-03-${day}T15:00` : null,
+      interviewDate: status === 'interview_assigned' ? `2026-03-${day}T15:00` : null,
       reviewComment:
         status === 'rejected'
           ? 'Не хватает подтверждённого опыта передержки.'
           : status === 'approved'
             ? 'Одобрено после проверки документов.'
             : null,
-      reviewedBy:
-        status === 'pending_review' ? null : 'superadmin@tailly.local',
+      reviewedBy: status === 'pending_review' ? null : 'superadmin@tailly.local',
       createdSpecialistId: status === 'approved' ? `specialist-seed-${i}` : null,
       createdSpecialistSlug: status === 'approved' ? `demo-applicant-${i}` : null,
       specialistAccountCreatedAt:
@@ -124,7 +118,8 @@ export const INITIAL_APPLICATIONS: SpecialistApplication[] = [
       canTakeOvernightOrders: false,
       hasOwnPets: true,
       hasPetFirstAidBasics: true,
-      housingType: 'Квартира без маленьких детей, есть отдельная комната для адаптации питомца.',
+      housingType:
+        'Квартира без маленьких детей, есть отдельная комната для адаптации питомца.',
       districtPreferences: 'Москва, САО и ЦАО, выезд в пределах 45 минут.',
       schedulePreferences: 'Будни после 18:00, выходные почти весь день.',
       portfolioUrl: 'https://example.com/morozova-pets',

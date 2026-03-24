@@ -18,9 +18,7 @@ export const PlaceholderAdminPage = ({ title }: Props) => {
         }}
       >
         <h1 style={{ marginTop: 0 }}>{title}</h1>
-        <p style={{ marginBottom: 0 }}>
-          Раздел будет реализован следующим этапом.
-        </p>
+        <p style={{ marginBottom: 0 }}>Раздел будет реализован следующим этапом.</p>
       </div>
     </section>
   );

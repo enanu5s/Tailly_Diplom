@@ -8,7 +8,6 @@ import { shopOrderService } from '@/features/shop/service/shopOrderService';
 
 import styles from './ShopPaymentPage.module.css';
 
-
 type PayTab = 'card' | 'sbp';
 
 export function ShopPaymentPage() {
@@ -109,8 +108,7 @@ export function ShopPaymentPage() {
     cardExpiry.trim().length >= 4 &&
     digitsOnly(cardCvc).length >= 3;
 
-  const canSubmit =
-    tab === 'sbp' ? true : cardValid;
+  const canSubmit = tab === 'sbp' ? true : cardValid;
 
   const handlePay = useCallback(async (): Promise<void> => {
     if (!orderId || !order) {
@@ -126,9 +124,7 @@ export function ShopPaymentPage() {
       await shopOrderService.payShopOrder(orderId, { paymentMethod: method });
       navigate(`/shop/order/${encodeURIComponent(orderId)}`);
     } catch (error) {
-      setPayError(
-        error instanceof Error ? error.message : 'Не удалось провести оплату.',
-      );
+      setPayError(error instanceof Error ? error.message : 'Не удалось провести оплату.');
     } finally {
       setIsPaying(false);
     }
@@ -184,8 +180,8 @@ export function ShopPaymentPage() {
         <header className={styles.header}>
           <h1 className={styles.title}>Оплата заказа</h1>
           <p className={styles.subtitle}>
-            Выберите способ оплаты и подтвердите платёж. Данные используются
-            только для демонстрации интерфейса.
+            Выберите способ оплаты и подтвердите платёж. Данные используются только для
+            демонстрации интерфейса.
           </p>
         </header>
 
@@ -239,8 +235,8 @@ export function ShopPaymentPage() {
               {tab === 'card' ? (
                 <div className={styles.panel}>
                   <p className={styles.panelHint}>
-                    Введите реквизиты карты. В демо-режиме оплата проходит без
-                    списания средств.
+                    Введите реквизиты карты. В демо-режиме оплата проходит без списания
+                    средств.
                   </p>
 
                   <label className={styles.field}>
@@ -295,14 +291,16 @@ export function ShopPaymentPage() {
                       void handlePay();
                     }}
                   >
-                    {isPaying ? 'Обработка…' : `Оплатить ${formatPrice(order.totalPrice)}`}
+                    {isPaying
+                      ? 'Обработка…'
+                      : `Оплатить ${formatPrice(order.totalPrice)}`}
                   </button>
                 </div>
               ) : (
                 <div className={styles.panel}>
                   <p className={styles.panelHint}>
-                    Отсканируйте QR-код в приложении банка или подтвердите
-                    перевод по СБП. Ниже — имитация экрана оплаты.
+                    Отсканируйте QR-код в приложении банка или подтвердите перевод по СБП.
+                    Ниже — имитация экрана оплаты.
                   </p>
 
                   <div className={styles.sbpQr}>
@@ -344,9 +342,7 @@ export function ShopPaymentPage() {
                       <span className={styles.summaryItemTitle}>
                         {item.product.title}
                       </span>
-                      <span className={styles.summaryItemQty}>
-                        {item.quantity} шт.
-                      </span>
+                      <span className={styles.summaryItemQty}>{item.quantity} шт.</span>
                     </div>
                     <span className={styles.summaryItemPrice}>
                       {formatPrice(item.lineTotal)}

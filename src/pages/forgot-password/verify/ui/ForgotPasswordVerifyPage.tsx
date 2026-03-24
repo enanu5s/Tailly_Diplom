@@ -2,7 +2,6 @@
 import { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
 
-
 import { passwordRecoveryService } from '@/features/auth/model/passwordRecoveryService';
 import { usePasswordRecoveryFlow } from '@/features/auth/model/usePasswordRecoveryFlow';
 import { useAppNavigate } from '@/shared/lib/navigation/useAppNavigate';
@@ -82,7 +81,11 @@ export function ForgotPasswordVerifyPage() {
         </button>
       </form>
 
-      <Link className={styles.secondaryLink} to="/forgot-password" onClick={handleBackClick}>
+      <Link
+        className={styles.secondaryLink}
+        to="/forgot-password"
+        onClick={handleBackClick}
+      >
         Начать заново
       </Link>
     </div>

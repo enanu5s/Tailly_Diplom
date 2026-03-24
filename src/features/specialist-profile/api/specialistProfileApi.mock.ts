@@ -1,6 +1,9 @@
 // src/features/specialist-profile/api/specialistProfileApi.mock.ts
 
-import { getMockServiceOrderById, updateMockServiceOrder } from '@/features/orders/data/mockOrders';
+import {
+  getMockServiceOrderById,
+  updateMockServiceOrder,
+} from '@/features/orders/data/mockOrders';
 import { notifySpecialistServicesChanged } from '@/shared/lib/emailNotifications';
 
 import {
@@ -214,10 +217,7 @@ export async function mockUpdateCalendar(
         comment: item.comment?.trim() || undefined,
       })),
       bookingSettings: {
-        dayStartTime: normalizeTime(
-          payload.bookingSettings.dayStartTime,
-          '10:00',
-        ),
+        dayStartTime: normalizeTime(payload.bookingSettings.dayStartTime, '10:00'),
         dayEndTime: normalizeTime(payload.bookingSettings.dayEndTime, '19:00'),
         slotStepMinutes: normalizePositiveMinutes(
           payload.bookingSettings.slotStepMinutes,

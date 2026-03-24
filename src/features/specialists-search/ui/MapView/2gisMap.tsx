@@ -3,6 +3,7 @@
 import { observer } from 'mobx-react-lite';
 import { useEffect, useRef, useState } from 'react';
 
+import { get2GisApiKey } from '@/shared/config/env';
 import { load2GisMaps } from '@/shared/lib/2gis/loader';
 
 import styles from './2gisMap.module.css';
@@ -55,7 +56,7 @@ export const GisMap = observer(({ store, onOpenSpecialist }: Props) => {
           return;
         }
 
-        const apiKey = import.meta.env.VITE_2GIS_API_KEY ?? '';
+        const apiKey = get2GisApiKey();
 
         if (!apiKey) {
           throw new Error('VITE_2GIS_API_KEY is not set');
@@ -239,9 +240,7 @@ export const GisMap = observer(({ store, onOpenSpecialist }: Props) => {
     <div className={styles.root}>
       <div ref={containerRef} className={styles.map} />
 
-      {loadError ? (
-        <div className={styles.fallback}>{loadError}</div>
-      ) : null}
+      {loadError ? <div className={styles.fallback}>{loadError}</div> : null}
     </div>
   );
 });

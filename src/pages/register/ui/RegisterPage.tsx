@@ -10,7 +10,6 @@ const RegisterPage = () => {
 
   return (
     <>
-
       <div className={styles.page}>
         <div className={styles.container}>
           {/* Кнопка назад */}
@@ -23,27 +22,28 @@ const RegisterPage = () => {
           <div className={styles.cards}>
             {/* Карточка 1 — Я клиент */}
             <Link to="/register/client" className={`${styles.card} ${styles.cardClient}`}>
-              <div 
-                className={styles.cardImage}
-              />
+              <div className={styles.cardImage} />
               <div className={styles.overlay}>
                 <h2 className={styles.cardTitle}>Я клиент</h2>
                 <p className={styles.cardSubtitle}>
-                  Зарегистрируйтесь, чтобы найти проверенного петситтера<br />
+                  Зарегистрируйтесь, чтобы найти проверенного петситтера
+                  <br />
                   для вашего питомца
                 </p>
               </div>
             </Link>
 
             {/* Карточка 2 — Я петситтер */}
-            <Link to="/become-specialist" className={`${styles.card} ${styles.cardSitter}`}>
-              <div 
-                className={styles.cardImage}
-              />
+            <Link
+              to="/become-specialist"
+              className={`${styles.card} ${styles.cardSitter}`}
+            >
+              <div className={styles.cardImage} />
               <div className={styles.overlay}>
                 <h2 className={styles.cardTitle}>Я петситтер</h2>
                 <p className={styles.cardSubtitle}>
-                  Присоединяйтесь к нашей команде<br />
+                  Присоединяйтесь к нашей команде
+                  <br />
                   заботливых петситтеров
                 </p>
               </div>
@@ -51,7 +51,6 @@ const RegisterPage = () => {
           </div>
         </div>
       </div>
-
     </>
   );
 };

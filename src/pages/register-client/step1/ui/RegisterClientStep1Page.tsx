@@ -1,18 +1,17 @@
 //src/pages/register-client/step1/ui/RegisterClientStep1Page.tsx
-import { useState } from "react";
+import { useState } from 'react';
 
-import { registerService } from "@/features/auth/model/registerService";
+import { registerService } from '@/features/auth/model/registerService';
 import { useAppNavigate } from '@/shared/lib/navigation/useAppNavigate';
 
-
-import styles from "../../RegisterClient.module.css";
+import styles from '../../RegisterClient.module.css';
 
 export const RegisterClientStep1Page = () => {
   const navigate = useAppNavigate();
 
-  const [email, setEmail] = useState("");
-  const [password, setPassword] = useState("");
-  const [password2, setPassword2] = useState("");
+  const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
+  const [password2, setPassword2] = useState('');
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
 
@@ -23,21 +22,20 @@ export const RegisterClientStep1Page = () => {
     setError(null);
 
     if (password.length < 6) {
-      setError("Пароль должен быть минимум 6 символов");
+      setError('Пароль должен быть минимум 6 символов');
       return;
     }
     if (password !== password2) {
-      setError("Пароли не совпадают");
+      setError('Пароли не совпадают');
       return;
     }
 
     setLoading(true);
     try {
       await registerService.start(email, password);
-      navigate("/register/client/verify");
+      navigate('/register/client/verify');
     } catch (error: unknown) {
-      const message =
-        error instanceof Error ? error.message : "Ошибка регистрации";
+      const message = error instanceof Error ? error.message : 'Ошибка регистрации';
 
       setError(message);
     } finally {
@@ -95,7 +93,7 @@ export const RegisterClientStep1Page = () => {
                 required
               />
               <div className={styles.consentText}>
-                Я согласен(на) с{" "}
+                Я согласен(на) с{' '}
                 <a href="/docs/personal-data-agreement.pdf" download>
                   пользовательским соглашением об обработке данных
                 </a>
@@ -107,7 +105,7 @@ export const RegisterClientStep1Page = () => {
               disabled={loading || !consent}
               type="submit"
             >
-              {loading ? "Отправляем код..." : "Продолжить"}
+              {loading ? 'Отправляем код...' : 'Продолжить'}
             </button>
 
             <div className={styles.actionsRow}>
@@ -116,15 +114,15 @@ export const RegisterClientStep1Page = () => {
                 className={styles.linkButton}
                 onClick={() => {
                   registerService.resetFlow();
-                  setEmail("");
-                  setPassword("");
-                  setPassword2("");
+                  setEmail('');
+                  setPassword('');
+                  setPassword2('');
                 }}
               >
                 Очистить
               </button>
 
-              <span style={{ color: "#6b7280", fontSize: "0.95rem" }}>
+              <span style={{ color: '#6b7280', fontSize: '0.95rem' }}>
                 (в мок-режиме код: 123456)
               </span>
             </div>

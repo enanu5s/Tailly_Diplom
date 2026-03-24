@@ -40,7 +40,8 @@ export class ReviewCreateStore {
       });
     } catch (e) {
       runInAction(() => {
-        this.error = e instanceof Error ? e.message : 'Не удалось загрузить данные заказа';
+        this.error =
+          e instanceof Error ? e.message : 'Не удалось загрузить данные заказа';
         this.loading = false;
       });
     }

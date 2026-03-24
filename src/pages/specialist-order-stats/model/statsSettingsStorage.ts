@@ -3,23 +3,16 @@
 import {
   DEFAULT_SPECIALIST_ORDER_STATS_SETTINGS,
   type SpecialistOrderStatsSettings,
-} from "../lib/computeSpecialistOrderStats";
+} from '../lib/computeSpecialistOrderStats';
 
-const STORAGE_KEY_PREFIX = "tailly.specialistOrderStats.settings.v1";
+const STORAGE_KEY_PREFIX = 'tailly.specialistOrderStats.settings.v1';
 
-function isStatsPeriod(value: unknown): value is SpecialistOrderStatsSettings["period"] {
-  return (
-    value === "7d" ||
-    value === "30d" ||
-    value === "90d" ||
-    value === "all"
-  );
+function isStatsPeriod(value: unknown): value is SpecialistOrderStatsSettings['period'] {
+  return value === '7d' || value === '30d' || value === '90d' || value === 'all';
 }
 
-function mergeSettings(
-  raw: unknown,
-): SpecialistOrderStatsSettings {
-  if (typeof raw !== "object" || raw === null) {
+function mergeSettings(raw: unknown): SpecialistOrderStatsSettings {
+  if (typeof raw !== 'object' || raw === null) {
     return { ...DEFAULT_SPECIALIST_ORDER_STATS_SETTINGS };
   }
 
@@ -30,27 +23,27 @@ function mergeSettings(
       ? o.period
       : DEFAULT_SPECIALIST_ORDER_STATS_SETTINGS.period,
     showStatusBreakdown:
-      typeof o.showStatusBreakdown === "boolean"
+      typeof o.showStatusBreakdown === 'boolean'
         ? o.showStatusBreakdown
         : DEFAULT_SPECIALIST_ORDER_STATS_SETTINGS.showStatusBreakdown,
     showRevenue:
-      typeof o.showRevenue === "boolean"
+      typeof o.showRevenue === 'boolean'
         ? o.showRevenue
         : DEFAULT_SPECIALIST_ORDER_STATS_SETTINGS.showRevenue,
     showByService:
-      typeof o.showByService === "boolean"
+      typeof o.showByService === 'boolean'
         ? o.showByService
         : DEFAULT_SPECIALIST_ORDER_STATS_SETTINGS.showByService,
     showTopClients:
-      typeof o.showTopClients === "boolean"
+      typeof o.showTopClients === 'boolean'
         ? o.showTopClients
         : DEFAULT_SPECIALIST_ORDER_STATS_SETTINGS.showTopClients,
     showReviewsBlock:
-      typeof o.showReviewsBlock === "boolean"
+      typeof o.showReviewsBlock === 'boolean'
         ? o.showReviewsBlock
         : DEFAULT_SPECIALIST_ORDER_STATS_SETTINGS.showReviewsBlock,
     showCharts:
-      typeof o.showCharts === "boolean"
+      typeof o.showCharts === 'boolean'
         ? o.showCharts
         : DEFAULT_SPECIALIST_ORDER_STATS_SETTINGS.showCharts,
   };
@@ -60,7 +53,7 @@ export function loadSpecialistOrderStatsSettings(
   specialistSlug: string,
 ): SpecialistOrderStatsSettings {
   const slug = specialistSlug.trim();
-  if (!slug || typeof window === "undefined") {
+  if (!slug || typeof window === 'undefined') {
     return { ...DEFAULT_SPECIALIST_ORDER_STATS_SETTINGS };
   }
 
@@ -80,7 +73,7 @@ export function saveSpecialistOrderStatsSettings(
   settings: SpecialistOrderStatsSettings,
 ): void {
   const slug = specialistSlug.trim();
-  if (!slug || typeof window === "undefined") {
+  if (!slug || typeof window === 'undefined') {
     return;
   }
 

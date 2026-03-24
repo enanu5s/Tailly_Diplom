@@ -2,8 +2,7 @@
 
 import type { ProductOrderRepeatCheckoutDraft } from '../model/productOrderRepeatCheckout';
 
-const PRODUCT_REPEAT_CHECKOUT_DRAFT_KEY =
-  'tailly_product_repeat_checkout_draft';
+const PRODUCT_REPEAT_CHECKOUT_DRAFT_KEY = 'tailly_product_repeat_checkout_draft';
 
 class ProductOrderRepeatCheckoutService {
   saveDraft(draft: ProductOrderRepeatCheckoutDraft): void {
@@ -31,9 +30,7 @@ class ProductOrderRepeatCheckoutService {
     }
 
     try {
-      const rawValue = window.localStorage.getItem(
-        PRODUCT_REPEAT_CHECKOUT_DRAFT_KEY,
-      );
+      const rawValue = window.localStorage.getItem(PRODUCT_REPEAT_CHECKOUT_DRAFT_KEY);
 
       if (!rawValue) {
         return null;
@@ -79,5 +76,4 @@ class ProductOrderRepeatCheckoutService {
   }
 }
 
-export const productOrderRepeatCheckoutService =
-  new ProductOrderRepeatCheckoutService();
+export const productOrderRepeatCheckoutService = new ProductOrderRepeatCheckoutService();

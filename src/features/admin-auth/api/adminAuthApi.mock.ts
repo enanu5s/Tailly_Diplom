@@ -17,7 +17,6 @@ import {
   type AdminLoginSuccessResponse,
 } from '../model/types';
 
-
 export async function mockAdminLogin(
   payload: AdminLoginPayload,
 ): Promise<AdminLoginSuccessResponse> {
@@ -27,10 +26,7 @@ export async function mockAdminLogin(
   const password = payload.password;
   const attempts = getAttemptState(email);
 
-  if (
-    attempts.lockUntil &&
-    new Date(attempts.lockUntil).getTime() > Date.now()
-  ) {
+  if (attempts.lockUntil && new Date(attempts.lockUntil).getTime() > Date.now()) {
     throw new AdminLoginError({
       code: 'TOO_MANY_ATTEMPTS',
       message:
@@ -41,8 +37,7 @@ export async function mockAdminLogin(
   }
 
   const account =
-    MOCK_ADMIN_ACCOUNTS.find((item) => item.email.toLowerCase() === email) ??
-    null;
+    MOCK_ADMIN_ACCOUNTS.find((item) => item.email.toLowerCase() === email) ?? null;
 
   if (!account || account.password !== password) {
     const nextFailedAttempts = attempts.failedAttempts + 1;

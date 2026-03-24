@@ -12,11 +12,7 @@ import {
   hasAdminRole,
   normalizeEmail,
 } from '../data/mockAuthAccounts';
-import {
-  createSession,
-  deleteSession,
-  getSession,
-} from '../data/mockPasswordRecovery';
+import { createSession, deleteSession, getSession } from '../data/mockPasswordRecovery';
 import {
   PasswordRecoveryError,
   type ResetPasswordPayload,
@@ -30,9 +26,7 @@ function findAccountByEmail(email: string) {
   const normalized = normalizeEmail(email);
 
   return (
-    getMockAuthAccounts().find(
-      (item) => item.email.toLowerCase() === normalized,
-    ) ?? null
+    getMockAuthAccounts().find((item) => item.email.toLowerCase() === normalized) ?? null
   );
 }
 
@@ -51,9 +45,7 @@ export const passwordRecoveryMockApi = {
     const account = findAccountByEmail(normalizedEmail);
 
     if (!account) {
-      throw new PasswordRecoveryError(
-        'Пользователь с таким email не найден.',
-      );
+      throw new PasswordRecoveryError('Пользователь с таким email не найден.');
     }
 
     if (account.isBlocked) {
@@ -107,9 +99,7 @@ export const passwordRecoveryMockApi = {
     const account = findAccountByEmail(email);
 
     if (!account) {
-      throw new PasswordRecoveryError(
-        'Пользователь с таким email не найден.',
-      );
+      throw new PasswordRecoveryError('Пользователь с таким email не найден.');
     }
 
     if (hasAdminRole(account.roles)) {
@@ -136,9 +126,7 @@ export const passwordRecoveryMockApi = {
     }
 
     if (session.code !== payload.code) {
-      throw new PasswordRecoveryError(
-        `Неверный код. Тестовый код: ${session.code}`,
-      );
+      throw new PasswordRecoveryError(`Неверный код. Тестовый код: ${session.code}`);
     }
   },
 

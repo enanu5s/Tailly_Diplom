@@ -1,6 +1,7 @@
 // src/features/super-admin-admins-management/api/superAdminAdminsManagementApi.ts
 
 import { request } from '@/shared/api/http';
+import { isMockApiMode } from '@/shared/config/env';
 
 import {
   mockCreateAdmin,
@@ -16,8 +17,6 @@ import {
   type UpdateAdminPayload,
 } from '../model/types';
 
-const USE_MOCK = (import.meta.env.VITE_USE_MOCK_API ?? 'true') === 'true';
-
 async function realGetAdmins(): Promise<ManagedAdmin[]> {
   return request<ManagedAdmin[]>('/super-admin/admins');
 }
@@ -31,17 +30,13 @@ async function realCreateAdmin(
   });
 }
 
-async function realDeleteAdmin(
-  payload: DeleteAdminPayload,
-): Promise<void> {
+async function realDeleteAdmin(payload: DeleteAdminPayload): Promise<void> {
   await request<void>(`/super-admin/admins/${payload.adminId}`, {
     method: 'DELETE',
   });
 }
 
-async function realUpdateAdmin(
-  payload: UpdateAdminPayload,
-): Promise<ManagedAdmin> {
+async function realUpdateAdmin(payload: UpdateAdminPayload): Promise<ManagedAdmin> {
   const { adminId, ...body } = payload;
   return request<ManagedAdmin>(`/super-admin/admins/${adminId}`, {
     method: 'PATCH',
@@ -51,17 +46,15 @@ async function realUpdateAdmin(
 
 export const superAdminAdminsManagementApi = {
   async getAdmins(): Promise<ManagedAdmin[]> {
-    if (USE_MOCK) {
+    if (isMockApiMode) {
       return mockGetAdmins();
     }
 
     return realGetAdmins();
   },
 
-  async createAdmin(
-    payload: CreateAdminPayload,
-  ): Promise<CreateAdminResponse> {
-    if (USE_MOCK) {
+  async createAdmin(payload: CreateAdminPayload): Promise<CreateAdminResponse> {
+    if (isMockApiMode) {
       return mockCreateAdmin(payload);
     }
 
@@ -69,17 +62,15 @@ export const superAdminAdminsManagementApi = {
   },
 
   async deleteAdmin(payload: DeleteAdminPayload): Promise<void> {
-    if (USE_MOCK) {
+    if (isMockApiMode) {
       return mockDeleteAdmin(payload);
     }
 
     return realDeleteAdmin(payload);
   },
 
-  async updateAdmin(
-    payload: UpdateAdminPayload,
-  ): Promise<ManagedAdmin> {
-    if (USE_MOCK) {
+  async updateAdmin(payload: UpdateAdminPayload): Promise<ManagedAdmin> {
+    if (isMockApiMode) {
       return mockUpdateAdmin(payload);
     }
 

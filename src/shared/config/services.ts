@@ -1,17 +1,12 @@
 // src/shared/config/services.ts
 
-export type ServiceId =
-  | 'walking'
-  | 'boarding'
-  | 'grooming'
-  | 'training'
-  | 'photoshoot';
+export type ServiceId = 'walking' | 'boarding' | 'grooming' | 'training' | 'photoshoot';
 
 export interface ServiceConfig {
   id: ServiceId;
   title: string;
-  subtitle: string;     // для Home
-  iconUrl: string;      // для Home
+  subtitle: string; // для Home
+  iconUrl: string; // для Home
 }
 
 export const SERVICES: ServiceConfig[] = [

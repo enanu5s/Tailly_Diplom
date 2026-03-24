@@ -1,18 +1,17 @@
 // src/pages/admin-login/ui/AdminLoginPage.tsx
 
-import { observer } from "mobx-react-lite";
-import { useEffect, useSyncExternalStore } from "react";
-import { useLocation } from "react-router-dom";
+import { observer } from 'mobx-react-lite';
+import { useEffect, useSyncExternalStore } from 'react';
+import { useLocation } from 'react-router-dom';
 
+import { adminLoginStore } from '@/features/admin-auth/model/adminLoginStore';
+import { authStore } from '@/features/auth/model/authStore';
+import { canAccessAdminArea } from '@/shared/lib/auth/roleAccess';
+import { useAppNavigate } from '@/shared/lib/navigation/useAppNavigate';
 
-import { adminLoginStore } from "@/features/admin-auth/model/adminLoginStore";
-import { authStore } from "@/features/auth/model/authStore";
-import { canAccessAdminArea } from "@/shared/lib/auth/roleAccess";
-import { useAppNavigate } from "@/shared/lib/navigation/useAppNavigate";
+import styles from './AdminLoginPage.module.css';
 
-import styles from "./AdminLoginPage.module.css";
-
-import type { FormEvent, ReactElement } from "react";
+import type { FormEvent, ReactElement } from 'react';
 
 type LocationState = {
   from?: string;
@@ -21,22 +20,17 @@ type LocationState = {
 export const AdminLoginPage = observer((): ReactElement => {
   const navigate = useAppNavigate();
   const location = useLocation();
-  const authState = useSyncExternalStore(
-    authStore.subscribe,
-    authStore.getState
-  );
+  const authState = useSyncExternalStore(authStore.subscribe, authStore.getState);
 
   const state = (location.state ?? null) as LocationState | null;
 
   useEffect(() => {
     if (canAccessAdminArea(authState.user)) {
-      navigate("/admin", { replace: true });
+      navigate('/admin', { replace: true });
     }
   }, [authState.user, navigate]);
 
-  const handleSubmit = async (
-    event: FormEvent<HTMLFormElement>
-  ): Promise<void> => {
+  const handleSubmit = async (event: FormEvent<HTMLFormElement>): Promise<void> => {
     event.preventDefault();
 
     const success = await adminLoginStore.submit();
@@ -45,7 +39,7 @@ export const AdminLoginPage = observer((): ReactElement => {
       return;
     }
 
-    navigate(state?.from ?? "/admin", { replace: true });
+    navigate(state?.from ?? '/admin', { replace: true });
   };
 
   return (
@@ -83,9 +77,7 @@ export const AdminLoginPage = observer((): ReactElement => {
               className={styles.input}
               type="password"
               value={adminLoginStore.password}
-              onChange={(event) =>
-                adminLoginStore.setPassword(event.target.value)
-              }
+              onChange={(event) => adminLoginStore.setPassword(event.target.value)}
               placeholder="Введите пароль"
               autoComplete="current-password"
               required
@@ -108,13 +100,13 @@ export const AdminLoginPage = observer((): ReactElement => {
             type="submit"
             disabled={!adminLoginStore.canSubmit}
           >
-            {adminLoginStore.isSubmitting ? "Выполняется вход..." : "Войти"}
+            {adminLoginStore.isSubmitting ? 'Выполняется вход...' : 'Войти'}
           </button>
 
           <button
             className={styles.linkButton}
             type="button"
-            onClick={() => navigate("/admin/forgot-password")}
+            onClick={() => navigate('/admin/forgot-password')}
           >
             Восстановить пароль
           </button>

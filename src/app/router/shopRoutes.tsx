@@ -8,7 +8,6 @@ import { withSuspense } from './withSuspense';
 
 import type { RouteObject } from 'react-router-dom';
 
-
 const ShopCatalogPage = lazy(() =>
   import('@/pages/shop').then((module) => ({
     default: module.ShopCatalogPage,

@@ -64,9 +64,7 @@ export async function mockCreateApplication(
 
   return {
     ok: true,
-    application: JSON.parse(
-      JSON.stringify(createdApplication),
-    ) as SpecialistApplication,
+    application: JSON.parse(JSON.stringify(createdApplication)) as SpecialistApplication,
   };
 }
 
@@ -85,9 +83,7 @@ export async function mockAssignInterview(
   ensureMockSeed();
 
   const applications = readMockApplications();
-  const index = applications.findIndex(
-    (item) => item.id === payload.applicationId,
-  );
+  const index = applications.findIndex((item) => item.id === payload.applicationId);
 
   if (index === -1) {
     throw new SpecialistApplicationsError('Заявка не найдена.');
@@ -124,9 +120,7 @@ export async function mockRejectApplication(
   ensureMockSeed();
 
   const applications = readMockApplications();
-  const index = applications.findIndex(
-    (item) => item.id === payload.applicationId,
-  );
+  const index = applications.findIndex((item) => item.id === payload.applicationId);
 
   if (index === -1) {
     throw new SpecialistApplicationsError('Заявка не найдена.');
@@ -162,9 +156,7 @@ export async function mockApproveApplication(
   ensureMockSeed();
 
   const applications = readMockApplications();
-  const index = applications.findIndex(
-    (item) => item.id === payload.applicationId,
-  );
+  const index = applications.findIndex((item) => item.id === payload.applicationId);
 
   if (index === -1) {
     throw new SpecialistApplicationsError('Заявка не найдена.');
@@ -200,9 +192,7 @@ export async function mockAttachCreatedSpecialistAccount(
   ensureMockSeed();
 
   const applications = readMockApplications();
-  const index = applications.findIndex(
-    (item) => item.id === payload.applicationId,
-  );
+  const index = applications.findIndex((item) => item.id === payload.applicationId);
 
   if (index === -1) {
     throw new SpecialistApplicationsError('Заявка не найдена.');

@@ -44,10 +44,7 @@ export function saveLastRoute(params: {
     savedAt: new Date().toISOString(),
   };
 
-  window.localStorage.setItem(
-    LAST_ROUTE_STORAGE_KEY,
-    JSON.stringify(payload),
-  );
+  window.localStorage.setItem(LAST_ROUTE_STORAGE_KEY, JSON.stringify(payload));
 }
 
 export function readLastRoute(): PersistedLastRoute | null {

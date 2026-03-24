@@ -1,20 +1,11 @@
 // src/features/admin-posts-banners-management/model/types.ts
 export type AdminPostStatus = 'draft' | 'published' | 'archived';
 
-export type BannerPlacement =
-  | 'home_hero'
-  | 'posts'
-  | 'specialists'
-  | 'shop';
+export type BannerPlacement = 'home_hero' | 'posts' | 'specialists' | 'shop';
 
 export type AdminBannerStatus = 'draft' | 'published' | 'archived';
 
-export type BannerLinkTarget =
-  | 'home'
-  | 'posts'
-  | 'specialists'
-  | 'shop'
-  | 'profile';
+export type BannerLinkTarget = 'home' | 'posts' | 'specialists' | 'shop' | 'profile';
 
 export type AdminManagedPost = {
   id: string;

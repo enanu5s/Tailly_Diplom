@@ -1,5 +1,5 @@
 // src/features/messages/ui/MessagesSection.tsx
-import { observer } from "mobx-react-lite";
+import { observer } from 'mobx-react-lite';
 import {
   useEffect,
   useMemo,
@@ -7,18 +7,17 @@ import {
   useState,
   type KeyboardEvent as ReactKeyboardEvent,
   type PointerEvent as ReactPointerEvent,
-} from "react";
-import { useLocation, useSearchParams } from "react-router-dom";
+} from 'react';
+import { useLocation, useSearchParams } from 'react-router-dom';
 
-import { useAuth } from "@/features/auth/model/useAuth";
-import { useAppNavigate } from "@/shared/lib/navigation/useAppNavigate";
+import { useAuth } from '@/features/auth/model/useAuth';
+import { useAppNavigate } from '@/shared/lib/navigation/useAppNavigate';
 
-import styles from "./MessagesSection.module.css";
-import { messagesStore } from "../model/messagesStore";
-import { getMessagesViewerFromUser } from "../model/messagesViewer";
+import styles from './MessagesSection.module.css';
+import { messagesStore } from '../model/messagesStore';
+import { getMessagesViewerFromUser } from '../model/messagesViewer';
 
-import type { ChatMessage, MessageImageAttachment } from "../model/types";
-
+import type { ChatMessage, MessageImageAttachment } from '../model/types';
 
 type LightboxState = {
   attachments: MessageImageAttachment[];
@@ -45,30 +44,30 @@ function formatTime(value: string): string {
   const date = new Date(value);
 
   if (Number.isNaN(date.getTime())) {
-    return "";
+    return '';
   }
 
-  return new Intl.DateTimeFormat("ru-RU", {
-    hour: "2-digit",
-    minute: "2-digit",
+  return new Intl.DateTimeFormat('ru-RU', {
+    hour: '2-digit',
+    minute: '2-digit',
   }).format(date);
 }
 
 function isAdminViewerRole(role: string): boolean {
-  return role === "admin" || role === "super_admin";
+  return role === 'admin' || role === 'super_admin';
 }
 
 function getReadKeyForViewer(
-  viewer: ReturnType<typeof getMessagesViewerFromUser>
+  viewer: ReturnType<typeof getMessagesViewerFromUser>,
 ): string {
-  return isAdminViewerRole(viewer.role) ? "support-team" : viewer.userId;
+  return isAdminViewerRole(viewer.role) ? 'support-team' : viewer.userId;
 }
 
 function isOwnMessageForViewer(
   message: ChatMessage,
-  viewer: ReturnType<typeof getMessagesViewerFromUser>
+  viewer: ReturnType<typeof getMessagesViewerFromUser>,
 ): boolean {
-  if (message.authorRole === "support") {
+  if (message.authorRole === 'support') {
     return isAdminViewerRole(viewer.role);
   }
 
@@ -77,7 +76,7 @@ function isOwnMessageForViewer(
 
 function isUnreadMessageForViewer(
   message: ChatMessage,
-  viewer: ReturnType<typeof getMessagesViewerFromUser>
+  viewer: ReturnType<typeof getMessagesViewerFromUser>,
 ): boolean {
   if (isOwnMessageForViewer(message, viewer)) {
     return false;
@@ -98,12 +97,12 @@ function scrollToBottom(element: HTMLDivElement): void {
 
 function formatThreadPreview(preview: string): string {
   const normalizedPreview = preview.trim();
-  return normalizedPreview || "Сообщений пока нет";
+  return normalizedPreview || 'Сообщений пока нет';
 }
 
 function formatAttachmentCounter(count: number): string {
   if (count === 1) {
-    return "1 фото";
+    return '1 фото';
   }
 
   return `${count} фото`;
@@ -113,7 +112,7 @@ function formatReplyPreviewText(message: {
   text?: string;
   attachmentsCount?: number;
 }): string {
-  const text = message.text?.trim() ?? "";
+  const text = message.text?.trim() ?? '';
   const attachmentsCount = message.attachmentsCount ?? 0;
 
   if (text && attachmentsCount > 0) {
@@ -125,22 +124,22 @@ function formatReplyPreviewText(message: {
   }
 
   if (attachmentsCount === 1) {
-    return "Фото";
+    return 'Фото';
   }
 
   if (attachmentsCount > 1) {
     return `Фото: ${attachmentsCount}`;
   }
 
-  return "Сообщение";
+  return 'Сообщение';
 }
 
 function isTouchLikeViewport(): boolean {
-  if (typeof window === "undefined") {
+  if (typeof window === 'undefined') {
     return false;
   }
 
-  return window.matchMedia("(pointer: coarse)").matches;
+  return window.matchMedia('(pointer: coarse)').matches;
 }
 
 export const MessagesSection = observer(() => {
@@ -162,20 +161,19 @@ export const MessagesSection = observer(() => {
   const pointerStartRef = useRef<PointerStartState | null>(null);
 
   const [lightbox, setLightbox] = useState<LightboxState | null>(null);
-  const [highlightedMessage, setHighlightedMessage] =
-    useState<HighlightState | null>(null);
-  const [showScrollToBottomButton, setShowScrollToBottomButton] =
-    useState(false);
-  const [search, setSearch] = useState("");
+  const [highlightedMessage, setHighlightedMessage] = useState<HighlightState | null>(
+    null,
+  );
+  const [showScrollToBottomButton, setShowScrollToBottomButton] = useState(false);
+  const [search, setSearch] = useState('');
 
   const viewer = useMemo(() => getMessagesViewerFromUser(user), [user]);
 
   const specialistIntent = useMemo(() => {
-    const specialistId = searchParams.get("specialistId")?.trim() ?? "";
-    const specialistSlug = searchParams.get("specialistSlug")?.trim() ?? "";
-    const specialistName = searchParams.get("specialistName")?.trim() ?? "";
-    const specialistAvatarUrl =
-      searchParams.get("specialistAvatarUrl")?.trim() ?? "";
+    const specialistId = searchParams.get('specialistId')?.trim() ?? '';
+    const specialistSlug = searchParams.get('specialistSlug')?.trim() ?? '';
+    const specialistName = searchParams.get('specialistName')?.trim() ?? '';
+    const specialistAvatarUrl = searchParams.get('specialistAvatarUrl')?.trim() ?? '';
 
     if (!specialistId || !specialistSlug || !specialistName) {
       return null;
@@ -190,10 +188,9 @@ export const MessagesSection = observer(() => {
   }, [searchParams]);
 
   const clientIntent = useMemo(() => {
-    const clientId = searchParams.get("clientId")?.trim() ?? "";
-    const clientName = searchParams.get("clientName")?.trim() ?? "";
-    const clientAvatarUrl =
-      searchParams.get("clientAvatarUrl")?.trim() ?? "";
+    const clientId = searchParams.get('clientId')?.trim() ?? '';
+    const clientName = searchParams.get('clientName')?.trim() ?? '';
+    const clientAvatarUrl = searchParams.get('clientAvatarUrl')?.trim() ?? '';
 
     if (!clientId || !clientName) {
       return null;
@@ -216,7 +213,7 @@ export const MessagesSection = observer(() => {
   }, [viewer]);
 
   useEffect(() => {
-    if (!viewer.userId || !clientIntent || viewer.role !== "specialist") {
+    if (!viewer.userId || !clientIntent || viewer.role !== 'specialist') {
       return;
     }
 
@@ -232,7 +229,7 @@ export const MessagesSection = observer(() => {
           {
             pathname: location.pathname,
           },
-          { replace: true }
+          { replace: true },
         );
       });
   }, [clientIntent, location.pathname, navigate, viewer]);
@@ -242,7 +239,7 @@ export const MessagesSection = observer(() => {
       return;
     }
 
-    if (viewer.role === "specialist" && clientIntent) {
+    if (viewer.role === 'specialist' && clientIntent) {
       return;
     }
 
@@ -259,16 +256,10 @@ export const MessagesSection = observer(() => {
           {
             pathname: location.pathname,
           },
-          { replace: true }
+          { replace: true },
         );
       });
-  }, [
-    clientIntent,
-    location.pathname,
-    navigate,
-    specialistIntent,
-    viewer,
-  ]);
+  }, [clientIntent, location.pathname, navigate, specialistIntent, viewer]);
 
   const {
     threads,
@@ -286,12 +277,12 @@ export const MessagesSection = observer(() => {
 
   const filteredThreads = useMemo(() => {
     const normalizedSearch = search.trim().toLowerCase();
-    const supportThread = threads.find((thread) => thread.kind === "support");
-    const otherThreads = threads.filter((thread) => thread.kind !== "support");
+    const supportThread = threads.find((thread) => thread.kind === 'support');
+    const otherThreads = threads.filter((thread) => thread.kind !== 'support');
 
     const filteredOthers = normalizedSearch
       ? otherThreads.filter((thread) =>
-          thread.title.toLowerCase().includes(normalizedSearch)
+          thread.title.toLowerCase().includes(normalizedSearch),
         )
       : otherThreads;
 
@@ -351,8 +342,7 @@ export const MessagesSection = observer(() => {
       const firstUnreadId = firstUnreadMessageIdRef.current;
 
       if (firstUnreadId) {
-        const firstUnreadElement =
-          messageElementsRef.current.get(firstUnreadId);
+        const firstUnreadElement = messageElementsRef.current.get(firstUnreadId);
 
         if (firstUnreadElement) {
           const targetTop = firstUnreadElement.offsetTop - 16;
@@ -425,9 +415,7 @@ export const MessagesSection = observer(() => {
             return;
           }
 
-          const messageId = entry.target
-            .getAttribute("data-message-id")
-            ?.trim();
+          const messageId = entry.target.getAttribute('data-message-id')?.trim();
 
           if (!messageId) {
             return;
@@ -444,9 +432,7 @@ export const MessagesSection = observer(() => {
           return;
         }
 
-        visibleUnreadIds.forEach((messageId) =>
-          pendingReadIdsRef.current.add(messageId)
-        );
+        visibleUnreadIds.forEach((messageId) => pendingReadIdsRef.current.add(messageId));
 
         if (readTimerRef.current !== null) {
           window.clearTimeout(readTimerRef.current);
@@ -471,7 +457,7 @@ export const MessagesSection = observer(() => {
       {
         root,
         threshold: 0.7,
-      }
+      },
     );
 
     unreadMessageIds.forEach((messageId) => {
@@ -500,17 +486,16 @@ export const MessagesSection = observer(() => {
     }
 
     const handleScroll = (): void => {
-      const distanceToBottom =
-        root.scrollHeight - root.scrollTop - root.clientHeight;
+      const distanceToBottom = root.scrollHeight - root.scrollTop - root.clientHeight;
 
       setShowScrollToBottomButton(distanceToBottom > 200);
     };
 
     handleScroll();
-    root.addEventListener("scroll", handleScroll, { passive: true });
+    root.addEventListener('scroll', handleScroll, { passive: true });
 
     return () => {
-      root.removeEventListener("scroll", handleScroll);
+      root.removeEventListener('scroll', handleScroll);
     };
   }, [activeThreadId, activeMessages.length]);
 
@@ -520,12 +505,12 @@ export const MessagesSection = observer(() => {
     }
 
     const handleKeyDown = (event: KeyboardEvent): void => {
-      if (event.key === "Escape") {
+      if (event.key === 'Escape') {
         setLightbox(null);
         return;
       }
 
-      if (event.key === "ArrowLeft") {
+      if (event.key === 'ArrowLeft') {
         setLightbox((current) => {
           if (!current) {
             return current;
@@ -544,7 +529,7 @@ export const MessagesSection = observer(() => {
         return;
       }
 
-      if (event.key === "ArrowRight") {
+      if (event.key === 'ArrowRight') {
         setLightbox((current) => {
           if (!current) {
             return current;
@@ -563,12 +548,12 @@ export const MessagesSection = observer(() => {
       }
     };
 
-    document.body.style.overflow = "hidden";
-    window.addEventListener("keydown", handleKeyDown);
+    document.body.style.overflow = 'hidden';
+    window.addEventListener('keydown', handleKeyDown);
 
     return () => {
-      document.body.style.overflow = "";
-      window.removeEventListener("keydown", handleKeyDown);
+      document.body.style.overflow = '';
+      window.removeEventListener('keydown', handleKeyDown);
     };
   }, [lightbox]);
 
@@ -582,7 +567,7 @@ export const MessagesSection = observer(() => {
 
   const openLightbox = (
     attachments: MessageImageAttachment[],
-    activeIndex: number
+    activeIndex: number,
   ): void => {
     if (attachments.length === 0) {
       return;
@@ -636,7 +621,7 @@ export const MessagesSection = observer(() => {
 
   const scrollToMessageById = (
     messageId: string,
-    options?: { highlight?: boolean; smooth?: boolean }
+    options?: { highlight?: boolean; smooth?: boolean },
   ): void => {
     const element = messageElementsRef.current.get(messageId);
     const container = messagesAreaRef.current;
@@ -649,7 +634,7 @@ export const MessagesSection = observer(() => {
 
     container.scrollTo({
       top,
-      behavior: options?.smooth === false ? "auto" : "smooth",
+      behavior: options?.smooth === false ? 'auto' : 'smooth',
     });
 
     if (options?.highlight) {
@@ -681,8 +666,8 @@ export const MessagesSection = observer(() => {
 
     requestAnimationFrame(() => {
       composerRef.current?.scrollIntoView({
-        behavior: "smooth",
-        block: "start",
+        behavior: 'smooth',
+        block: 'start',
       });
     });
   };
@@ -715,7 +700,7 @@ export const MessagesSection = observer(() => {
 
   const handleMessagePointerDown = (
     event: ReactPointerEvent<HTMLDivElement>,
-    messageId: string
+    messageId: string,
   ): void => {
     if (!isTouchLikeViewport()) {
       return;
@@ -730,7 +715,7 @@ export const MessagesSection = observer(() => {
 
   const handleMessagePointerUp = (
     event: ReactPointerEvent<HTMLDivElement>,
-    message: ChatMessage
+    message: ChatMessage,
   ): void => {
     if (!isTouchLikeViewport()) {
       return;
@@ -787,10 +772,10 @@ export const MessagesSection = observer(() => {
                       isActive
                         ? styles.threadActive
                         : hasUnread
-                        ? styles.threadUnread
-                        : styles.thread,
-                      thread.kind === "support" ? styles.threadSupport : "",
-                    ].join(" ")}
+                          ? styles.threadUnread
+                          : styles.thread,
+                      thread.kind === 'support' ? styles.threadSupport : '',
+                    ].join(' ')}
                     onClick={() => messagesStore.setActiveThread(thread.id)}
                   >
                     <div className={styles.threadTopRow}>
@@ -806,9 +791,7 @@ export const MessagesSection = observer(() => {
                       </span>
 
                       {hasUnread ? (
-                        <span className={styles.unreadBadge}>
-                          {thread.unreadCount}
-                        </span>
+                        <span className={styles.unreadBadge}>{thread.unreadCount}</span>
                       ) : null}
                     </div>
                   </button>
@@ -829,9 +812,7 @@ export const MessagesSection = observer(() => {
                 <div>
                   <h2 className={styles.chatTitle}>{activeThread.title}</h2>
                   <p className={styles.chatSubtitle}>
-                    {activeThread.kind === "support"
-                      ? "Чат поддержки"
-                      : "Личный чат"}
+                    {activeThread.kind === 'support' ? 'Чат поддержки' : 'Личный чат'}
                   </p>
                 </div>
               </header>
@@ -840,45 +821,33 @@ export const MessagesSection = observer(() => {
                 <div ref={messagesAreaRef} className={styles.messagesArea}>
                   {activeMessages.length > 0 ? (
                     activeMessages.map((message) => {
-                      const isOwnMessage = isOwnMessageForViewer(
-                        message,
-                        viewer
-                      );
-                      const isUnread = isUnreadMessageForViewer(
-                        message,
-                        viewer
-                      );
+                      const isOwnMessage = isOwnMessageForViewer(message, viewer);
+                      const isUnread = isUnreadMessageForViewer(message, viewer);
 
                       const shouldShowSupportAgentName =
-                        activeThread.kind === "support" &&
-                        message.authorRole === "support" &&
+                        activeThread.kind === 'support' &&
+                        message.authorRole === 'support' &&
                         Boolean(message.authorSupportAgentName);
 
-                      const isHighlighted =
-                        highlightedMessage?.messageId === message.id;
+                      const isHighlighted = highlightedMessage?.messageId === message.id;
 
                       return (
                         <div
                           key={message.id}
                           ref={(element) => {
                             if (element) {
-                              messageElementsRef.current.set(
-                                message.id,
-                                element
-                              );
+                              messageElementsRef.current.set(message.id, element);
                             } else {
                               messageElementsRef.current.delete(message.id);
                             }
                           }}
                           data-message-id={message.id}
                           className={
-                            isOwnMessage
-                              ? styles.messageOwn
-                              : styles.messageOther
+                            isOwnMessage ? styles.messageOwn : styles.messageOther
                           }
                           onDoubleClick={() => {
                             if (
-                              typeof window !== "undefined" &&
+                              typeof window !== 'undefined' &&
                               window.innerWidth > DESKTOP_DOUBLE_CLICK_MAX_WIDTH
                             ) {
                               handleReplySelect(message);
@@ -887,17 +856,15 @@ export const MessagesSection = observer(() => {
                           onPointerDown={(event) =>
                             handleMessagePointerDown(event, message.id)
                           }
-                          onPointerUp={(event) =>
-                            handleMessagePointerUp(event, message)
-                          }
+                          onPointerUp={(event) => handleMessagePointerUp(event, message)}
                         >
                           <div
                             className={
                               isHighlighted
                                 ? `${styles.messageBubble} ${styles.messageBubbleHighlighted}`
                                 : isUnread
-                                ? `${styles.messageBubble} ${styles.messageBubbleUnread}`
-                                : styles.messageBubble
+                                  ? `${styles.messageBubble} ${styles.messageBubbleUnread}`
+                                  : styles.messageBubble
                             }
                           >
                             {shouldShowSupportAgentName ? (
@@ -911,9 +878,7 @@ export const MessagesSection = observer(() => {
                                 type="button"
                                 className={styles.replyReference}
                                 onClick={() =>
-                                  handleSentReplyClick(
-                                    message.replyTo!.messageId
-                                  )
+                                  handleSentReplyClick(message.replyTo!.messageId)
                                 }
                               >
                                 <span className={styles.replyReferenceAuthor}>
@@ -933,36 +898,29 @@ export const MessagesSection = observer(() => {
                                     : styles.attachmentsGrid
                                 }
                               >
-                                {message.attachments.map(
-                                  (attachment, index) => (
-                                    <button
-                                      key={attachment.id}
-                                      type="button"
-                                      className={styles.attachmentButton}
-                                      onClick={() =>
-                                        openLightbox(message.attachments, index)
-                                      }
-                                      aria-label={`Открыть фото ${attachment.name}`}
-                                    >
-                                      <img
-                                        className={styles.attachmentImage}
-                                        src={
-                                          attachment.thumbnailUrl ||
-                                          attachment.url
-                                        }
-                                        alt={attachment.name}
-                                        loading="lazy"
-                                      />
-                                    </button>
-                                  )
-                                )}
+                                {message.attachments.map((attachment, index) => (
+                                  <button
+                                    key={attachment.id}
+                                    type="button"
+                                    className={styles.attachmentButton}
+                                    onClick={() =>
+                                      openLightbox(message.attachments, index)
+                                    }
+                                    aria-label={`Открыть фото ${attachment.name}`}
+                                  >
+                                    <img
+                                      className={styles.attachmentImage}
+                                      src={attachment.thumbnailUrl || attachment.url}
+                                      alt={attachment.name}
+                                      loading="lazy"
+                                    />
+                                  </button>
+                                ))}
                               </div>
                             ) : null}
 
                             {message.text ? (
-                              <p className={styles.messageText}>
-                                {message.text}
-                              </p>
+                              <p className={styles.messageText}>{message.text}</p>
                             ) : null}
 
                             <div className={styles.messageMeta}>
@@ -1047,10 +1005,7 @@ export const MessagesSection = observer(() => {
                 {draftAttachments.length > 0 ? (
                   <div className={styles.draftAttachments}>
                     {draftAttachments.map((attachment) => (
-                      <div
-                        key={attachment.id}
-                        className={styles.draftAttachmentCard}
-                      >
+                      <div key={attachment.id} className={styles.draftAttachmentCard}>
                         <img
                           className={styles.draftAttachmentImage}
                           src={attachment.thumbnailUrl || attachment.url}
@@ -1075,14 +1030,10 @@ export const MessagesSection = observer(() => {
                   className={styles.textarea}
                   placeholder="Введите сообщение"
                   value={draftMessage}
-                  onChange={(event) =>
-                    messagesStore.setDraftMessage(event.target.value)
-                  }
-                  onKeyDown={(
-                    event: ReactKeyboardEvent<HTMLTextAreaElement>
-                  ) => {
+                  onChange={(event) => messagesStore.setDraftMessage(event.target.value)}
+                  onKeyDown={(event: ReactKeyboardEvent<HTMLTextAreaElement>) => {
                     if (
-                      event.key === "Enter" &&
+                      event.key === 'Enter' &&
                       !event.shiftKey &&
                       !event.nativeEvent.isComposing
                     ) {
@@ -1102,7 +1053,7 @@ export const MessagesSection = observer(() => {
                   onChange={(event) => {
                     const files = Array.from(event.target.files ?? []);
                     void messagesStore.addDraftAttachments(files);
-                    event.target.value = "";
+                    event.target.value = '';
                   }}
                 />
 
@@ -1114,7 +1065,7 @@ export const MessagesSection = observer(() => {
                       onClick={() => fileInputRef.current?.click()}
                       disabled={loading || attachmentsLoading}
                     >
-                      {attachmentsLoading ? "Загрузка..." : "Добавить фото"}
+                      {attachmentsLoading ? 'Загрузка...' : 'Добавить фото'}
                     </button>
 
                     {draftAttachments.length > 0 ? (
@@ -1124,11 +1075,7 @@ export const MessagesSection = observer(() => {
                     ) : null}
                   </div>
 
-                  {error ? (
-                    <span className={styles.error}>{error}</span>
-                  ) : (
-                    <span />
-                  )}
+                  {error ? <span className={styles.error}>{error}</span> : <span />}
 
                   <button
                     type="submit"
@@ -1144,8 +1091,7 @@ export const MessagesSection = observer(() => {
             <div className={styles.emptyState}>
               <h2 className={styles.emptyTitle}>Выберите чат</h2>
               <p className={styles.emptyText}>
-                Здесь будут отображаться ваши диалоги с поддержкой и
-                пользователями.
+                Здесь будут отображаться ваши диалоги с поддержкой и пользователями.
               </p>
             </div>
           )}

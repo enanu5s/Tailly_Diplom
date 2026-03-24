@@ -1,4 +1,6 @@
 // src/features/messages/api/messagesApi.ts
+import { getOptionalApiBaseUrl, isMockApiMode } from '@/shared/config/env';
+
 import {
   ensureClientThread as ensureClientThreadInStorage,
   ensureSpecialistThread as ensureSpecialistThreadInStorage,
@@ -20,8 +22,7 @@ import type {
   SendMessagePayload,
 } from '../model/types';
 
-const USE_MOCK = (import.meta.env.VITE_USE_MOCK_API ?? 'true') === 'true';
-const API_BASE_URL = import.meta.env.VITE_API_BASE_URL ?? '';
+const API_BASE_URL = getOptionalApiBaseUrl();
 
 async function notImplemented(): Promise<never> {
   throw new Error(
@@ -31,17 +32,15 @@ async function notImplemented(): Promise<never> {
 
 export const messagesApi = {
   async getSnapshot(viewer: MessagesViewer): Promise<MessagesSnapshot> {
-    if (USE_MOCK) {
+    if (isMockApiMode) {
       return Promise.resolve(getMessagesSnapshotFromStorage(viewer));
     }
 
     return notImplemented();
   },
 
-  async getUnreadSummary(
-    viewer: MessagesViewer,
-  ): Promise<MessagesUnreadSummary> {
-    if (USE_MOCK) {
+  async getUnreadSummary(viewer: MessagesViewer): Promise<MessagesUnreadSummary> {
+    if (isMockApiMode) {
       return Promise.resolve(getUnreadSummaryFromStorage(viewer));
     }
 
@@ -51,7 +50,7 @@ export const messagesApi = {
   async ensureSupportThread(
     payload: EnsureSupportThreadPayload,
   ): Promise<MessagesSnapshot> {
-    if (USE_MOCK) {
+    if (isMockApiMode) {
       return Promise.resolve(ensureSupportThreadInStorage(payload));
     }
 
@@ -61,7 +60,7 @@ export const messagesApi = {
   async ensureSpecialistThread(
     payload: EnsureSpecialistThreadPayload,
   ): Promise<MessagesSnapshot> {
-    if (USE_MOCK) {
+    if (isMockApiMode) {
       return Promise.resolve(ensureSpecialistThreadInStorage(payload));
     }
 
@@ -71,7 +70,7 @@ export const messagesApi = {
   async ensureClientThread(
     payload: EnsureClientThreadPayload,
   ): Promise<MessagesSnapshot> {
-    if (USE_MOCK) {
+    if (isMockApiMode) {
       return Promise.resolve(ensureClientThreadInStorage(payload));
     }
 
@@ -81,7 +80,7 @@ export const messagesApi = {
   async markMessagesAsRead(
     payload: MarkMessagesAsReadPayload,
   ): Promise<MessagesSnapshot> {
-    if (USE_MOCK) {
+    if (isMockApiMode) {
       return Promise.resolve(markMessagesAsReadInStorage(payload));
     }
 
@@ -89,7 +88,7 @@ export const messagesApi = {
   },
 
   async sendMessage(payload: SendMessagePayload): Promise<MessagesSnapshot> {
-    if (USE_MOCK) {
+    if (isMockApiMode) {
       return Promise.resolve(sendMessageInStorage(payload));
     }
 

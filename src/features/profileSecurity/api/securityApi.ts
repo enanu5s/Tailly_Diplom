@@ -1,14 +1,13 @@
 // src/features/profileSecurity/api/securityApi.ts
 
 import { request } from '@/shared/api/http';
+import { isMockApiMode } from '@/shared/config/env';
 
 import {
   mockChangePassword,
   mockConfirmEmailChange,
   mockRequestEmailChangeCode,
 } from './securityApi.mock';
-
-const USE_MOCK = (import.meta.env.VITE_USE_MOCK_API ?? 'true') === 'true';
 
 /* ---------------- REAL ---------------- */
 
@@ -49,20 +48,11 @@ async function realChangePassword(payload: {
 
 export const securityApi = {
   requestEmailChangeCode: () =>
-    USE_MOCK ? mockRequestEmailChangeCode() : realRequestEmailChangeCode(),
+    isMockApiMode ? mockRequestEmailChangeCode() : realRequestEmailChangeCode(),
 
-  confirmEmailChange: (payload: {
-    requestId: string;
-    code: string;
-    newEmail: string;
-  }) =>
-    USE_MOCK
-      ? mockConfirmEmailChange(payload)
-      : realConfirmEmailChange(payload),
+  confirmEmailChange: (payload: { requestId: string; code: string; newEmail: string }) =>
+    isMockApiMode ? mockConfirmEmailChange(payload) : realConfirmEmailChange(payload),
 
-  changePassword: (payload: {
-    oldPassword: string;
-    newPassword: string;
-  }) =>
-    USE_MOCK ? mockChangePassword(payload) : realChangePassword(payload),
+  changePassword: (payload: { oldPassword: string; newPassword: string }) =>
+    isMockApiMode ? mockChangePassword(payload) : realChangePassword(payload),
 };

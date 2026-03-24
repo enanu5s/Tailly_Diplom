@@ -1,7 +1,7 @@
 // src/app/router/routes.tsx
 
 import { Layout } from '@/app/Layout';
-import { AppErrorPage } from "@/pages/app-error";
+import { AppErrorPage } from '@/pages/app-error';
 
 import { adminRoutes } from './adminRoutes';
 import { clientRoutes } from './clientRoutes';
@@ -14,11 +14,6 @@ export const routes: RouteObject[] = [
   {
     element: <Layout />,
     errorElement: <AppErrorPage />,
-    children: [
-      ...publicRoutes,
-      ...clientRoutes,
-      ...shopRoutes,
-      ...adminRoutes,
-    ],
+    children: [...publicRoutes, ...clientRoutes, ...shopRoutes, ...adminRoutes],
   },
 ];

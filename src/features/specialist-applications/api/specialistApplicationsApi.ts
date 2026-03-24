@@ -1,6 +1,7 @@
 // src/features/specialist-applications/api/specialistApplicationsApi.ts
 
 import { request } from '@/shared/api/http';
+import { isMockApiMode } from '@/shared/config/env';
 
 import {
   mockApproveApplication,
@@ -19,8 +20,6 @@ import type {
   RejectSpecialistApplicationPayload,
   SpecialistApplication,
 } from '../model/types';
-
-const USE_MOCK = (import.meta.env.VITE_USE_MOCK_API ?? 'true') === 'true';
 
 async function realCreateApplication(
   payload: CreateSpecialistApplicationPayload,
@@ -90,7 +89,7 @@ export const specialistApplicationsApi = {
   async createApplication(
     payload: CreateSpecialistApplicationPayload,
   ): Promise<{ ok: true; application: SpecialistApplication }> {
-    if (USE_MOCK) {
+    if (isMockApiMode) {
       return mockCreateApplication(payload);
     }
 
@@ -98,17 +97,15 @@ export const specialistApplicationsApi = {
   },
 
   async getApplications(): Promise<SpecialistApplication[]> {
-    if (USE_MOCK) {
+    if (isMockApiMode) {
       return mockGetApplications();
     }
 
     return realGetApplications();
   },
 
-  async assignInterview(
-    payload: AssignInterviewPayload,
-  ): Promise<SpecialistApplication> {
-    if (USE_MOCK) {
+  async assignInterview(payload: AssignInterviewPayload): Promise<SpecialistApplication> {
+    if (isMockApiMode) {
       return mockAssignInterview(payload);
     }
 
@@ -118,7 +115,7 @@ export const specialistApplicationsApi = {
   async rejectApplication(
     payload: RejectSpecialistApplicationPayload,
   ): Promise<SpecialistApplication> {
-    if (USE_MOCK) {
+    if (isMockApiMode) {
       return mockRejectApplication(payload);
     }
 
@@ -128,7 +125,7 @@ export const specialistApplicationsApi = {
   async approveApplication(
     payload: ApproveSpecialistApplicationPayload,
   ): Promise<SpecialistApplication> {
-    if (USE_MOCK) {
+    if (isMockApiMode) {
       return mockApproveApplication(payload);
     }
 
@@ -138,7 +135,7 @@ export const specialistApplicationsApi = {
   async attachCreatedSpecialistAccount(
     payload: AttachCreatedSpecialistAccountPayload,
   ): Promise<SpecialistApplication> {
-    if (USE_MOCK) {
+    if (isMockApiMode) {
       return mockAttachCreatedSpecialistAccount(payload);
     }
 

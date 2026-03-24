@@ -1,18 +1,13 @@
 //src/features/admin-auth/api/adminAuthApi.ts
-import { request } from '@/shared/api/http';
+import { requestParsed } from '@/shared/api/requestParsed';
+import { loginSuccessResponseSchema } from '@/shared/api/schemas/authUserSchema';
+import { isMockApiMode } from '@/shared/config/env';
 
 import { mockAdminLogin } from './adminAuthApi.mock';
-import {
-  type AdminLoginPayload,
-  type AdminLoginSuccessResponse,
-} from '../model/types';
+import { type AdminLoginPayload, type AdminLoginSuccessResponse } from '../model/types';
 
-const USE_MOCK = (import.meta.env.VITE_USE_MOCK_API ?? 'true') === 'true';
-
-async function realLogin(
-  payload: AdminLoginPayload,
-): Promise<AdminLoginSuccessResponse> {
-  return request<AdminLoginSuccessResponse>('/admin/auth/login', {
+async function realLogin(payload: AdminLoginPayload): Promise<AdminLoginSuccessResponse> {
+  return requestParsed('/admin/auth/login', loginSuccessResponseSchema, {
     method: 'POST',
     body: payload,
   });
@@ -20,7 +15,7 @@ async function realLogin(
 
 export const adminAuthApi = {
   async login(payload: AdminLoginPayload): Promise<AdminLoginSuccessResponse> {
-    if (USE_MOCK) {
+    if (isMockApiMode) {
       return mockAdminLogin(payload);
     }
 

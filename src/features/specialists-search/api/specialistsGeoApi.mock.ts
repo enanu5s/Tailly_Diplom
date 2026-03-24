@@ -1,5 +1,7 @@
 // src/features/specialists-search/api/specialistsGeoApi.mock.ts
 
+import { get2GisApiKey } from '@/shared/config/env';
+
 import {
   buildDirect2GisUrl,
   type GeocodeResponse,
@@ -11,7 +13,7 @@ import {
   type SuggestResponse,
 } from '../data/mockSpecialistsGeo';
 
-const MAPS_API_KEY = import.meta.env.VITE_2GIS_API_KEY ?? '';
+const MAPS_API_KEY = get2GisApiKey();
 
 async function requestJson<T>(url: string): Promise<T> {
   const response = await fetch(url, {

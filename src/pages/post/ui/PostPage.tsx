@@ -2,7 +2,6 @@ import { observer } from 'mobx-react-lite';
 import { useEffect } from 'react';
 import { useLocation, useParams } from 'react-router-dom';
 
-
 import { getPostGalleryUrls } from '@/features/posts/lib/postGallery';
 import { postsStore } from '@/features/posts/model/postsStore';
 import { useAppNavigate } from '@/shared/lib/navigation/useAppNavigate';

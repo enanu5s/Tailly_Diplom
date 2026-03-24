@@ -7,9 +7,7 @@ import { shopCheckoutStore } from '@/features/shop/model/shopCheckoutStore';
 import { ProductBackButton } from '@/features/shop/ui';
 import { useAppNavigate } from '@/shared/lib/navigation/useAppNavigate';
 
-
 import styles from './ShopCheckoutPage.module.css';
-
 
 type ShopCheckoutPageLocationState = {
   from?: {
@@ -124,9 +122,7 @@ export const ShopCheckoutPage = observer(() => {
         {!error && isLoading && !isInitialized ? (
           <div className={styles.stateCard}>
             <h2 className={styles.stateTitle}>Загружаем оформление</h2>
-            <p className={styles.stateText}>
-              Подготавливаем состав заказа и форму.
-            </p>
+            <p className={styles.stateText}>Подготавливаем состав заказа и форму.</p>
           </div>
         ) : null}
 
@@ -195,17 +191,12 @@ export const ShopCheckoutPage = observer(() => {
                       className={styles.input}
                       value={form.recipient.phone}
                       onChange={(event) =>
-                        shopCheckoutStore.setRecipientField(
-                          'phone',
-                          event.target.value,
-                        )
+                        shopCheckoutStore.setRecipientField('phone', event.target.value)
                       }
                       placeholder="+7 (900) 000-00-00"
                     />
                     {validationErrors.phone ? (
-                      <span className={styles.fieldError}>
-                        {validationErrors.phone}
-                      </span>
+                      <span className={styles.fieldError}>{validationErrors.phone}</span>
                     ) : null}
                   </label>
 
@@ -215,17 +206,12 @@ export const ShopCheckoutPage = observer(() => {
                       className={styles.input}
                       value={form.recipient.email}
                       onChange={(event) =>
-                        shopCheckoutStore.setRecipientField(
-                          'email',
-                          event.target.value,
-                        )
+                        shopCheckoutStore.setRecipientField('email', event.target.value)
                       }
                       placeholder="mail@example.com"
                     />
                     {validationErrors.email ? (
-                      <span className={styles.fieldError}>
-                        {validationErrors.email}
-                      </span>
+                      <span className={styles.fieldError}>{validationErrors.email}</span>
                     ) : null}
                   </label>
                 </div>
@@ -265,17 +251,12 @@ export const ShopCheckoutPage = observer(() => {
                       className={styles.input}
                       value={form.address.city}
                       onChange={(event) =>
-                        shopCheckoutStore.setAddressField(
-                          'city',
-                          event.target.value,
-                        )
+                        shopCheckoutStore.setAddressField('city', event.target.value)
                       }
                       placeholder="Москва"
                     />
                     {validationErrors.city ? (
-                      <span className={styles.fieldError}>
-                        {validationErrors.city}
-                      </span>
+                      <span className={styles.fieldError}>{validationErrors.city}</span>
                     ) : null}
                   </label>
 
@@ -307,10 +288,7 @@ export const ShopCheckoutPage = observer(() => {
                           className={styles.input}
                           value={form.address.house}
                           onChange={(event) =>
-                            shopCheckoutStore.setAddressField(
-                              'house',
-                              event.target.value,
-                            )
+                            shopCheckoutStore.setAddressField('house', event.target.value)
                           }
                           placeholder="12"
                         />
@@ -337,9 +315,7 @@ export const ShopCheckoutPage = observer(() => {
                       </label>
 
                       <label className={`${styles.field} ${styles.fieldFull}`}>
-                        <span className={styles.label}>
-                          Комментарий для курьера
-                        </span>
+                        <span className={styles.label}>Комментарий для курьера</span>
                         <textarea
                           className={styles.textarea}
                           value={form.address.comment}
@@ -391,9 +367,7 @@ export const ShopCheckoutPage = observer(() => {
                       ) : null}
 
                       {pickupPointsError ? (
-                        <span className={styles.fieldError}>
-                          {pickupPointsError}
-                        </span>
+                        <span className={styles.fieldError}>{pickupPointsError}</span>
                       ) : null}
                     </label>
                   )}
@@ -452,9 +426,7 @@ export const ShopCheckoutPage = observer(() => {
                         <span className={styles.summaryItemTitle}>
                           {item.product.title}
                         </span>
-                        <span className={styles.summaryItemQty}>
-                          {item.quantity} шт.
-                        </span>
+                        <span className={styles.summaryItemQty}>{item.quantity} шт.</span>
                       </div>
                       <span className={styles.summaryItemPrice}>
                         {formatPrice(item.lineTotal)}
@@ -485,8 +457,7 @@ export const ShopCheckoutPage = observer(() => {
                 >
                   {isSubmitting
                     ? 'Оформляем заказ...'
-                    : form.paymentMethod === 'card' ||
-                        form.paymentMethod === 'sbp'
+                    : form.paymentMethod === 'card' || form.paymentMethod === 'sbp'
                       ? 'Перейти к оплате'
                       : 'Подтвердить заказ'}
                 </button>

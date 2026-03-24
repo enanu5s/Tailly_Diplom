@@ -4,7 +4,6 @@ import { observer } from 'mobx-react-lite';
 import { useEffect, useMemo } from 'react';
 import { Link, useLocation, useParams } from 'react-router-dom';
 
-
 import { reviewCreateStore } from '@/features/reviews';
 import { StarRating } from '@/features/reviews';
 import { ReviewCard } from '@/features/reviews';
@@ -29,7 +28,6 @@ export const LeaveReviewPage = observer(() => {
 
     reviewCreateStore.reset();
     if (orderId) void reviewCreateStore.load(orderId);
-     
   }, [orderId]);
 
   const ctx = reviewCreateStore.context;
@@ -45,12 +43,15 @@ export const LeaveReviewPage = observer(() => {
 
         <h1 className={styles.h1}>Оставить отзыв</h1>
 
-        {reviewCreateStore.error && <div className={styles.error}>{reviewCreateStore.error}</div>}
+        {reviewCreateStore.error && (
+          <div className={styles.error}>{reviewCreateStore.error}</div>
+        )}
         {reviewCreateStore.loading && <div className={styles.state}>Загружаем...</div>}
 
         {ctx && (
           <>
-            {created ? (<ReviewCard review={created} showThanks />
+            {created ? (
+              <ReviewCard review={created} showThanks />
             ) : (
               <div className={styles.card}>
                 <div className={styles.top}>
@@ -62,7 +63,9 @@ export const LeaveReviewPage = observer(() => {
                         reviewCreateStore.setRating(v);
                       }
                     }}
-                    disabled={reviewCreateStore.submitLoading || reviewCreateStore.submitSuccess}
+                    disabled={
+                      reviewCreateStore.submitLoading || reviewCreateStore.submitSuccess
+                    }
                   />
                 </div>
 
@@ -120,9 +123,7 @@ export const LeaveReviewPage = observer(() => {
                 <div className={styles.textBlock}>
                   <div className={styles.label}>Текстовый отзыв</div>
                   {reviewCreateStore.submitSuccess ? (
-                    <div className={styles.textReadonly}>
-                      {reviewCreateStore.text}
-                    </div>
+                    <div className={styles.textReadonly}>{reviewCreateStore.text}</div>
                   ) : (
                     <textarea
                       className={styles.textarea}
@@ -135,8 +136,12 @@ export const LeaveReviewPage = observer(() => {
                   )}
                 </div>
 
-                {reviewCreateStore.submitError && <div className={styles.error}>{reviewCreateStore.submitError}</div>}
-                {reviewCreateStore.submitSuccess && <div className={styles.success}>Отзыв отправлен.</div>}
+                {reviewCreateStore.submitError && (
+                  <div className={styles.error}>{reviewCreateStore.submitError}</div>
+                )}
+                {reviewCreateStore.submitSuccess && (
+                  <div className={styles.success}>Отзыв отправлен.</div>
+                )}
 
                 <div className={styles.actions}>
                   <button
@@ -147,8 +152,7 @@ export const LeaveReviewPage = observer(() => {
                     }
                     type="button"
                     disabled={
-                      reviewCreateStore.submitLoading ||
-                      reviewCreateStore.submitSuccess
+                      reviewCreateStore.submitLoading || reviewCreateStore.submitSuccess
                     }
                     onClick={() => void reviewCreateStore.submit()}
                   >

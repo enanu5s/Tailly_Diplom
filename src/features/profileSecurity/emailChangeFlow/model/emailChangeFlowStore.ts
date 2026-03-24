@@ -77,7 +77,11 @@ export class EmailChangeFlowStore {
     try {
       const res = await securityService.requestEmailChangeCode();
       runInAction(() => {
-        this.setState({ step: 'confirm', requestId: res.requestId, maskedOldEmail: res.maskedOldEmail });
+        this.setState({
+          step: 'confirm',
+          requestId: res.requestId,
+          maskedOldEmail: res.maskedOldEmail,
+        });
         this.loading = false;
       });
     } catch (e) {
@@ -110,7 +114,11 @@ export class EmailChangeFlowStore {
     this.confirmError = null;
 
     try {
-      await securityService.confirmEmailChange({ requestId: this.state.requestId, code, newEmail });
+      await securityService.confirmEmailChange({
+        requestId: this.state.requestId,
+        code,
+        newEmail,
+      });
       runInAction(() => {
         this.success = true;
         this.setState({ ...this.state, step: 'done' });
@@ -123,7 +131,8 @@ export class EmailChangeFlowStore {
       });
     } catch (e) {
       runInAction(() => {
-        this.confirmError = e instanceof Error ? e.message : 'Не удалось подтвердить смену почты';
+        this.confirmError =
+          e instanceof Error ? e.message : 'Не удалось подтвердить смену почты';
         this.confirmLoading = false;
       });
     }

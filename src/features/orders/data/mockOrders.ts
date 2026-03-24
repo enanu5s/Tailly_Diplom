@@ -4,10 +4,10 @@ import {
   ensureMockDatabaseLoaded,
   patchMockDatabase,
   unsafeMutableMockDb,
-} from "@/shared/mock-db/store";
+} from '@/shared/mock-db/store';
 
-import { buildBulkSyntheticServiceOrders } from "./mockOrdersBulkSeed";
-import { MOCK_PRODUCT_ORDERS_SEED } from "./mockProductOrdersSeed";
+import { buildBulkSyntheticServiceOrders } from './mockOrdersBulkSeed';
+import { MOCK_PRODUCT_ORDERS_SEED } from './mockProductOrdersSeed';
 
 import type {
   CreateServiceOrderPayload,
@@ -16,12 +16,11 @@ import type {
   ServiceOrderReview,
   ServiceOrderSchedule,
   ServicePriceUnit,
-} from "../model/types";
+} from '../model/types';
 
-
-const DEFAULT_CLIENT_ID = "client-1";
-const DEFAULT_CLIENT_NAME = "Елена Смирнова";
-const DEFAULT_CLIENT_SLUG = "client-1";
+const DEFAULT_CLIENT_ID = 'client-1';
+const DEFAULT_CLIENT_NAME = 'Елена Смирнова';
+const DEFAULT_CLIENT_SLUG = 'client-1';
 
 function clone<T>(value: T): T {
   return JSON.parse(JSON.stringify(value)) as T;
@@ -48,17 +47,14 @@ function calculateStayDays(checkInAt: string, checkOutAt: string): number {
   return Math.max(1, Math.ceil(diffMs / (1000 * 60 * 60 * 24)));
 }
 
-function buildLegacyReview(
-  rating?: number,
-  comment?: string,
-): ServiceOrderReview | null {
+function buildLegacyReview(rating?: number, comment?: string): ServiceOrderReview | null {
   if (!rating || rating < 1 || rating > 5) {
     return null;
   }
 
   return {
     rating: rating as 1 | 2 | 3 | 4 | 5,
-    comment: comment?.trim() || "Спасибо за выполненный заказ.",
+    comment: comment?.trim() || 'Спасибо за выполненный заказ.',
     photos: [],
     createdAt: new Date().toISOString(),
     specialistReply: null,
@@ -90,152 +86,152 @@ function generateServiceSeed(): ServiceOrder[] {
 
   return [
     {
-      id: "service-order-pending-1",
+      id: 'service-order-pending-1',
       createdAt: atTime(addDays(now, -1), 12, 15),
       dateFrom: pendingStart,
       dateTo: pendingEnd,
       schedule: {
-        mode: "fixed_slot",
+        mode: 'fixed_slot',
         startAt: pendingStart,
         endAt: pendingEnd,
       },
-      petId: "pet-1",
-      petName: "Марта",
+      petId: 'pet-1',
+      petName: 'Марта',
       clientId: DEFAULT_CLIENT_ID,
       clientName: DEFAULT_CLIENT_NAME,
       clientSlug: DEFAULT_CLIENT_SLUG,
-      sitterId: "specialist-1",
-      sitterName: "Мария Иванова",
-      specialistSlug: "maria-ivanova",
-      status: "pending_confirmation",
-      serviceId: "service-walk-1",
-      serviceTitle: "Прогулка с собакой",
-      servicePriceUnit: "walk",
+      sitterId: 'specialist-1',
+      sitterName: 'Мария Иванова',
+      specialistSlug: 'maria-ivanova',
+      status: 'pending_confirmation',
+      serviceId: 'service-walk-1',
+      serviceTitle: 'Прогулка с собакой',
+      servicePriceUnit: 'walk',
       serviceSnapshot: {
-        id: "service-walk-1",
-        title: "Прогулка с собакой",
-        locationLabel: "На улице рядом с домом клиента",
+        id: 'service-walk-1',
+        title: 'Прогулка с собакой',
+        locationLabel: 'На улице рядом с домом клиента',
         price: 900,
-        priceUnit: "walk",
-        bookingMode: "fixed_slot",
+        priceUnit: 'walk',
+        bookingMode: 'fixed_slot',
       },
-      locationLabel: "На улице рядом с домом клиента",
-      comment: "Пожалуйста, гулять в спокойном темпе и не отпускать с поводка.",
+      locationLabel: 'На улице рядом с домом клиента',
+      comment: 'Пожалуйста, гулять в спокойном темпе и не отпускать с поводка.',
       price: 900,
-      currency: "RUB",
+      currency: 'RUB',
       hasReview: false,
       review: null,
       lifecycle: [
         {
-          status: "pending_confirmation",
+          status: 'pending_confirmation',
           changedAt: atTime(addDays(now, -1), 12, 15),
         },
       ],
     },
     {
-      id: "service-order-confirmed-1",
+      id: 'service-order-confirmed-1',
       createdAt: atTime(addDays(now, -3), 10, 10),
       confirmedAt: atTime(addDays(now, -3), 11, 0),
       dateFrom: confirmedStart,
       dateTo: confirmedEnd,
       schedule: {
-        mode: "time_range",
+        mode: 'time_range',
         startAt: confirmedStart,
         endAt: confirmedEnd,
       },
-      petId: "pet-2",
-      petName: "Пушок",
+      petId: 'pet-2',
+      petName: 'Пушок',
       clientId: DEFAULT_CLIENT_ID,
       clientName: DEFAULT_CLIENT_NAME,
       clientSlug: DEFAULT_CLIENT_SLUG,
-      sitterId: "specialist-1",
-      sitterName: "Мария Иванова",
-      specialistSlug: "maria-ivanova",
-      status: "confirmed",
-      serviceId: "service-photo-1",
-      serviceTitle: "Фотосессия питомца",
-      servicePriceUnit: "service",
+      sitterId: 'specialist-1',
+      sitterName: 'Мария Иванова',
+      specialistSlug: 'maria-ivanova',
+      status: 'confirmed',
+      serviceId: 'service-photo-1',
+      serviceTitle: 'Фотосессия питомца',
+      servicePriceUnit: 'service',
       serviceSnapshot: {
-        id: "service-photo-1",
-        title: "Фотосессия питомца",
-        locationLabel: "На прогулке или дома у клиента",
+        id: 'service-photo-1',
+        title: 'Фотосессия питомца',
+        locationLabel: 'На прогулке или дома у клиента',
         price: 2500,
-        priceUnit: "service",
-        bookingMode: "time_range",
+        priceUnit: 'service',
+        bookingMode: 'time_range',
       },
-      locationLabel: "На прогулке или дома у клиента",
-      comment: "Фотосессия нужна на улице, желательно ближе к закату.",
+      locationLabel: 'На прогулке или дома у клиента',
+      comment: 'Фотосессия нужна на улице, желательно ближе к закату.',
       price: 2500,
-      currency: "RUB",
+      currency: 'RUB',
       hasReview: false,
       review: null,
       lifecycle: [
         {
-          status: "pending_confirmation",
+          status: 'pending_confirmation',
           changedAt: atTime(addDays(now, -3), 10, 10),
         },
         {
-          status: "confirmed",
+          status: 'confirmed',
           changedAt: atTime(addDays(now, -3), 11, 0),
         },
       ],
     },
     {
-      id: "service-order-active-1",
+      id: 'service-order-active-1',
       createdAt: atTime(addDays(now, -1), 14, 20),
       confirmedAt: atTime(addDays(now, -1), 15, 0),
       startedAt: activeCheckIn,
       dateFrom: activeCheckIn,
       dateTo: activeCheckOut,
       schedule: {
-        mode: "multi_day_stay",
+        mode: 'multi_day_stay',
         checkInAt: activeCheckIn,
         checkOutAt: activeCheckOut,
         stayDays: calculateStayDays(activeCheckIn, activeCheckOut),
       },
-      petId: "pet-3",
-      petName: "Снежок",
+      petId: 'pet-3',
+      petName: 'Снежок',
       clientId: DEFAULT_CLIENT_ID,
       clientName: DEFAULT_CLIENT_NAME,
       clientSlug: DEFAULT_CLIENT_SLUG,
-      sitterId: "specialist-1",
-      sitterName: "Мария Иванова",
-      specialistSlug: "maria-ivanova",
-      status: "active",
-      serviceId: "service-boarding-1",
-      serviceTitle: "Передержка у специалиста",
-      servicePriceUnit: "day",
+      sitterId: 'specialist-1',
+      sitterName: 'Мария Иванова',
+      specialistSlug: 'maria-ivanova',
+      status: 'active',
+      serviceId: 'service-boarding-1',
+      serviceTitle: 'Передержка у специалиста',
+      servicePriceUnit: 'day',
       serviceSnapshot: {
-        id: "service-boarding-1",
-        title: "Передержка у специалиста",
-        locationLabel: "У специалиста дома",
+        id: 'service-boarding-1',
+        title: 'Передержка у специалиста',
+        locationLabel: 'У специалиста дома',
         price: 1200,
-        priceUnit: "day",
-        bookingMode: "multi_day_stay",
+        priceUnit: 'day',
+        bookingMode: 'multi_day_stay',
       },
-      locationLabel: "У специалиста дома",
-      comment: "Нужна отдельная тихая зона и привычный корм по расписанию.",
+      locationLabel: 'У специалиста дома',
+      comment: 'Нужна отдельная тихая зона и привычный корм по расписанию.',
       price: 2400,
-      currency: "RUB",
+      currency: 'RUB',
       hasReview: false,
       review: null,
       lifecycle: [
         {
-          status: "pending_confirmation",
+          status: 'pending_confirmation',
           changedAt: atTime(addDays(now, -1), 14, 20),
         },
         {
-          status: "confirmed",
+          status: 'confirmed',
           changedAt: atTime(addDays(now, -1), 15, 0),
         },
         {
-          status: "active",
+          status: 'active',
           changedAt: activeCheckIn,
         },
       ],
     },
     {
-      id: "service-order-completed-1",
+      id: 'service-order-completed-1',
       createdAt: atTime(addDays(now, -7), 10, 0),
       confirmedAt: atTime(addDays(now, -7), 10, 30),
       startedAt: completedStart,
@@ -243,69 +239,69 @@ function generateServiceSeed(): ServiceOrder[] {
       dateFrom: completedStart,
       dateTo: completedEnd,
       schedule: {
-        mode: "fixed_slot",
+        mode: 'fixed_slot',
         startAt: completedStart,
         endAt: completedEnd,
       },
-      petId: "pet-4",
-      petName: "Тиша",
+      petId: 'pet-4',
+      petName: 'Тиша',
       clientId: DEFAULT_CLIENT_ID,
       clientName: DEFAULT_CLIENT_NAME,
       clientSlug: DEFAULT_CLIENT_SLUG,
-      sitterId: "specialist-1",
-      sitterName: "Мария Иванова",
-      specialistSlug: "maria-ivanova",
-      status: "completed",
-      serviceId: "service-visit-1",
-      serviceTitle: "Визит на дом",
-      servicePriceUnit: "visit",
+      sitterId: 'specialist-1',
+      sitterName: 'Мария Иванова',
+      specialistSlug: 'maria-ivanova',
+      status: 'completed',
+      serviceId: 'service-visit-1',
+      serviceTitle: 'Визит на дом',
+      servicePriceUnit: 'visit',
       serviceSnapshot: {
-        id: "service-visit-1",
-        title: "Визит на дом",
-        locationLabel: "У клиента",
+        id: 'service-visit-1',
+        title: 'Визит на дом',
+        locationLabel: 'У клиента',
         price: 1300,
-        priceUnit: "visit",
-        bookingMode: "fixed_slot",
+        priceUnit: 'visit',
+        bookingMode: 'fixed_slot',
       },
-      locationLabel: "У клиента",
-      comment: "Нужно было проверить воду, корм и немного поиграть с питомцем.",
+      locationLabel: 'У клиента',
+      comment: 'Нужно было проверить воду, корм и немного поиграть с питомцем.',
       price: 1300,
-      currency: "RUB",
+      currency: 'RUB',
       rating: 5,
       hasReview: true,
       review: {
         rating: 5,
         comment:
-          "Всё прошло отлично. Специалист приехала вовремя, прислала фото и очень бережно отнеслась к питомцу.",
+          'Всё прошло отлично. Специалист приехала вовремя, прислала фото и очень бережно отнеслась к питомцу.',
         photos: [],
         createdAt: completedEnd,
         specialistReply: {
           comment:
-            "Спасибо большое за отзыв. Тиша был очень спокойным и чудесно пошёл на контакт.",
+            'Спасибо большое за отзыв. Тиша был очень спокойным и чудесно пошёл на контакт.',
           createdAt: atTime(addDays(now, -3), 18, 10),
         },
       },
       lifecycle: [
         {
-          status: "pending_confirmation",
+          status: 'pending_confirmation',
           changedAt: atTime(addDays(now, -7), 10, 0),
         },
         {
-          status: "confirmed",
+          status: 'confirmed',
           changedAt: atTime(addDays(now, -7), 10, 30),
         },
         {
-          status: "active",
+          status: 'active',
           changedAt: completedStart,
         },
         {
-          status: "completed",
+          status: 'completed',
           changedAt: completedEnd,
         },
       ],
     },
     {
-      id: "service-order-completed-anna-1",
+      id: 'service-order-completed-anna-1',
       createdAt: atTime(addDays(now, -19), 11, 0),
       confirmedAt: atTime(addDays(now, -19), 11, 20),
       startedAt: atTime(addDays(now, -18), 14, 0),
@@ -313,68 +309,68 @@ function generateServiceSeed(): ServiceOrder[] {
       dateFrom: atTime(addDays(now, -18), 14, 0),
       dateTo: atTime(addDays(now, -18), 16, 0),
       schedule: {
-        mode: "fixed_slot",
+        mode: 'fixed_slot',
         startAt: atTime(addDays(now, -18), 14, 0),
         endAt: atTime(addDays(now, -18), 16, 0),
       },
-      petId: "pet-profile-anna",
-      petName: "Марта",
-      clientId: "client-anna-1",
-      clientName: "Анна Волкова",
-      clientSlug: "client-anna-1",
-      sitterId: "specialist-1",
-      sitterName: "Мария Иванова",
-      specialistSlug: "maria-ivanova",
-      status: "completed",
-      serviceId: "service-boarding-1",
-      serviceTitle: "Передержка у специалиста",
-      servicePriceUnit: "day",
+      petId: 'pet-profile-anna',
+      petName: 'Марта',
+      clientId: 'client-anna-1',
+      clientName: 'Анна Волкова',
+      clientSlug: 'client-anna-1',
+      sitterId: 'specialist-1',
+      sitterName: 'Мария Иванова',
+      specialistSlug: 'maria-ivanova',
+      status: 'completed',
+      serviceId: 'service-boarding-1',
+      serviceTitle: 'Передержка у специалиста',
+      servicePriceUnit: 'day',
       serviceSnapshot: {
-        id: "service-boarding-1",
-        title: "Передержка у специалиста",
-        locationLabel: "У специалиста дома",
+        id: 'service-boarding-1',
+        title: 'Передержка у специалиста',
+        locationLabel: 'У специалиста дома',
         price: 1200,
-        priceUnit: "day",
-        bookingMode: "fixed_slot",
+        priceUnit: 'day',
+        bookingMode: 'fixed_slot',
       },
-      locationLabel: "У специалиста дома",
-      comment: "Короткая передержка на выходные.",
+      locationLabel: 'У специалиста дома',
+      comment: 'Короткая передержка на выходные.',
       price: 2400,
-      currency: "RUB",
+      currency: 'RUB',
       rating: 5,
       hasReview: true,
       review: {
         rating: 5,
         comment:
-          "Очень тёплый и бережный подход. Кошка быстро привыкла, отчёты были каждый день.",
+          'Очень тёплый и бережный подход. Кошка быстро привыкла, отчёты были каждый день.',
         photos: [],
-        createdAt: "2026-02-19T12:00:00.000Z",
+        createdAt: '2026-02-19T12:00:00.000Z',
         specialistReply: {
-          comment: "Анна, спасибо большое за доверие. Марта чудесная.",
-          createdAt: "2026-02-19T15:00:00.000Z",
+          comment: 'Анна, спасибо большое за доверие. Марта чудесная.',
+          createdAt: '2026-02-19T15:00:00.000Z',
         },
       },
       lifecycle: [
         {
-          status: "pending_confirmation",
+          status: 'pending_confirmation',
           changedAt: atTime(addDays(now, -19), 11, 0),
         },
         {
-          status: "confirmed",
+          status: 'confirmed',
           changedAt: atTime(addDays(now, -19), 11, 20),
         },
         {
-          status: "active",
+          status: 'active',
           changedAt: atTime(addDays(now, -18), 14, 0),
         },
         {
-          status: "completed",
+          status: 'completed',
           changedAt: atTime(addDays(now, -18), 16, 0),
         },
       ],
     },
     {
-      id: "service-order-completed-kirill-1",
+      id: 'service-order-completed-kirill-1',
       createdAt: atTime(addDays(now, -12), 9, 30),
       confirmedAt: atTime(addDays(now, -12), 10, 0),
       startedAt: atTime(addDays(now, -11), 15, 0),
@@ -382,65 +378,64 @@ function generateServiceSeed(): ServiceOrder[] {
       dateFrom: atTime(addDays(now, -11), 15, 0),
       dateTo: atTime(addDays(now, -11), 16, 30),
       schedule: {
-        mode: "time_range",
+        mode: 'time_range',
         startAt: atTime(addDays(now, -11), 15, 0),
         endAt: atTime(addDays(now, -11), 16, 30),
       },
-      petId: "pet-profile-kirill",
-      petName: "Пушок",
-      clientId: "client-kirill-1",
-      clientName: "Кирилл Лебедев",
-      clientSlug: "client-kirill-1",
-      sitterId: "specialist-1",
-      sitterName: "Мария Иванова",
-      specialistSlug: "maria-ivanova",
-      status: "completed",
-      serviceId: "service-photo-1",
-      serviceTitle: "Фотосессия питомца",
-      servicePriceUnit: "service",
+      petId: 'pet-profile-kirill',
+      petName: 'Пушок',
+      clientId: 'client-kirill-1',
+      clientName: 'Кирилл Лебедев',
+      clientSlug: 'client-kirill-1',
+      sitterId: 'specialist-1',
+      sitterName: 'Мария Иванова',
+      specialistSlug: 'maria-ivanova',
+      status: 'completed',
+      serviceId: 'service-photo-1',
+      serviceTitle: 'Фотосессия питомца',
+      servicePriceUnit: 'service',
       serviceSnapshot: {
-        id: "service-photo-1",
-        title: "Фотосессия питомца",
-        locationLabel: "На прогулке или дома у клиента",
+        id: 'service-photo-1',
+        title: 'Фотосессия питомца',
+        locationLabel: 'На прогулке или дома у клиента',
         price: 2500,
-        priceUnit: "service",
-        bookingMode: "time_range",
+        priceUnit: 'service',
+        bookingMode: 'time_range',
       },
-      locationLabel: "На прогулке или дома у клиента",
-      comment: "Съёмка в парке.",
+      locationLabel: 'На прогулке или дома у клиента',
+      comment: 'Съёмка в парке.',
       price: 2500,
-      currency: "RUB",
+      currency: 'RUB',
       rating: 5,
       hasReview: true,
       review: {
         rating: 5,
-        comment:
-          "Очень понравился подход. Всё чётко по рекомендациям, всегда на связи.",
+        comment: 'Очень понравился подход. Всё чётко по рекомендациям, всегда на связи.',
         photos: [],
-        createdAt: "2026-02-10T11:00:00.000Z",
+        createdAt: '2026-02-10T11:00:00.000Z',
         specialistReply: null,
       },
       lifecycle: [
         {
-          status: "pending_confirmation",
+          status: 'pending_confirmation',
           changedAt: atTime(addDays(now, -12), 9, 30),
         },
         {
-          status: "confirmed",
+          status: 'confirmed',
           changedAt: atTime(addDays(now, -12), 10, 0),
         },
         {
-          status: "active",
+          status: 'active',
           changedAt: atTime(addDays(now, -11), 15, 0),
         },
         {
-          status: "completed",
+          status: 'completed',
           changedAt: atTime(addDays(now, -11), 16, 30),
         },
       ],
     },
     {
-      id: "service-order-completed-elena-1",
+      id: 'service-order-completed-elena-1',
       createdAt: atTime(addDays(now, -30), 8, 0),
       confirmedAt: atTime(addDays(now, -30), 8, 40),
       startedAt: atTime(addDays(now, -28), 12, 0),
@@ -448,7 +443,7 @@ function generateServiceSeed(): ServiceOrder[] {
       dateFrom: atTime(addDays(now, -28), 12, 0),
       dateTo: atTime(addDays(now, -26), 11, 0),
       schedule: {
-        mode: "multi_day_stay",
+        mode: 'multi_day_stay',
         checkInAt: atTime(addDays(now, -28), 12, 0),
         checkOutAt: atTime(addDays(now, -26), 11, 0),
         stayDays: calculateStayDays(
@@ -456,110 +451,110 @@ function generateServiceSeed(): ServiceOrder[] {
           atTime(addDays(now, -26), 11, 0),
         ),
       },
-      petId: "pet-profile-elena",
-      petName: "Снежок",
+      petId: 'pet-profile-elena',
+      petName: 'Снежок',
       clientId: DEFAULT_CLIENT_ID,
       clientName: DEFAULT_CLIENT_NAME,
       clientSlug: DEFAULT_CLIENT_SLUG,
-      sitterId: "specialist-1",
-      sitterName: "Мария Иванова",
-      specialistSlug: "maria-ivanova",
-      status: "completed",
-      serviceId: "service-boarding-1",
-      serviceTitle: "Передержка у специалиста",
-      servicePriceUnit: "day",
+      sitterId: 'specialist-1',
+      sitterName: 'Мария Иванова',
+      specialistSlug: 'maria-ivanova',
+      status: 'completed',
+      serviceId: 'service-boarding-1',
+      serviceTitle: 'Передержка у специалиста',
+      servicePriceUnit: 'day',
       serviceSnapshot: {
-        id: "service-boarding-1",
-        title: "Передержка у специалиста",
-        locationLabel: "У специалиста дома",
+        id: 'service-boarding-1',
+        title: 'Передержка у специалиста',
+        locationLabel: 'У специалиста дома',
         price: 1200,
-        priceUnit: "day",
-        bookingMode: "multi_day_stay",
+        priceUnit: 'day',
+        bookingMode: 'multi_day_stay',
       },
-      locationLabel: "У специалиста дома",
-      comment: "Длительная передержка.",
+      locationLabel: 'У специалиста дома',
+      comment: 'Длительная передержка.',
       price: 3600,
-      currency: "RUB",
+      currency: 'RUB',
       rating: 5,
       hasReview: true,
       review: {
         rating: 5,
         comment:
-          "Передержка прошла идеально. Место чистое, рекомендации соблюдены полностью.",
+          'Передержка прошла идеально. Место чистое, рекомендации соблюдены полностью.',
         photos: [],
-        createdAt: "2026-01-27T10:00:00.000Z",
+        createdAt: '2026-01-27T10:00:00.000Z',
         specialistReply: {
-          comment: "Елена, спасибо. Буду рада помочь снова.",
-          createdAt: "2026-01-28T09:00:00.000Z",
+          comment: 'Елена, спасибо. Буду рада помочь снова.',
+          createdAt: '2026-01-28T09:00:00.000Z',
         },
       },
       lifecycle: [
         {
-          status: "pending_confirmation",
+          status: 'pending_confirmation',
           changedAt: atTime(addDays(now, -30), 8, 0),
         },
         {
-          status: "confirmed",
+          status: 'confirmed',
           changedAt: atTime(addDays(now, -30), 8, 40),
         },
         {
-          status: "active",
+          status: 'active',
           changedAt: atTime(addDays(now, -28), 12, 0),
         },
         {
-          status: "completed",
+          status: 'completed',
           changedAt: atTime(addDays(now, -26), 11, 0),
         },
       ],
     },
     {
-      id: "service-order-canceled-1",
+      id: 'service-order-canceled-1',
       createdAt: atTime(addDays(now, -5), 18, 0),
       canceledAt: atTime(canceledDay, 9, 0),
       dateFrom: atTime(addDays(now, 1), 18, 0),
       dateTo: undefined,
       schedule: {
-        mode: "open_request",
+        mode: 'open_request',
         requestedDate: canceledRequestedDate,
-        requestedStartTime: "18:00",
-        requestedEndTime: "18:30",
+        requestedStartTime: '18:00',
+        requestedEndTime: '18:30',
       },
-      petId: "pet-5",
-      petName: "Ричи",
+      petId: 'pet-5',
+      petName: 'Ричи',
       clientId: DEFAULT_CLIENT_ID,
       clientName: DEFAULT_CLIENT_NAME,
       clientSlug: DEFAULT_CLIENT_SLUG,
-      sitterId: "specialist-1",
-      sitterName: "Мария Иванова",
-      specialistSlug: "maria-ivanova",
-      status: "canceled",
-      serviceId: "service-consult-1",
-      serviceTitle: "Онлайн-консультация",
-      servicePriceUnit: "service",
+      sitterId: 'specialist-1',
+      sitterName: 'Мария Иванова',
+      specialistSlug: 'maria-ivanova',
+      status: 'canceled',
+      serviceId: 'service-consult-1',
+      serviceTitle: 'Онлайн-консультация',
+      servicePriceUnit: 'service',
       serviceSnapshot: {
-        id: "service-consult-1",
-        title: "Онлайн-консультация",
-        locationLabel: "Онлайн",
+        id: 'service-consult-1',
+        title: 'Онлайн-консультация',
+        locationLabel: 'Онлайн',
         price: 700,
-        priceUnit: "service",
-        bookingMode: "open_request",
+        priceUnit: 'service',
+        bookingMode: 'open_request',
       },
-      locationLabel: "Онлайн",
+      locationLabel: 'Онлайн',
       comment:
-        "Хотел обсудить адаптацию питомца после переезда, но перенесли из-за изменения графика.",
+        'Хотел обсудить адаптацию питомца после переезда, но перенесли из-за изменения графика.',
       price: 700,
-      currency: "RUB",
+      currency: 'RUB',
       hasReview: false,
       review: null,
       lifecycle: [
         {
-          status: "pending_confirmation",
+          status: 'pending_confirmation',
           changedAt: atTime(addDays(now, -5), 18, 0),
         },
         {
-          status: "canceled",
+          status: 'canceled',
           changedAt: atTime(canceledDay, 9, 0),
-          comment: "Отменено клиентом.",
+          comment: 'Отменено клиентом.',
         },
       ],
     },
@@ -580,36 +575,36 @@ type LegacyServiceOrder = Partial<ServiceOrder> & {
 };
 
 function inferLegacySchedule(order: LegacyServiceOrder): ServiceOrderSchedule {
-  const title = (order.serviceTitle ?? "").toLowerCase();
+  const title = (order.serviceTitle ?? '').toLowerCase();
 
-  if (title.includes("передерж")) {
+  if (title.includes('передерж')) {
     const checkInAt = order.dateFrom ?? new Date().toISOString();
     const checkOutAt =
       order.dateTo ?? new Date(Date.now() + 24 * 60 * 60 * 1000).toISOString();
 
     return {
-      mode: "multi_day_stay",
+      mode: 'multi_day_stay',
       checkInAt,
       checkOutAt,
       stayDays: calculateStayDays(checkInAt, checkOutAt),
     };
   }
 
-  if (title.includes("консульта")) {
+  if (title.includes('консульта')) {
     return {
-      mode: "open_request",
+      mode: 'open_request',
       requestedDate: order.dateFrom?.slice(0, 10),
       requestedStartTime: order.dateFrom
-        ? new Date(order.dateFrom).toLocaleTimeString("en-GB", {
-            hour: "2-digit",
-            minute: "2-digit",
+        ? new Date(order.dateFrom).toLocaleTimeString('en-GB', {
+            hour: '2-digit',
+            minute: '2-digit',
             hour12: false,
           })
         : undefined,
       requestedEndTime: order.dateTo
-        ? new Date(order.dateTo).toLocaleTimeString("en-GB", {
-            hour: "2-digit",
-            minute: "2-digit",
+        ? new Date(order.dateTo).toLocaleTimeString('en-GB', {
+            hour: '2-digit',
+            minute: '2-digit',
             hour12: false,
           })
         : undefined,
@@ -618,14 +613,14 @@ function inferLegacySchedule(order: LegacyServiceOrder): ServiceOrderSchedule {
 
   if (order.dateFrom && order.dateTo) {
     return {
-      mode: "fixed_slot",
+      mode: 'fixed_slot',
       startAt: order.dateFrom,
       endAt: order.dateTo,
     };
   }
 
   return {
-    mode: "open_request",
+    mode: 'open_request',
     requestedDate: order.dateFrom?.slice(0, 10),
   };
 }
@@ -635,28 +630,26 @@ function normalizeReview(raw: LegacyServiceOrder): ServiceOrderReview | null {
     const review = raw.review as Partial<ServiceOrderReview>;
 
     if (
-      typeof review.rating === "number" &&
+      typeof review.rating === 'number' &&
       review.rating >= 1 &&
       review.rating <= 5 &&
-      typeof review.comment === "string"
+      typeof review.comment === 'string'
     ) {
       return {
         rating: review.rating as 1 | 2 | 3 | 4 | 5,
         comment: review.comment,
         photos: Array.isArray(review.photos)
-          ? review.photos.filter(
-              (item): item is string => typeof item === "string",
-            )
+          ? review.photos.filter((item): item is string => typeof item === 'string')
           : [],
         createdAt:
-          typeof review.createdAt === "string"
+          typeof review.createdAt === 'string'
             ? review.createdAt
             : new Date().toISOString(),
         specialistReply:
           review.specialistReply &&
-          typeof review.specialistReply === "object" &&
-          typeof review.specialistReply.comment === "string" &&
-          typeof review.specialistReply.createdAt === "string"
+          typeof review.specialistReply === 'object' &&
+          typeof review.specialistReply.comment === 'string' &&
+          typeof review.specialistReply.createdAt === 'string'
             ? {
                 comment: review.specialistReply.comment,
                 createdAt: review.specialistReply.createdAt,
@@ -687,28 +680,28 @@ function migrateLegacyOrder(raw: LegacyServiceOrder): ServiceOrder | null {
     !raw.serviceTitle ||
     !raw.servicePriceUnit ||
     !raw.locationLabel ||
-    typeof raw.price !== "number"
+    typeof raw.price !== 'number'
   ) {
     return null;
   }
 
   const schedule =
-    raw.schedule && typeof raw.schedule === "object"
+    raw.schedule && typeof raw.schedule === 'object'
       ? (raw.schedule as ServiceOrderSchedule)
       : inferLegacySchedule(raw);
 
   const normalizedReview = normalizeReview(raw);
 
   const clientId =
-    typeof raw.clientId === "string" && raw.clientId.trim()
+    typeof raw.clientId === 'string' && raw.clientId.trim()
       ? raw.clientId.trim()
       : DEFAULT_CLIENT_ID;
   const clientName =
-    typeof raw.clientName === "string" && raw.clientName.trim()
+    typeof raw.clientName === 'string' && raw.clientName.trim()
       ? raw.clientName.trim()
       : DEFAULT_CLIENT_NAME;
   const clientSlug =
-    typeof raw.clientSlug === "string" && raw.clientSlug.trim()
+    typeof raw.clientSlug === 'string' && raw.clientSlug.trim()
       ? raw.clientSlug.trim()
       : clientId;
 
@@ -745,7 +738,7 @@ function migrateLegacyOrder(raw: LegacyServiceOrder): ServiceOrder | null {
     locationLabel: raw.locationLabel,
     comment: raw.comment,
     price: raw.price,
-    currency: raw.currency ?? "RUB",
+    currency: raw.currency ?? 'RUB',
     rating: normalizedReview?.rating ?? raw.rating,
     hasReview: Boolean(raw.hasReview || normalizedReview),
     review: normalizedReview,
@@ -781,7 +774,7 @@ function ensureServiceOrdersInitialized(): void {
 }
 
 function readStorage(): ServiceOrder[] {
-  if (typeof window === "undefined") {
+  if (typeof window === 'undefined') {
     return clone(generateServiceSeed());
   }
 
@@ -800,7 +793,7 @@ function readStorage(): ServiceOrder[] {
 }
 
 function writeStorage(list: ServiceOrder[]): void {
-  if (typeof window === "undefined") {
+  if (typeof window === 'undefined') {
     return;
   }
 
@@ -821,9 +814,7 @@ export function getMockServiceOrderById(orderId: string): ServiceOrder | null {
   return readStorage().find((item) => item.id === orderId) ?? null;
 }
 
-export function createMockServiceOrder(
-  payload: CreateServiceOrderPayload,
-): ServiceOrder {
+export function createMockServiceOrder(payload: CreateServiceOrderPayload): ServiceOrder {
   const now = new Date().toISOString();
 
   const nextOrder: ServiceOrder = {
@@ -840,7 +831,7 @@ export function createMockServiceOrder(
     sitterId: payload.sitterId,
     sitterName: payload.sitterName,
     specialistSlug: payload.specialistSlug,
-    status: "pending_confirmation",
+    status: 'pending_confirmation',
     serviceId: payload.serviceId,
     serviceTitle: payload.serviceTitle,
     servicePriceUnit: payload.servicePriceUnit,
@@ -860,7 +851,7 @@ export function createMockServiceOrder(
     review: null,
     lifecycle: [
       {
-        status: "pending_confirmation",
+        status: 'pending_confirmation',
         changedAt: now,
       },
     ],
@@ -880,7 +871,7 @@ export function updateMockServiceOrder(
   const index = current.findIndex((item) => item.id === orderId);
 
   if (index === -1) {
-    throw new Error("Заказ не найден.");
+    throw new Error('Заказ не найден.');
   }
 
   const updated: ServiceOrder = {

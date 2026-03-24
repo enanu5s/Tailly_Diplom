@@ -4,7 +4,6 @@ export { ordersStore } from './model';
 export { OrdersServicesSection, OrdersProductsSection } from './ui';
 export { RepeatProductOrderButton } from './ui/RepeatProductOrderButton';
 
-
 export type {
   CancelOrderResult,
   CompleteOrderResult,

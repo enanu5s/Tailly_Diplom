@@ -11,38 +11,33 @@ import {
 import type { Order, PickupPoint } from '../model/types';
 
 export const shopOrderService = {
-    async getPickupPoints(city?: string): Promise<PickupPoint[]> {
-        return shopOrderApi.getPickupPoints(city);
-    },
+  async getPickupPoints(city?: string): Promise<PickupPoint[]> {
+    return shopOrderApi.getPickupPoints(city);
+  },
 
-    async createOrder(payload: CreateOrderPayload): Promise<Order> {
-        const user = authStore.getState().user;
+  async createOrder(payload: CreateOrderPayload): Promise<Order> {
+    const user = authStore.getState().user;
 
-        if (!canOrderShopProducts(user)) {
-            throw new Error(
-                'Оформление заказов в магазине доступно только клиентам и специалистам.',
-            );
-        }
+    if (!canOrderShopProducts(user)) {
+      throw new Error(
+        'Оформление заказов в магазине доступно только клиентам и специалистам.',
+      );
+    }
 
-        return shopOrderApi.createOrder(payload);
-    },
+    return shopOrderApi.createOrder(payload);
+  },
 
-    async getOrderById(orderId: string): Promise<Order | null> {
-        return shopOrderApi.getOrderById(orderId);
-    },
+  async getOrderById(orderId: string): Promise<Order | null> {
+    return shopOrderApi.getOrderById(orderId);
+  },
 
-    async payShopOrder(
-        orderId: string,
-        payload: PayShopOrderPayload,
-    ): Promise<Order> {
-        const user = authStore.getState().user;
+  async payShopOrder(orderId: string, payload: PayShopOrderPayload): Promise<Order> {
+    const user = authStore.getState().user;
 
-        if (!canOrderShopProducts(user)) {
-            throw new Error(
-                'Оплата заказа доступна только клиентам и специалистам.',
-            );
-        }
+    if (!canOrderShopProducts(user)) {
+      throw new Error('Оплата заказа доступна только клиентам и специалистам.');
+    }
 
-        return shopOrderApi.payShopOrder(orderId, payload);
-    },
+    return shopOrderApi.payShopOrder(orderId, payload);
+  },
 };

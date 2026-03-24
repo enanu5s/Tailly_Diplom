@@ -1,17 +1,16 @@
 // src/pages/login/ui/LoginPage.tsx
 
-import { observer } from "mobx-react-lite";
-import { useEffect, useMemo, useSyncExternalStore } from "react";
-import { Link, useLocation, useSearchParams } from "react-router-dom";
+import { observer } from 'mobx-react-lite';
+import { useEffect, useMemo, useSyncExternalStore } from 'react';
+import { Link, useLocation, useSearchParams } from 'react-router-dom';
 
+import { authStore, loginStore } from '@/features/auth';
+import { getDefaultAuthorizedRoute } from '@/shared/lib/auth';
+import { useAppNavigate } from '@/shared/lib/navigation/useAppNavigate';
 
-import { authStore, loginStore } from "@/features/auth";
-import { getDefaultAuthorizedRoute } from "@/shared/lib/auth";
-import { useAppNavigate } from "@/shared/lib/navigation/useAppNavigate";
+import styles from './LoginPage.module.css';
 
-import styles from "./LoginPage.module.css";
-
-import type { FormEvent, ReactElement } from "react";
+import type { FormEvent, ReactElement } from 'react';
 
 type LocationState = {
   from?: string;
@@ -19,7 +18,7 @@ type LocationState = {
 
 function getRedirectFromQuery(search: string): string | null {
   const searchParams = new URLSearchParams(search);
-  const from = searchParams.get("from");
+  const from = searchParams.get('from');
 
   if (!from) {
     return null;
@@ -27,7 +26,7 @@ function getRedirectFromQuery(search: string): string | null {
 
   const normalizedFrom = from.trim();
 
-  if (!normalizedFrom.startsWith("/")) {
+  if (!normalizedFrom.startsWith('/')) {
     return null;
   }
 
@@ -38,10 +37,7 @@ export const LoginPage = observer((): ReactElement => {
   const navigate = useAppNavigate();
   const location = useLocation();
   const [searchParams] = useSearchParams();
-  const authState = useSyncExternalStore(
-    authStore.subscribe,
-    authStore.getState
-  );
+  const authState = useSyncExternalStore(authStore.subscribe, authStore.getState);
 
   const state = (location.state ?? null) as LocationState | null;
 
@@ -50,12 +46,12 @@ export const LoginPage = observer((): ReactElement => {
   }, [location.search]);
 
   const accountFlowNotice = useMemo(() => {
-    if (searchParams.get("accountDeletion") === "scheduled") {
-      return "Аккаунт запланирован к удалению. Проверьте почту: там ссылка для восстановления до указанной даты.";
+    if (searchParams.get('accountDeletion') === 'scheduled') {
+      return 'Аккаунт запланирован к удалению. Проверьте почту: там ссылка для восстановления до указанной даты.';
     }
 
-    if (searchParams.get("accountRestored") === "1") {
-      return "Аккаунт восстановлен. Вы можете войти с прежним паролем.";
+    if (searchParams.get('accountRestored') === '1') {
+      return 'Аккаунт восстановлен. Вы можете войти с прежним паролем.';
     }
 
     return null;
@@ -69,9 +65,7 @@ export const LoginPage = observer((): ReactElement => {
     }
   }, [authState.user, navigate]);
 
-  const handleSubmit = async (
-    event: FormEvent<HTMLFormElement>
-  ): Promise<void> => {
+  const handleSubmit = async (event: FormEvent<HTMLFormElement>): Promise<void> => {
     event.preventDefault();
 
     const success = await loginStore.submit();
@@ -81,10 +75,10 @@ export const LoginPage = observer((): ReactElement => {
     }
 
     const nextUser = authStore.getState().user;
-    const wasLogout = sessionStorage.getItem("tailly_logged_out") === "1";
+    const wasLogout = sessionStorage.getItem('tailly_logged_out') === '1';
 
     if (wasLogout) {
-      sessionStorage.removeItem("tailly_logged_out");
+      sessionStorage.removeItem('tailly_logged_out');
 
       navigate(getDefaultAuthorizedRoute(nextUser), {
         replace: true,
@@ -103,11 +97,7 @@ export const LoginPage = observer((): ReactElement => {
   return (
     <section className={styles.page}>
       <div className={styles.container}>
-        <button
-          className={styles.backButton}
-          type="button"
-          onClick={() => navigate("/")}
-        >
+        <button className={styles.backButton} type="button" onClick={() => navigate('/')}>
           ← Назад
         </button>
 
@@ -118,8 +108,7 @@ export const LoginPage = observer((): ReactElement => {
             <h1 className={styles.title}>Вход в аккаунт</h1>
 
             <p className={styles.subtitle}>
-              Клиенты, специалисты и администраторы входят через единую форму
-              авторизации.
+              Клиенты, специалисты и администраторы входят через единую форму авторизации.
             </p>
           </div>
 
@@ -166,8 +155,7 @@ export const LoginPage = observer((): ReactElement => {
             {loginStore.failedAttemptsLeft !== null &&
             loginStore.failedAttemptsLeft > 0 ? (
               <div className={styles.attempts}>
-                Осталось попыток для администратора:{" "}
-                {loginStore.failedAttemptsLeft}
+                Осталось попыток для администратора: {loginStore.failedAttemptsLeft}
               </div>
             ) : null}
 
@@ -184,14 +172,14 @@ export const LoginPage = observer((): ReactElement => {
               type="submit"
               disabled={!loginStore.canSubmit}
             >
-              {loginStore.isSubmitting ? "Выполняется вход..." : "Войти"}
+              {loginStore.isSubmitting ? 'Выполняется вход...' : 'Войти'}
             </button>
 
             <div className={styles.links}>
               <button
                 className={styles.linkButton}
                 type="button"
-                onClick={() => navigate("/forgot-password")}
+                onClick={() => navigate('/forgot-password')}
               >
                 Восстановить пароль
               </button>
@@ -206,19 +194,13 @@ export const LoginPage = observer((): ReactElement => {
             <div className={styles.demoTitle}>Тестовые аккаунты</div>
 
             <div className={styles.demoList}>
-              <div className={styles.demoItem}>
-                client@tailly.local / 123456
-              </div>
+              <div className={styles.demoItem}>client@tailly.local / 123456</div>
 
-              <div className={styles.demoItem}>
-                specialist@tailly.local / 123456
-              </div>
+              <div className={styles.demoItem}>specialist@tailly.local / 123456</div>
 
               <div className={styles.demoItem}>admin@tailly.local / 123456</div>
 
-              <div className={styles.demoItem}>
-                superadmin@tailly.local / 123456
-              </div>
+              <div className={styles.demoItem}>superadmin@tailly.local / 123456</div>
             </div>
           </div>
         </div>
