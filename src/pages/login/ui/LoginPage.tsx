@@ -67,6 +67,19 @@ export const LoginPage = observer((): ReactElement => {
     }
 
     const nextUser = authStore.getState().user;
+    const wasLogout = sessionStorage.getItem("tailly_logged_out") === "1";
+
+    if (wasLogout) {
+      sessionStorage.removeItem("tailly_logged_out");
+
+      navigate(getDefaultAuthorizedRoute(nextUser), {
+        replace: true,
+        preserveRouteMemory: false,
+      });
+
+      return;
+    }
+
     const redirectPath =
       state?.from ?? redirectFromQuery ?? getDefaultAuthorizedRoute(nextUser);
 

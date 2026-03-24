@@ -1,5 +1,7 @@
 // src/features/auth/model/authStore.ts
 
+import { clearLastRoute } from "@/shared/lib/navigation/persistedLastRoute";
+
 export type UserRole =
   | "guest"
   | "client"
@@ -202,10 +204,14 @@ export const authStore = {
       token: null,
       user: null,
     };
-
+  
     localStorage.removeItem(TOKEN_KEY);
     localStorage.removeItem(USER_KEY);
-
+  
+    sessionStorage.setItem('tailly_logged_out', '1');
+    
+    clearLastRoute();
+  
     emit();
-  },
+  }
 };

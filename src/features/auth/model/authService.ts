@@ -1,4 +1,4 @@
-// /src/features/auth/model/authService.ts
+// src/features/auth/service/authService.ts
 import { authStore } from './authStore';
 import { authApi } from '../api/authApi';
 
@@ -13,5 +13,15 @@ export const authService = {
 
   logout() {
     authStore.logout();
+  },
+
+  buildLoginRedirectPath(from?: string): string {
+    const normalizedFrom = typeof from === 'string' ? from.trim() : '';
+
+    if (!normalizedFrom || normalizedFrom === '/login') {
+      return '/login';
+    }
+
+    return `/login?from=${encodeURIComponent(normalizedFrom)}`;
   },
 };

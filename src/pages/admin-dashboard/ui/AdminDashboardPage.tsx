@@ -102,7 +102,10 @@ export function AdminDashboardPage(): ReactElement {
             onClick={() => {
               adminProfileStore.reset();
               authStore.logout();
-              navigate("/login", { replace: true });
+              navigate("/login", {
+                replace: true,
+                preserveRouteMemory: false,
+              });
             }}
           >
             Выйти
