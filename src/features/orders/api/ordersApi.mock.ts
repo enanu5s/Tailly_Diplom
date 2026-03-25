@@ -2,14 +2,17 @@
 
 import { authStore } from '@/features/auth/model/authStore';
 import { isClientBlockedFromBookingOwnSpecialist } from '@/shared/lib/auth/roleAccess';
-import { assertCurrentUserOwnsMockShopOrder } from '@/features/shop/api/shopOrderApi.mock';
-import { readStoredOrders, writeStoredOrders } from '@/features/shop/data/mockShopOrders';
+import { mockCancelOrder } from '@/features/shop/api/shopOrderApi.mock';
 import {
   MOCK_SPECIALIST_PROFILES,
+  cloneProfile,
   findProfileIndexBySlug,
 } from '@/features/specialist-profile/data/mockSpecialistProfiles';
 import { computeSpecialistStats } from '@/features/specialist-profile/lib/computeSpecialistStats';
-import { syncMockSpecialistListingStatsFromProfile } from '@/features/specialists-search/data/mockSpecialists';
+import {
+  syncMockSpecialistCalendarSlotsFromProfile,
+  syncMockSpecialistListingStatsFromProfile,
+} from '@/features/specialists-search/data/mockSpecialists';
 import type {
   SpecialistCalendarBookedSlot,
   SpecialistReview,
@@ -18,7 +21,6 @@ import type {
 import {
   notifyServiceOrderCreated,
   notifyServiceOrderStatusChanged,
-  notifyShopOrderEvent,
 } from '@/shared/lib/emailNotifications';
 
 import {
@@ -757,6 +759,8 @@ function syncBookedSlotsForOrder(order: ServiceOrder): void {
   });
 
   MOCK_SPECIALIST_PROFILES[profileIndex].calendar.bookedSlots = clone(nextSlots);
+
+  syncSearchCalendarSlotsForSpecialist(order.specialistSlug);
 }
 
 function removeBookedSlotsForOrder(order: ServiceOrder): void {
@@ -764,6 +768,32 @@ function removeBookedSlotsForOrder(order: ServiceOrder): void {
 
   MOCK_SPECIALIST_PROFILES[profileIndex].calendar.bookedSlots =
     profile.calendar.bookedSlots.filter((slot) => slot.orderId !== order.id);
+
+  syncSearchCalendarSlotsForSpecialist(order.specialistSlug);
+}
+
+/** Карточки поиска (`MOCK_SPECIALISTS.calendarSlots`) читают занятость из того же календаря. */
+function syncSearchCalendarSlotsForSpecialist(specialistSlug: string): void {
+  const { profile } = getSpecialistProfileOrThrow(specialistSlug);
+  syncMockSpecialistCalendarSlotsFromProfile(cloneProfile(profile));
+}
+
+/** Снимок stats в профиле + рейтинг/число отзывов в списке поиска. */
+function syncSpecialistProfileStoredStats(specialistSlug: string): void {
+  const { profileIndex, profile } = getSpecialistProfileOrThrow(specialistSlug);
+  const nextStats = computeSpecialistStats({
+    id: profile.id,
+    slug: profile.slug,
+    experienceYears: profile.stats.experienceYears,
+    reviews: profile.reviews,
+  });
+
+  MOCK_SPECIALIST_PROFILES[profileIndex] = {
+    ...profile,
+    stats: nextStats,
+  };
+
+  syncMockSpecialistListingStatsFromProfile(MOCK_SPECIALIST_PROFILES[profileIndex]);
 }
 
 function appendLifecycleStatus(
@@ -964,6 +994,8 @@ export async function mockCompleteServiceOrder(
   });
   notifyServiceOrderStatusChanged(updated, previousStatus);
 
+  syncSpecialistProfileStoredStats(existing.specialistSlug);
+
   return { ok: true };
 }
 
@@ -1024,34 +1056,7 @@ export async function mockCancelProductOrder(
 ): Promise<CancelOrderResult> {
   await wait();
 
-  const orders = readStoredOrders();
-  const index = orders.findIndex((item) => item.id === orderId);
-
-  if (index === -1) {
-    throw new Error('Заказ не найден.');
-  }
-
-  const current = orders[index];
-
-  assertCurrentUserOwnsMockShopOrder(current);
-
-  if (!current.canBeCancelled) {
-    throw new Error('Этот заказ уже нельзя отменить.');
-  }
-
-  if (current.status !== 'created' && current.status !== 'paid') {
-    throw new Error('Этот заказ уже нельзя отменить.');
-  }
-
-  orders[index] = {
-    ...current,
-    status: 'cancelled',
-    canBeCancelled: false,
-  };
-
-  writeStoredOrders(orders);
-
-  notifyShopOrderEvent({ order: orders[index], event: 'cancelled' });
+  await mockCancelOrder(orderId);
 
   return { ok: true };
 }

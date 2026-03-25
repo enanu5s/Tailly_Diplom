@@ -145,6 +145,8 @@
   padding: 10px 14px;
   border-radius: 14px;
   text-decoration: none;
+  font-size: 13px;
+  font-weight: 600;
 }
 
 .thanksBottom {
@@ -195,4 +197,36 @@
 .arrowsReserve {
   height: 40px; /* ровно под твои стрелки + margin */
   margin-top: 10px;
+}
+
+.cardLanding {
+  border: 1px solid rgba(30, 30, 30, 0.08);
+  box-shadow: 0 16px 42px rgba(62, 47, 38, 0.08);
+  height: auto;
+  min-height: 220px;
+  max-height: 280px;
+}
+
+.cardLanding .primaryBtn {
+  background: #a9c400;
+  color: #1e1e1e;
+  border-radius: 18px;
+  padding: 10px 16px;
+}
+
+.cardLanding .primaryBtn:hover {
+  filter: brightness(1.05);
+}
+
+.cardLanding .stars {
+  color: #ffb700;
+  letter-spacing: 1px;
+}
+
+.cardLanding .link {
+  color: #3d5a1f;
+}
+
+.cardLanding .serviceTitle {
+  font-weight: 600;
 }

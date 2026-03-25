@@ -11,6 +11,10 @@ import {
   readStoredOrders,
   writeStoredOrders,
 } from '../data/mockShopOrders';
+import {
+  applyShopOrderStockDelta,
+  assertOrderLinesHaveStock,
+} from '../data/mockShopStock';
 
 import type { CreateOrderPayload } from './shopOrderApi';
 import type { CartDetailedItem, Order, PickupPoint, Product } from '../model/types';
@@ -84,6 +88,8 @@ export async function mockCreateOrder(payload: CreateOrderPayload): Promise<Orde
   const detailedItems = buildDetailedItems(payload.items, products);
   const totalPrice = detailedItems.reduce((sum, item) => sum + item.lineTotal, 0);
 
+  assertOrderLinesHaveStock(detailedItems);
+
   const estimatedDeliveryDate =
     payload.form.deliveryMethod === 'courier'
       ? addDays(new Date(), 1)
@@ -111,6 +117,10 @@ export async function mockCreateOrder(payload: CreateOrderPayload): Promise<Orde
 
   const existingOrders = readStoredOrders();
   writeStoredOrders([order, ...existingOrders]);
+
+  if (payload.form.paymentMethod === 'cash') {
+    applyShopOrderStockDelta(order, 'subtract');
+  }
 
   notifyShopOrderEvent({ order, event: 'created' });
 
@@ -161,6 +171,8 @@ export async function mockPayShopOrder(
     throw new Error('Для этого заказа предусмотрена оплата при получении.');
   }
 
+  assertOrderLinesHaveStock(current.items);
+
   const updated: Order = {
     ...current,
     status: 'paid',
@@ -169,6 +181,8 @@ export async function mockPayShopOrder(
 
   orders[index] = updated;
   writeStoredOrders(orders);
+
+  applyShopOrderStockDelta(updated, 'subtract');
 
   notifyShopOrderEvent({ order: updated, event: 'paid' });
 
@@ -193,6 +207,12 @@ export async function mockCancelOrder(orderId: string): Promise<Order> {
 
   if (current.status !== 'created' && current.status !== 'paid') {
     throw new Error('Этот заказ уже нельзя отменить.');
+  }
+
+  if (current.status === 'paid') {
+    applyShopOrderStockDelta(current, 'add');
+  } else if (current.status === 'created' && current.paymentMethod === 'cash') {
+    applyShopOrderStockDelta(current, 'add');
   }
 
   const updated: Order = {

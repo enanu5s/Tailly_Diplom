@@ -2,6 +2,8 @@
 
 import { makeAutoObservable, runInAction } from 'mobx';
 
+import { PET_WEIGHT_SIZES } from '@/features/pets/model/constants';
+
 import { SPECIALIST_ADVANTAGE_OPTIONS } from './constants';
 import { specialistProfileService } from '../service/specialistProfileService';
 
@@ -77,7 +79,7 @@ function reviewMatchesReplyFilter(
 const MAX_SERVICE_PRICE = 1_000_000;
 const MAX_ADVANTAGES_COUNT = 3;
 
-const PET_SIZE_OPTIONS: SpecialistPetSize[] = ['small', 'medium', 'large', 'giant'];
+const PET_SIZE_OPTIONS: SpecialistPetSize[] = [...PET_WEIGHT_SIZES];
 const PET_AGE_OPTIONS: SpecialistPetAge[] = ['baby', 'young', 'adult', 'senior'];
 
 type MainForm = {
@@ -1187,7 +1189,7 @@ export class SpecialistProfileStore {
     }
 
     if (this.detailsForm.petSizes.length === 0) {
-      errors.petSizes = 'Выбери хотя бы один размер питомца.';
+      errors.petSizes = 'Выбери хотя бы один диапазон массы (кг).';
     }
 
     if (this.detailsForm.petAges.length === 0) {

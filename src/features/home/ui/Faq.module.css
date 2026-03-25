@@ -1,25 +1,43 @@
 .root {
   display: flex;
   flex-direction: column;
-  gap: 12px;
+  gap: 20px;
 }
 
 .title {
-  font-size: 18px;
-  color: #111827;
+  margin: 0;
+  font-size: clamp(1.35rem, 2.5vw, 1.75rem);
+  font-weight: 700;
+  color: #1e1e1e;
+  letter-spacing: -0.02em;
+}
+
+.layout {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 28px;
+  align-items: start;
+}
+
+@media (min-width: 900px) {
+  .layout {
+    grid-template-columns: 1fr 1fr;
+    gap: 40px;
+    align-items: center;
+  }
 }
 
 .list {
   display: flex;
   flex-direction: column;
-  gap: 10px;
+  gap: 12px;
 }
 
 .item {
   background: #fff;
-  border-radius: 18px;
-  border: 1px solid rgba(17, 24, 39, 0.08);
-  box-shadow: 0 10px 26px rgba(17, 24, 39, 0.06);
+  border-radius: 22px;
+  border: 1px solid rgba(30, 30, 30, 0.08);
+  box-shadow: 0 10px 32px rgba(62, 47, 38, 0.06);
   overflow: hidden;
 }
 
@@ -28,7 +46,7 @@
   border: none;
   background: transparent;
   cursor: pointer;
-  padding: 14px 16px;
+  padding: 16px 18px;
   display: flex;
   justify-content: space-between;
   gap: 12px;
@@ -37,17 +55,34 @@
 }
 
 .q {
-  color: #111827;
-  font-size: 14px;
+  color: #1e1e1e;
+  font-size: 15px;
+  font-weight: 500;
 }
 
 .chev {
-  color: #6b7280;
+  color: #6b6b6b;
+  font-size: 14px;
+  flex-shrink: 0;
 }
 
 .a {
-  padding: 0 16px 14px;
-  color: #6b7280;
-  font-size: 13px;
-  line-height: 1.45;
+  padding: 0 18px 16px;
+  color: #5c5c5c;
+  font-size: 14px;
+  line-height: 1.5;
+}
+
+.artCol {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.artSvg {
+  width: 100%;
+  max-width: 420px;
+  height: auto;
+  border-radius: 28px;
+  box-shadow: 0 16px 40px rgba(62, 47, 38, 0.08);
 }

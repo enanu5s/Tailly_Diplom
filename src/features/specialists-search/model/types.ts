@@ -1,9 +1,9 @@
 // /src/features/specialists-search/model/types.ts
+import type { PetType } from '@/features/pets/model/types';
 import type { ServiceId } from '@/shared/config/services';
 
+export type { PetType } from '@/features/pets/model/types';
 export type { ServiceId } from '@/shared/config/services';
-
-export type PetType = 'dog' | 'cat' | 'other';
 
 export type SortMode = 'rating' | 'price';
 

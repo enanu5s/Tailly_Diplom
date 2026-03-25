@@ -15,53 +15,60 @@ export function ReviewsCarousel(props: { items: HomeReview[] }) {
 
   if (items.length === 0) return null;
 
-  const current = items[idx];
+  const canNav = items.length > 1;
+  const secondIdx = items.length > 1 ? (idx + 1) % items.length : 0;
 
-  const review: Review = mapHomeReviewToReview(current);
+  const reviewA: Review = mapHomeReviewToReview(items[idx]);
+  const reviewB: Review = mapHomeReviewToReview(items[secondIdx]);
 
-  const canPrev = items.length > 1;
-  const canNext = items.length > 1;
+  const handlePrev = (): void => {
+    setIdx((v) => (v === 0 ? items.length - 1 : v - 1));
+  };
+
+  const handleNext = (): void => {
+    setIdx((v) => (v === items.length - 1 ? 0 : v + 1));
+  };
 
   return (
     <div className={styles.root}>
-      <div className={styles.head}>
-        <div className={styles.title}>Отзывы клиентов</div>
+      <h2 className={styles.title}>Реальные отзывы клиентов</h2>
+
+      <div
+        className={
+          items.length >= 2 ? styles.cardsGrid : styles.cardsGridSingle
+        }
+      >
+        <ReviewCard
+          review={reviewA}
+          fixedLayout
+          variant="landing"
+          ctaLabel="Перейти к специалисту"
+        />
+        {items.length >= 2 ? (
+          <ReviewCard
+            review={reviewB}
+            fixedLayout
+            variant="landing"
+            ctaLabel="Перейти к специалисту"
+          />
+        ) : null}
       </div>
 
-      <div className={styles.cardWrap}>
-        <ReviewCard review={review} fixedLayout />
-      </div>
-
-      {items.length > 1 && (
+      {canNav && (
         <div className={styles.controls}>
           <button
             type="button"
             className={styles.arrow}
-            disabled={!canPrev}
-            onClick={() => setIdx((v) => (v === 0 ? items.length - 1 : v - 1))}
-            aria-label="Предыдущий отзыв"
+            onClick={handlePrev}
+            aria-label="Предыдущие отзывы"
           >
             ←
           </button>
-
-          <div className={styles.dots} aria-label="Навигация по отзывам">
-            {items.map((r, i) => (
-              <button
-                key={r.id}
-                type="button"
-                className={i === idx ? styles.dotActive : styles.dot}
-                onClick={() => setIdx(i)}
-                aria-label={`Отзыв ${i + 1}`}
-              />
-            ))}
-          </div>
-
           <button
             type="button"
             className={styles.arrow}
-            disabled={!canNext}
-            onClick={() => setIdx((v) => (v === items.length - 1 ? 0 : v + 1))}
-            aria-label="Следующий отзыв"
+            onClick={handleNext}
+            aria-label="Следующие отзывы"
           >
             →
           </button>
@@ -74,7 +81,7 @@ export function ReviewsCarousel(props: { items: HomeReview[] }) {
 function mapHomeReviewToReview(r: HomeReview): Review {
   return {
     id: r.id,
-    orderId: r.id, // для главной не критично; типу Review нужно поле
+    orderId: r.id,
     rating: r.rating,
     text: r.text,
     photoUrls: r.photoUrls ?? [],

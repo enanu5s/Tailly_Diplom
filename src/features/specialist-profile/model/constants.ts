@@ -1,5 +1,9 @@
 // src/features/specialist-profile/model/constants.ts
 
+import {
+  PET_SIZE_LABELS,
+  PET_TYPE_LABELS,
+} from '@/features/pets/model/constants';
 import type {
   SpecialistChildrenPolicy,
   SpecialistExperienceUnit,
@@ -18,10 +22,7 @@ export const SPECIALIST_HOUSING_TYPE_LABELS: Record<SpecialistHousingType, strin
 };
 
 export const SPECIALIST_PET_SIZE_LABELS: Record<SpecialistPetSize, string> = {
-  small: 'Маленькие',
-  medium: 'Средние',
-  large: 'Крупные',
-  giant: 'Очень крупные',
+  ...PET_SIZE_LABELS,
 };
 
 export const SPECIALIST_PET_AGE_LABELS: Record<SpecialistPetAge, string> = {
@@ -39,14 +40,7 @@ export const SPECIALIST_CHILDREN_POLICY_LABELS: Record<SpecialistChildrenPolicy,
   };
 
 export const SPECIALIST_PET_TYPE_LABELS: Record<SpecialistPetType, string> = {
-  cat: 'Кошки',
-  dog: 'Собаки',
-  rodent: 'Грызуны',
-  rabbit: 'Кролики',
-  bird: 'Птицы',
-  fish: 'Рыбы',
-  reptile: 'Рептилии',
-  other: 'Другие',
+  ...PET_TYPE_LABELS,
 };
 
 export const SPECIALIST_SERVICE_PRICE_UNIT_LABELS: Record<

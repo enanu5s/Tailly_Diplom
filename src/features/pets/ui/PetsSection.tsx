@@ -4,6 +4,12 @@ import { useEffect, type ChangeEvent, type ReactElement } from 'react';
 import styles from './PetsSection.module.css';
 import { petsStore } from '../model/petsStore';
 
+import {
+  PET_SIZE_LABELS,
+  PET_TYPE_SHORT_LABELS,
+  PET_TYPES,
+  PET_WEIGHT_SIZES,
+} from '../model/constants';
 import type {
   Pet,
   PetAttitude,
@@ -133,9 +139,7 @@ const PetCard = observer(({ id }: { id: string }): ReactElement | null => {
               editable={isEditing}
               options={[
                 ['', 'Не выбран'],
-                ['dog', 'Собака'],
-                ['cat', 'Кошка'],
-                ['other', 'Другое'],
+                ...PET_TYPES.map((t) => [t, PET_TYPE_SHORT_LABELS[t]] as [string, string]),
               ]}
               onChange={(value) =>
                 petsStore.setDraft('type', (value || null) as PetType | null)
@@ -202,16 +206,14 @@ const PetCard = observer(({ id }: { id: string }): ReactElement | null => {
             </div>
 
             <SelectField
-              label="Размер"
+              label="Масса (взрослое животное)"
               value={view.size ?? ''}
               editable={isEditing}
               options={[
                 ['', 'Не выбран'],
-                ['xs', 'XS'],
-                ['s', 'S'],
-                ['m', 'M'],
-                ['l', 'L'],
-                ['xl', 'XL'],
+                ...PET_WEIGHT_SIZES.map(
+                  (s) => [s, PET_SIZE_LABELS[s]] as [string, string],
+                ),
               ]}
               onChange={(value) =>
                 petsStore.setDraft('size', (value || null) as Pet['size'])

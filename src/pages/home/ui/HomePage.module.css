@@ -1,7 +1,8 @@
 .page {
   min-height: calc(100vh - 160px);
-  background: #f9fafb;
-  padding: 28px 20px 80px;
+  font-family: 'Montserrat', system-ui, -apple-system, sans-serif;
+  background: #faf8f5;
+  padding: 24px 20px 56px;
   display: flex;
   justify-content: center;
 }
@@ -11,26 +12,36 @@
   max-width: 1280px;
   display: flex;
   flex-direction: column;
-  gap: 26px;
+  gap: 48px;
 }
 
 .block {
   display: flex;
   flex-direction: column;
-  gap: 14px;
+  gap: 20px;
 }
 
-.h2 {
-  font-size: 18px;
-  color: #111827;
+.sectionTitle {
+  margin: 0;
+  font-size: clamp(1.35rem, 2.5vw, 1.75rem);
+  font-weight: 700;
+  color: #1e1e1e;
+  letter-spacing: -0.02em;
 }
 
-.card {
-  background: #fff;
-  border-radius: 18px;
-  padding: 16px;
-  box-shadow: 0 10px 26px rgba(17, 24, 39, 0.06);
-  border: 1px solid rgba(17, 24, 39, 0.08);
+.feedbackOnHome {
+  margin-left: -20px;
+  margin-right: -20px;
+  width: calc(100% + 40px);
+  max-width: none;
+}
+
+@media (min-width: 1320px) {
+  .feedbackOnHome {
+    margin-left: calc(50% - 50vw);
+    margin-right: calc(50% - 50vw);
+    width: 100vw;
+  }
 }
 
 .error {

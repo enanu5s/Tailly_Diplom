@@ -27,23 +27,24 @@ export const HomePage = observer(() => {
       <div className={styles.container}>
         {homeStore.error && <div className={styles.error}>{homeStore.error}</div>}
 
-        <div className={styles.block}>
+        <section className={styles.block}>
           <BannerCarousel items={homeStore.banners} />
-        </div>
+        </section>
 
-        <div className={styles.block}>
-          <div className={styles.h2}>Услуги</div>
+        <section className={styles.block}>
+          <h2 className={styles.sectionTitle}>Услуги для ваших питомцев</h2>
           <ServicesMenu items={homeStore.services} />
-        </div>
+        </section>
 
-        <div className={styles.block}>
+        <section className={styles.block}>
           <ReviewsCarousel items={homeStore.reviews} />
-        </div>
+        </section>
 
-        <div className={styles.block}>
+        <section className={styles.block}>
           <Faq />
-        </div>
-        <FeedbackSection />
+        </section>
+
+        <FeedbackSection className={styles.feedbackOnHome} />
       </div>
     </div>
   );

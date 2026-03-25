@@ -12,10 +12,14 @@ export function ReviewCard({
   review,
   showThanks,
   fixedLayout,
+  variant = 'default',
+  ctaLabel,
 }: {
   review: Review;
   showThanks?: boolean;
   fixedLayout?: boolean;
+  variant?: 'default' | 'landing';
+  ctaLabel?: string;
 }) {
   const photos = useMemo(() => review.photoUrls ?? [], [review.photoUrls]);
   const hasPhotos = photos.length > 0;
@@ -31,8 +35,15 @@ export function ReviewCard({
   const canPrev = idx > 0;
   const canNext = idx < photos.length - 1;
 
+  const cardClass =
+    fixedLayout && variant === 'landing'
+      ? `${styles.cardFixed} ${styles.cardLanding}`
+      : fixedLayout
+        ? styles.cardFixed
+        : styles.card;
+
   return (
-    <div className={fixedLayout ? styles.cardFixed : styles.card}>
+    <div className={cardClass}>
       {showPhotoCol ? (
         <div className={styles.photoCol}>
           <div className={styles.photoWrap}>
@@ -115,7 +126,7 @@ export function ReviewCard({
             className={styles.primaryBtn}
             to={`/specialists/${encodeURIComponent(review.sitterId)}`}
           >
-            Перейти в профиль петситтера
+            {ctaLabel ?? 'Перейти в профиль петситтера'}
           </Link>
         </div>
 

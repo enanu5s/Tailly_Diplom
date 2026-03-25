@@ -2,6 +2,7 @@
 import { observer } from 'mobx-react-lite';
 import { useEffect, useRef, useState } from 'react';
 
+import { PET_TYPES, PET_TYPE_SHORT_LABELS } from '@/features/pets/model/constants';
 import { SERVICES } from '@/shared/config/services';
 import type { ServiceId } from '@/shared/config/services';
 
@@ -17,9 +18,10 @@ type Props = { store: SpecialistsSearchStore };
 
 const PETS: Array<{ id: PetType | 'any'; title: string }> = [
   { id: 'any', title: 'Любой' },
-  { id: 'dog', title: 'Собака' },
-  { id: 'cat', title: 'Кошка' },
-  { id: 'other', title: 'Другой' },
+  ...PET_TYPES.map((id) => ({
+    id,
+    title: PET_TYPE_SHORT_LABELS[id],
+  })),
 ];
 
 export const FiltersPanel = observer(({ store }: Props) => {

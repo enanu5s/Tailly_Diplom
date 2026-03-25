@@ -3,6 +3,7 @@ import { observer } from 'mobx-react-lite';
 import { Link } from 'react-router-dom';
 
 import { LocalitySuggestInput } from '@/features/specialists-search/ui/LocalitySuggestInput/LocalitySuggestInput';
+import { PET_TYPES, PET_WEIGHT_SIZES } from '@/features/pets/model/constants';
 
 import { SpecialistMiniCalendar } from './SpecialistMiniCalendar';
 import { SpecialistPhotoGallery } from './SpecialistPhotoGallery';
@@ -250,18 +251,9 @@ type Props = {
   bookingCta?: ReactNode;
 };
 
-const PET_SIZE_OPTIONS: SpecialistPetSize[] = ['small', 'medium', 'large', 'giant'];
+const PET_SIZE_OPTIONS: SpecialistPetSize[] = [...PET_WEIGHT_SIZES];
 const PET_AGE_OPTIONS: SpecialistPetAge[] = ['baby', 'young', 'adult', 'senior'];
-const PET_TYPE_OPTIONS: SpecialistPetType[] = [
-  'cat',
-  'dog',
-  'rodent',
-  'rabbit',
-  'bird',
-  'fish',
-  'reptile',
-  'other',
-];
+const PET_TYPE_OPTIONS: SpecialistPetType[] = [...PET_TYPES];
 const HOUSING_OPTIONS: SpecialistHousingType[] = [
   'apartment',
   'house',

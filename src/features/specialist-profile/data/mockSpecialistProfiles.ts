@@ -74,10 +74,10 @@ const PRIMARY_SPECIALIST_PROFILE: SpecialistProfileResponse = {
     experienceDurationValue: 5,
     experienceDurationUnit: 'years',
     housingType: 'apartment',
-    petSizes: ['small', 'medium', 'large'],
+    petSizes: ['up_to_2kg', '2_5kg', '5_10kg', '10_20kg'],
     petAges: ['baby', 'young', 'adult', 'senior'],
     hasChildrenUnderTen: 'no',
-    petTypes: ['cat', 'dog', 'rodent', 'rabbit'],
+    petTypes: ['cat', 'dog', 'rodent', 'rabbit', 'bird', 'reptile'],
     advantages: [
       { id: 'adv-1', title: 'Ежедневные фотоотчёты' },
       { id: 'adv-2', title: 'Опыт с тревожными питомцами' },

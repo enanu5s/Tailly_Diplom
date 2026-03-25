@@ -83,13 +83,8 @@ export const FeedbackSection = ({
             </div>
 
             <div className={styles.imageWrap} aria-hidden="true">
-              {/* если картинки нет — блок просто останется пустым */}
               {imageSrc ? (
-                <img
-                  className={styles.image}
-                  src="/images/Picture_bg_3.png"
-                  alt={imageAlt}
-                />
+                <img className={styles.image} src={imageSrc} alt={imageAlt} />
               ) : null}
             </div>
           </div>
@@ -121,7 +116,7 @@ export const FeedbackSection = ({
 
                 <textarea
                   className={styles.textarea}
-                  placeholder="Ваш вопрос"
+                  placeholder="Опишите ваш вопрос"
                   value={message}
                   onChange={(e) => setMessage(e.target.value)}
                   rows={5}

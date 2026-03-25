@@ -1,7 +1,7 @@
 .root {
   position: relative;
   display: grid;
-  grid-template-columns: 44px minmax(0, 1fr) 44px;
+  grid-template-columns: minmax(0, 1fr);
   gap: 12px;
   align-items: center;
 }
@@ -18,22 +18,27 @@
 
 .banner {
   position: relative;
-  min-height: 280px;
-  border-radius: 18px;
+  min-height: 300px;
+  border-radius: 28px;
   background-repeat: no-repeat;
   background-size: cover;
   background-position: center;
-  box-shadow: 0 12px 34px rgba(17, 24, 39, 0.1);
+  box-shadow: 0 12px 40px rgba(62, 47, 38, 0.08);
   overflow: hidden;
   transition:
     transform 0.2s ease,
     box-shadow 0.2s ease;
 }
 
+.bannerFallback {
+  background-size: 120% 120%;
+  background-position: 60% 40%;
+}
+
 .bannerBtn:hover .banner,
 .bannerBtn:focus-visible .banner {
   transform: translateY(-2px);
-  box-shadow: 0 16px 36px rgba(17, 24, 39, 0.14);
+  box-shadow: 0 18px 44px rgba(62, 47, 38, 0.12);
 }
 
 .bannerBtn:focus-visible {
@@ -42,23 +47,38 @@
 
 .overlay {
   height: 100%;
-  min-height: 280px;
+  min-height: 300px;
   display: flex;
   flex-direction: column;
-  justify-content: flex-end;
-  gap: 8px;
-  padding: 20px;
+  justify-content: center;
+  align-items: flex-start;
+  gap: 12px;
+  padding: 36px 40px;
+  max-width: 100%;
+  box-sizing: border-box;
   background: linear-gradient(
-    180deg,
-    rgba(17, 24, 39, 0) 18%,
-    rgba(17, 24, 39, 0.72) 100%
+    90deg,
+    rgba(255, 255, 255, 0.94) 0%,
+    rgba(255, 255, 255, 0.78) 42%,
+    rgba(255, 255, 255, 0.35) 70%,
+    transparent 92%
+  );
+}
+
+.overlayOnImage {
+  background: linear-gradient(
+    90deg,
+    rgba(255, 255, 255, 0.94) 0%,
+    rgba(255, 255, 255, 0.78) 42%,
+    rgba(255, 255, 255, 0.35) 70%,
+    transparent 92%
   );
 }
 
 .title {
   margin: 0;
-  color: #fff;
-  font-size: 24px;
+  color: #1e1e1e;
+  font-size: clamp(1.35rem, 3vw, 1.85rem);
   line-height: 1.2;
   font-weight: 700;
   max-width: 680px;
@@ -66,34 +86,14 @@
 
 .subtitle {
   margin: 0;
-  color: rgba(255, 255, 255, 0.92);
-  font-size: 14px;
-  line-height: 1.45;
-  max-width: 720px;
+  color: #4a4a4a;
+  font-size: 15px;
+  line-height: 1.5;
+  max-width: 560px;
 }
 
 .arrow {
-  border: 1px solid rgba(17, 24, 39, 0.12);
-  background: #fff;
-  border-radius: 14px;
-  height: 44px;
-  width: 44px;
-  cursor: pointer;
-  box-shadow: 0 10px 26px rgba(17, 24, 39, 0.06);
-  transition:
-    transform 0.2s ease,
-    box-shadow 0.2s ease,
-    opacity 0.2s ease;
-}
-
-.arrow:hover:not(:disabled) {
-  transform: translateY(-1px);
-  box-shadow: 0 12px 28px rgba(17, 24, 39, 0.1);
-}
-
-.arrow:disabled {
-  opacity: 0.5;
-  cursor: not-allowed;
+  display: none;
 }
 
 .dots {
@@ -101,7 +101,7 @@
   display: flex;
   justify-content: center;
   gap: 8px;
-  margin-top: 10px;
+  margin-top: 14px;
 }
 
 .dot,
@@ -111,38 +111,29 @@
   width: 8px;
   height: 8px;
   border-radius: 999px;
-  background: rgba(99, 102, 241, 0.35);
+  background: rgba(30, 30, 30, 0.22);
   transition:
     width 0.2s ease,
     background-color 0.2s ease;
 }
 
 .dotActive {
-  background: #6366f1;
-  width: 18px;
+  background: #1e1e1e;
+  width: 22px;
 }
 
 @media (max-width: 768px) {
-  .root {
-    grid-template-columns: 1fr;
-    gap: 10px;
-  }
-
-  .arrow {
-    display: none;
-  }
-
   .banner {
-    min-height: 220px;
+    min-height: 240px;
   }
 
   .overlay {
-    min-height: 220px;
-    padding: 16px;
+    min-height: 240px;
+    padding: 22px 20px;
   }
 
   .title {
-    font-size: 20px;
+    font-size: 1.2rem;
   }
 
   .subtitle {

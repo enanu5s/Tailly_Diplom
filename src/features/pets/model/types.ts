@@ -1,6 +1,26 @@
 //src/features/pets/model/types.ts
-export type PetType = 'dog' | 'cat' | 'other';
-export type PetSize = 'xs' | 's' | 'm' | 'l' | 'xl';
+
+/** Виды животных (без общего «другое» — перечислены отдельно). */
+export type PetType =
+  | 'dog'
+  | 'cat'
+  | 'bird'
+  | 'rodent'
+  | 'rabbit'
+  | 'reptile'
+  | 'fish'
+  | 'amphibian';
+
+/**
+ * Масса взрослого животного, кг (диапазоны).
+ * Для лёгких питомцев обычно актуальны первые категории.
+ */
+export type PetSize =
+  | 'up_to_2kg'
+  | '2_5kg'
+  | '5_10kg'
+  | '10_20kg'
+  | 'over_20kg';
 
 export type PetGender = 'male' | 'female';
 export type PetAttitude = 'friendly' | 'neutral' | 'aggressive' | 'unknown';
@@ -17,6 +37,7 @@ export type Pet = {
   ageYears: number;
   ageMonths: number;
 
+  /** Оценочная масса взрослого животного (кг), по диапазонам */
   size: PetSize | null;
 
   gender: PetGender | null;

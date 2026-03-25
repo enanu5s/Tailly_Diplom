@@ -13,7 +13,7 @@ type Props = {
 };
 
 const FALLBACK_BANNER_BACKGROUND =
-  'linear-gradient(135deg, #6366f1 0%, #8b5cf6 55%, #0f172a 100%)';
+  'linear-gradient(135deg, #cfe8a8 0%, #e8f0b8 38%, #fff3c8 100%)';
 
 export function BannerCarousel({ items: rawItems }: Props) {
   const navigate = useAppNavigate();
@@ -28,23 +28,15 @@ export function BannerCarousel({ items: rawItems }: Props) {
   }
 
   const current = items[safeIdx];
-  const canSlide = items.length > 1;
 
-  const backgroundStyle = current.imageUrl
+  const hasImage = Boolean(current.imageUrl);
+  const backgroundStyle = hasImage
     ? {
         backgroundImage: `url(${current.imageUrl})`,
       }
     : {
         backgroundImage: FALLBACK_BANNER_BACKGROUND,
       };
-
-  const handlePrev = (): void => {
-    setIdx((value) => (value === 0 ? items.length - 1 : value - 1));
-  };
-
-  const handleNext = (): void => {
-    setIdx((value) => (value === items.length - 1 ? 0 : value + 1));
-  };
 
   const handleOpenPost = (): void => {
     if (current.linkUrl) {
@@ -69,22 +61,15 @@ export function BannerCarousel({ items: rawItems }: Props) {
     <div className={styles.root}>
       <button
         type="button"
-        className={styles.arrow}
-        onClick={handlePrev}
-        disabled={!canSlide}
-        aria-label="Предыдущий баннер"
-      >
-        ←
-      </button>
-
-      <button
-        type="button"
         className={styles.bannerBtn}
         onClick={handleOpenPost}
         aria-label="Открыть пост"
       >
-        <div className={styles.banner} style={backgroundStyle}>
-          <div className={styles.overlay}>
+        <div
+          className={`${styles.banner} ${hasImage ? '' : styles.bannerFallback}`}
+          style={backgroundStyle}
+        >
+          <div className={`${styles.overlay} ${hasImage ? styles.overlayOnImage : ''}`}>
             <h3 className={styles.title}>{current.title}</h3>
 
             {current.subtitle ? (
@@ -92,16 +77,6 @@ export function BannerCarousel({ items: rawItems }: Props) {
             ) : null}
           </div>
         </div>
-      </button>
-
-      <button
-        type="button"
-        className={styles.arrow}
-        onClick={handleNext}
-        disabled={!canSlide}
-        aria-label="Следующий баннер"
-      >
-        →
       </button>
 
       {items.length > 1 ? (

@@ -68,7 +68,7 @@ const SERVICE_SETS: Specialist['services'][] = [
     },
     {
       serviceId: 'boarding',
-      petTypes: ['cat', 'dog', 'other'],
+      petTypes: ['cat', 'dog', 'bird'],
       priceFrom: 1800,
       priceTo: 3500,
       durationMinutes: 720,
@@ -160,7 +160,7 @@ const SERVICE_SETS: Specialist['services'][] = [
     },
     {
       serviceId: 'boarding',
-      petTypes: ['cat', 'dog', 'other'],
+      petTypes: ['cat', 'dog', 'bird'],
       priceFrom: 2000,
       durationMinutes: 720,
     },

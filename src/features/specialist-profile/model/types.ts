@@ -1,22 +1,17 @@
 //src/features/specialist-profile/model/types.ts
 
+import type { PetSize, PetType } from '@/features/pets/model/types';
+
 export type SpecialistHousingType = 'apartment' | 'house' | 'townhouse' | 'other';
 
-export type SpecialistPetSize = 'small' | 'medium' | 'large' | 'giant';
+/** Масса питомца, кг (те же диапазоны, что в карточке питомца клиента). */
+export type SpecialistPetSize = PetSize;
 
 export type SpecialistPetAge = 'baby' | 'young' | 'adult' | 'senior';
 
 export type SpecialistChildrenPolicy = 'yes' | 'no' | 'sometimes';
 
-export type SpecialistPetType =
-  | 'cat'
-  | 'dog'
-  | 'rodent'
-  | 'rabbit'
-  | 'bird'
-  | 'fish'
-  | 'reptile'
-  | 'other';
+export type SpecialistPetType = PetType;
 
 export type SpecialistServicePriceUnit = 'hour' | 'day' | 'service' | 'walk' | 'visit';
 
