@@ -7,10 +7,12 @@ from playwright.sync_api import Page, expect
 
 from helpers import (
     ADMIN_LANDING_URL_RE,
+    ADMIN_PASSWORD,
     CLIENT_EMAIL,
     DEMO_PASSWORD,
     SPECIALIST_SLUG,
     SUPERADMIN_EMAIL,
+    SUPERADMIN_PASSWORD,
     login_and_wait_redirect,
     PROFILE_LANDING_URL_RE,
     SPECIALIST_LANDING_URL_RE,
@@ -104,7 +106,7 @@ def test_admin_dashboard_and_sections(page: Page) -> None:
     login_and_wait_redirect(
         page,
         "admin@tailly.local",
-        DEMO_PASSWORD,
+        ADMIN_PASSWORD,
         as_specialist=False,
         url_matcher=ADMIN_LANDING_URL_RE,
     )
@@ -124,7 +126,7 @@ def test_super_admin_extra_routes(page: Page) -> None:
     login_and_wait_redirect(
         page,
         SUPERADMIN_EMAIL,
-        DEMO_PASSWORD,
+        SUPERADMIN_PASSWORD,
         as_specialist=False,
         url_matcher=ADMIN_LANDING_URL_RE,
     )

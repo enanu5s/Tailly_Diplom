@@ -7,6 +7,7 @@ from playwright.sync_api import Page, expect
 
 from helpers import (
     ADMIN_LANDING_URL_RE,
+    ADMIN_PASSWORD,
     CLIENT_EMAIL,
     DEMO_PASSWORD,
     PROFILE_LANDING_URL_RE,
@@ -58,7 +59,7 @@ def test_login_admin_success(page: Page) -> None:
     login_and_wait_redirect(
         page,
         "admin@tailly.local",
-        DEMO_PASSWORD,
+        ADMIN_PASSWORD,
         as_specialist=False,
         url_matcher=ADMIN_LANDING_URL_RE,
     )

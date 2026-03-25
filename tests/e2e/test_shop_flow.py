@@ -7,6 +7,7 @@ from playwright.sync_api import Page, expect
 
 from helpers import (
     ADMIN_EMAIL,
+    ADMIN_PASSWORD,
     CLIENT_EMAIL,
     DEMO_PASSWORD,
     login_and_wait_redirect,
@@ -38,7 +39,7 @@ def test_admin_cannot_open_shop_cart(page: Page) -> None:
     login_and_wait_redirect(
         page,
         ADMIN_EMAIL,
-        DEMO_PASSWORD,
+        ADMIN_PASSWORD,
         as_specialist=False,
         url_matcher=re.compile(r".*/admin$"),
     )

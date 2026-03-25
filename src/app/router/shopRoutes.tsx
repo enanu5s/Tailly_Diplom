@@ -2,6 +2,7 @@
 
 import { lazy } from 'react';
 
+import { ShopCartAuthGuard } from '@/app/router/ShopCartAuthGuard';
 import { ShopPurchaseRouteGuard } from '@/app/router/ShopPurchaseRouteGuard';
 
 import { withSuspense } from './withSuspense';
@@ -61,7 +62,13 @@ export const shopRoutes: RouteObject[] = [
   },
   {
     path: '/shop/cart',
-    element: withSuspense(<ShopCartPage />),
+    element: <ShopCartAuthGuard />,
+    children: [
+      {
+        index: true,
+        element: withSuspense(<ShopCartPage />),
+      },
+    ],
   },
   {
     element: <ShopPurchaseRouteGuard />,
