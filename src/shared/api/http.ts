@@ -120,16 +120,62 @@ async function parseResponseBody(response: Response): Promise<unknown> {
 
 function extractErrorPayload(body: unknown): ApiErrorPayload | null {
   const parsed = apiErrorBodySchema.safeParse(body);
-  if (!parsed.success) {
-    return null;
+
+  if (parsed.success) {
+    return {
+      message: parsed.data.message,
+      code: parsed.data.code,
+      errors: parsed.data.errors,
+    };
   }
 
-  return {
-    message: parsed.data.message,
-    code: parsed.data.code,
-    errors: parsed.data.errors,
-  };
+  if (typeof body === 'string') {
+    const trimmed = body.trim();
+
+    return trimmed
+      ? {
+        message: trimmed,
+      }
+      : null;
+  }
+
+  if (typeof body === 'object' && body !== null) {
+    const record = body as Record<string, unknown>;
+
+    const message =
+      typeof record.message === 'string'
+        ? record.message
+        : typeof record.description === 'string'
+          ? record.description
+          : typeof record.error === 'string'
+            ? record.error
+            : typeof record.title === 'string'
+              ? record.title
+              : undefined;
+
+    const code = typeof record.code === 'string' ? record.code : undefined;
+
+    const errors =
+      typeof record.errors === 'object' && record.errors !== null
+        ? Object.fromEntries(
+          Object.entries(record.errors).filter(
+            (entry): entry is [string, string] => typeof entry[1] === 'string',
+          ),
+        )
+        : undefined;
+
+    if (message || code || errors) {
+      return {
+        message,
+        code,
+        errors,
+      };
+    }
+  }
+
+  return null;
 }
+
 
 function createTimeoutSignal(timeoutMs: number): {
   signal: AbortSignal;
@@ -251,7 +297,9 @@ export async function request<T>(path: string, options: RequestOptions = {}): Pr
     throw new HttpError({
       status: response.status,
       body: data,
-      message: errorPayload?.message,
+      message:
+        errorPayload?.message ??
+        (typeof data === 'string' && data.trim() ? data.trim() : undefined),
       code: errorPayload?.code,
       fieldErrors: errorPayload?.errors,
     });
@@ -259,6 +307,7 @@ export async function request<T>(path: string, options: RequestOptions = {}): Pr
 
   return data as T;
 }
+
 
 export async function requestAndValidate<T>(
   path: string,

@@ -14,11 +14,15 @@ export const passwordRecoveryService = {
     });
 
     if (result.flow === 'default') {
+      await passwordRecoveryApi.sendCode({
+        email: normalizedEmail,
+      });
+
       passwordRecoveryFlowStore.setStart(normalizedEmail);
-    } else {
-      passwordRecoveryFlowStore.reset();
+      return result;
     }
 
+    passwordRecoveryFlowStore.reset();
     return result;
   },
 
