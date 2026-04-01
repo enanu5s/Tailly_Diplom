@@ -1,6 +1,6 @@
 //src/features/pets/model/types.ts
 
-/** Виды животных (без общего «другое» — перечислены отдельно). */
+/** Виды животных */
 export type PetType =
   | 'dog'
   | 'cat'
@@ -11,10 +11,7 @@ export type PetType =
   | 'fish'
   | 'amphibian';
 
-/**
- * Масса взрослого животного, кг (диапазоны).
- * Для лёгких питомцев обычно актуальны первые категории.
- */
+/** Масса взрослого животного */
 export type PetSize =
   | 'up_to_2kg'
   | '2_5kg'
@@ -28,8 +25,8 @@ export type PetHomeAlone = 'ok' | 'not_ok' | 'unknown';
 export type PetVaccinated = 'yes' | 'no' | 'unknown';
 
 export type Pet = {
-  id: string;
-  photoUrl?: string;
+  id: string;                    // ← теперь обязательно (для редактирования)
+  photoUrl: string;              // ← обязательно
   name: string;
   type: PetType | null;
   breedId: string | null;
@@ -37,9 +34,7 @@ export type Pet = {
   ageYears: number;
   ageMonths: number;
 
-  /** Оценочная масса взрослого животного (кг), по диапазонам */
   size: PetSize | null;
-
   gender: PetGender | null;
   toOtherPets: PetAttitude | null;
   toKidsUnder10: PetAttitude | null;
@@ -48,6 +43,9 @@ export type Pet = {
 
   notes: string;
 };
+
+/** Тип для создания (без id) */
+export type CreatePetDto = Omit<Pet, 'id'>;
 
 export type Breed = {
   id: string;

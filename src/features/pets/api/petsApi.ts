@@ -1,13 +1,19 @@
 // src/features/pets/api/petsApi.ts
-
 import { request } from '@/shared/api/http';
 import { isMockApiMode } from '@/shared/config/env';
 
-import { mockDeletePet, mockGetBreeds, mockGetPets, mockUpsertPet } from './petsApi.mock';
+import { 
+  mockGetPets, 
+  mockGetBreeds, 
+  mockCreatePet, 
+  mockUpdatePet, 
+  mockDeletePet 
+} from './petsApi.mock';
 
 import type { Breed, Pet } from '../model/types';
 
-/* REAL */
+/* ==================== REAL API ==================== */
+
 async function realGetPets(): Promise<Pet[]> {
   return request<Pet[]>('/me/pets');
 }
@@ -16,8 +22,17 @@ async function realGetBreeds(): Promise<Breed[]> {
   return request<Breed[]>('/pets/breeds');
 }
 
-async function realUpsertPet(pet: Pet): Promise<Pet> {
-  return request<Pet>(`/me/pets/${encodeURIComponent(pet.id)}`, {
+/** Создание нового питомца (бек сам генерирует id) */
+async function realCreatePet(pet: Omit<Pet, 'id'>): Promise<Pet> {
+  return request<Pet>('/me/pets', {
+    method: 'POST',
+    body: pet,
+  });
+}
+
+/** Обновление существующего питомца */
+async function realUpdatePet(id: string, pet: Pet): Promise<Pet> {
+  return request<Pet>(`/me/pets/${encodeURIComponent(id)}`, {
     method: 'PUT',
     body: pet,
   });
@@ -29,9 +44,20 @@ async function realDeletePet(id: string): Promise<{ id: string }> {
   });
 }
 
+/* ==================== PUBLIC API ==================== */
+
 export const petsApi = {
   getPets: () => (isMockApiMode ? mockGetPets() : realGetPets()),
   getBreeds: () => (isMockApiMode ? mockGetBreeds() : realGetBreeds()),
-  upsertPet: (pet: Pet) => (isMockApiMode ? mockUpsertPet(pet) : realUpsertPet(pet)),
-  deletePet: (id: string) => (isMockApiMode ? mockDeletePet(id) : realDeletePet(id)),
+
+  /** Создать нового питомца */
+  createPet: (pet: Omit<Pet, 'id'>) => 
+    isMockApiMode ? mockCreatePet(pet) : realCreatePet(pet),
+
+  /** Обновить питомца */
+  updatePet: (id: string, pet: Pet) => 
+    isMockApiMode ? mockUpdatePet(id, pet) : realUpdatePet(id, pet),
+
+  deletePet: (id: string) => 
+    isMockApiMode ? mockDeletePet(id) : realDeletePet(id),
 };

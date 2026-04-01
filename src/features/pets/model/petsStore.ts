@@ -1,13 +1,8 @@
-//src/features/pets/model/petsStore.ts
+// src/features/pets/model/petsStore.ts
 import { makeAutoObservable, runInAction } from 'mobx';
 
 import { petsService } from '../service/petsService';
-
-import type { Breed, Pet, PetType } from './types';
-
-function newPetId() {
-  return `p-${Math.random().toString(16).slice(2)}`;
-}
+import type { Breed, CreatePetDto, Pet, PetType } from './types';
 
 export class PetsStore {
   pets: Pet[] = [];
@@ -16,7 +11,7 @@ export class PetsStore {
   loading = false;
   error: string | null = null;
 
-  expanded = new Set<string>(); // раскрыта ли доп. инфа
+  expanded = new Set<string>();
   editingId: string | null = null;
   draft: Pet | null = null;
 
@@ -56,9 +51,9 @@ export class PetsStore {
     else this.expanded.add(id);
   }
 
+  /** Создать нового питомца */
   startAdd() {
-    const pet: Pet = {
-      id: newPetId(),
+    const newDraft: CreatePetDto = {
       photoUrl: '',
       name: '',
       type: null,
@@ -73,8 +68,9 @@ export class PetsStore {
       vaccinated: null,
       notes: '',
     };
-    this.editingId = pet.id;
-    this.draft = pet;
+
+    this.draft = { ...newDraft, id: '' } as Pet;   // временный id
+    this.editingId = null;                         // важно: null при создании
     this.saveError = null;
     this.saveSuccessId = null;
   }
@@ -82,6 +78,7 @@ export class PetsStore {
   startEdit(id: string) {
     const p = this.pets.find((x) => x.id === id);
     if (!p) return;
+
     this.editingId = id;
     this.draft = JSON.parse(JSON.stringify(p)) as Pet;
     this.saveError = null;
@@ -92,6 +89,7 @@ export class PetsStore {
     this.editingId = null;
     this.draft = null;
     this.saveError = null;
+    this.saveSuccessId = null;
   }
 
   setDraft<K extends keyof Pet>(key: K, value: Pet[K]) {
@@ -99,7 +97,6 @@ export class PetsStore {
     (this.draft[key] as Pet[K]) = value;
   }
 
-  // если выбрали породу — проставляем тип *//
   setBreed(breedId: string | null) {
     if (!this.draft) return;
     this.draft.breedId = breedId;
@@ -115,11 +112,9 @@ export class PetsStore {
     return this.breeds.filter((b) => b.type === type);
   }
 
-  // фото: локальный preview, потом backend заменит на upload *//
   setDraftPhotoFromFile(file: File) {
     if (!this.draft) return;
-    const url = URL.createObjectURL(file);
-    this.draft.photoUrl = url;
+    this.draft.photoUrl = URL.createObjectURL(file);
   }
 
   async save() {
@@ -130,11 +125,7 @@ export class PetsStore {
       this.saveError = 'Укажите кличку питомца';
       return;
     }
-    if (
-      this.draft.ageYears < 0 ||
-      this.draft.ageMonths < 0 ||
-      this.draft.ageMonths > 11
-    ) {
+    if (this.draft.ageYears < 0 || this.draft.ageMonths < 0 || this.draft.ageMonths > 11) {
       this.saveError = 'Возраст указан некорректно';
       return;
     }
@@ -143,12 +134,39 @@ export class PetsStore {
     this.saveError = null;
 
     try {
-      const payload: Pet = JSON.parse(JSON.stringify(this.draft));
-      const saved = await petsService.upsertPet(payload);
+      let saved: Pet;
+
+      if (!this.draft.id || this.draft.id === '') {
+        // Создание
+        const payload: CreatePetDto = {
+          photoUrl: this.draft.photoUrl,
+          name: this.draft.name,
+          type: this.draft.type,
+          breedId: this.draft.breedId,
+          ageYears: this.draft.ageYears,
+          ageMonths: this.draft.ageMonths,
+          size: this.draft.size,
+          gender: this.draft.gender,
+          toOtherPets: this.draft.toOtherPets,
+          toKidsUnder10: this.draft.toKidsUnder10,
+          staysHomeAlone: this.draft.staysHomeAlone,
+          vaccinated: this.draft.vaccinated,
+          notes: this.draft.notes,
+        };
+        saved = await petsService.createPet(payload);
+      } else {
+        // Редактирование
+        saved = await petsService.updatePet(this.draft.id, this.draft);
+      }
+
       runInAction(() => {
         const idx = this.pets.findIndex((x) => x.id === saved.id);
-        if (idx >= 0) this.pets[idx] = saved;
-        else this.pets = [saved, ...this.pets];
+
+        if (idx >= 0) {
+          this.pets[idx] = saved;
+        } else {
+          this.pets = [saved, ...this.pets];
+        }
 
         this.saveLoading = false;
         this.saveSuccessId = saved.id;
@@ -175,10 +193,7 @@ export class PetsStore {
         this.expanded.delete(id);
 
         if (this.editingId === id) {
-          this.editingId = null;
-          this.draft = null;
-          this.saveError = null;
-          this.saveSuccessId = null;
+          this.cancelEdit();
         }
 
         this.deleteLoadingId = null;
@@ -191,7 +206,6 @@ export class PetsStore {
     }
   }
 
-  /** для клика из заказа: раскрыть карточку питомца */
   revealPet(id: string) {
     this.expanded.add(id);
   }

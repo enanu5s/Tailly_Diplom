@@ -6,6 +6,7 @@ import type { Pet } from '../model/types';
 export const petsService = {
   getPets: () => petsApi.getPets(),
   getBreeds: () => petsApi.getBreeds(),
-  upsertPet: (pet: Pet) => petsApi.upsertPet(pet),
+  createPet: (pet: Omit<Pet, 'id'>) => petsApi.createPet(pet),
+  updatePet: (id: string, pet: Pet) => petsApi.updatePet(id, pet),
   deletePet: (id: string) => petsApi.deletePet(id),
 };
