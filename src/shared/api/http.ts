@@ -134,8 +134,8 @@ function extractErrorPayload(body: unknown): ApiErrorPayload | null {
 
     return trimmed
       ? {
-        message: trimmed,
-      }
+          message: trimmed,
+        }
       : null;
   }
 
@@ -158,10 +158,10 @@ function extractErrorPayload(body: unknown): ApiErrorPayload | null {
     const errors =
       typeof record.errors === 'object' && record.errors !== null
         ? Object.fromEntries(
-          Object.entries(record.errors).filter(
-            (entry): entry is [string, string] => typeof entry[1] === 'string',
-          ),
-        )
+            Object.entries(record.errors).filter(
+              (entry): entry is [string, string] => typeof entry[1] === 'string',
+            ),
+          )
         : undefined;
 
     if (message || code || errors) {
@@ -175,7 +175,6 @@ function extractErrorPayload(body: unknown): ApiErrorPayload | null {
 
   return null;
 }
-
 
 function createTimeoutSignal(timeoutMs: number): {
   signal: AbortSignal;
@@ -307,7 +306,6 @@ export async function request<T>(path: string, options: RequestOptions = {}): Pr
 
   return data as T;
 }
-
 
 export async function requestAndValidate<T>(
   path: string,
