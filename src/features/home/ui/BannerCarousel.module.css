@@ -2,11 +2,38 @@
   position: relative;
   display: grid;
   grid-template-columns: minmax(0, 1fr);
-  gap: 12px;
+  gap: 14px;
   align-items: center;
+  isolation: isolate;
+}
+
+.root::before {
+  content: '';
+  position: absolute;
+  left: -120px;
+  bottom: -90px;
+  width: 300px;
+  height: 300px;
+  background: url('/images/home/banner-blur-orange.png') center / contain no-repeat;
+  pointer-events: none;
+  z-index: 0;
+}
+
+.root::after {
+  content: '';
+  position: absolute;
+  right: -140px;
+  top: -20px;
+  width: 250px;
+  height: 250px;
+  background: url('/images/home/banner-blur-green.png') center / contain no-repeat;
+  pointer-events: none;
+  z-index: 3;
 }
 
 .bannerBtn {
+  position: relative;
+  z-index: 1;
   border: none;
   background: transparent;
   padding: 0;
@@ -16,127 +43,164 @@
   text-align: left;
 }
 
+.bannerBtn:focus-visible {
+  outline: none;
+}
+
 .banner {
   position: relative;
-  min-height: 300px;
-  border-radius: 28px;
+  min-height: 360px;
+  border-radius: 32px;
   background-repeat: no-repeat;
   background-size: cover;
   background-position: center;
-  box-shadow: 0 12px 40px rgba(62, 47, 38, 0.08);
-  overflow: hidden;
+  overflow: visible;
+  box-shadow: 0 20px 48px rgba(75, 57, 36, 0.08);
   transition:
-    transform 0.2s ease,
-    box-shadow 0.2s ease;
+    transform 0.22s ease,
+    box-shadow 0.22s ease;
 }
 
 .bannerFallback {
-  background-size: 120% 120%;
-  background-position: 60% 40%;
+  background:
+    linear-gradient(180deg, #f6f6ec 0%, #f7f7ee 100%),
+    linear-gradient(135deg, #d8dd74 0%, #eef0bb 40%, #f5f6ea 100%);
 }
 
 .bannerBtn:hover .banner,
 .bannerBtn:focus-visible .banner {
   transform: translateY(-2px);
-  box-shadow: 0 18px 44px rgba(62, 47, 38, 0.12);
-}
-
-.bannerBtn:focus-visible {
-  outline: none;
+  box-shadow: 0 26px 54px rgba(75, 57, 36, 0.12);
 }
 
 .overlay {
-  height: 100%;
-  min-height: 300px;
+  position: relative;
+  z-index: 1;
+  min-height: 360px;
   display: flex;
   flex-direction: column;
-  justify-content: center;
+  justify-content: flex-start;
   align-items: flex-start;
-  gap: 12px;
-  padding: 36px 40px;
+  gap: 14px;
+  padding: 118px 0 40px 62px;
   max-width: 100%;
   box-sizing: border-box;
-  background: linear-gradient(
-    90deg,
-    rgba(255, 255, 255, 0.94) 0%,
-    rgba(255, 255, 255, 0.78) 42%,
-    rgba(255, 255, 255, 0.35) 70%,
-    transparent 92%
-  );
+  border-radius: 32px;
+  overflow: hidden;
+  background: transparent;
 }
 
 .overlayOnImage {
-  background: linear-gradient(
-    90deg,
-    rgba(255, 255, 255, 0.94) 0%,
-    rgba(255, 255, 255, 0.78) 42%,
-    rgba(255, 255, 255, 0.35) 70%,
-    transparent 92%
-  );
+  background: transparent;
 }
 
 .title {
   margin: 0;
-  color: #1e1e1e;
-  font-size: clamp(1.35rem, 3vw, 1.85rem);
-  line-height: 1.2;
+  max-width: 750px;
+  color: #1f140f;
+  font-family: 'Montserrat', system-ui, -apple-system, sans-serif;
+  font-size: 40px;
+  line-height: 1.12;
   font-weight: 700;
-  max-width: 680px;
+  letter-spacing: -0.02em;
 }
 
 .subtitle {
   margin: 0;
-  color: #4a4a4a;
+  max-width: 750px;
+  color: #3f332c;
+  font-family: 'Montserrat', system-ui, -apple-system, sans-serif;
   font-size: 15px;
-  line-height: 1.5;
-  max-width: 560px;
-}
-
-.arrow {
-  display: none;
+  line-height: 1.35;
+  font-weight: 500;
 }
 
 .dots {
   grid-column: 1 / -1;
   display: flex;
   justify-content: center;
-  gap: 8px;
-  margin-top: 14px;
+  gap: 10px;
+  margin-top: 2px;
 }
 
 .dot,
 .dotActive {
   border: none;
   cursor: pointer;
-  width: 8px;
-  height: 8px;
+  width: 10px;
+  height: 10px;
   border-radius: 999px;
-  background: rgba(30, 30, 30, 0.22);
+  background: rgba(56, 39, 29, 0.2);
   transition:
     width 0.2s ease,
-    background-color 0.2s ease;
+    background-color 0.2s ease,
+    transform 0.2s ease;
+}
+
+.dot:hover,
+.dotActive:hover {
+  transform: translateY(-1px);
 }
 
 .dotActive {
-  background: #1e1e1e;
-  width: 22px;
+  background: #f0a12b;
+  width: 26px;
 }
 
-@media (max-width: 768px) {
+@media (max-width: 1023px) {
   .banner {
-    min-height: 240px;
+    min-height: 320px;
+    border-radius: 28px;
   }
 
   .overlay {
-    min-height: 240px;
-    padding: 22px 20px;
+    min-height: 320px;
+    padding: 88px 0 32px 40px;
+    border-radius: 28px;
   }
 
   .title {
-    font-size: 1.2rem;
+    max-width: 430px;
+    font-size: 19px;
   }
 
   .subtitle {
-    font-size: 13px;
+    max-width: 320px;
+    font-size: 8px;
+  }
+}
+
+@media (max-width: 767px) {
+  .root {
+    gap: 10px;
+  }
+
+  .banner {
+    min-height: 260px;
+    border-radius: 24px;
+  }
+
+  .overlay {
+    min-height: 260px;
+    padding: 74px 16px 24px 22px;
+    gap: 10px;
+    border-radius: 24px;
+    background: transparent;
+  }
+
+  .overlayOnImage {
+    background: transparent;
+  }
+
+  .title {
+    max-width: 280px;
+    font-size: 18px;
+    line-height: 1.1;
+  }
+
+  .subtitle {
+    max-width: 220px;
+    font-size: 8px;
+    line-height: 1.35;
   }
 }

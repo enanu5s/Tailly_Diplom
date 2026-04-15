@@ -2,7 +2,7 @@
 
 import { makeAutoObservable, runInAction } from 'mobx';
 
-import { authStore } from './authStore';
+import { authStore } from '@/features/auth/model/authStore';
 import { LoginError } from './types';
 import { authService } from '../service/authService';
 
@@ -12,7 +12,7 @@ class LoginStore {
   email = '';
   password = '';
 
-  loginAsSpecialist = false; // 🔥 НОВОЕ
+  loginAsSpecialist = false;
 
   isSubmitting = false;
   submitError = '';
@@ -59,14 +59,17 @@ class LoginStore {
       this.submitError = '';
     });
 
-    try {
-      const result = await authService.login({
+        try {
+      console.log('[loginStore.submit] before authService.login');
+
+      await authService.login({
         email: this.email.trim(),
         password: this.password,
         requestedRole: this.requestedRole,
       });
 
-      authStore.setAuth(result.accessToken, result.user);
+      console.log('[loginStore.submit] login success');
+      console.log('[loginStore.submit] auth state:', authStore.getState());
 
       runInAction(() => {
         this.failedAttemptsLeft = null;

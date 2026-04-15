@@ -1,3 +1,11 @@
+@font-face {
+  font-family: 'Igra Sans';
+  src: url('/fonts/IgraSans.woff2') format('woff2');
+  font-weight: 400 800;
+  font-style: normal;
+  font-display: swap;
+}
+
 .card {
   display: grid;
   grid-template-columns: 220px 1fr;
@@ -11,9 +19,7 @@
 .textCol {
   display: flex;
   flex-direction: column;
-  gap: 12px;
-
-  /* важно для фикс высоты */
+  gap: 8px;
   min-height: 0;
 }
 
@@ -21,7 +27,7 @@
   grid-column: 1 / -1;
   display: flex;
   flex-direction: column;
-  gap: 12px;
+  gap: 8px;
 }
 
 .photoCol {
@@ -99,8 +105,27 @@
 }
 
 .stars {
-  font-size: 14px;
-  color: #111827;
+  flex-shrink: 0;
+}
+
+.starsRow {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.star,
+.starFilled {
+  width: 18px;
+  height: 18px;
+  display: inline-block;
+  background-color: #e7dcc8;
+  -webkit-mask: url('/icons/star.svg') center / contain no-repeat;
+  mask: url('/icons/star.svg') center / contain no-repeat;
+}
+
+.starFilled {
+  background-color: #f2b21c;
 }
 
 .meta {
@@ -109,8 +134,23 @@
   display: flex;
   flex-direction: column;
   gap: 4px;
-
   overflow: hidden;
+}
+
+.metaLanding {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.specialistLine {
+  color: #2f241e;
+  font-size: 12px;
+  line-height: 1.35;
+}
+
+.specialistLabel {
+  font-weight: 700;
 }
 
 .link {
@@ -122,15 +162,34 @@
   text-decoration: underline;
 }
 
+.linkLanding {
+  color: #2f241e;
+  font-weight: 700;
+  text-decoration: none;
+}
+
+.linkLanding:hover {
+  text-decoration: underline;
+}
+
 .text {
   color: #111827;
   line-height: 1.45;
-
-  /* важно для фиксированной карточки */
   overflow: hidden;
   display: -webkit-box;
   line-clamp: 4;
-  -webkit-line-clamp: 4; /* подгони: 4-6 */
+  -webkit-line-clamp: 4;
+  -webkit-box-orient: vertical;
+}
+
+.textLanding {
+  color: #675952;
+  font-size: 12px;
+  line-height: 1.38;
+  overflow: hidden;
+  display: -webkit-box;
+  line-clamp: 4;
+  -webkit-line-clamp: 4;
   -webkit-box-orient: vertical;
 }
 
@@ -163,16 +222,11 @@
   display: grid;
   grid-template-columns: 220px 1fr;
   gap: 16px;
-
   border-radius: 16px;
   padding: 16px;
   background: #fff;
   box-shadow: 0 10px 30px rgba(17, 24, 39, 0.06);
-
-  /* фиксируем высоту, чтобы не прыгало */
   height: 240px;
-
-  /* важно: чтобы внутренние блоки могли ужиматься */
   overflow: hidden;
 }
 
@@ -181,8 +235,6 @@
   display: flex;
   flex-direction: column;
   gap: 12px;
-
-  /* чтобы текст не раздувал карточку */
   min-height: 0;
 }
 
@@ -195,38 +247,250 @@
 }
 
 .arrowsReserve {
-  height: 40px; /* ровно под твои стрелки + margin */
+  height: 40px;
   margin-top: 10px;
 }
 
 .cardLanding {
-  border: 1px solid rgba(30, 30, 30, 0.08);
-  box-shadow: 0 16px 42px rgba(62, 47, 38, 0.08);
+  display: grid;
+  grid-template-columns: 248px minmax(0, 1fr);
+  gap: 16px;
+  align-items: start;
+  min-height: 218px;
   height: auto;
-  min-height: 220px;
-  max-height: 280px;
+  max-height: none;
+  padding: 16px 18px;
+  border-radius: 24px;
+  border: 1px solid rgba(46, 31, 22, 0.06);
+  background: #ffffff;
+  box-shadow: 0 16px 42px rgba(62, 47, 38, 0.08);
 }
 
-.cardLanding .primaryBtn {
-  background: #a9c400;
-  color: #1e1e1e;
-  border-radius: 18px;
-  padding: 10px 16px;
+.cardLanding .photoWrap {
+  width: 248px;
 }
 
-.cardLanding .primaryBtn:hover {
-  filter: brightness(1.05);
+.cardLanding .photoBtn {
+  width: 248px;
+  height: 156px;
+  border-radius: 16px;
+  display: block;
 }
 
-.cardLanding .stars {
-  color: #ffb700;
-  letter-spacing: 1px;
+.cardLanding .photoPlaceholder {
+  width: 248px;
+  height: 156px;
+  border-radius: 16px;
 }
 
-.cardLanding .link {
-  color: #3d5a1f;
+.cardLanding .photoCol {
+  align-items: flex-start;
+}
+
+.cardLanding .textCol {
+  display: grid;
+  grid-template-rows: 156px auto;
+  gap: 14px;
+  min-height: 0;
+}
+
+.cardLanding .header {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  flex-shrink: 0;
+}
+
+.landingTop {
+  display: flex;
+  flex-direction: column;
+  height: 156px;
+  min-height: 156px;
+}
+
+.cardLanding .header {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  flex-shrink: 0;
+}
+
+.cardLanding .textLanding {
+  color: #6a5b53;
+  font-family: 'Montserrat', system-ui, -apple-system, sans-serif;
+  font-size: 13px;
+  line-height: 1.38;
+  margin-top: 8px;
+  flex: 1 1 auto;
+  min-height: 0;
+  overflow: hidden;
+  display: -webkit-box;
+  line-clamp: 4;
+  -webkit-line-clamp: 4;
+  -webkit-box-orient: vertical;
+}
+
+.cardLanding .titleRow {
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.serviceTitleBlock {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+}
+
+.serviceCityPlaceholder {
+  min-height: 19px;
+  flex-shrink: 0;
 }
 
 .cardLanding .serviceTitle {
-  font-weight: 600;
+  color: #2a1a14;
+  font-family: 'Igra Sans', 'Montserrat', system-ui, sans-serif;
+  font-size: 17px;
+  line-height: 1.1;
+  font-weight: 700;
+  letter-spacing: -0.02em;
+  max-width: 180px;
+}
+
+.cardLanding .starsRow {
+  gap: 8px;
+}
+
+.cardLanding .star,
+.cardLanding .starFilled {
+  width: 22px;
+  height: 22px;
+}
+
+.cardLanding .textLanding {
+  color: #6a5b53;
+  font-family: 'Montserrat', system-ui, -apple-system, sans-serif;
+  font-size: 13px;
+  line-height: 1.38;
+  margin-top: 8px;
+  flex: 1 1 auto;
+  min-height: 0;
+  overflow: hidden;
+  display: -webkit-box;
+  line-clamp: 4;
+  -webkit-line-clamp: 4;
+  -webkit-box-orient: vertical;
+}
+
+.cardLanding .primaryBtn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+
+  min-width: 280px;
+  max-width: 320px;
+  padding: 0 20px;
+
+  align-self: flex-start;
+}
+
+.cardLanding .primaryBtn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 290px;
+  max-width: 320px;
+  min-height: 42px;
+  padding: 0 18px;
+  border-radius: 999px;
+  background: #c9d500;
+  color: #23150d;
+  text-decoration: none;
+  font-family: 'Montserrat', system-ui, -apple-system, sans-serif;
+  font-size: 13px;
+  font-weight: 700;
+  align-self: flex-start;
+  transition:
+    transform 0.2s ease,
+    filter 0.2s ease;
+}
+
+.cardLanding .primaryBtn:hover {
+  transform: translateY(-1px);
+  filter: brightness(1.02);
+}
+
+.cardLanding .moreBadge {
+  right: 8px;
+  bottom: 8px;
+  min-width: 42px;
+  min-height: 42px;
+  padding: 0 10px;
+  border-radius: 14px;
+  background: rgba(255, 248, 239, 0.96);
+  color: #6e635b;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  font-family: 'Montserrat', system-ui, -apple-system, sans-serif;
+  font-size: 12px;
+  font-weight: 700;
+  box-shadow: 0 8px 16px rgba(62, 47, 38, 0.08);
+}
+
+.cardLanding .actions {
+  margin-top: 12px;
+  flex-shrink: 0;
+}
+
+@media (max-width: 1180px) {
+  .cardLanding {
+    grid-template-columns: 228px minmax(0, 1fr);
+  }
+
+  .cardLanding .photoWrap {
+    width: 228px;
+  }
+
+  .cardLanding .photoBtn,
+  .cardLanding .photoPlaceholder {
+    width: 228px;
+    height: 148px;
+  }
+
+  .cardLanding .serviceTitle {
+    max-width: 170px;
+  }
+
+  .cardLanding .primaryBtn {
+    min-width: 250px;
+    max-width: 300px;
+  }
+}
+
+@media (max-width: 767px) {
+  .cardLanding {
+    grid-template-columns: 1fr;
+    gap: 14px;
+    min-height: auto;
+  }
+
+  .cardLanding .photoWrap {
+    width: 100%;
+  }
+
+  .cardLanding .photoBtn,
+  .cardLanding .photoPlaceholder {
+    width: 100%;
+    height: 200px;
+  }
+
+  .cardLanding .serviceTitle {
+    max-width: none;
+    font-size: 17px;
+  }
+
+  .cardLanding .titleRow {
+    flex-wrap: wrap;
+  }
 }

@@ -13,31 +13,31 @@ export const SERVICES: ServiceConfig[] = [
   {
     id: 'walking',
     title: 'Выгул',
-    subtitle: 'Пешие прогулки и активность',
+    subtitle: 'Индивидуальный подход, активные прогулки и полная безопасность',
     iconUrl: '/images/home/s-walk.png',
   },
   {
     id: 'boarding',
     title: 'Передержка',
-    subtitle: 'Забота на время отъезда',
+    subtitle: 'Круглосуточный присмотр, сбалансированное питание и любовь к вашему питомцу',
     iconUrl: '/images/home/s-boarding.png',
   },
   {
     id: 'grooming',
     title: 'Груминг',
-    subtitle: 'Стрижка, мытьё, уход',
+    subtitle: 'Красивые стрижки, гигиена и спа-уход',
     iconUrl: '/images/home/s-grooming.png',
   },
   {
     id: 'training',
     title: 'Тренировки',
-    subtitle: 'Базовые команды и привычки',
+    subtitle: 'Коррекция поведения, освоение команд и социализация под руководством зоопсихолога',
     iconUrl: '/images/home/s-training.png',
   },
   {
     id: 'photoshoot',
     title: 'Фотосессия',
-    subtitle: 'Памятные кадры с питомцем',
+    subtitle: 'Сохраним самые трогательные моменты в идеальном качестве',
     iconUrl: '/images/home/s-photoshoot.png',
   },
 ];

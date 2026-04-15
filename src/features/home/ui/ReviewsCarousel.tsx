@@ -33,11 +33,7 @@ export function ReviewsCarousel(props: { items: HomeReview[] }) {
     <div className={styles.root}>
       <h2 className={styles.title}>Реальные отзывы клиентов</h2>
 
-      <div
-        className={
-          items.length >= 2 ? styles.cardsGrid : styles.cardsGridSingle
-        }
-      >
+      <div className={items.length >= 2 ? styles.cardsGrid : styles.cardsGridSingle}>
         <ReviewCard
           review={reviewA}
           fixedLayout
@@ -62,15 +58,16 @@ export function ReviewsCarousel(props: { items: HomeReview[] }) {
             onClick={handlePrev}
             aria-label="Предыдущие отзывы"
           >
-            ←
+            <img src="/icons/arrow-left.svg" alt="" />
           </button>
+
           <button
             type="button"
             className={styles.arrow}
             onClick={handleNext}
             aria-label="Следующие отзывы"
           >
-            →
+            <img src="/icons/arrow-right.svg" alt="" />
           </button>
         </div>
       )}

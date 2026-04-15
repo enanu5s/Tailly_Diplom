@@ -44,5 +44,7 @@ export const footerLinks = {
     email: 'support@tailly.ru',
     phone: '+7 (495) 123-45-67',
     address: 'г. Москва, ул. Примерная, д. 10',
+    telegramUrl: 'https://t.me/tailly',
+    vkUrl: 'https://vk.com/tailly',
   },
 };

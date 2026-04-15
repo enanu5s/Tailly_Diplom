@@ -1,7 +1,8 @@
-//src/pages/register-client/step1/ui/RegisterClientStep1Page.tsx
+// src/pages/register-client/step1/ui/RegisterClientStep1Page.tsx
 import { useState } from 'react';
 
 import { registerService } from '@/features/auth/model/registerService';
+import { HttpError } from '@/shared/api/http';
 import { useAppNavigate } from '@/shared/lib/navigation/useAppNavigate';
 
 import styles from '../../RegisterClient.module.css';
@@ -21,23 +22,43 @@ export const RegisterClientStep1Page = () => {
     e.preventDefault();
     setError(null);
 
-    if (password.length < 6) {
-      setError('Пароль должен быть минимум 6 символов');
+    if (password.length < 8) {
+      setError('Пароль должен быть минимум 8 символов');
       return;
     }
+
     if (password !== password2) {
       setError('Пароли не совпадают');
       return;
     }
 
     setLoading(true);
+
     try {
       await registerService.start(email, password);
       navigate('/register/client/verify');
     } catch (error: unknown) {
-      const message = error instanceof Error ? error.message : 'Ошибка регистрации';
+      console.log('[RegisterClientStep1Page] start register error:', error);
 
-      setError(message);
+      if (error instanceof HttpError) {
+        console.log('[RegisterClientStep1Page] status:', error.status);
+        console.log('[RegisterClientStep1Page] body:', error.body);
+        console.log('[RegisterClientStep1Page] code:', error.code);
+        console.log('[RegisterClientStep1Page] fieldErrors:', error.fieldErrors);
+
+        const firstFieldError =
+          error.fieldErrors && Object.values(error.fieldErrors).find(Boolean);
+
+        setError(
+          firstFieldError ||
+            error.message ||
+            'Не удалось начать регистрацию. Проверьте введённые данные.',
+        );
+      } else if (error instanceof Error) {
+        setError(error.message);
+      } else {
+        setError('Ошибка регистрации');
+      }
     } finally {
       setLoading(false);
     }

@@ -7,7 +7,7 @@ import {
   AccountDeletionError,
   accountDeletionService,
 } from '@/features/account-deletion';
-import { authService } from '@/features/auth/model/authService';
+import { authService } from '@/features/auth/service/authService';
 import { useAuth } from '@/features/auth/model/useAuth';
 import { useAppNavigate } from '@/shared/lib/navigation/useAppNavigate';
 

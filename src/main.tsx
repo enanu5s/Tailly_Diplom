@@ -4,7 +4,7 @@ import ReactDOM from 'react-dom/client';
 import { RouterProvider, createBrowserRouter } from 'react-router-dom';
 
 import { routes } from '@/app/router/routes';
-import { authService } from '@/features/auth/model/authService';
+import { authService } from '@/features/auth/service/authService';
 import { authStore } from '@/features/auth/model/authStore';
 import { migrateAdminPostsFromIndexedDbOnce } from '@/features/admin-posts-banners-management/data/adminPostsBannersStorage';
 import { seedDemoMessagesIfEmpty } from '@/features/messages/data/messagesStorage';
@@ -34,6 +34,17 @@ function bootstrap() {
   configureHttpClient({
     getAuthToken: () => authStore.getToken(),
     onUnauthorized: () => {
+      console.log('[main] unauthorized response', {
+        currentPath: window.location.pathname,
+        currentSearch: window.location.search,
+        token: authStore.getToken(),
+      });
+    },
+  });
+
+  /* configureHttpClient({
+    getAuthToken: () => authStore.getToken(),
+    onUnauthorized: () => {
       const currentPath = window.location.pathname;
       const currentSearch = window.location.search;
       const redirectPath = getUnauthorizedRedirectPath(currentPath);
@@ -48,7 +59,7 @@ function bootstrap() {
         window.location.replace(redirectPath);
       }
     },
-  });
+  }); */
 
   ReactDOM.createRoot(document.getElementById('root')!).render(
     <React.StrictMode>

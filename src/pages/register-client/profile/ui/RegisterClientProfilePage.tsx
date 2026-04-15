@@ -1,4 +1,4 @@
-//src/pages/register-client/profile/ui/RegisterClientProfilePage.tsx
+// src/pages/register-client/profile/ui/RegisterClientProfilePage.tsx
 
 import { useEffect, useRef, useState } from 'react';
 
@@ -31,7 +31,9 @@ export const RegisterClientProfilePage = () => {
   const [loading, setLoading] = useState(false);
 
   useEffect(() => {
-    if (!flow.verificationToken) navigate('/register/client', { replace: true });
+    if (!flow.verificationToken) {
+      navigate('/register/client', { replace: true });
+    }
   }, [flow.verificationToken, navigate]);
 
   useEffect(() => {
@@ -166,21 +168,27 @@ export const RegisterClientProfilePage = () => {
     e.preventDefault();
     setError(null);
 
-    if (!flow.verificationToken) return;
-
-    if (!selectedLocality) {
-      setError('Выберите населённый пункт из списка подсказок 2GIS');
+    if (!flow.verificationToken) {
       return;
     }
 
-    const cityId = specialistsGeoService.localityToCityId(selectedLocality);
-    const cityLabel = (
-      selectedLocality.fullName ||
-      selectedLocality.name ||
-      ''
-    ).trim();
+    const normalizedCityInput = cityInput.trim();
+
+    if (!normalizedCityInput) {
+      setError('Введите населённый пункт');
+      return;
+    }
+
+    const cityId = selectedLocality
+      ? specialistsGeoService.localityToCityId(selectedLocality)
+      : normalizedCityInput;
+
+    const cityLabel = selectedLocality
+      ? (selectedLocality.fullName || selectedLocality.name || '').trim()
+      : normalizedCityInput;
 
     setLoading(true);
+
     try {
       await registerService.complete(
         flow.verificationToken,
@@ -190,6 +198,7 @@ export const RegisterClientProfilePage = () => {
         cityId,
         cityLabel,
       );
+
       navigate('/', { replace: true });
     } catch (err: unknown) {
       const message =
@@ -247,11 +256,12 @@ export const RegisterClientProfilePage = () => {
                 onChange={(e) => onCityInputChange(e.target.value)}
                 onKeyDown={handleLocalityKeyDown}
                 onBlur={handleLocalityBlur}
-                placeholder="Начните вводить название…"
+                placeholder="Начните вводить название или введите вручную"
                 autoComplete="off"
                 required
                 aria-autocomplete="list"
               />
+
               {localitySuggestionsLoading && (
                 <div className={styles.suggestLoading}>Загрузка из 2GIS…</div>
               )}
@@ -286,6 +296,12 @@ export const RegisterClientProfilePage = () => {
                 </ul>
               )}
             </div>
+
+            {!selectedLocality && cityInput.trim() && (
+              <div className={styles.hint}>
+                Подсказки недоступны — город будет сохранён по введённому значению.
+              </div>
+            )}
 
             {error && <div className={styles.error}>{error}</div>}
 

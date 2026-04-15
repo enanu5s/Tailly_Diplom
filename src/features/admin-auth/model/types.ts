@@ -9,7 +9,10 @@ export type AdminLoginPayload = {
 
 export type AdminLoginSuccessResponse = {
   accessToken: string;
-  user: AuthUser;
+  refreshToken: string;
+  accessTokenExpires: string;
+  refreshTokenExpires: string;
+  user?: AuthUser;
 };
 
 export type AdminLoginErrorCode =

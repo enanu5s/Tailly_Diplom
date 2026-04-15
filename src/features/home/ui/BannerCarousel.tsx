@@ -1,5 +1,3 @@
-// src/features/home/ui/BannerCarousel.tsx
-
 import { useMemo, useState } from 'react';
 
 import { useAppNavigate } from '@/shared/lib/navigation/useAppNavigate';
@@ -15,10 +13,27 @@ type Props = {
 const FALLBACK_BANNER_BACKGROUND =
   'linear-gradient(135deg, #cfe8a8 0%, #e8f0b8 38%, #fff3c8 100%)';
 
+const STATIC_HERO_BANNER: HomeBanner = {
+  id: 'static-home-hero-banner',
+  title: 'Ваш питомец в надёжных руках — где угодно и когда угодно!',
+  subtitle:
+    'Не нужно волноваться о путешествиях или загруженных днях — мы поможем найти идеальную передержку для вашего любимца.',
+  imageUrl: '/images/home/static-hero-banner.png',
+  linkUrl: '/services',
+  createdAtIso: '2025-01-01T00:00:00.000Z',
+};
+
 export function BannerCarousel({ items: rawItems }: Props) {
   const navigate = useAppNavigate();
 
-  const items = useMemo(() => rawItems.slice(0, 5), [rawItems]);
+  const items = useMemo<HomeBanner[]>(() => {
+    const filteredDynamicItems = rawItems
+      .filter((item) => item.id !== STATIC_HERO_BANNER.id)
+      .slice(0, 4);
+
+    return [STATIC_HERO_BANNER, ...filteredDynamicItems];
+  }, [rawItems]);
+
   const [idx, setIdx] = useState(0);
 
   const safeIdx = items.length === 0 ? 0 : Math.min(idx, items.length - 1);
@@ -38,7 +53,9 @@ export function BannerCarousel({ items: rawItems }: Props) {
         backgroundImage: FALLBACK_BANNER_BACKGROUND,
       };
 
-  const handleOpenPost = (): void => {
+  const isClickable = Boolean(current.linkUrl || current.postId);
+
+  const handleOpenBanner = (): void => {
     if (current.linkUrl) {
       navigate(current.linkUrl, {
         state: {
@@ -57,27 +74,33 @@ export function BannerCarousel({ items: rawItems }: Props) {
     }
   };
 
+  const bannerContent = (
+    <div
+      className={`${styles.banner} ${hasImage ? '' : styles.bannerFallback}`}
+      style={backgroundStyle}
+    >
+      <div className={`${styles.overlay} ${hasImage ? styles.overlayOnImage : ''}`}>
+        <h3 className={styles.title}>{current.title}</h3>
+
+        {current.subtitle ? <p className={styles.subtitle}>{current.subtitle}</p> : null}
+      </div>
+    </div>
+  );
+
   return (
     <div className={styles.root}>
-      <button
-        type="button"
-        className={styles.bannerBtn}
-        onClick={handleOpenPost}
-        aria-label="Открыть пост"
-      >
-        <div
-          className={`${styles.banner} ${hasImage ? '' : styles.bannerFallback}`}
-          style={backgroundStyle}
+      {isClickable ? (
+        <button
+          type="button"
+          className={styles.bannerBtn}
+          onClick={handleOpenBanner}
+          aria-label="Открыть баннер"
         >
-          <div className={`${styles.overlay} ${hasImage ? styles.overlayOnImage : ''}`}>
-            <h3 className={styles.title}>{current.title}</h3>
-
-            {current.subtitle ? (
-              <p className={styles.subtitle}>{current.subtitle}</p>
-            ) : null}
-          </div>
-        </div>
-      </button>
+          {bannerContent}
+        </button>
+      ) : (
+        <div className={styles.bannerBtn}>{bannerContent}</div>
+      )}
 
       {items.length > 1 ? (
         <div className={styles.dots}>

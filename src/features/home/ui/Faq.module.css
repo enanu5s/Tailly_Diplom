@@ -1,44 +1,80 @@
 .root {
+  position: relative;
   display: flex;
   flex-direction: column;
-  gap: 20px;
+  gap: 28px;
+  isolation: isolate;
+}
+
+.root::before {
+  content: '';
+  position: absolute;
+
+  top: -60px;
+  left: 540px;
+  width: 250px;
+  height: 250px;
+
+  background: url('/images/home/faq-blur-ellipse.png') center / contain no-repeat;
+
+  pointer-events: none;
+  z-index: 1;
 }
 
 .title {
   margin: 0;
-  font-size: clamp(1.35rem, 2.5vw, 1.75rem);
+  color: #23150d;
+  font-family: 'Montserrat', system-ui, -apple-system, sans-serif;
+  font-size: clamp(2rem, 2.2vw, 2.9rem);
+  line-height: 1.08;
   font-weight: 700;
-  color: #1e1e1e;
-  letter-spacing: -0.02em;
+  letter-spacing: -0.03em;
 }
 
 .layout {
   display: grid;
-  grid-template-columns: 1fr;
-  gap: 28px;
-  align-items: start;
-}
-
-@media (min-width: 900px) {
-  .layout {
-    grid-template-columns: 1fr 1fr;
-    gap: 40px;
-    align-items: center;
-  }
+  position: relative;
+  grid-template-columns: minmax(0, 0.95fr) minmax(320px, 0.85fr);
+  gap: 32px;
+  align-items: end;
+  z-index: 1;
 }
 
 .list {
   display: flex;
   flex-direction: column;
-  gap: 12px;
+  gap: 14px;
 }
 
 .item {
-  background: #fff;
+  position: relative;
+  background: #ffffff;
   border-radius: 22px;
-  border: 1px solid rgba(30, 30, 30, 0.08);
-  box-shadow: 0 10px 32px rgba(62, 47, 38, 0.06);
-  overflow: hidden;
+  border: 1px solid rgba(35, 21, 13, 0.08);
+  box-shadow: 0 10px 28px rgba(62, 47, 38, 0.06);
+  overflow: visible;
+  transition:
+    box-shadow 0.2s ease,
+    transform 0.2s ease,
+    border-color 0.2s ease;
+}
+
+.item:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 14px 34px rgba(62, 47, 38, 0.09);
+}
+
+.itemActive {
+  box-shadow:
+    0 14px 34px rgba(255, 165, 0, 0.28),
+    0 6px 18px rgba(255, 165, 0, 0.18);
+}
+
+.itemActive:hover {
+  transform: translateY(-1px);
+  box-shadow:
+    0 14px 34px rgba(255, 165, 0, 0.28),
+    0 6px 18px rgba(255, 165, 0, 0.18);
 }
 
 .qRow {
@@ -46,43 +82,121 @@
   border: none;
   background: transparent;
   cursor: pointer;
-  padding: 16px 18px;
+  padding: 22px 22px;
   display: flex;
   justify-content: space-between;
-  gap: 12px;
+  gap: 14px;
   align-items: center;
   text-align: left;
 }
 
 .q {
-  color: #1e1e1e;
-  font-size: 15px;
-  font-weight: 500;
+  color: #23150d;
+  font-family: 'Montserrat', system-ui, -apple-system, sans-serif;
+  font-size: 1.02rem;
+  line-height: 1.32;
+  font-weight: 700;
 }
 
 .chev {
-  color: #6b6b6b;
-  font-size: 14px;
+  color: #4b392e;
+  font-size: 1rem;
+  line-height: 1;
   flex-shrink: 0;
 }
 
 .a {
-  padding: 0 18px 16px;
-  color: #5c5c5c;
-  font-size: 14px;
-  line-height: 1.5;
+  padding: 0 22px 20px;
+  color: #665952;
+  font-family: 'Montserrat', system-ui, -apple-system, sans-serif;
+  font-size: 0.92rem;
+  line-height: 1.55;
 }
 
 .artCol {
   display: flex;
   justify-content: center;
-  align-items: center;
+  align-items: flex-end;
 }
 
-.artSvg {
+.artImage {
   width: 100%;
-  max-width: 420px;
+  max-width: 520px;
   height: auto;
-  border-radius: 28px;
-  box-shadow: 0 16px 40px rgba(62, 47, 38, 0.08);
+  display: block;
+  object-fit: contain;
+}
+
+@media (max-width: 1023px) {
+  .root::before {
+    top: 28px;
+    left: 220px;
+    width: 180px;
+    height: 180px;
+  }
+
+  .title {
+    font-size: clamp(1.7rem, 6vw, 2.3rem);
+    line-height: 1.12;
+  }
+
+  .layout {
+    grid-template-columns: 1fr;
+    gap: 24px;
+    align-items: start;
+  }
+
+  .artCol {
+    order: 2;
+    align-items: center;
+  }
+
+  .artImage {
+    max-width: 420px;
+  }
+}
+
+@media (max-width: 639px) {
+  .root {
+    gap: 20px;
+  }
+
+  .root::before {
+    top: 34px;
+    left: 120px;
+    width: 140px;
+    height: 140px;
+  }
+
+  .list {
+    gap: 12px;
+  }
+
+  .item {
+    border-radius: 18px;
+  }
+
+  .qRow {
+    padding: 18px 18px;
+  }
+
+  .q {
+    font-size: 0.95rem;
+  }
+
+  .a {
+    padding: 0 18px 18px;
+    font-size: 0.88rem;
+  }
+
+  .artImage {
+    max-width: 100%;
+  }
+
+  .itemActive,
+  .itemActive:hover {
+    box-shadow:
+      0 12px 28px rgba(255, 165, 0, 0.24),
+      0 4px 14px rgba(255, 165, 0, 0.14);
+  }
 }

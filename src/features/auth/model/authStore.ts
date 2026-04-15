@@ -22,10 +22,12 @@ export type AuthUser = {
 
 type AuthState = {
   token: string | null;
+  refreshToken: string | null;
   user: AuthUser | null;
 };
 
 const TOKEN_KEY = 'tailly_token';
+const REFRESH_TOKEN_KEY = 'tailly_refresh_token';
 const USER_KEY = 'tailly_user';
 
 function normalizeRole(role?: string): UserRole {
@@ -117,6 +119,7 @@ function readUserFromStorage(): AuthUser | null {
 function readInitialState(): AuthState {
   return {
     token: localStorage.getItem(TOKEN_KEY),
+    refreshToken: localStorage.getItem(REFRESH_TOKEN_KEY),
     user: readUserFromStorage(),
   };
 }
@@ -145,20 +148,36 @@ export const authStore = {
     return state.token;
   },
 
-  setAuth(token: string, user: AuthUser): void {
-    const normalizedUser = normalizeUser(user);
+  getRefreshToken(): string | null {
+    return state.refreshToken;
+  },
 
-    if (!normalizedUser) {
-      return;
-    }
+  setAuth(params: {
+    token: string;
+    refreshToken?: string | null;
+    user?: AuthUser | null;
+  }): void {
+    const normalizedUser = params.user ? normalizeUser(params.user) : null;
 
     state = {
-      token,
+      token: params.token,
+      refreshToken: params.refreshToken ?? null,
       user: normalizedUser,
     };
 
-    localStorage.setItem(TOKEN_KEY, token);
-    localStorage.setItem(USER_KEY, JSON.stringify(normalizedUser));
+    localStorage.setItem(TOKEN_KEY, params.token);
+
+    if (params.refreshToken) {
+      localStorage.setItem(REFRESH_TOKEN_KEY, params.refreshToken);
+    } else {
+      localStorage.removeItem(REFRESH_TOKEN_KEY);
+    }
+
+    if (normalizedUser) {
+      localStorage.setItem(USER_KEY, JSON.stringify(normalizedUser));
+    } else {
+      localStorage.removeItem(USER_KEY);
+    }
 
     emit();
   },
@@ -186,15 +205,33 @@ export const authStore = {
     emit();
   },
 
+  setUser(user: AuthUser): void {
+    const normalizedUser = normalizeUser(user);
+
+    if (!normalizedUser) {
+      return;
+    }
+
+    state = {
+      ...state,
+      user: normalizedUser,
+    };
+
+    localStorage.setItem(USER_KEY, JSON.stringify(normalizedUser));
+    emit();
+  },
+
   logout(): void {
     ordersStore.resetSessionProductOrders();
 
     state = {
       token: null,
+      refreshToken: null,
       user: null,
     };
 
     localStorage.removeItem(TOKEN_KEY);
+    localStorage.removeItem(REFRESH_TOKEN_KEY);
     localStorage.removeItem(USER_KEY);
 
     sessionStorage.setItem('tailly_logged_out', '1');

@@ -10,7 +10,10 @@ export type LoginPayload = {
 
 export type LoginSuccessResponse = {
   accessToken: string;
-  user: AuthUser;
+  refreshToken: string;
+  accessTokenExpires: string;
+  refreshTokenExpires: string;
+  user?: AuthUser;
 };
 
 export type LoginErrorCode =

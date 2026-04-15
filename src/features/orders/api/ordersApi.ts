@@ -1,6 +1,6 @@
 // src/features/orders/api/ordersApi.ts
 
-import { request } from '@/shared/api/http';
+import { HttpError, request } from '@/shared/api/http';
 import { isMockApiMode } from '@/shared/config/env';
 
 import {
@@ -141,47 +141,234 @@ async function realLeaveServiceReview(
   );
 }
 
+function shouldFallbackToMock(error: unknown): boolean {
+  return error instanceof HttpError && (error.status === 401 || error.status === 404);
+}
+
 /* ---------------- EXPORT ---------------- */
 
 export const ordersApi = {
-  getServiceOrders: (filter: ServicesFilter) =>
-    isMockApiMode ? mockGetServiceOrders(filter) : realGetServiceOrders(filter),
+  async getServiceOrders(filter: ServicesFilter): Promise<ServiceOrder[]> {
+    if (isMockApiMode) {
+      return mockGetServiceOrders(filter);
+    }
 
-  getServiceOrderById: (orderId: string) =>
-    isMockApiMode ? mockGetServiceOrderById(orderId) : realGetServiceOrderById(orderId),
+    try {
+      return await realGetServiceOrders(filter);
+    } catch (error) {
+      if (shouldFallbackToMock(error)) {
+        console.warn('[ordersApi.getServiceOrders] falling back to mock:', error);
+        return mockGetServiceOrders(filter);
+      }
 
-  createServiceOrder: (payload: CreateServiceOrderPayload) =>
-    isMockApiMode ? mockCreateServiceOrder(payload) : realCreateServiceOrder(payload),
+      throw error;
+    }
+  },
 
-  confirmServiceOrder: (orderId: string) =>
-    isMockApiMode ? mockConfirmServiceOrder(orderId) : realConfirmServiceOrder(orderId),
+  async getServiceOrderById(orderId: string): Promise<ServiceOrder> {
+    if (isMockApiMode) {
+      return mockGetServiceOrderById(orderId);
+    }
 
-  startServiceOrder: (orderId: string) =>
-    isMockApiMode ? mockStartServiceOrder(orderId) : realStartServiceOrder(orderId),
+    try {
+      return await realGetServiceOrderById(orderId);
+    } catch (error) {
+      if (shouldFallbackToMock(error)) {
+        console.warn('[ordersApi.getServiceOrderById] falling back to mock:', error);
+        return mockGetServiceOrderById(orderId);
+      }
 
-  completeServiceOrder: (orderId: string) =>
-    isMockApiMode ? mockCompleteServiceOrder(orderId) : realCompleteServiceOrder(orderId),
+      throw error;
+    }
+  },
 
-  cancelServiceOrder: (orderId: string) =>
-    isMockApiMode ? mockCancelServiceOrder(orderId) : realCancelServiceOrder(orderId),
+  async createServiceOrder(payload: CreateServiceOrderPayload): Promise<ServiceOrder> {
+    if (isMockApiMode) {
+      return mockCreateServiceOrder(payload);
+    }
 
-  getProductOrders: () =>
-    isMockApiMode ? mockGetProductOrders() : realGetProductOrders(),
+    try {
+      return await realCreateServiceOrder(payload);
+    } catch (error) {
+      if (shouldFallbackToMock(error)) {
+        console.warn('[ordersApi.createServiceOrder] falling back to mock:', error);
+        return mockCreateServiceOrder(payload);
+      }
 
-  getProductOrderById: (orderId: string) =>
-    isMockApiMode ? mockGetProductOrderById(orderId) : realGetProductOrderById(orderId),
+      throw error;
+    }
+  },
 
-  cancelProductOrder: (orderId: string) =>
-    isMockApiMode ? mockCancelProductOrder(orderId) : realCancelProductOrder(orderId),
+  async confirmServiceOrder(orderId: string): Promise<ConfirmOrderResult> {
+    if (isMockApiMode) {
+      return mockConfirmServiceOrder(orderId);
+    }
 
-  repeatServiceOrder: (orderId: string) =>
-    isMockApiMode ? mockRepeatServiceOrder(orderId) : realRepeatServiceOrder(orderId),
+    try {
+      return await realConfirmServiceOrder(orderId);
+    } catch (error) {
+      if (shouldFallbackToMock(error)) {
+        console.warn('[ordersApi.confirmServiceOrder] falling back to mock:', error);
+        return mockConfirmServiceOrder(orderId);
+      }
 
-  repeatProductOrder: (orderId: string) =>
-    isMockApiMode ? mockRepeatProductOrder(orderId) : realRepeatProductOrder(orderId),
+      throw error;
+    }
+  },
 
-  leaveServiceReview: (orderId: string, payload: LeaveServiceReviewPayload) =>
-    isMockApiMode
-      ? mockLeaveServiceReview(orderId, payload)
-      : realLeaveServiceReview(orderId, payload),
+  async startServiceOrder(orderId: string): Promise<StartOrderResult> {
+    if (isMockApiMode) {
+      return mockStartServiceOrder(orderId);
+    }
+
+    try {
+      return await realStartServiceOrder(orderId);
+    } catch (error) {
+      if (shouldFallbackToMock(error)) {
+        console.warn('[ordersApi.startServiceOrder] falling back to mock:', error);
+        return mockStartServiceOrder(orderId);
+      }
+
+      throw error;
+    }
+  },
+
+  async completeServiceOrder(orderId: string): Promise<CompleteOrderResult> {
+    if (isMockApiMode) {
+      return mockCompleteServiceOrder(orderId);
+    }
+
+    try {
+      return await realCompleteServiceOrder(orderId);
+    } catch (error) {
+      if (shouldFallbackToMock(error)) {
+        console.warn('[ordersApi.completeServiceOrder] falling back to mock:', error);
+        return mockCompleteServiceOrder(orderId);
+      }
+
+      throw error;
+    }
+  },
+
+  async cancelServiceOrder(orderId: string): Promise<CancelOrderResult> {
+    if (isMockApiMode) {
+      return mockCancelServiceOrder(orderId);
+    }
+
+    try {
+      return await realCancelServiceOrder(orderId);
+    } catch (error) {
+      if (shouldFallbackToMock(error)) {
+        console.warn('[ordersApi.cancelServiceOrder] falling back to mock:', error);
+        return mockCancelServiceOrder(orderId);
+      }
+
+      throw error;
+    }
+  },
+
+  async getProductOrders(): Promise<ProductOrder[]> {
+    if (isMockApiMode) {
+      return mockGetProductOrders();
+    }
+
+    try {
+      return await realGetProductOrders();
+    } catch (error) {
+      if (shouldFallbackToMock(error)) {
+        console.warn('[ordersApi.getProductOrders] falling back to mock:', error);
+        return mockGetProductOrders();
+      }
+
+      throw error;
+    }
+  },
+
+  async getProductOrderById(orderId: string): Promise<ProductOrder> {
+    if (isMockApiMode) {
+      return mockGetProductOrderById(orderId);
+    }
+
+    try {
+      return await realGetProductOrderById(orderId);
+    } catch (error) {
+      if (shouldFallbackToMock(error)) {
+        console.warn('[ordersApi.getProductOrderById] falling back to mock:', error);
+        return mockGetProductOrderById(orderId);
+      }
+
+      throw error;
+    }
+  },
+
+  async cancelProductOrder(orderId: string): Promise<CancelOrderResult> {
+    if (isMockApiMode) {
+      return mockCancelProductOrder(orderId);
+    }
+
+    try {
+      return await realCancelProductOrder(orderId);
+    } catch (error) {
+      if (shouldFallbackToMock(error)) {
+        console.warn('[ordersApi.cancelProductOrder] falling back to mock:', error);
+        return mockCancelProductOrder(orderId);
+      }
+
+      throw error;
+    }
+  },
+
+  async repeatServiceOrder(orderId: string): Promise<RepeatResult> {
+    if (isMockApiMode) {
+      return mockRepeatServiceOrder(orderId);
+    }
+
+    try {
+      return await realRepeatServiceOrder(orderId);
+    } catch (error) {
+      if (shouldFallbackToMock(error)) {
+        console.warn('[ordersApi.repeatServiceOrder] falling back to mock:', error);
+        return mockRepeatServiceOrder(orderId);
+      }
+
+      throw error;
+    }
+  },
+
+  async repeatProductOrder(orderId: string): Promise<ProductOrderRepeatCheckoutDraft> {
+    if (isMockApiMode) {
+      return mockRepeatProductOrder(orderId);
+    }
+
+    try {
+      return await realRepeatProductOrder(orderId);
+    } catch (error) {
+      if (shouldFallbackToMock(error)) {
+        console.warn('[ordersApi.repeatProductOrder] falling back to mock:', error);
+        return mockRepeatProductOrder(orderId);
+      }
+
+      throw error;
+    }
+  },
+
+  async leaveServiceReview(
+    orderId: string,
+    payload: LeaveServiceReviewPayload,
+  ): Promise<ReviewResult> {
+    if (isMockApiMode) {
+      return mockLeaveServiceReview(orderId, payload);
+    }
+
+    try {
+      return await realLeaveServiceReview(orderId, payload);
+    } catch (error) {
+      if (shouldFallbackToMock(error)) {
+        console.warn('[ordersApi.leaveServiceReview] falling back to mock:', error);
+        return mockLeaveServiceReview(orderId, payload);
+      }
+
+      throw error;
+    }
+  },
 };

@@ -1,3 +1,5 @@
+// src/shared/api/schemas/authUserSchema.ts
+
 import { z } from 'zod';
 
 import type { AuthUser, UserRole } from '@/features/auth/model/authStore';
@@ -27,5 +29,8 @@ export const authUserSchema = z.object({
 
 export const loginSuccessResponseSchema = z.object({
   accessToken: z.string(),
-  user: authUserSchema,
+  refreshToken: z.string(),
+  accessTokenExpires: z.string(),
+  refreshTokenExpires: z.string(),
+  user: authUserSchema.optional(),
 });

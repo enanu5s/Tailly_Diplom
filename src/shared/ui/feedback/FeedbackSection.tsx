@@ -9,16 +9,12 @@ import styles from './FeedbackSection.module.css';
 type Props = {
   phone?: string;
   email?: string;
-  imageSrc?: string;
-  imageAlt?: string;
   className?: string;
 };
 
 export const FeedbackSection = ({
-  phone = '+7 (495) 123-45-67',
-  email = 'support@tailly.ru',
-  imageSrc = '/images/feedback-pets.png',
-  imageAlt = 'Служба поддержки Tailly',
+  phone = '+7 (900) 765-43-21',
+  email = 'help@tailly.com',
   className,
 }: Props) => {
   const [name, setName] = useState('');
@@ -30,7 +26,7 @@ export const FeedbackSection = ({
   const [error, setError] = useState<string | null>(null);
   const [success, setSuccess] = useState(false);
 
-  const onSubmit = async (e: React.FormEvent) => {
+  const onSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     setError(null);
     setSuccess(false);
@@ -41,18 +37,26 @@ export const FeedbackSection = ({
     }
 
     setLoading(true);
+
     try {
-      await feedbackApi.send({ name, email: userEmail, message });
+      await feedbackApi.send({
+        name,
+        email: userEmail,
+        message,
+      });
+
       setSuccess(true);
       setName('');
       setUserEmail('');
       setMessage('');
       setConsent(false);
-    } catch (error: unknown) {
-      const message =
-        error instanceof Error ? error.message : 'Не удалось отправить вопрос';
+    } catch (submissionError: unknown) {
+      const nextMessage =
+        submissionError instanceof Error
+          ? submissionError.message
+          : 'Не удалось отправить вопрос';
 
-      setError(message);
+      setError(nextMessage);
     } finally {
       setLoading(false);
     }
@@ -62,38 +66,46 @@ export const FeedbackSection = ({
     <section className={`${styles.section} ${className ?? ''}`}>
       <div className={styles.container}>
         <div className={styles.grid}>
-          {/* Левая колонка */}
           <div className={styles.left}>
             <h2 className={styles.title}>
-              Всегда на связи — с заботой о вас и ваших питомцах!
+              Всегда на связи — с заботой
+              <br />
+              о вас и ваших питомцах!
             </h2>
 
             <p className={styles.text}>
-              Наша команда готова помочь в любое время — отвечаем на вопросы, подбираем
-              идеального петситтера и поддерживаем на каждом этапе.
+              Наша команда готова помочь в любое время — отвечаем на вопросы,
+              подбираем идеального петситтера и поддерживаем на каждом этапе.
             </p>
 
             <div className={styles.contacts}>
               <a className={styles.contactLink} href={`tel:${phone.replace(/\D/g, '')}`}>
                 {phone}
               </a>
+
               <a className={styles.contactLink} href={`mailto:${email}`}>
                 {email}
               </a>
             </div>
 
-            <div className={styles.imageWrap} aria-hidden="true">
-              {imageSrc ? (
-                <img className={styles.image} src={imageSrc} alt={imageAlt} />
-              ) : null}
+            <div className={styles.bottomDecor} aria-hidden="true">
+              <img
+                className={styles.catBlob}
+                src="/images/home/feedback-cat-blob.png"
+                alt=""
+              />
+              <img
+                className={styles.parrot}
+                src="/images/home/feedback-parrot.png"
+                alt=""
+              />
             </div>
           </div>
 
-          {/* Правая колонка */}
           <div className={styles.right}>
             <div className={styles.card}>
               <h3 className={styles.cardTitle}>
-                Задайте вопрос — Мы с радостью поможем!
+                Задайте вопрос — мы с радостью поможем!
               </h3>
 
               <form className={styles.form} onSubmit={onSubmit}>
@@ -101,7 +113,7 @@ export const FeedbackSection = ({
                   className={styles.input}
                   placeholder="Ваше имя"
                   value={name}
-                  onChange={(e) => setName(e.target.value)}
+                  onChange={(event) => setName(event.target.value)}
                   required
                 />
 
@@ -110,7 +122,7 @@ export const FeedbackSection = ({
                   type="email"
                   placeholder="Email"
                   value={userEmail}
-                  onChange={(e) => setUserEmail(e.target.value)}
+                  onChange={(event) => setUserEmail(event.target.value)}
                   required
                 />
 
@@ -118,31 +130,27 @@ export const FeedbackSection = ({
                   className={styles.textarea}
                   placeholder="Опишите ваш вопрос"
                   value={message}
-                  onChange={(e) => setMessage(e.target.value)}
+                  onChange={(event) => setMessage(event.target.value)}
                   rows={5}
                   required
                 />
+
                 <label className={styles.consentRow}>
                   <input
                     className={styles.checkbox}
                     type="checkbox"
                     checked={consent}
-                    onChange={(e) => setConsent(e.target.checked)}
+                    onChange={(event) => setConsent(event.target.checked)}
                   />
                   <span className={styles.consentText}>
-                    Я согласен на обработку персональных данных.{' '}
-                    <a href="/docs/personal-data-agreement.pdf" download>
-                      Скачать документ
-                    </a>
+                    Я согласен на обработку персональных данных
                   </span>
                 </label>
 
-                {error && <div className={styles.error}>{error}</div>}
-                {success && (
-                  <div className={styles.success}>
-                    Вопрос отправлен! Мы скоро ответим.
-                  </div>
-                )}
+                {error ? <div className={styles.error}>{error}</div> : null}
+                {success ? (
+                  <div className={styles.success}>Вопрос отправлен! Мы скоро ответим.</div>
+                ) : null}
 
                 <button className={styles.submitButton} type="submit" disabled={loading}>
                   {loading ? 'Отправляем...' : 'Отправить вопрос'}

@@ -1,3 +1,4 @@
+// src/features/auth/model/registerFlowStore.ts
 type RegisterFlowState = {
   email: string | null;
   registrationId: string | null;

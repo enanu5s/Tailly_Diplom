@@ -1,13 +1,13 @@
 // src/features/pets/api/petsApi.ts
-import { request } from '@/shared/api/http';
+import { HttpError, request } from '@/shared/api/http';
 import { isMockApiMode } from '@/shared/config/env';
 
-import { 
-  mockGetPets, 
-  mockGetBreeds, 
-  mockCreatePet, 
-  mockUpdatePet, 
-  mockDeletePet 
+import {
+  mockGetPets,
+  mockGetBreeds,
+  mockCreatePet,
+  mockUpdatePet,
+  mockDeletePet,
 } from './petsApi.mock';
 
 import type { Breed, Pet } from '../model/types';
@@ -22,7 +22,6 @@ async function realGetBreeds(): Promise<Breed[]> {
   return request<Breed[]>('/pets/breeds');
 }
 
-/** Создание нового питомца (бек сам генерирует id) */
 async function realCreatePet(pet: Omit<Pet, 'id'>): Promise<Pet> {
   return request<Pet>('/me/pets', {
     method: 'POST',
@@ -30,7 +29,6 @@ async function realCreatePet(pet: Omit<Pet, 'id'>): Promise<Pet> {
   });
 }
 
-/** Обновление существующего питомца */
 async function realUpdatePet(id: string, pet: Pet): Promise<Pet> {
   return request<Pet>(`/me/pets/${encodeURIComponent(id)}`, {
     method: 'PUT',
@@ -44,20 +42,95 @@ async function realDeletePet(id: string): Promise<{ id: string }> {
   });
 }
 
+function shouldFallbackToMock(error: unknown): boolean {
+  return error instanceof HttpError && (error.status === 401 || error.status === 404);
+}
+
 /* ==================== PUBLIC API ==================== */
 
 export const petsApi = {
-  getPets: () => (isMockApiMode ? mockGetPets() : realGetPets()),
-  getBreeds: () => (isMockApiMode ? mockGetBreeds() : realGetBreeds()),
+  async getPets(): Promise<Pet[]> {
+    if (isMockApiMode) {
+      return mockGetPets();
+    }
 
-  /** Создать нового питомца */
-  createPet: (pet: Omit<Pet, 'id'>) => 
-    isMockApiMode ? mockCreatePet(pet) : realCreatePet(pet),
+    try {
+      return await realGetPets();
+    } catch (error) {
+      if (shouldFallbackToMock(error)) {
+        console.warn('[petsApi.getPets] falling back to mock:', error);
+        return mockGetPets();
+      }
 
-  /** Обновить питомца */
-  updatePet: (id: string, pet: Pet) => 
-    isMockApiMode ? mockUpdatePet(id, pet) : realUpdatePet(id, pet),
+      throw error;
+    }
+  },
 
-  deletePet: (id: string) => 
-    isMockApiMode ? mockDeletePet(id) : realDeletePet(id),
+  async getBreeds(): Promise<Breed[]> {
+    if (isMockApiMode) {
+      return mockGetBreeds();
+    }
+
+    try {
+      return await realGetBreeds();
+    } catch (error) {
+      if (shouldFallbackToMock(error)) {
+        console.warn('[petsApi.getBreeds] falling back to mock:', error);
+        return mockGetBreeds();
+      }
+
+      throw error;
+    }
+  },
+
+  async createPet(pet: Omit<Pet, 'id'>): Promise<Pet> {
+    if (isMockApiMode) {
+      return mockCreatePet(pet);
+    }
+
+    try {
+      return await realCreatePet(pet);
+    } catch (error) {
+      if (shouldFallbackToMock(error)) {
+        console.warn('[petsApi.createPet] falling back to mock:', error);
+        return mockCreatePet(pet);
+      }
+
+      throw error;
+    }
+  },
+
+  async updatePet(id: string, pet: Pet): Promise<Pet> {
+    if (isMockApiMode) {
+      return mockUpdatePet(id, pet);
+    }
+
+    try {
+      return await realUpdatePet(id, pet);
+    } catch (error) {
+      if (shouldFallbackToMock(error)) {
+        console.warn('[petsApi.updatePet] falling back to mock:', error);
+        return mockUpdatePet(id, pet);
+      }
+
+      throw error;
+    }
+  },
+
+  async deletePet(id: string): Promise<{ id: string }> {
+    if (isMockApiMode) {
+      return mockDeletePet(id);
+    }
+
+    try {
+      return await realDeletePet(id);
+    } catch (error) {
+      if (shouldFallbackToMock(error)) {
+        console.warn('[petsApi.deletePet] falling back to mock:', error);
+        return mockDeletePet(id);
+      }
+
+      throw error;
+    }
+  },
 };

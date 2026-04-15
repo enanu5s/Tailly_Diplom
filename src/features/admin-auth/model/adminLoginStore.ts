@@ -59,7 +59,11 @@ class AdminLoginStore {
         password: this.password,
       });
 
-      authStore.setAuth(result.accessToken, result.user);
+      authStore.setAuth({
+        token: result.accessToken,
+        refreshToken: result.refreshToken,
+        user: result.user ?? null,
+      });
 
       runInAction(() => {
         this.failedAttemptsLeft = null;
