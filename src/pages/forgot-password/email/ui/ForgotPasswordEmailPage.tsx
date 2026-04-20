@@ -1,14 +1,13 @@
 // src/pages/forgot-password/email/ui/ForgotPasswordEmailPage.tsx
 
-import { useState } from 'react';
-import { Link } from 'react-router-dom';
+import { useState, type FormEvent, type ReactElement } from 'react';
 
 import { passwordRecoveryService } from '@/features/auth/model/passwordRecoveryService';
 import { useAppNavigate } from '@/shared/lib/navigation/useAppNavigate';
 
 import styles from '../../ForgotPassword.module.css';
 
-export function ForgotPasswordEmailPage() {
+export function ForgotPasswordEmailPage(): ReactElement {
   const navigate = useAppNavigate();
 
   const [email, setEmail] = useState('');
@@ -17,7 +16,7 @@ export function ForgotPasswordEmailPage() {
   const [success, setSuccess] = useState('');
   const [isAdminRequestCreated, setIsAdminRequestCreated] = useState(false);
 
-  const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
+  const handleSubmit = async (event: FormEvent<HTMLFormElement>): Promise<void> => {
     event.preventDefault();
 
     if (submitting || isAdminRequestCreated) {
@@ -58,57 +57,68 @@ export function ForgotPasswordEmailPage() {
     }
   };
 
-  const handleBackClick = () => {
-    passwordRecoveryService.resetFlow();
-    setError('');
-    setSuccess('');
-    setIsAdminRequestCreated(false);
-  };
-
   return (
-    <div className={styles.card}>
-      <h1 className={styles.title}>Восстановление пароля</h1>
+    <section className={styles.page}>
+      <div className={styles.background} aria-hidden="true" />
 
-      <p className={styles.text}>
-        Введите email, который привязан к вашему аккаунту. Для клиентов и специалистов
-        будет отправлен код подтверждения. Для администратора будет создана заявка на
-        восстановление пароля.
-      </p>
+      <button
+        className={styles.backButton}
+        type="button"
+        onClick={() => navigate('/login')}
+      >
+        <span className={styles.backIcon}>←</span>
+        <span>Назад</span>
+      </button>
 
-      <form className={styles.form} onSubmit={handleSubmit}>
-        <label className={styles.field}>
-          <span className={styles.label}>Email</span>
+      <div className={styles.layout}>
+        <div className={styles.stack}>
+          <div className={styles.cardWrap}>
+            <span className={styles.backgroundBlobLeft} aria-hidden="true" />
+            <span className={styles.backgroundBlobRight} aria-hidden="true" />
 
-          <input
-            className={styles.input}
-            type="email"
-            value={email}
-            onChange={(event) => setEmail(event.target.value)}
-            placeholder="example@mail.com"
-            autoComplete="email"
-            disabled={submitting || isAdminRequestCreated}
-          />
-        </label>
+            <div className={styles.card}>
+              <div className={styles.cardInner}>
+                <div className={styles.header}>
+                  <h1 className={styles.title}>Восстановление пароля</h1>
+                  <p className={styles.text}>
+                    Введите email, который привязан к вашему аккаунту
+                  </p>
+                </div>
 
-        {error ? <p className={styles.error}>{error}</p> : null}
-        {success ? <p className={styles.success}>{success}</p> : null}
+                <form className={styles.form} onSubmit={handleSubmit}>
+                  <label className={styles.field}>
+                    <input
+                      className={styles.input}
+                      type="email"
+                      value={email}
+                      onChange={(event) => setEmail(event.target.value)}
+                      placeholder="tailly@mail.com"
+                      autoComplete="email"
+                      disabled={submitting || isAdminRequestCreated}
+                      required
+                    />
+                  </label>
 
-        <button
-          className={styles.submitButton}
-          type="submit"
-          disabled={submitting || isAdminRequestCreated}
-        >
-          {submitting
-            ? 'Продолжаем...'
-            : isAdminRequestCreated
-              ? 'Заявка отправлена'
-              : 'Продолжить'}
-        </button>
-      </form>
+                  {error ? <p className={styles.error}>{error}</p> : null}
+                  {success ? <p className={styles.success}>{success}</p> : null}
 
-      <Link className={styles.linkButton} to="/login" onClick={handleBackClick}>
-        Вернуться ко входу
-      </Link>
-    </div>
+                  <button
+                    className={styles.submitButton}
+                    type="submit"
+                    disabled={submitting || isAdminRequestCreated}
+                  >
+                    {submitting
+                      ? 'Продолжаем...'
+                      : isAdminRequestCreated
+                        ? 'Заявка отправлена'
+                        : 'Подтвердить'}
+                  </button>
+                </form>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
   );
 }

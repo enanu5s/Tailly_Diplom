@@ -18,10 +18,6 @@ import styles from './LoginPage.module.css';
 
 import type { FormEvent, ReactElement } from 'react';
 
-/**
- * Куда увести после входа: `?from=` (надёжно при потере state), строка `state.from`,
- * либо объект (как в ShopPurchaseRouteGuard: `state={{ from: location }}`).
- */
 function resolvePostLoginRedirect(location: Location): string | null {
   const fromQuery = getRedirectFromQuery(location.search);
 
@@ -97,11 +93,6 @@ export const LoginPage = observer((): ReactElement => {
     return null;
   }, [searchParams]);
 
-  /**
-   * Если пользователь уже вошёл и открыл /login (или только что вошёл — MobX обновился до конца submit),
-   * уводим с формы входа. Сначала учитываем `state.from` / `?from=` (например возврат в корзину после входа),
-   * иначе редирект на профиль перезапишет нужный маршрут.
-   */
   useEffect(() => {
     if (!authState.user) {
       return;
@@ -158,116 +149,129 @@ export const LoginPage = observer((): ReactElement => {
 
   return (
     <section className={styles.page}>
-      <div className={styles.container}>
-        <button className={styles.backButton} type="button" onClick={() => navigate('/')}>
-          ← Назад
-        </button>
+      <div className={styles.background}>
+        <span className={styles.backgroundBlobLeft} aria-hidden="true" />
+        <span className={styles.backgroundBlobRight} aria-hidden="true" />
+      </div>
 
-        <div className={styles.card}>
-          <div className={styles.header}>
-            <span className={styles.badge}>Tailly</span>
+      <button className={styles.backButton} type="button" onClick={() => navigate('/')}>
+        <span className={styles.backIcon}>←</span>
+        <span>Назад</span>
+      </button>
 
-            <h1 className={styles.title}>Вход в аккаунт</h1>
+      <div className={styles.layout}>
+        <div className={styles.stack}>
+          <div className={styles.card}>
+            <div className={styles.cardInner}>
+              <div className={styles.header}>
+                <h1 className={styles.title}>Войти в аккаунт</h1>
+              </div>
 
-            <p className={styles.subtitle}>
-              Клиенты, специалисты и администраторы входят через единую форму авторизации.
-            </p>
+              <img
+                className={styles.frame305Decor}
+                src="/images/Frame%20305.svg"
+                alt=""
+                aria-hidden="true"
+              />
+
+              <form className={styles.form} onSubmit={handleSubmit}>
+                <label className={styles.field}>
+                  <input
+                    className={styles.input}
+                    type="email"
+                    value={loginStore.email}
+                    onChange={(event) => loginStore.setEmail(event.target.value)}
+                    placeholder="Ваш email"
+                    autoComplete="username"
+                    required
+                  />
+                </label>
+
+                <label className={styles.field}>
+                  <input
+                    className={styles.input}
+                    type="password"
+                    value={loginStore.password}
+                    onChange={(event) => loginStore.setPassword(event.target.value)}
+                    placeholder="Пароль"
+                    autoComplete="current-password"
+                    required
+                  />
+                </label>
+
+                <div className={styles.optionsRow}>
+                  <label className={styles.checkboxRow}>
+                    <input
+                      className={styles.checkbox}
+                      type="checkbox"
+                      checked={loginStore.loginAsSpecialist}
+                      onChange={(event) =>
+                        loginStore.setLoginAsSpecialist(event.target.checked)
+                      }
+                    />
+                    <span className={styles.checkboxLabel}>Войти как специалист</span>
+                  </label>
+
+                  <button
+                    className={styles.inlineLink}
+                    type="button"
+                    onClick={() => navigate('/forgot-password')}
+                  >
+                    Забыли пароль?
+                  </button>
+                </div>
+
+                {loginStore.failedAttemptsLeft !== null &&
+                loginStore.failedAttemptsLeft > 0 ? (
+                  <div className={styles.attempts}>
+                    Осталось попыток для администратора: {loginStore.failedAttemptsLeft}
+                  </div>
+                ) : null}
+
+                {accountFlowNotice ? (
+                  <div className={styles.infoBanner}>{accountFlowNotice}</div>
+                ) : null}
+
+                {loginStore.submitError ? (
+                  <div className={styles.error}>{loginStore.submitError}</div>
+                ) : null}
+
+                <button
+                  className={styles.submitButton}
+                  type="submit"
+                  disabled={!loginStore.canSubmit}
+                >
+                  {loginStore.isSubmitting ? 'Выполняется вход...' : 'Войти'}
+                </button>
+              </form>
+
+              {isMockApiMode ? (
+                <details className={styles.demoDisclosure}>
+                  <summary className={styles.demoSummary}>Тестовые аккаунты</summary>
+                  <div className={styles.demoBlock}>
+                    <div className={styles.demoList}>
+                      {mockDemoRows.map((row) => (
+                        <div key={row.email} className={styles.demoItem}>
+                          <span className={styles.demoCaption}>{row.caption}:</span>
+                          <code className={styles.demoCode}>{row.email}</code>
+                          <span className={styles.demoDivider}>/</span>
+                          <code className={styles.demoCode}>{row.password}</code>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                </details>
+              ) : null}
+            </div>
           </div>
 
-          <form className={styles.form} onSubmit={handleSubmit}>
-            <label className={styles.field}>
-              <span className={styles.label}>Email</span>
+          <div className={styles.registerCard}>
+            <p className={styles.registerText}>У вас ещё нет аккаунта?</p>
 
-              <input
-                className={styles.input}
-                type="email"
-                value={loginStore.email}
-                onChange={(event) => loginStore.setEmail(event.target.value)}
-                placeholder="name@example.com"
-                autoComplete="username"
-                required
-              />
-            </label>
-
-            <label className={styles.field}>
-              <span className={styles.label}>Пароль</span>
-
-              <input
-                className={styles.input}
-                type="password"
-                value={loginStore.password}
-                onChange={(event) => loginStore.setPassword(event.target.value)}
-                placeholder="Введите пароль"
-                autoComplete="current-password"
-                required
-              />
-            </label>
-
-            <label className={styles.checkboxRow}>
-              <input
-                type="checkbox"
-                checked={loginStore.loginAsSpecialist}
-                onChange={(event) =>
-                  loginStore.setLoginAsSpecialist(event.target.checked)
-                }
-              />
-              <span>Войти как специалист</span>
-            </label>
-
-            {loginStore.failedAttemptsLeft !== null &&
-            loginStore.failedAttemptsLeft > 0 ? (
-              <div className={styles.attempts}>
-                Осталось попыток для администратора: {loginStore.failedAttemptsLeft}
-              </div>
-            ) : null}
-
-            {accountFlowNotice ? (
-              <div className={styles.infoBanner}>{accountFlowNotice}</div>
-            ) : null}
-
-            {loginStore.submitError ? (
-              <div className={styles.error}>{loginStore.submitError}</div>
-            ) : null}
-
-            <button
-              className={styles.submitButton}
-              type="submit"
-              disabled={!loginStore.canSubmit}
-            >
-              {loginStore.isSubmitting ? 'Выполняется вход...' : 'Войти'}
-            </button>
-
-            <div className={styles.links}>
-              <button
-                className={styles.linkButton}
-                type="button"
-                onClick={() => navigate('/forgot-password')}
-              >
-                Восстановить пароль
-              </button>
-
-              <Link className={styles.linkButton} to="/register">
-                Регистрация
-              </Link>
-            </div>
-          </form>
-
-          {isMockApiMode ? (
-            <div className={styles.demoBlock}>
-              <div className={styles.demoTitle}>Тестовые аккаунты (mock API)</div>
-
-              <div className={styles.demoList}>
-                {mockDemoRows.map((row) => (
-                  <div key={row.email} className={styles.demoItem}>
-                    <span className={styles.demoCaption}>{row.caption}:</span>{' '}
-                    <code className={styles.demoCode}>{row.email}</code>
-                    {' / '}
-                    <code className={styles.demoCode}>{row.password}</code>
-                  </div>
-                ))}
-              </div>
-            </div>
-          ) : null}
+            <Link className={styles.registerButton} to="/register">
+              Зарегистрироваться
+            </Link>
+          </div>
         </div>
       </div>
     </section>

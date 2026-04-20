@@ -22,10 +22,23 @@ export const Footer = () => {
   const telegramUrl = getOptionalStringValue(contacts, 'telegramUrl');
   const vkUrl = getOptionalStringValue(contacts, 'vkUrl');
 
-  const navigationItems = menu.filter((item) => item.to !== '/');
-  const documentItems = [...documents];
+  const navigationItems = menu.filter(
+    (item) => item.to !== '/' && item.to !== '/messages',
+  );
+  const documentsOrder = [
+    '/user-agreement',
+    '/refund-policy',
+    '/agency-contract',
+    '/privacy-policy',
+    '/public-offer',
+  ];
+  const documentItems = documentsOrder
+    .map((to) => documents.find((item) => item.to === to))
+    .filter((item): item is (typeof documents)[number] => Boolean(item));
   const telegramIcon = '/icons/telegram.svg';
   const vkIcon = '/icons/vk.svg';
+  const displayPhone = '+7 (900) 765-43-21';
+  const displayEmail = 'help@tailly.com';
 
   return (
     <footer className={styles.footer}>
@@ -69,14 +82,14 @@ export const Footer = () => {
 
           <div className={styles.contactsColumn}>
             <a
-              href={`tel:${contacts.phone.replace(/\D/g, '')}`}
+              href={`tel:${displayPhone.replace(/\D/g, '')}`}
               className={styles.contactLink}
             >
-              {contacts.phone}
+              {displayPhone}
             </a>
 
-            <a href={`mailto:${contacts.email}`} className={styles.contactLink}>
-              {contacts.email}
+            <a href={`mailto:${displayEmail}`} className={styles.contactLink}>
+              {displayEmail}
             </a>
 
             {(telegramUrl || vkUrl) && (

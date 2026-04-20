@@ -2,6 +2,7 @@ import clsx from 'clsx';
 import type { FC, HTMLAttributes } from 'react';
 
 import styles from './Logo.module.css';
+import logoDark from './LogoDark.svg';
 
 export interface LogoProps extends HTMLAttributes<HTMLDivElement> {
   variant?: 'light' | 'dark' | 'color';
@@ -11,7 +12,7 @@ export interface LogoProps extends HTMLAttributes<HTMLDivElement> {
 
 const LOGO_SRC_BY_VARIANT: Record<NonNullable<LogoProps['variant']>, string> = {
   light: '/icons/logo-light.svg',
-  dark: '/icons/logo-dark.svg',
+  dark: logoDark,
   color: '/icons/logo-color.svg',
 };
 

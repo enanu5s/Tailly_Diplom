@@ -1,5 +1,5 @@
 // /src/pages/forgot-password/reset/ui/ForgotPasswordResetPage.tsx
-import { useEffect, useState } from 'react';
+import { useEffect, useState, type FormEvent, type ReactElement } from 'react';
 
 import { passwordRecoveryService } from '@/features/auth/model/passwordRecoveryService';
 import { usePasswordRecoveryFlow } from '@/features/auth/model/usePasswordRecoveryFlow';
@@ -7,7 +7,7 @@ import { useAppNavigate } from '@/shared/lib/navigation/useAppNavigate';
 
 import styles from '../../ForgotPassword.module.css';
 
-export function ForgotPasswordResetPage() {
+export function ForgotPasswordResetPage(): ReactElement {
   const navigate = useAppNavigate();
   const flow = usePasswordRecoveryFlow();
 
@@ -22,7 +22,7 @@ export function ForgotPasswordResetPage() {
     }
   }, [flow.email, flow.code, flow.isVerified, navigate]);
 
-  const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
+  const handleSubmit = async (event: FormEvent<HTMLFormElement>): Promise<void> => {
     event.preventDefault();
 
     const normalizedPassword = password.trim();
@@ -56,43 +56,71 @@ export function ForgotPasswordResetPage() {
   };
 
   return (
-    <div className={styles.card}>
-      <h1 className={styles.title}>Новый пароль</h1>
-      <p className={styles.text}>Введите новый пароль для вашего аккаунта.</p>
+    <section className={styles.page}>
+      <div className={styles.background} aria-hidden="true" />
+      <button
+        className={styles.backButton}
+        type="button"
+        onClick={() => navigate('/forgot-password/verify')}
+      >
+        <span className={styles.backIcon}>←</span>
+        <span>Назад</span>
+      </button>
+      <div className={styles.layout}>
+        <div className={styles.stack}>
+          <div className={styles.cardWrap}>
+            <span className={styles.backgroundBlobLeft} aria-hidden="true" />
+            <span className={styles.backgroundBlobRight} aria-hidden="true" />
 
-      <form className={styles.form} onSubmit={handleSubmit}>
-        <label className={styles.label}>
-          Новый пароль
-          <input
-            className={styles.input}
-            type="password"
-            value={password}
-            onChange={(event) => setPassword(event.target.value)}
-            placeholder="Введите новый пароль"
-            autoComplete="new-password"
-            disabled={submitting}
-          />
-        </label>
+            <div className={styles.card}>
+              <div className={styles.cardInner}>
+                <div className={styles.header}>
+                  <h1 className={styles.title}>Новый пароль</h1>
+                  <p className={styles.text}>Введите новый пароль для вашего аккаунта</p>
+                </div>
 
-        <label className={styles.label}>
-          Повторите пароль
-          <input
-            className={styles.input}
-            type="password"
-            value={passwordRepeat}
-            onChange={(event) => setPasswordRepeat(event.target.value)}
-            placeholder="Повторите новый пароль"
-            autoComplete="new-password"
-            disabled={submitting}
-          />
-        </label>
+                <form className={styles.form} onSubmit={handleSubmit}>
+                  <label className={styles.field}>
+                    <input
+                      className={styles.input}
+                      type="password"
+                      value={password}
+                      onChange={(event) => setPassword(event.target.value)}
+                      placeholder="Введите новый пароль"
+                      autoComplete="new-password"
+                      disabled={submitting}
+                      required
+                    />
+                  </label>
 
-        {error ? <p className={styles.error}>{error}</p> : null}
+                  <label className={styles.field}>
+                    <input
+                      className={styles.input}
+                      type="password"
+                      value={passwordRepeat}
+                      onChange={(event) => setPasswordRepeat(event.target.value)}
+                      placeholder="Повторите новый пароль"
+                      autoComplete="new-password"
+                      disabled={submitting}
+                      required
+                    />
+                  </label>
 
-        <button className={styles.primaryButton} type="submit" disabled={submitting}>
-          {submitting ? 'Сохраняем...' : 'Сохранить пароль'}
-        </button>
-      </form>
-    </div>
+                  {error ? <p className={styles.error}>{error}</p> : null}
+
+                  <button
+                    className={styles.submitButton}
+                    type="submit"
+                    disabled={submitting}
+                  >
+                    {submitting ? 'Сохраняем...' : 'Сохранить пароль'}
+                  </button>
+                </form>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
   );
 }

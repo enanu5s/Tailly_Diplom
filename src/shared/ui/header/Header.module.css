@@ -1,8 +1,8 @@
 /* src/shared/ui/header/Header.module.css */
 
 :root {
-  --header-height: 80px;
-  --header-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+  --header-height: 100px;
+  --header-shadow: 0 8px 20px rgba(0, 0, 0, 0.05);
   --transition: all 0.25s ease;
 }
 
@@ -15,12 +15,12 @@
 }
 
 .container {
-  max-width: 1280px;
+  max-width: 1520px;
   margin: 0 auto;
   display: flex;
   align-items: center;
   justify-content: space-between;
-  padding: 0 16px;
+  padding: 0 20px;
   height: var(--header-height);
 }
 
@@ -28,6 +28,7 @@
   display: inline-flex;
   align-items: center;
   text-decoration: none;
+  width: 112px;
 }
 
 /* Десктопное меню скрыто по умолчанию */
@@ -42,10 +43,11 @@
 
   .navList {
     display: flex;
-    gap: 32px;
+    gap: 56px;
     list-style: none;
     margin: 0;
     padding: 0;
+    align-items: center;
   }
 
   .navItem {
@@ -55,16 +57,20 @@
   .navLink {
     display: inline-flex;
     align-items: center;
-    padding: 10px 4px;
-    color: var(--text-primary, #1f2937);
+    padding: 10px 0;
+    color: #211500;
     text-decoration: none;
-    font-weight: 500;
+    font-family: 'Raleway', system-ui, -apple-system, sans-serif;
+    font-size: 16px;
+    line-height: 1;
+    font-weight: 700;
     transition: var(--transition);
   }
 
   .navLink:hover,
   .navLink.active {
-    color: var(--color-primary, #6366f1);
+    color: #211500;
+    opacity: 0.75;
   }
 }
 
@@ -86,13 +92,16 @@
 }
 
 .userName {
-  color: var(--text-primary, #1f2937);
+  color: #211500;
   text-decoration: none;
-  font-weight: 500;
+  font-family: 'Raleway', system-ui, -apple-system, sans-serif;
+  font-size: 16px;
+  line-height: 1;
+  font-weight: 700;
 }
 
 .userName:hover {
-  color: var(--color-primary, #6366f1);
+  opacity: 0.75;
 }
 
 .logoutBtn,
@@ -100,10 +109,13 @@
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  min-height: 40px;
-  padding: 0 14px;
-  border-radius: 12px;
+  min-height: 45px;
+  padding: 0 30px;
+  border-radius: 23px;
   font: inherit;
+  font-family: 'Raleway', system-ui, -apple-system, sans-serif;
+  font-size: 16px;
+  line-height: 1;
   font-weight: 600;
   text-decoration: none;
   cursor: pointer;
@@ -111,24 +123,24 @@
 }
 
 .logoutBtn {
-  border: 1px solid #e5e7eb;
+  border: 1px solid rgba(33, 21, 0, 0.24);
   background: #ffffff;
-  color: #1f2937;
+  color: #211500;
 }
 
 .logoutBtn:hover {
-  border-color: #d1d5db;
-  background: #f8fafc;
+  border-color: rgba(33, 21, 0, 0.34);
+  background: #fff8ef;
 }
 
 .loginBtn {
   border: none;
-  background: #6366f1;
-  color: #ffffff;
+  background: #211500;
+  color: #f8f8f8;
 }
 
 .loginBtn:hover {
-  background: #5558e6;
+  background: #3a2419;
 }
 
 /* Бургер-иконка видна только на мобильных */
@@ -153,7 +165,7 @@
   left: 0;
   right: 0;
   background: white;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.12);
+  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.05);
   padding: 16px 20px;
   max-height: calc(100vh - var(--header-height));
   overflow-y: auto;
@@ -176,14 +188,17 @@
   display: inline-flex;
   align-items: center;
   padding: 14px 0;
-  font-size: 1.1rem;
-  color: var(--text-primary, #1f2937);
+  font-family: 'Raleway', system-ui, -apple-system, sans-serif;
+  font-size: 1rem;
+  line-height: 1;
+  font-weight: 700;
+  color: #211500;
   text-decoration: none;
 }
 
 .mobileLink:hover,
 .mobileLink.active {
-  color: var(--color-primary, #6366f1);
+  opacity: 0.75;
 }
 
 .navBadge {
@@ -195,9 +210,19 @@
   margin-left: 8px;
   padding: 0 6px;
   border-radius: 999px;
-  background: #6366f1;
+  background: #211500;
   color: #ffffff;
   font-size: 11px;
   line-height: 1;
   font-weight: 700;
+}
+
+@media (max-width: 1023px) {
+  :root {
+    --header-height: 78px;
+  }
+
+  .container {
+    padding: 0 16px;
+  }
 }

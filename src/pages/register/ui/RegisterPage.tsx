@@ -1,58 +1,83 @@
 // src/pages/register/ui/RegisterPage.tsx
 import { Link } from 'react-router-dom';
+import type { ReactElement } from 'react';
 
 import { useAppNavigate } from '@/shared/lib/navigation/useAppNavigate';
 
 import styles from './RegisterPage.module.css';
 
-const RegisterPage = () => {
+export default function RegisterPage(): ReactElement {
   const navigate = useAppNavigate();
 
   return (
-    <>
-      <div className={styles.page}>
+    <section className={styles.page}>
+      <div className={styles.background} aria-hidden="true" />
+      <button className={styles.backButton} type="button" onClick={() => navigate(-1)}>
+        <span className={styles.backIcon}>←</span>
+        <span>Назад</span>
+      </button>
+      <div className={styles.layout}>
         <div className={styles.container}>
-          {/* Кнопка назад */}
-          <button onClick={() => navigate(-1)} className={styles.backButton}>
-            ← Вернуться назад
-          </button>
-
           <h1 className={styles.title}>Регистрация</h1>
 
           <div className={styles.cards}>
-            {/* Карточка 1 — Я клиент */}
-            <Link to="/register/client" className={`${styles.card} ${styles.cardClient}`}>
-              <div className={styles.cardImage} />
-              <div className={styles.overlay}>
-                <h2 className={styles.cardTitle}>Я клиент</h2>
-                <p className={styles.cardSubtitle}>
-                  Зарегистрируйтесь, чтобы найти проверенного петситтера
-                  <br />
-                  для вашего питомца
-                </p>
+            <Link to="/register/client" className={`${styles.card} ${styles.clientCard}`}>
+              <span className={styles.specialistBlurOrange} aria-hidden="true" />
+              <div className={styles.cardContent}>
+                <div className={styles.textBlock}>
+                  <h2 className={styles.cardTitle}>Я клиент</h2>
+                  <p className={styles.cardSubtitle}>
+                    Зарегистрируйтесь, чтобы найти проверенного петситтера для вашего
+                    питомца
+                  </p>
+                </div>
+
+                <div className={styles.clientIllustration} aria-hidden="true">
+                  <img
+                    className={styles.clientFishbowl}
+                    src="/images/register/Group2.svg"
+                    alt=""
+                  />
+                  <img
+                    className={styles.clientPerson}
+                    src="/images/register/Group.svg"
+                    alt=""
+                  />
+                </div>
               </div>
             </Link>
 
-            {/* Карточка 2 — Я петситтер */}
             <Link
               to="/become-specialist"
-              className={`${styles.card} ${styles.cardSitter}`}
+              className={`${styles.card} ${styles.specialistCard}`}
             >
-              <div className={styles.cardImage} />
-              <div className={styles.overlay}>
-                <h2 className={styles.cardTitle}>Я петситтер</h2>
-                <p className={styles.cardSubtitle}>
-                  Присоединяйтесь к нашей команде
-                  <br />
-                  заботливых петситтеров
-                </p>
+              <span className={styles.specialistBlurGreen} aria-hidden="true" />
+
+              <div className={styles.cardContent}>
+                <div className={styles.textBlock}>
+                  <h2 className={styles.cardTitle}>Я специалист</h2>
+                  <p className={styles.cardSubtitle}>
+                    Присоединяйтесь к нашей команде заботливых специалистов
+                  </p>
+                </div>
+
+                <div className={styles.specialistIllustration} aria-hidden="true">
+                  <img
+                    className={styles.specialistLizard}
+                    src="/images/register/Group3.svg"
+                    alt=""
+                  />
+                  <img
+                    className={styles.specialistPerson}
+                    src="/images/register/Group4.svg"
+                    alt=""
+                  />
+                </div>
               </div>
             </Link>
           </div>
         </div>
       </div>
-    </>
+    </section>
   );
-};
-
-export default RegisterPage;
+}

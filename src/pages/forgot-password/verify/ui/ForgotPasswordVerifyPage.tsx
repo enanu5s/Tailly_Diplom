@@ -1,6 +1,5 @@
 // /src/pages/forgot-password/verify/ui/ForgotPasswordVerifyPage.tsx
-import { useEffect, useState } from 'react';
-import { Link } from 'react-router-dom';
+import { useEffect, useState, type FormEvent, type ReactElement } from 'react';
 
 import { passwordRecoveryService } from '@/features/auth/model/passwordRecoveryService';
 import { usePasswordRecoveryFlow } from '@/features/auth/model/usePasswordRecoveryFlow';
@@ -8,7 +7,7 @@ import { useAppNavigate } from '@/shared/lib/navigation/useAppNavigate';
 
 import styles from '../../ForgotPassword.module.css';
 
-export function ForgotPasswordVerifyPage() {
+export function ForgotPasswordVerifyPage(): ReactElement {
   const navigate = useAppNavigate();
   const flow = usePasswordRecoveryFlow();
 
@@ -22,7 +21,7 @@ export function ForgotPasswordVerifyPage() {
     }
   }, [flow.email, flow.isStarted, navigate]);
 
-  const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
+  const handleSubmit = async (event: FormEvent<HTMLFormElement>): Promise<void> => {
     event.preventDefault();
 
     const normalizedCode = code.trim();
@@ -49,45 +48,78 @@ export function ForgotPasswordVerifyPage() {
     }
   };
 
-  const handleBackClick = () => {
-    passwordRecoveryService.resetFlow();
+  const handleRestartClick = (): void => {
+    if (!flow.email) {
+      return;
+    }
+
+    void passwordRecoveryService.sendCode(flow.email);
   };
 
   return (
-    <div className={styles.card}>
-      <h1 className={styles.title}>Подтверждение кода</h1>
-      <p className={styles.text}>
-        Введите код, отправленный на email {flow.email || 'ваш адрес'}.
-      </p>
-
-      <form className={styles.form} onSubmit={handleSubmit}>
-        <label className={styles.label}>
-          Код подтверждения
-          <input
-            className={styles.input}
-            type="text"
-            value={code}
-            onChange={(event) => setCode(event.target.value)}
-            placeholder="Введите код"
-            autoComplete="one-time-code"
-            disabled={submitting}
-          />
-        </label>
-
-        {error ? <p className={styles.error}>{error}</p> : null}
-
-        <button className={styles.primaryButton} type="submit" disabled={submitting}>
-          {submitting ? 'Проверяем...' : 'Подтвердить код'}
-        </button>
-      </form>
-
-      <Link
-        className={styles.secondaryLink}
-        to="/forgot-password"
-        onClick={handleBackClick}
+    <section className={styles.page}>
+      <div className={styles.background} aria-hidden="true" />
+      <button
+        className={styles.backButton}
+        type="button"
+        onClick={() => navigate('/forgot-password')}
       >
-        Начать заново
-      </Link>
-    </div>
+        <span className={styles.backIcon}>←</span>
+        <span>Назад</span>
+      </button>
+      <div className={styles.layout}>
+        <div className={styles.stack}>
+          <div className={styles.cardWrap}>
+            <span className={styles.backgroundBlobLeft} aria-hidden="true" />
+            <span className={styles.backgroundBlobRight} aria-hidden="true" />
+
+            <div className={styles.card}>
+              <div className={styles.cardInner}>
+                <div className={styles.header}>
+                  <h1 className={styles.title}>Восстановление пароля</h1>
+                  <p className={styles.text}>
+                    Введите код, отправленный на email <b>{flow.email}</b>
+                  </p>
+                </div>
+
+                <form className={styles.form} onSubmit={handleSubmit}>
+                  <label className={styles.field}>
+                    <input
+                      className={styles.input}
+                      type="text"
+                      value={code}
+                      onChange={(event) => setCode(event.target.value)}
+                      placeholder="Введите код"
+                      autoComplete="one-time-code"
+                      disabled={submitting}
+                      required
+                    />
+                  </label>
+
+                  {error ? <p className={styles.error}>{error}</p> : null}
+
+                  <button
+                    className={styles.secondaryInlineButton}
+                    type="button"
+                    onClick={handleRestartClick}
+                  >
+                    Отправить код ещё раз
+                  </button>
+
+                  <button
+                    className={styles.submitButton}
+                    type="submit"
+                    disabled={submitting}
+                  >
+                    {submitting ? 'Проверяем...' : 'Подтвердить код'}
+                  </button>
+                </form>
+
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
   );
 }

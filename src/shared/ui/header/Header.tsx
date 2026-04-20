@@ -65,9 +65,9 @@ export const Header = observer(() => {
   const shopBadgeCount = shouldShowShopConsumerControls(user)
     ? shopCartStore.totalItems
     : 0;
-  const navItems = mainNav
-    .filter((item) => (isAuth ? true : item.to !== '/messages'))
-    .filter((item) => item.to !== '/login');
+  const navItems = mainNav.filter(
+    (item) => item.to !== '/messages' && item.to !== '/login',
+  );
 
   const toggleMobile = (): void => {
     setIsMobileOpen((prev) => !prev);
@@ -88,8 +88,8 @@ export const Header = observer(() => {
   return (
     <header className={styles.header}>
       <div className={styles.container}>
-        <Link to="/" className={styles.logo}>
-          <Logo />
+        <Link to="/" className={styles.logoLink} aria-label="Перейти на главную">
+          <Logo size="large" variant="dark" />
         </Link>
 
         <nav className={styles.navDesktop}>

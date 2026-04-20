@@ -1,20 +1,21 @@
 .footer {
-  margin-top: auto;
-  background: #2b1708;
-  color: #f8f3ee;
-  padding: 56px 0 52px;
+  margin-top: -1px;
+  background: #211500;
+  color: #f8f8f8;
+  padding: 60px 0;
 }
 
 .container {
-  max-width: 1280px;
+  max-width: 1522px;
   margin: 0 auto;
-  padding: 0 32px;
+  padding: 0 20px;
 }
 
 .grid {
   display: grid;
-  grid-template-columns: minmax(220px, 1.1fr) minmax(180px, 0.9fr) minmax(240px, 1fr) minmax(220px, 0.95fr);
-  gap: 48px;
+  grid-template-columns: 112px 167px 253px 229px;
+  justify-content: space-between;
+  gap: 30px;
   align-items: start;
 }
 
@@ -40,10 +41,11 @@
 }
 
 .copyright {
-  margin: 56px 0 0;
-  font-size: 0.95rem;
-  line-height: 1.35;
-  color: rgba(248, 243, 238, 0.78);
+  margin: 47px 0 0;
+  font-family: 'Rubik', system-ui, -apple-system, sans-serif;
+  font-size: 15px;
+  line-height: 1.2;
+  color: #c7c2ba;
 }
 
 .linksColumn {
@@ -53,7 +55,7 @@
 .linksList {
   display: flex;
   flex-direction: column;
-  gap: 18px;
+  gap: 15px;
   margin: 0;
   padding: 0;
   list-style: none;
@@ -61,35 +63,37 @@
 
 .link {
   display: inline-block;
-  color: rgba(248, 243, 238, 0.9);
+  color: #f8f8f8;
   text-decoration: none;
-  font-size: 1.05rem;
-  font-weight: 600;
-  line-height: 1.3;
+  font-family: 'Raleway', system-ui, -apple-system, sans-serif;
+  font-size: 16px;
+  font-weight: 700;
+  line-height: 1;
   transition:
     color 0.2s ease,
     opacity 0.2s ease;
 }
 
 .link:hover {
-  color: #ffffff;
-  opacity: 0.86;
+  color: #f8f8f8;
+  opacity: 0.76;
 }
 
 .contactsColumn {
   display: flex;
   flex-direction: column;
   align-items: flex-end;
-  gap: 18px;
+  gap: 15px;
   min-width: 0;
 }
 
 .contactLink {
-  color: #ffffff;
+  color: #f8f8f8;
   text-decoration: none;
-  font-size: clamp(1.35rem, 1.8vw, 1.5rem);
-  font-weight: 500;
-  line-height: 1.25;
+  font-family: 'Igra Sans', system-ui, -apple-system, sans-serif;
+  font-size: 24px;
+  font-weight: 400;
+  line-height: 1.2;
   text-align: right;
   transition:
     color 0.2s ease,
@@ -106,7 +110,7 @@
   display: flex;
   align-items: center;
   gap: 15px;
-  margin-top: 18px;
+  margin-top: 10px;
 }
 
 .socialLink {
@@ -135,8 +139,9 @@
 
 @media (max-width: 1100px) {
   .grid {
-    grid-template-columns: repeat(2, minmax(0, 1fr));
+    grid-template-columns: repeat(2, minmax(220px, 1fr));
     gap: 40px 32px;
+    justify-content: start;
   }
 
   .contactsColumn {
@@ -154,20 +159,26 @@
   }
 
   .container {
-    padding: 0 20px;
+    padding: 0 16px;
   }
 
   .grid {
     grid-template-columns: 1fr;
-    gap: 32px;
+    gap: 28px;
   }
 
   .copyright {
-    margin-top: 28px;
+    margin-top: 22px;
   }
 
   .contactsColumn {
     gap: 14px;
+    align-items: flex-start;
+  }
+
+  .contactLink {
+    font-size: 20px;
+    text-align: left;
   }
 
   .socials {

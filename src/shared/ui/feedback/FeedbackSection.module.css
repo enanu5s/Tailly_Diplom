@@ -4,25 +4,28 @@
   background: #f7c318;
   overflow: hidden;
   padding: 72px 20px 0;
+  margin: 0;
+  border: none;
 }
 
 .container {
   position: relative;
-  max-width: 1280px;
+  max-width: 1520px;
   margin: 0 auto;
 }
 
 .grid {
   display: grid;
-  grid-template-columns: minmax(0, 1fr) 380px;
-  gap: 36px;
+  grid-template-columns: minmax(0, 860px) minmax(320px, 596px);
+  justify-content: space-between;
+  gap: 28px 64px;
   align-items: start;
-  min-height: 525px;
+  min-height: 543px;
 }
 
 .left {
   position: relative;
-  min-height: 525px;
+  min-height: 543px;
   padding-bottom: 0;
 }
 
@@ -96,18 +99,18 @@
 
 .catBlob {
   position: absolute;
-  left: 0;
-  bottom: 0;
-  width: min(760px, 96%);
+  left: 96px;
+  bottom: -4px;
+  width: min(640px, 86%);
   height: auto;
   display: block;
 }
 
 .parrot {
   position: absolute;
-  right: 72px;
-  bottom: 0;
-  width: 150px;
+  right: 32px;
+  bottom: -8px;
+  width: 132px;
   height: auto;
   display: block;
 }
@@ -117,16 +120,16 @@
   z-index: 2;
   display: flex;
   justify-content: flex-end;
-  padding-top: 6px;
+  padding-top: 0;
 }
 
 .card {
   width: 100%;
-  max-width: 380px;
+  max-width: 596px;
   background: #fbf9f5;
   border-radius: 24px;
   box-shadow: 0 18px 40px rgba(84, 58, 21, 0.14);
-  padding: 24px 22px 20px;
+  padding: 30px 30px 30px;
 }
 
 .cardTitle {
@@ -140,16 +143,16 @@
 .form {
   display: flex;
   flex-direction: column;
-  gap: 12px;
+  gap: 10px;
 }
 
 .input,
 .textarea {
   width: 100%;
   border: 1px solid rgba(42, 26, 20, 0.14);
-  border-radius: 10px;
-  padding: 12px 14px;
-  font-size: 0.95rem;
+  border-radius: 12px;
+  padding: 14px 20px;
+  font-size: 1rem;
   font-family: inherit;
   background: #ffffff;
   color: #2a1a14;
@@ -161,7 +164,7 @@
 
 .textarea {
   resize: none;
-  min-height: 100px;
+  min-height: 106px;
 }
 
 .input:focus,
@@ -175,7 +178,7 @@
   display: flex;
   align-items: flex-start;
   gap: 10px;
-  margin-top: 2px;
+  margin-top: 8px;
   color: #4f433d;
   font-size: 0.76rem;
   line-height: 1.45;
@@ -204,7 +207,7 @@
 }
 
 .submitButton {
-  margin-top: 6px;
+  margin-top: 10px;
   min-height: 52px;
   border: none;
   border-radius: 999px;
@@ -232,13 +235,13 @@
 
 @media (max-width: 1180px) {
   .grid {
-    grid-template-columns: minmax(0, 1fr) 360px;
-    gap: 28px;
-    min-height: 500px;
+    grid-template-columns: minmax(0, 1fr) minmax(320px, 520px);
+    gap: 28px 36px;
+    min-height: 520px;
   }
 
   .left {
-    min-height: 500px;
+    min-height: 520px;
   }
 
   .title {
@@ -250,16 +253,19 @@
   }
 
   .catBlob {
-    width: min(680px, 95%);
+    left: 56px;
+    bottom: -8px;
+    width: min(600px, 86%);
   }
 
   .parrot {
-    right: 36px;
-    width: 132px;
+    right: 16px;
+    bottom: -12px;
+    width: 108px;
   }
 
   .card {
-    max-width: 360px;
+    max-width: 520px;
   }
 }
 
@@ -289,19 +295,23 @@
 
   .card {
     max-width: 100%;
+    padding: 24px 22px 22px;
   }
 
   .bottomDecor {
-    height: 210px;
+    height: 190px;
   }
 
   .catBlob {
-    width: min(620px, 100%);
+    left: 0;
+    bottom: -24px;
+    width: min(520px, 95%);
   }
 
   .parrot {
-    right: 8px;
-    width: 118px;
+    right: 0;
+    bottom: -22px;
+    width: 88px;
   }
 }
 
@@ -337,16 +347,19 @@
   }
 
   .bottomDecor {
-    height: 165px;
+    height: 136px;
   }
 
   .catBlob {
-    width: 100%;
+    left: 0;
+    bottom: -30px;
+    width: 96%;
   }
 
   .parrot {
     right: 0;
-    width: 96px;
+    bottom: -28px;
+    width: 68px;
   }
 
   .card {

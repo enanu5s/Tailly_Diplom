@@ -6,20 +6,25 @@
   display: flex;
   align-items: center;
   gap: 6px;
-  padding: 10px 12px;
+  padding: 10px 0;
   background: none;
   border: none;
-  font-size: 1rem;
-  font-weight: 500;
-  color: var(--text-primary);
+  font-family: 'Raleway', system-ui, -apple-system, sans-serif;
+  font-size: 16px;
+  line-height: 1;
+  font-weight: 700;
+  color: #211500;
   cursor: pointer;
-  transition: color 0.2s ease;
+  transition:
+    color 0.2s ease,
+    opacity 0.2s ease;
 }
 
 .trigger:hover,
 .trigger.open,
 .trigger.active {
-  color: var(--color-primary); /* например #6366f1 */
+  color: #211500;
+  opacity: 0.75;
 }
 
 .arrow {
@@ -42,9 +47,10 @@
   left: 0;
   min-width: 180px;
   background: white;
-  border-radius: 8px;
-  box-shadow: 0 8px 16px rgba(0, 0, 0, 0.15);
-  padding: 8px 0;
+  border-radius: 14px;
+  border: 1px solid rgba(33, 21, 0, 0.08);
+  box-shadow: 0 14px 26px rgba(33, 21, 0, 0.12);
+  padding: 10px 0;
   margin: 4px 0 0;
   list-style: none;
   z-index: 1000;
@@ -65,8 +71,8 @@
 /* Мобильный режим — всегда клик */
 .mobileMode .menu {
   position: static;
-  background: #f8f9fa;
-  border-radius: 6px;
+  background: #fff8ef;
+  border-radius: 10px;
   margin: 8px 0;
   padding: 0;
   box-shadow: none;
@@ -79,14 +85,17 @@
 .mobileMode .link {
   display: block;
   padding: 12px 20px;
-  color: var(--text-primary);
+  color: #211500;
   text-decoration: none;
-  font-size: 1.05rem;
+  font-family: 'Raleway', system-ui, -apple-system, sans-serif;
+  font-size: 1rem;
+  line-height: 1.2;
+  font-weight: 700;
 }
 
 .mobileMode .link:hover,
 .mobileMode .link:active {
-  background: rgba(99, 102, 241, 0.08);
+  background: rgba(33, 21, 0, 0.08);
 }
 
 /* Общее для пунктов */
@@ -97,11 +106,15 @@
 .link {
   display: block;
   padding: 8px 16px;
-  color: var(--text-primary);
+  color: #211500;
+  font-family: 'Raleway', system-ui, -apple-system, sans-serif;
+  font-size: 15px;
+  line-height: 1.2;
+  font-weight: 600;
   text-decoration: none;
   white-space: nowrap;
 }
 
 .link:hover {
-  background: rgba(99, 102, 241, 0.08);
+  background: rgba(33, 21, 0, 0.06);
 }
