@@ -178,9 +178,6 @@ export const ShopCatalogPage = observer(() => {
                   >
                     <span className={styles.quickActionIcon}>♡</span>
                     <span>Избранное</span>
-                    {shopFavoritesStore.total > 0 ? (
-                      <span className={styles.quickActionCounter}>{shopFavoritesStore.total}</span>
-                    ) : null}
                   </Link>
 
                   <Link to="/shop/cart" state={cartLinkState} className={styles.quickActionButton}>

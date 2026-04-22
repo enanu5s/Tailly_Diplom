@@ -1,8 +1,9 @@
 /* src/features/shop/ui/CatalogFilters/CatalogFilters.module.css */
 .sidebar {
+  
   display: flex;
   flex-direction: column;
-  gap: 14px;
+  gap: 18px;
   padding: 18px 14px 16px;
   border: 1px solid #e9e4de;
   border-radius: 18px;
@@ -13,7 +14,7 @@
 .section {
   display: flex;
   flex-direction: column;
-  gap: 8px;
+  gap: 10px;
 }
 
 .label {
@@ -24,26 +25,111 @@
   line-height: 1.2;
 }
 
-.input,
-.select {
-  min-height: 32px;
-  padding: 0 10px;
+.input {
+  min-height: 64px;
+  padding: 0 28px;
   border: 1px solid #cfc7be;
-  border-radius: 8px;
+  border-radius: 16px;
   background: #ffffff;
   color: #211500;
   font-family: 'Rubik', sans-serif;
-  font-size: 13px;
+  font-size: 18px;
+  line-height: 1;
   outline: none;
   transition:
     border-color 0.2s ease,
     box-shadow 0.2s ease;
 }
 
-.input:focus,
-.select:focus {
-  border-color: #ffa232;
-  box-shadow: 0 0 0 3px rgba(255, 162, 50, 0.1);
+.input::placeholder {
+  color: #8f877b;
+}
+
+.input:focus {
+  border-color: #cfc7be;
+  box-shadow: none;
+}
+
+.customSelect {
+  position: relative;
+}
+
+.customSelectTrigger {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  width: 100%;
+  height: 34px;
+  padding: 0 12px;
+  border: 1px solid #d8d2ca;
+  border-radius: 10px;
+  background: #ffffff;
+  color: #211500;
+  font-family: 'Rubik', sans-serif;
+  font-size: 13px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.customSelectTrigger:hover {
+  border-color: #cfc7be;
+}
+
+.customSelectOpen .customSelectTrigger {
+  border-color: #e5ddd3;
+  box-shadow: 0 6px 18px rgba(33, 21, 0, 0.08);
+}
+
+.customSelectValue {
+  min-width: 0;
+}
+
+.customSelectArrow {
+  font-size: 10px;
+  color: #8f877b;
+  transition: transform 0.2s ease;
+}
+
+.customSelectOpen .customSelectArrow {
+  transform: rotate(180deg);
+}
+
+.customSelectMenu {
+  position: absolute;
+  top: calc(100% + 6px);
+  left: 0;
+  z-index: 20;
+  width: 100%;
+  padding: 6px 0;
+  border-radius: 12px;
+  background: #ffffff;
+  box-shadow: 0 16px 32px rgba(33, 21, 0, 0.18);
+  overflow: hidden;
+}
+
+.customSelectOption {
+  display: flex;
+  align-items: center;
+  width: 100%;
+  height: 42px;
+  padding: 0 14px;
+  border: none;
+  background: transparent;
+  color: #211500;
+  font-family: 'Rubik', sans-serif;
+  font-size: 13px;
+  cursor: pointer;
+  transition: background 0.15s ease;
+}
+
+.customSelectOption:hover {
+  background: #f7f4ef;
+}
+
+.customSelectOptionActive {
+  background: #e8dcb7;
+  font-weight: 500;
 }
 
 .checkboxList {
@@ -70,26 +156,38 @@
 
 .priceGrid {
   display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 8px;
+  grid-template-columns: 1fr;
+  gap: 14px;
 }
 
-.priceHint,
-.metaHint {
-  color: #8f877b;
+.input {
+  width: 100%;
+  min-width: 0;
+  min-height: 64px;
+  padding: 0 28px;
+  box-sizing: border-box;
+  border: 1px solid #cfc7be;
+  border-radius: 16px;
+  background: #ffffff;
+  color: #211500;
   font-family: 'Rubik', sans-serif;
-  font-size: 12px;
-  line-height: 1.4;
+  font-size: 18px;
+  line-height: 1;
+  outline: none;
+  transition:
+    border-color 0.2s ease,
+    box-shadow 0.2s ease;
 }
 
 .resetButton {
-  min-height: 30px;
+  width: 100%;
+  min-height: 62px;
   border: 1px solid #9f9384;
   border-radius: 999px;
   background: #ffffff;
   color: #211500;
   font-family: 'Raleway', sans-serif;
-  font-size: 14px;
+  font-size: 17px;
   font-weight: 700;
   cursor: pointer;
   transition:
