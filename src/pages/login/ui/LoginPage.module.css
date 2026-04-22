@@ -108,6 +108,8 @@
 .cardInner {
   position: relative;
   width: 100%;
+  max-width: 596px;
+  height: 477px;
   padding: 40px 60px 40px;
   display: grid;
   gap: 16px;

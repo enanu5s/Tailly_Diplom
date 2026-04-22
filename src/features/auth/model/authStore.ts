@@ -1,6 +1,7 @@
 // src/features/auth/model/authStore.ts
 
 import { ordersStore } from '@/features/orders/model/ordersStore';
+import { shopFavoritesStore } from '@/features/shop/model/shopFavoritesStore';
 import { clearLastRoute } from '@/shared/lib/navigation/persistedLastRoute';
 
 export type UserRole = 'guest' | 'client' | 'specialist' | 'admin' | 'super_admin';
@@ -223,6 +224,7 @@ export const authStore = {
 
   logout(): void {
     ordersStore.resetSessionProductOrders();
+    shopFavoritesStore.clear();
 
     state = {
       token: null,

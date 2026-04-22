@@ -2,9 +2,10 @@
 
 import { postsApi } from '@/features/posts/api/postsApi';
 import type { Post } from '@/features/posts/model/types';
-import { request } from '@/shared/api/http';
+import { HttpError, request } from '@/shared/api/http';
 import { isMockApiMode } from '@/shared/config/env';
 import type { ServiceConfig } from '@/shared/config/services';
+import { mockDataSourceStore } from '@/shared/lib/mock/mockDataSourceStore';
 
 import { mockGetLatestBanners, mockGetServices, mockGetTopReviews } from './homeApi.mock';
 
@@ -57,13 +58,53 @@ async function realGetTopReviews(): Promise<HomeReview[]> {
   });
 }
 
+function isEndpointMissing(error: unknown): boolean {
+  return error instanceof HttpError && error.status === 404;
+}
+
 export type HomeService = ServiceConfig;
 
 export const homeApi = {
   getLatestBanners: () =>
     isMockApiMode ? mockGetLatestBanners() : realGetLatestBanners(),
 
-  getServices: () => (isMockApiMode ? mockGetServices() : realGetServices()),
+  async getServices() {
+    if (isMockApiMode) {
+      mockDataSourceStore.setSource('home/services', true);
+      return mockGetServices();
+    }
 
-  getTopReviews: () => (isMockApiMode ? mockGetTopReviews() : realGetTopReviews()),
+    try {
+      const data = await realGetServices();
+      mockDataSourceStore.setSource('home/services', false);
+      return data;
+    } catch (error) {
+      if (isEndpointMissing(error)) {
+        mockDataSourceStore.setSource('home/services', true);
+        return mockGetServices();
+      }
+
+      throw error;
+    }
+  },
+
+  async getTopReviews() {
+    if (isMockApiMode) {
+      mockDataSourceStore.setSource('home/reviews', true);
+      return mockGetTopReviews();
+    }
+
+    try {
+      const data = await realGetTopReviews();
+      mockDataSourceStore.setSource('home/reviews', false);
+      return data;
+    } catch (error) {
+      if (isEndpointMissing(error)) {
+        mockDataSourceStore.setSource('home/reviews', true);
+        return mockGetTopReviews();
+      }
+
+      throw error;
+    }
+  },
 };

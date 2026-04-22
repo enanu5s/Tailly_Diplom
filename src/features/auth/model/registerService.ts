@@ -1,6 +1,7 @@
 // src/features/auth/model/registerService.ts
 
 import { registerFlowStore } from './registerFlowStore';
+import { authStore } from './authStore';
 import { registerApi } from '../api/registerApi';
 
 type PendingProfileDraft = {
@@ -51,7 +52,7 @@ export const registerService = {
     cityId: string,
     cityName?: string,
   ) {
-    await registerApi.completeProfile({
+    const res = await registerApi.completeProfile({
       verificationToken,
       firstName,
       lastName,
@@ -68,6 +69,28 @@ export const registerService = {
       cityName: cityName?.trim() || undefined,
       completedAt: new Date().toISOString(),
     };
+
+    if (!res.accessToken) {
+      throw new Error('Регистрация завершена, но сервер не вернул access token');
+    }
+
+    authStore.setAuth({
+      token: res.accessToken,
+      refreshToken: res.refreshToken ?? null,
+      user:
+        res.user ??
+        (() => {
+          const flowState = registerFlowStore.getState();
+          const email = flowState.email?.trim() || '';
+          return email
+            ? {
+                id: 'authorized-user',
+                email,
+                role: 'client',
+              }
+            : null;
+        })(),
+    });
 
     localStorage.setItem(PENDING_PROFILE_KEY, JSON.stringify(pendingProfileDraft));
     registerFlowStore.reset();

@@ -4,6 +4,9 @@ import { HttpError } from '@/shared/api/http';
 import { requestParsed } from '@/shared/api/requestParsed';
 import { userProfileSchema } from '@/shared/api/schemas/userProfileSchema';
 import { isMockApiMode } from '@/shared/config/env';
+import { authStore } from '@/features/auth/model/authStore';
+import { hasUsableAccessToken } from '@/shared/lib/auth/hasUsableAccessToken';
+import { mockDataSourceStore } from '@/shared/lib/mock/mockDataSourceStore';
 
 import { mockGetProfile, mockUpdateContacts, mockUpdateMain } from './profileApi.mock';
 
@@ -37,15 +40,19 @@ function shouldFallbackToMock(error: unknown): boolean {
 
 export const profileApi = {
   async getProfile(): Promise<UserProfile> {
-    if (isMockApiMode) {
+    if (isMockApiMode || !hasUsableAccessToken(authStore.getToken())) {
+      mockDataSourceStore.setSource('profile/me', true);
       return mockGetProfile();
     }
 
     try {
-      return await realGetProfile();
+      const data = await realGetProfile();
+      mockDataSourceStore.setSource('profile/me', false);
+      return data;
     } catch (error) {
       if (shouldFallbackToMock(error)) {
         console.warn('[profileApi.getProfile] falling back to mock:', error);
+        mockDataSourceStore.setSource('profile/me', true);
         return mockGetProfile();
       }
 
@@ -56,7 +63,7 @@ export const profileApi = {
   async updateContacts(
     payload: Pick<UserProfile, 'city' | 'phone'>,
   ): Promise<UserProfile> {
-    if (isMockApiMode) {
+    if (isMockApiMode || !hasUsableAccessToken(authStore.getToken())) {
       return mockUpdateContacts(payload);
     }
 
@@ -75,7 +82,7 @@ export const profileApi = {
   async updateMain(
     payload: Pick<UserProfile, 'firstName' | 'lastName' | 'middleName' | 'avatarUrl'>,
   ): Promise<UserProfile> {
-    if (isMockApiMode) {
+    if (isMockApiMode || !hasUsableAccessToken(authStore.getToken())) {
       return mockUpdateMain(payload);
     }
 

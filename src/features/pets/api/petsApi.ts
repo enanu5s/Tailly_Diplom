@@ -1,6 +1,9 @@
 // src/features/pets/api/petsApi.ts
 import { HttpError, request } from '@/shared/api/http';
 import { isMockApiMode } from '@/shared/config/env';
+import { authStore } from '@/features/auth/model/authStore';
+import { hasUsableAccessToken } from '@/shared/lib/auth/hasUsableAccessToken';
+import { mockDataSourceStore } from '@/shared/lib/mock/mockDataSourceStore';
 
 import {
   mockGetPets,
@@ -50,15 +53,19 @@ function shouldFallbackToMock(error: unknown): boolean {
 
 export const petsApi = {
   async getPets(): Promise<Pet[]> {
-    if (isMockApiMode) {
+    if (isMockApiMode || !hasUsableAccessToken(authStore.getToken())) {
+      mockDataSourceStore.setSource('profile/pets', true);
       return mockGetPets();
     }
 
     try {
-      return await realGetPets();
+      const data = await realGetPets();
+      mockDataSourceStore.setSource('profile/pets', false);
+      return data;
     } catch (error) {
       if (shouldFallbackToMock(error)) {
         console.warn('[petsApi.getPets] falling back to mock:', error);
+        mockDataSourceStore.setSource('profile/pets', true);
         return mockGetPets();
       }
 
@@ -84,7 +91,7 @@ export const petsApi = {
   },
 
   async createPet(pet: Omit<Pet, 'id'>): Promise<Pet> {
-    if (isMockApiMode) {
+    if (isMockApiMode || !hasUsableAccessToken(authStore.getToken())) {
       return mockCreatePet(pet);
     }
 
@@ -101,7 +108,7 @@ export const petsApi = {
   },
 
   async updatePet(id: string, pet: Pet): Promise<Pet> {
-    if (isMockApiMode) {
+    if (isMockApiMode || !hasUsableAccessToken(authStore.getToken())) {
       return mockUpdatePet(id, pet);
     }
 
@@ -118,7 +125,7 @@ export const petsApi = {
   },
 
   async deletePet(id: string): Promise<{ id: string }> {
-    if (isMockApiMode) {
+    if (isMockApiMode || !hasUsableAccessToken(authStore.getToken())) {
       return mockDeletePet(id);
     }
 

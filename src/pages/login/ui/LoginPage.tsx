@@ -18,11 +18,21 @@ import styles from './LoginPage.module.css';
 
 import type { FormEvent, ReactElement } from 'react';
 
+function normalizeCheckoutRedirect(target: string): string {
+  // Checkout is protected for guests. After login we return user to cart
+  // so they can confirm merge result and continue ordering predictably.
+  if (target === '/shop/checkout' || target.startsWith('/shop/checkout?')) {
+    return '/shop/cart';
+  }
+
+  return target;
+}
+
 function resolvePostLoginRedirect(location: Location): string | null {
   const fromQuery = getRedirectFromQuery(location.search);
 
   if (fromQuery) {
-    return fromQuery;
+    return normalizeCheckoutRedirect(fromQuery);
   }
 
   const raw = location.state;
@@ -34,14 +44,16 @@ function resolvePostLoginRedirect(location: Location): string | null {
   const candidate = (raw as { from?: unknown }).from;
 
   if (typeof candidate === 'string' && candidate.trim().startsWith('/')) {
-    return candidate.trim();
+    return normalizeCheckoutRedirect(candidate.trim());
   }
 
   if (candidate && typeof candidate === 'object' && 'pathname' in candidate) {
     const loc = candidate as { pathname?: string; search?: string; hash?: string };
 
     if (typeof loc.pathname === 'string' && loc.pathname.startsWith('/')) {
-      return `${loc.pathname}${loc.search ?? ''}${loc.hash ?? ''}`;
+      return normalizeCheckoutRedirect(
+        `${loc.pathname}${loc.search ?? ''}${loc.hash ?? ''}`,
+      );
     }
   }
 

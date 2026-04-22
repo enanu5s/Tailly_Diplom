@@ -122,6 +122,18 @@ export const Header = observer(() => {
         <div className={styles.rightDesktop}>
           {isAuth ? (
             <div className={styles.userBox}>
+              <Link to="/messages" className={styles.messagesLink} aria-label="Открыть сообщения">
+                <img
+                  className={styles.messagesIcon}
+                  src="/icons/tabler_message.svg"
+                  alt=""
+                  aria-hidden="true"
+                />
+                {messagesBadgeCount > 0 ? (
+                  <span className={styles.messagesBadge}>{messagesBadgeCount}</span>
+                ) : null}
+              </Link>
+
               <Link to="/profile" className={styles.userName}>
                 {user?.name ?? user?.email ?? 'Профиль'}
               </Link>
@@ -182,6 +194,41 @@ export const Header = observer(() => {
                 </li>
               ))}
             </ul>
+
+            <div className={styles.mobileAuthBox}>
+              {isAuth ? (
+                <>
+                  <Link
+                    to="/profile"
+                    onClick={() => setIsMobileOpen(false)}
+                    className={styles.mobileProfileLink}
+                  >
+                    {user?.name ?? user?.email ?? 'Профиль'}
+                  </Link>
+
+                  <button
+                    type="button"
+                    className={styles.mobileAuthButton}
+                    onClick={() => {
+                      authService.logout();
+                      messagesUnreadStore.reset();
+                      setIsMobileOpen(false);
+                      navigate('/', { replace: true });
+                    }}
+                  >
+                    Выйти
+                  </button>
+                </>
+              ) : (
+                <Link
+                  to="/login"
+                  onClick={() => setIsMobileOpen(false)}
+                  className={styles.mobileAuthButton}
+                >
+                  Войти
+                </Link>
+              )}
+            </div>
           </div>
         ) : null}
       </div>

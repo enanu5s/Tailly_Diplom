@@ -3,6 +3,7 @@ import { observer } from 'mobx-react-lite';
 
 import { useAuth } from '@/features/auth/model/useAuth';
 import { shouldShowShopConsumerControls } from '@/shared/lib/auth/roleAccess';
+import { useAppNavigate } from '@/shared/lib/navigation/useAppNavigate';
 
 import styles from './ShopCartMergePrompt.module.css';
 import { shopCartStore } from '../model/shopCartStore';
@@ -10,6 +11,7 @@ import { shopCartStore } from '../model/shopCartStore';
 import type { ReactElement } from 'react';
 
 export const ShopCartMergePrompt = observer((): ReactElement | null => {
+  const navigate = useAppNavigate();
   const { user } = useAuth();
   const prompt = shopCartStore.pendingCartMergePrompt;
 
@@ -53,6 +55,7 @@ export const ShopCartMergePrompt = observer((): ReactElement | null => {
             className={styles.secondaryButton}
             onClick={() => {
               shopCartStore.discardGuestCartAfterLogin();
+              navigate('/shop/cart', { replace: true, preserveRouteMemory: false });
             }}
           >
             Отмена
@@ -63,6 +66,7 @@ export const ShopCartMergePrompt = observer((): ReactElement | null => {
             className={styles.primaryButton}
             onClick={() => {
               shopCartStore.confirmPendingCartMerge();
+              navigate('/shop/cart', { replace: true, preserveRouteMemory: false });
             }}
           >
             Объединить корзины

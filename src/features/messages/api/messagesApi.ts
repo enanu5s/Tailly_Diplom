@@ -1,6 +1,7 @@
 // src/features/messages/api/messagesApi.ts
-import { request } from '@/shared/api/http';
+import { HttpError, request } from '@/shared/api/http';
 import { isMockApiMode } from '@/shared/config/env';
+import { mockDataSourceStore } from '@/shared/lib/mock/mockDataSourceStore';
 
 import {
   ensureClientThread as ensureClientThreadInStorage,
@@ -82,41 +83,93 @@ async function realSendMessage(payload: SendMessagePayload): Promise<MessagesSna
   });
 }
 
+function isEndpointMissing(error: unknown): boolean {
+  return error instanceof HttpError && (error.status === 401 || error.status === 404);
+}
+
 export const messagesApi = {
   async getSnapshot(viewer: MessagesViewer): Promise<MessagesSnapshot> {
     if (isMockApiMode) {
+      mockDataSourceStore.setSource('messages/chats', true);
       return Promise.resolve(getMessagesSnapshotFromStorage(viewer));
     }
 
-    return realGetSnapshot(viewer);
+    try {
+      const data = await realGetSnapshot(viewer);
+      mockDataSourceStore.setSource('messages/chats', false);
+      return data;
+    } catch (error) {
+      if (isEndpointMissing(error)) {
+        mockDataSourceStore.setSource('messages/chats', true);
+        return Promise.resolve(getMessagesSnapshotFromStorage(viewer));
+      }
+
+      throw error;
+    }
   },
 
   async getUnreadSummary(viewer: MessagesViewer): Promise<MessagesUnreadSummary> {
     if (isMockApiMode) {
+      mockDataSourceStore.setSource('messages/unread-summary', true);
       return Promise.resolve(getUnreadSummaryFromStorage(viewer));
     }
 
-    return realGetUnreadSummary(viewer);
+    try {
+      const data = await realGetUnreadSummary(viewer);
+      mockDataSourceStore.setSource('messages/unread-summary', false);
+      return data;
+    } catch (error) {
+      if (isEndpointMissing(error)) {
+        mockDataSourceStore.setSource('messages/unread-summary', true);
+        return Promise.resolve(getUnreadSummaryFromStorage(viewer));
+      }
+
+      throw error;
+    }
   },
 
   async ensureSupportThread(
     payload: EnsureSupportThreadPayload,
   ): Promise<MessagesSnapshot> {
     if (isMockApiMode) {
+      mockDataSourceStore.setSource('messages/chats', true);
       return Promise.resolve(ensureSupportThreadInStorage(payload));
     }
 
-    return realEnsureSupportThread(payload);
+    try {
+      const data = await realEnsureSupportThread(payload);
+      mockDataSourceStore.setSource('messages/chats', false);
+      return data;
+    } catch (error) {
+      if (isEndpointMissing(error)) {
+        mockDataSourceStore.setSource('messages/chats', true);
+        return Promise.resolve(ensureSupportThreadInStorage(payload));
+      }
+
+      throw error;
+    }
   },
 
   async ensureSpecialistThread(
     payload: EnsureSpecialistThreadPayload,
   ): Promise<MessagesSnapshot> {
     if (isMockApiMode) {
+      mockDataSourceStore.setSource('messages/chats', true);
       return Promise.resolve(ensureSpecialistThreadInStorage(payload));
     }
 
-    return realEnsureSpecialistThread(payload);
+    try {
+      const data = await realEnsureSpecialistThread(payload);
+      mockDataSourceStore.setSource('messages/chats', false);
+      return data;
+    } catch (error) {
+      if (isEndpointMissing(error)) {
+        mockDataSourceStore.setSource('messages/chats', true);
+        return Promise.resolve(ensureSpecialistThreadInStorage(payload));
+      }
+
+      throw error;
+    }
   },
 
   async ensureClientThread(
@@ -133,17 +186,41 @@ export const messagesApi = {
     payload: MarkMessagesAsReadPayload,
   ): Promise<MessagesSnapshot> {
     if (isMockApiMode) {
+      mockDataSourceStore.setSource('messages/chats', true);
       return Promise.resolve(markMessagesAsReadInStorage(payload));
     }
 
-    return realMarkMessagesAsRead(payload);
+    try {
+      const data = await realMarkMessagesAsRead(payload);
+      mockDataSourceStore.setSource('messages/chats', false);
+      return data;
+    } catch (error) {
+      if (isEndpointMissing(error)) {
+        mockDataSourceStore.setSource('messages/chats', true);
+        return Promise.resolve(markMessagesAsReadInStorage(payload));
+      }
+
+      throw error;
+    }
   },
 
   async sendMessage(payload: SendMessagePayload): Promise<MessagesSnapshot> {
     if (isMockApiMode) {
+      mockDataSourceStore.setSource('messages/chats', true);
       return Promise.resolve(sendMessageInStorage(payload));
     }
 
-    return realSendMessage(payload);
+    try {
+      const data = await realSendMessage(payload);
+      mockDataSourceStore.setSource('messages/chats', false);
+      return data;
+    } catch (error) {
+      if (isEndpointMissing(error)) {
+        mockDataSourceStore.setSource('messages/chats', true);
+        return Promise.resolve(sendMessageInStorage(payload));
+      }
+
+      throw error;
+    }
   },
 };

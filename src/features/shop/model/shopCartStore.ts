@@ -3,6 +3,10 @@ import { makeAutoObservable } from 'mobx';
 
 import { authStore } from '@/features/auth';
 import type { AuthUser } from '@/features/auth/model/authStore';
+import { isMockApiMode } from '@/shared/config/env';
+import { hasUsableAccessToken } from '@/shared/lib/auth/hasUsableAccessToken';
+
+import { shopCartApi } from '../api/shopCartApi';
 
 import type { Product } from './types';
 
@@ -25,6 +29,7 @@ type PendingCartMergePrompt = {
 
 const STORAGE_KEY_PREFIX = 'tailly_shop_cart';
 const GUEST_STORAGE_KEY = `${STORAGE_KEY_PREFIX}_guest`;
+const SERVER_SYNC_DEBOUNCE_MS = 450;
 
 function isStoredCartItem(value: unknown): value is StoredCartItem {
   if (typeof value !== 'object' || value === null) {
@@ -159,6 +164,14 @@ export class ShopCartStore {
 
   private unsubscribeAuth: (() => void) | null = null;
 
+  private syncTimerId: number | null = null;
+
+  private isSyncInFlight = false;
+
+  private hasPendingSync = false;
+
+  private lastSyncedSnapshot = '';
+
   constructor() {
     makeAutoObservable(this, {}, { autoBind: true });
 
@@ -213,6 +226,7 @@ export class ShopCartStore {
     this.previousUserKey = nextUserKey;
     this.activeStorageKey = buildUserStorageKey(nextUser);
     this.items = this.readItemsByStorageKey(this.activeStorageKey);
+    this.scheduleServerSync();
   }
 
   private handleLogin(user: AuthUser, userKey: string): void {
@@ -242,6 +256,7 @@ export class ShopCartStore {
     }
 
     this.pendingCartMergePrompt = null;
+    this.scheduleServerSync();
   }
 
   confirmPendingCartMerge(): void {
@@ -341,7 +356,99 @@ export class ShopCartStore {
     });
 
     this.writeItemsByStorageKey(this.activeStorageKey, this.items);
+    this.scheduleServerSync();
     debugCartStorage();
+  }
+
+  private buildSnapshotSignature(items: StoredCartItem[]): string {
+    return JSON.stringify(
+      [...items]
+        .sort((a, b) => a.productId.localeCompare(b.productId))
+        .map((item) => ({
+          productId: item.productId,
+          quantity: item.quantity,
+        })),
+    );
+  }
+
+  private canSyncWithServer(): boolean {
+    if (isMockApiMode) {
+      return false;
+    }
+
+    return hasUsableAccessToken(authStore.getToken());
+  }
+
+  private scheduleServerSync(): void {
+    if (!this.canSyncWithServer()) {
+      return;
+    }
+
+    this.hasPendingSync = true;
+
+    if (this.syncTimerId !== null) {
+      window.clearTimeout(this.syncTimerId);
+    }
+
+    this.syncTimerId = window.setTimeout(() => {
+      this.syncTimerId = null;
+      void this.flushServerSync();
+    }, SERVER_SYNC_DEBOUNCE_MS);
+  }
+
+  private async flushServerSync(): Promise<void> {
+    if (!this.canSyncWithServer()) {
+      this.hasPendingSync = false;
+      return;
+    }
+
+    const snapshot = cloneItems(this.items);
+    const signature = this.buildSnapshotSignature(snapshot);
+
+    if (signature === this.lastSyncedSnapshot) {
+      this.hasPendingSync = false;
+      return;
+    }
+
+    if (this.isSyncInFlight) {
+      this.hasPendingSync = true;
+      return;
+    }
+
+    this.isSyncInFlight = true;
+    this.hasPendingSync = false;
+
+    try {
+      await shopCartApi.syncSnapshot(snapshot);
+      this.lastSyncedSnapshot = signature;
+    } catch (error) {
+      console.warn('[CART] server sync failed', { error });
+      this.hasPendingSync = true;
+    } finally {
+      this.isSyncInFlight = false;
+
+      if (this.hasPendingSync) {
+        this.scheduleServerSync();
+      }
+    }
+  }
+
+  async ensureServerSynced(): Promise<void> {
+    if (!this.canSyncWithServer()) {
+      return;
+    }
+
+    if (this.syncTimerId !== null) {
+      window.clearTimeout(this.syncTimerId);
+      this.syncTimerId = null;
+    }
+
+    this.hasPendingSync = true;
+    await this.flushServerSync();
+
+    if (this.hasPendingSync) {
+      await this.flushServerSync();
+    }
   }
 
   getQuantity(productId: string): number {
@@ -455,6 +562,11 @@ export class ShopCartStore {
   destroy(): void {
     this.unsubscribeAuth?.();
     this.unsubscribeAuth = null;
+
+    if (this.syncTimerId !== null) {
+      window.clearTimeout(this.syncTimerId);
+      this.syncTimerId = null;
+    }
   }
 }
 

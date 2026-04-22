@@ -176,6 +176,59 @@ function extractErrorPayload(body: unknown): ApiErrorPayload | null {
   return null;
 }
 
+function getDefaultHttpErrorMessage(status: number): string {
+  switch (status) {
+    case 400:
+      return 'Некорректный запрос. Проверьте введенные данные.';
+    case 401:
+      return 'Сессия недействительна или истекла. Выполните вход снова.';
+    case 403:
+      return 'Недостаточно прав для выполнения этого действия.';
+    case 404:
+      return 'Запрашиваемый ресурс не найден.';
+    case 409:
+      return 'Конфликт данных. Попробуйте обновить страницу и повторить действие.';
+    case 422:
+      return 'Не удалось обработать запрос. Проверьте введенные данные.';
+    case 429:
+      return 'Слишком много запросов. Попробуйте немного позже.';
+    case 500:
+      return 'Внутренняя ошибка сервера. Попробуйте позже.';
+    case 502:
+      return 'Сервер временно недоступен. Попробуйте позже.';
+    case 503:
+      return 'Сервис временно недоступен. Попробуйте позже.';
+    default:
+      return `Ошибка сервера (HTTP ${status}).`;
+  }
+}
+
+function resolveErrorMessage(params: {
+  status: number;
+  statusText: string;
+  body: unknown;
+  payload: ApiErrorPayload | null;
+}): string {
+  const { status, statusText, body, payload } = params;
+
+  if (payload?.message?.trim()) {
+    return payload.message.trim();
+  }
+
+  if (typeof body === 'string' && body.trim()) {
+    return body.trim();
+  }
+
+  const fallback = getDefaultHttpErrorMessage(status);
+  const normalizedStatusText = statusText.trim();
+
+  if (!normalizedStatusText) {
+    return fallback;
+  }
+
+  return `${fallback} (${normalizedStatusText})`;
+}
+
 function createTimeoutSignal(timeoutMs: number): {
   signal: AbortSignal;
   cleanup: () => void;
@@ -296,9 +349,12 @@ export async function request<T>(path: string, options: RequestOptions = {}): Pr
     throw new HttpError({
       status: response.status,
       body: data,
-      message:
-        errorPayload?.message ??
-        (typeof data === 'string' && data.trim() ? data.trim() : undefined),
+      message: resolveErrorMessage({
+        status: response.status,
+        statusText: response.statusText,
+        body: data,
+        payload: errorPayload,
+      }),
       code: errorPayload?.code,
       fieldErrors: errorPayload?.errors,
     });

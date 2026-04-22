@@ -1,11 +1,13 @@
 //src/pages/become-specialist/ui/BecomeSpecialistPage.tsx
 
+import type { ReactElement } from 'react';
+
 import { useAppNavigate } from '@/shared/lib/navigation/useAppNavigate';
 import { FeedbackSection } from '@/shared/ui/feedback';
 
 import styles from './BecomeSpecialistPage.module.css';
 
-export const BecomeSpecialistPage = () => {
+export const BecomeSpecialistPage = (): ReactElement => {
   const navigate = useAppNavigate();
 
   return (
@@ -19,13 +21,18 @@ export const BecomeSpecialistPage = () => {
                 животными!
               </h1>
 
-              <p className={styles.text}>
-                Превратите своё умение находить подход к животным в любимую работу. Мы
-                поможем с клиентами и безопасными условиями! Мы создали платформу, где
-                ваша любовь к питомцам может стать настоящей профессией. Здесь вы сможете
-                самостоятельно выбирать подходящие заказы рядом с домом, работать с самыми
-                разными питомцами
-              </p>
+              <div className={styles.textBlock}>
+                <p className={styles.text}>
+                  Превратите своё умение находить подход к животным в любимую работу. Мы
+                  поможем с клиентами и безопасными условиями!
+                </p>
+
+                <p className={styles.text}>
+                  Мы создали платформу, где ваша любовь к питомцам может стать настоящей
+                  профессией. Здесь вы сможете самостоятельно выбирать подходящие заказы
+                  рядом с домом, работать с самыми разными питомцами.
+                </p>
+              </div>
 
               <button
                 type="button"
@@ -39,15 +46,14 @@ export const BecomeSpecialistPage = () => {
             <div className={styles.right} aria-hidden="true">
               <img
                 className={styles.image}
-                src="/images/become-specialist.png"
-                alt="Стать специалистом Tailly"
+                src="/images/become-specialist/Frame 337.svg"
+                alt=""
               />
             </div>
           </div>
         </div>
       </section>
 
-      {/* После hero — форма обратной связи */}
       <FeedbackSection />
     </>
   );

@@ -142,6 +142,35 @@ function isTouchLikeViewport(): boolean {
   return window.matchMedia('(pointer: coarse)').matches;
 }
 
+function isMessageVisibleEnough(params: {
+  entry: IntersectionObserverEntry;
+  rootElement: HTMLDivElement;
+}): boolean {
+  const { entry, rootElement } = params;
+  const messageHeight = entry.boundingClientRect.height;
+
+  if (messageHeight <= 0) {
+    return false;
+  }
+
+  const rootRect = rootElement.getBoundingClientRect();
+  const intersectionRect = entry.intersectionRect;
+  const visibleHeight = Math.max(0, intersectionRect.height);
+  const visibleRatio = visibleHeight / messageHeight;
+  const rootHeight = Math.max(rootRect.height, 1);
+
+  const isOversizedMessage = messageHeight > rootHeight * 0.95;
+
+  if (!isOversizedMessage) {
+    return visibleRatio >= 0.7;
+  }
+
+  // Для длинных сообщений (выше окна чата) 70% может быть физически недостижимо.
+  // Считаем сообщение прочитанным, если в окне стабильно видно значимую часть.
+  const requiredVisiblePx = Math.min(180, rootHeight * 0.45);
+  return visibleHeight >= requiredVisiblePx;
+}
+
 export const MessagesSection = observer(() => {
   const { user } = useAuth();
   const [searchParams] = useSearchParams();
@@ -175,17 +204,56 @@ export const MessagesSection = observer(() => {
     const specialistName = searchParams.get('specialistName')?.trim() ?? '';
     const specialistAvatarUrl = searchParams.get('specialistAvatarUrl')?.trim() ?? '';
 
-    if (!specialistId || !specialistSlug || !specialistName) {
+    if (specialistId && specialistSlug && specialistName) {
+      return {
+        specialistId,
+        specialistSlug,
+        specialistName,
+        specialistAvatarUrl: specialistAvatarUrl || undefined,
+      };
+    }
+
+    const stateCandidate = location.state as
+      | {
+          specialistId?: unknown;
+          specialistSlug?: unknown;
+          specialistName?: unknown;
+          specialistAvatarUrl?: unknown;
+        }
+      | undefined;
+
+    if (!stateCandidate || typeof stateCandidate !== 'object') {
+      return null;
+    }
+
+    const stateSpecialistId =
+      typeof stateCandidate.specialistId === 'string'
+        ? stateCandidate.specialistId.trim()
+        : '';
+    const stateSpecialistSlug =
+      typeof stateCandidate.specialistSlug === 'string'
+        ? stateCandidate.specialistSlug.trim()
+        : '';
+    const stateSpecialistName =
+      typeof stateCandidate.specialistName === 'string'
+        ? stateCandidate.specialistName.trim()
+        : '';
+    const stateSpecialistAvatarUrl =
+      typeof stateCandidate.specialistAvatarUrl === 'string'
+        ? stateCandidate.specialistAvatarUrl.trim()
+        : '';
+
+    if (!stateSpecialistId || !stateSpecialistSlug || !stateSpecialistName) {
       return null;
     }
 
     return {
-      specialistId,
-      specialistSlug,
-      specialistName,
-      specialistAvatarUrl: specialistAvatarUrl || undefined,
+      specialistId: stateSpecialistId,
+      specialistSlug: stateSpecialistSlug,
+      specialistName: stateSpecialistName,
+      specialistAvatarUrl: stateSpecialistAvatarUrl || undefined,
     };
-  }, [searchParams]);
+  }, [location.state, searchParams]);
 
   const clientIntent = useMemo(() => {
     const clientId = searchParams.get('clientId')?.trim() ?? '';
@@ -415,6 +483,10 @@ export const MessagesSection = observer(() => {
             return;
           }
 
+          if (!isMessageVisibleEnough({ entry, rootElement: root })) {
+            return;
+          }
+
           const messageId = entry.target.getAttribute('data-message-id')?.trim();
 
           if (!messageId) {
@@ -456,7 +528,7 @@ export const MessagesSection = observer(() => {
       },
       {
         root,
-        threshold: 0.7,
+        threshold: [0.15, 0.4, 0.7],
       },
     );
 

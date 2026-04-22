@@ -45,7 +45,10 @@ export const SpecialistProfileSection = observer((): ReactElement => {
 
     navigate('/messages', {
       state: {
+        specialistId: profile.id,
         specialistSlug: profile.slug,
+        specialistName: profile.main.displayName,
+        specialistAvatarUrl: profile.main.avatarUrl,
         source: 'specialist-profile',
       },
     });

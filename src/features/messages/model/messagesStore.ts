@@ -214,6 +214,10 @@ class MessagesStore {
     this.error = null;
 
     try {
+      await messagesService.ensureSupportThread({
+        viewer: params.viewer,
+      });
+
       const snapshot = await messagesService.ensureSpecialistThread({
         viewer: params.viewer,
         specialistId: params.specialistId,
@@ -275,6 +279,10 @@ class MessagesStore {
     this.error = null;
 
     try {
+      await messagesService.ensureSupportThread({
+        viewer: params.viewer,
+      });
+
       const snapshot = await messagesService.ensureClientThread(params);
 
       const targetThread = snapshot.threads.find(

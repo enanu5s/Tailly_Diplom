@@ -34,11 +34,7 @@
 }
 
 .feedbackOnHome {
-  margin-left: -20px;
-  margin-right: -20px;
-  width: calc(100% + 40px);
-  max-width: none;
-  margin-bottom: 0;
+  margin-top: 110px;
 }
 
 .error {
@@ -53,6 +49,10 @@
 
   .container {
     gap: 84px;
+  }
+
+  .feedbackOnHome {
+    margin-top: 84px;
   }
 }
 
@@ -75,8 +75,7 @@
   }
 
   .feedbackOnHome {
-    margin-left: -16px;
-    margin-right: -16px;
-    width: calc(100% + 32px);
+    margin-top: 62px;
   }
+
 }

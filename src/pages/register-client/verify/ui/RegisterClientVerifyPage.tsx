@@ -1,5 +1,5 @@
 //src/pages/register-client/verify/ui/RegisterClientVerifyPage.tsx
-import { useEffect, useState } from 'react';
+import { useEffect, useState, type FormEvent, type ReactElement } from 'react';
 
 import { registerService } from '@/features/auth/model/registerService';
 import { useRegisterFlow } from '@/features/auth/model/useRegisterFlow';
@@ -7,7 +7,7 @@ import { useAppNavigate } from '@/shared/lib/navigation/useAppNavigate';
 
 import styles from '../../RegisterClient.module.css';
 
-export const RegisterClientVerifyPage = () => {
+export const RegisterClientVerifyPage = (): ReactElement => {
   const navigate = useAppNavigate();
   const flow = useRegisterFlow();
 
@@ -15,82 +15,104 @@ export const RegisterClientVerifyPage = () => {
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
 
-  // если сюда попали без шага 1
   useEffect(() => {
-    if (!flow.registrationId) navigate('/register/client', { replace: true });
+    if (!flow.registrationId) {
+      navigate('/register/client', { replace: true });
+    }
   }, [flow.registrationId, navigate]);
 
-  const onSubmit = async (error: React.FormEvent) => {
-    error.preventDefault();
+  const onSubmit = async (event: FormEvent<HTMLFormElement>): Promise<void> => {
+    event.preventDefault();
     setError(null);
 
-    if (!flow.registrationId) return;
+    if (!flow.registrationId) {
+      return;
+    }
 
     setLoading(true);
+
     try {
       await registerService.verify(flow.registrationId, code);
       navigate('/register/client/profile');
-    } catch (error: unknown) {
-      const message = error instanceof Error ? error.message : 'Ошибка проверки кода';
+    } catch (submissionError: unknown) {
+      const message =
+        submissionError instanceof Error
+          ? submissionError.message
+          : 'Ошибка проверки кода';
+
       setError(message);
     } finally {
       setLoading(false);
     }
   };
 
+  const handleResend = (): void => {
+    setError('Код отправлен повторно (мок). Код: 123456');
+  };
+
   return (
-    <div className={styles.page}>
-      <div className={styles.container}>
-        <button onClick={() => navigate(-1)} className={styles.backButton}>
-          ← Назад
-        </button>
+    <section className={styles.page}>
+      <div className={styles.background} aria-hidden="true" />
+      <button className={styles.backButton} type="button" onClick={() => navigate(-1)}>
+        <span className={styles.backIcon}>←</span>
+        <span>Назад</span>
+      </button>
+      <div className={styles.layout}>
+        <div className={styles.stack}>
+          <div className={styles.cardWrap}>
+            <span className={styles.backgroundBlobLeft} aria-hidden="true" />
+            <span className={styles.backgroundBlobRight} aria-hidden="true" />
 
-        <h1 className={styles.title}>Подтверждение почты</h1>
-        <p className={styles.subtitle}>Шаг 2 из 3 — введите код из письма</p>
+            <div className={styles.card}>
+              <div className={styles.cardInner}>
+                <div className={styles.header}>
+                  <h1 className={styles.title}>Подтверждение почты</h1>
+                  <p className={styles.subtitle}>
+                    Шаг 2 из 3 — введите код, отправленный
+                    <br />
+                    на email <b>{flow.email ?? 'client@tailly.local'}</b>
+                  </p>
+                </div>
 
-        <div className={styles.card}>
-          <form className={styles.form} onSubmit={onSubmit}>
-            <input
-              className={styles.input}
-              inputMode="numeric"
-              placeholder="Код (6 цифр)"
-              value={code}
-              onChange={(e) => setCode(e.target.value)}
-              required
-            />
+                <form className={styles.form} onSubmit={onSubmit}>
+                  <label className={styles.field}>
+                    <input
+                      className={styles.input}
+                      inputMode="numeric"
+                      placeholder="Введите код"
+                      value={code}
+                      onChange={(event) => setCode(event.target.value)}
+                      autoComplete="one-time-code"
+                      required
+                    />
+                  </label>
 
-            {error && <div className={styles.error}>{error}</div>}
+                  <div className={styles.actionsRowRight}>
+                    <button
+                      type="button"
+                      className={styles.linkButton}
+                      onClick={handleResend}
+                      disabled={loading}
+                    >
+                      Отправить код ещё раз
+                    </button>
+                  </div>
 
-            <button className={styles.submitButton} disabled={loading} type="submit">
-              {loading ? 'Проверяем...' : 'Подтвердить'}
-            </button>
+                  {error ? <div className={styles.error}>{error}</div> : null}
 
-            <div className={styles.actionsRow}>
-              <button
-                type="button"
-                className={styles.linkButton}
-                onClick={() => {
-                  // в мок-режиме просто подсказка; в реале дергаем resend endpoint
-                  setError('Код отправлен повторно (мок). Код: 123456');
-                }}
-              >
-                Отправить код еще раз
-              </button>
-
-              <button
-                type="button"
-                className={styles.linkButton}
-                onClick={() => {
-                  registerService.resetFlow();
-                  navigate('/register/client', { replace: true });
-                }}
-              >
-                Начать заново
-              </button>
+                  <button
+                    className={styles.submitButton}
+                    disabled={loading}
+                    type="submit"
+                  >
+                    {loading ? 'Проверяем...' : 'Подтвердить'}
+                  </button>
+                </form>
+              </div>
             </div>
-          </form>
+          </div>
         </div>
       </div>
-    </div>
+    </section>
   );
 };

@@ -2,6 +2,9 @@
 
 import { HttpError, request } from '@/shared/api/http';
 import { isMockApiMode } from '@/shared/config/env';
+import { hasUsableAccessToken } from '@/shared/lib/auth/hasUsableAccessToken';
+import { mockDataSourceStore } from '@/shared/lib/mock/mockDataSourceStore';
+import { authStore } from '@/features/auth/model/authStore';
 
 import {
   mockCancelProductOrder,
@@ -149,15 +152,19 @@ function shouldFallbackToMock(error: unknown): boolean {
 
 export const ordersApi = {
   async getServiceOrders(filter: ServicesFilter): Promise<ServiceOrder[]> {
-    if (isMockApiMode) {
+    if (isMockApiMode || !hasUsableAccessToken(authStore.getToken())) {
+      mockDataSourceStore.setSource('orders/services', true);
       return mockGetServiceOrders(filter);
     }
 
     try {
-      return await realGetServiceOrders(filter);
+      const data = await realGetServiceOrders(filter);
+      mockDataSourceStore.setSource('orders/services', false);
+      return data;
     } catch (error) {
       if (shouldFallbackToMock(error)) {
         console.warn('[ordersApi.getServiceOrders] falling back to mock:', error);
+        mockDataSourceStore.setSource('orders/services', true);
         return mockGetServiceOrders(filter);
       }
 
@@ -268,7 +275,7 @@ export const ordersApi = {
   },
 
   async getProductOrders(): Promise<ProductOrder[]> {
-    if (isMockApiMode) {
+    if (isMockApiMode || !hasUsableAccessToken(authStore.getToken())) {
       return mockGetProductOrders();
     }
 

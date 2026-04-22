@@ -1,7 +1,8 @@
 // src/features/specialist-profile/api/specialistProfileApi.ts
 
-import { request } from '@/shared/api/http';
+import { HttpError, request } from '@/shared/api/http';
 import { isMockApiMode } from '@/shared/config/env';
+import { mockDataSourceStore } from '@/shared/lib/mock/mockDataSourceStore';
 
 import {
   mockGetSpecialistProfileBySlug,
@@ -79,13 +80,29 @@ async function realUpsertReviewReply(
   );
 }
 
+function shouldFallbackToMock(error: unknown): boolean {
+  return error instanceof HttpError && (error.status === 401 || error.status === 404);
+}
+
 export const specialistProfileApi = {
-  getBySlug(slug: string): Promise<SpecialistProfileResponse> {
+  async getBySlug(slug: string): Promise<SpecialistProfileResponse> {
     if (isMockApiMode) {
+      mockDataSourceStore.setSource('specialists/profile', true);
       return mockGetSpecialistProfileBySlug(slug);
     }
 
-    return realGetSpecialistProfileBySlug(slug);
+    try {
+      const data = await realGetSpecialistProfileBySlug(slug);
+      mockDataSourceStore.setSource('specialists/profile', false);
+      return data;
+    } catch (error) {
+      if (shouldFallbackToMock(error)) {
+        mockDataSourceStore.setSource('specialists/profile', true);
+        return mockGetSpecialistProfileBySlug(slug);
+      }
+
+      throw error;
+    }
   },
 
   updateMainInfo(

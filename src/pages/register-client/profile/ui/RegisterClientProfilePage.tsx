@@ -1,6 +1,13 @@
 // src/pages/register-client/profile/ui/RegisterClientProfilePage.tsx
 
-import { useEffect, useRef, useState } from 'react';
+import {
+  useEffect,
+  useRef,
+  useState,
+  type FormEvent,
+  type KeyboardEvent,
+  type ReactElement,
+} from 'react';
 
 import { registerService } from '@/features/auth/model/registerService';
 import { useRegisterFlow } from '@/features/auth/model/useRegisterFlow';
@@ -10,7 +17,7 @@ import { useAppNavigate } from '@/shared/lib/navigation/useAppNavigate';
 
 import styles from '../../RegisterClient.module.css';
 
-export const RegisterClientProfilePage = () => {
+export const RegisterClientProfilePage = (): ReactElement => {
   const navigate = useAppNavigate();
   const flow = useRegisterFlow();
 
@@ -69,7 +76,7 @@ export const RegisterClientProfilePage = () => {
 
         setLocalitySuggestions(items);
         setError(null);
-      } catch (err: unknown) {
+      } catch (submissionError: unknown) {
         if (requestId !== localitySuggestRequestIdRef.current) {
           return;
         }
@@ -77,7 +84,9 @@ export const RegisterClientProfilePage = () => {
         setLocalitySuggestions([]);
 
         const message =
-          err instanceof Error ? err.message : 'Не удалось загрузить подсказки городов';
+          submissionError instanceof Error
+            ? submissionError.message
+            : 'Не удалось загрузить подсказки городов';
 
         setError(message);
       } finally {
@@ -100,7 +109,7 @@ export const RegisterClientProfilePage = () => {
     };
   }, []);
 
-  const onCityInputChange = (value: string) => {
+  const onCityInputChange = (value: string): void => {
     setCityInput(value);
 
     if (selectedLocality) {
@@ -112,11 +121,10 @@ export const RegisterClientProfilePage = () => {
     }
   };
 
-  const handleLocalitySelect = (item: GeoSuggestItem) => {
+  const handleLocalitySelect = (item: GeoSuggestItem): void => {
     const nextValue = item.fullName || item.name || '';
 
     localitySuggestRequestIdRef.current += 1;
-
     isSelectingLocalityRef.current = true;
 
     if (localityBlurTimeoutRef.current) {
@@ -134,7 +142,7 @@ export const RegisterClientProfilePage = () => {
     }, 0);
   };
 
-  const handleLocalityBlur = () => {
+  const handleLocalityBlur = (): void => {
     if (isSelectingLocalityRef.current) {
       return;
     }
@@ -148,7 +156,7 @@ export const RegisterClientProfilePage = () => {
     }, 150);
   };
 
-  const handleLocalityKeyDown = (event: React.KeyboardEvent<HTMLInputElement>) => {
+  const handleLocalityKeyDown = (event: KeyboardEvent<HTMLInputElement>): void => {
     if (event.key === 'Enter') {
       event.preventDefault();
 
@@ -164,8 +172,8 @@ export const RegisterClientProfilePage = () => {
     }
   };
 
-  const onSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
+  const onSubmit = async (event: FormEvent<HTMLFormElement>): Promise<void> => {
+    event.preventDefault();
     setError(null);
 
     if (!flow.verificationToken) {
@@ -200,9 +208,11 @@ export const RegisterClientProfilePage = () => {
       );
 
       navigate('/', { replace: true });
-    } catch (err: unknown) {
+    } catch (submissionError: unknown) {
       const message =
-        err instanceof Error ? err.message : 'Ошибка завершения регистрации';
+        submissionError instanceof Error
+          ? submissionError.message
+          : 'Ошибка завершения регистрации';
 
       setError(message);
     } finally {
@@ -211,110 +221,148 @@ export const RegisterClientProfilePage = () => {
   };
 
   return (
-    <div className={styles.page}>
-      <div className={styles.container}>
-        <button onClick={() => navigate(-1)} className={styles.backButton}>
-          ← Назад
-        </button>
+    <section className={styles.page}>
+      <div className={styles.background} aria-hidden="true" />
+      <button className={styles.backButton} type="button" onClick={() => navigate(-1)}>
+        <span className={styles.backIcon}>←</span>
+        <span>Назад</span>
+      </button>
+      <div className={styles.layout}>
+        <div className={styles.stack}>
+          <div className={styles.cardWrap}>
+            <span className={styles.backgroundBlobLeft} aria-hidden="true" />
+            <span className={styles.backgroundBlobRight} aria-hidden="true" />
 
-        <h1 className={styles.title}>Заполните профиль</h1>
-        <p className={styles.subtitle}>Шаг 3 из 3 — это займет минуту</p>
+            <div className={`${styles.card} ${styles.cardWithPets}`}>
+              <div className={styles.cardInner}>
+                <div className={styles.header}>
+                  <h1 className={styles.title}>Заполнение профиля</h1>
+                  <p className={styles.subtitle}>Шаг 3 из 3 — введите ваши данные</p>
+                </div>
 
-        <div className={styles.card}>
-          <form className={styles.form} onSubmit={onSubmit}>
-            <input
-              className={styles.input}
-              placeholder="Фамилия"
-              value={lastName}
-              onChange={(e) => setLastName(e.target.value)}
-              required
-              autoComplete="family-name"
-            />
+                <form className={styles.form} onSubmit={onSubmit}>
+                  <label className={styles.field}>
+                    <input
+                      className={styles.input}
+                      placeholder="Имя"
+                      value={firstName}
+                      onChange={(event) => setFirstName(event.target.value)}
+                      required
+                      autoComplete="given-name"
+                    />
+                  </label>
 
-            <input
-              className={styles.input}
-              placeholder="Имя"
-              value={firstName}
-              onChange={(e) => setFirstName(e.target.value)}
-              required
-              autoComplete="given-name"
-            />
+                  <label className={styles.field}>
+                    <input
+                      className={styles.input}
+                      placeholder="Фамилия"
+                      value={lastName}
+                      onChange={(event) => setLastName(event.target.value)}
+                      required
+                      autoComplete="family-name"
+                    />
+                  </label>
 
-            <input
-              className={styles.input}
-              placeholder="Отчество (при наличии)"
-              value={middleName}
-              onChange={(e) => setMiddleName(e.target.value)}
-              autoComplete="additional-name"
-            />
+                  <label className={styles.field}>
+                    <input
+                      className={styles.input}
+                      placeholder="Отчество (не обязательно)"
+                      value={middleName}
+                      onChange={(event) => setMiddleName(event.target.value)}
+                      autoComplete="additional-name"
+                    />
+                  </label>
 
-            <div className={styles.fieldLabel}>Населённый пункт</div>
-            <div className={styles.autocomplete}>
-              <input
-                className={styles.input}
-                value={cityInput}
-                onChange={(e) => onCityInputChange(e.target.value)}
-                onKeyDown={handleLocalityKeyDown}
-                onBlur={handleLocalityBlur}
-                placeholder="Начните вводить название или введите вручную"
-                autoComplete="off"
-                required
-                aria-autocomplete="list"
-              />
+                  <label className={styles.field}>
+                    <span className={styles.fieldLabel}>Выберите город</span>
 
-              {localitySuggestionsLoading && (
-                <div className={styles.suggestLoading}>Загрузка из 2GIS…</div>
-              )}
+                    <div className={styles.autocomplete}>
+                      <input
+                        className={styles.input}
+                        value={cityInput}
+                        onChange={(event) => onCityInputChange(event.target.value)}
+                        onKeyDown={handleLocalityKeyDown}
+                        onBlur={handleLocalityBlur}
+                        placeholder="Начните вводить название..."
+                        autoComplete="off"
+                        required
+                        aria-autocomplete="list"
+                      />
 
-              {localitySuggestions.length > 0 && (
-                <ul className={styles.suggestions} role="listbox">
-                  {localitySuggestions.map((item, index) => {
-                    const primaryText = item.name || item.fullName;
-                    const secondaryText =
-                      item.fullName && item.fullName !== item.name ? item.fullName : '';
+                      {localitySuggestionsLoading ? (
+                        <div className={styles.suggestLoading}>Загрузка из 2GIS…</div>
+                      ) : null}
 
-                    return (
-                      <li
-                        key={`${item.id ?? 'noid'}-${primaryText}-${index}`}
-                        className={styles.suggestionItem}
-                        role="option"
-                        onMouseDown={(event) => {
-                          event.preventDefault();
-                          handleLocalitySelect(item);
-                        }}
-                      >
-                        <span className={styles.suggestionPrimary}>{primaryText}</span>
-                        {secondaryText ? (
-                          <span className={styles.suggestionSecondary}>
-                            {' '}
-                            — {secondaryText}
-                          </span>
-                        ) : null}
-                      </li>
-                    );
-                  })}
-                </ul>
-              )}
-            </div>
+                      {localitySuggestions.length > 0 ? (
+                        <ul className={styles.suggestions} role="listbox">
+                          {localitySuggestions.map((item, index) => {
+                            const primaryText = item.name || item.fullName;
+                            const secondaryText =
+                              item.fullName && item.fullName !== item.name
+                                ? item.fullName
+                                : '';
 
-            {!selectedLocality && cityInput.trim() && (
-              <div className={styles.hint}>
-                Подсказки недоступны — город будет сохранён по введённому значению.
+                            return (
+                              <li
+                                key={`${item.id ?? 'noid'}-${primaryText}-${index}`}
+                                className={styles.suggestionItem}
+                                role="option"
+                                onMouseDown={(mouseEvent) => {
+                                  mouseEvent.preventDefault();
+                                  handleLocalitySelect(item);
+                                }}
+                              >
+                                <span className={styles.suggestionPrimary}>
+                                  {primaryText}
+                                </span>
+                                {secondaryText ? (
+                                  <span className={styles.suggestionSecondary}>
+                                    {' '}
+                                    — {secondaryText}
+                                  </span>
+                                ) : null}
+                              </li>
+                            );
+                          })}
+                        </ul>
+                      ) : null}
+                    </div>
+                  </label>
+
+                  {!selectedLocality && cityInput.trim() ? (
+                    <div className={styles.mutedHint}>
+                      Подсказки недоступны — город будет сохранён по введённому значению.
+                    </div>
+                  ) : null}
+
+                  {error ? <div className={styles.error}>{error}</div> : null}
+
+                  <button
+                    className={styles.submitButton}
+                    disabled={loading || localitySuggestionsLoading}
+                    type="submit"
+                  >
+                    {loading ? 'Сохраняем...' : 'Завершить регистрацию'}
+                  </button>
+
+                  <div className={styles.petsDecor} aria-hidden="true">
+                    <img
+                      className={styles.petLeft}
+                      src="/images/register-client/Group_dog.svg"
+                      alt=""
+                    />
+                    <img
+                      className={styles.petRight}
+                      src="/images/register-client/Group_cat.svg"
+                      alt=""
+                    />
+                  </div>
+                </form>
               </div>
-            )}
-
-            {error && <div className={styles.error}>{error}</div>}
-
-            <button
-              className={styles.submitButton}
-              disabled={loading || localitySuggestionsLoading}
-              type="submit"
-            >
-              {loading ? 'Сохраняем...' : 'Завершить регистрацию'}
-            </button>
-          </form>
+            </div>
+          </div>
         </div>
       </div>
-    </div>
+    </section>
   );
 };

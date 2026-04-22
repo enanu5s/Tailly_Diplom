@@ -519,8 +519,16 @@ export class ShopCheckoutStore {
         source: this.repeatOrder ? 'repeatOrder' : 'cart',
       });
 
+      const formForSubmit: CheckoutForm = {
+        ...JSON.parse(JSON.stringify(this.form)),
+        address:
+          this.form.deliveryMethod === 'pickup-point'
+            ? null
+            : JSON.parse(JSON.stringify(this.form.address)),
+      };
+
       const order = await shopOrderService.createOrder({
-        form: JSON.parse(JSON.stringify(this.form)),
+        form: formForSubmit,
         items: payloadItems,
       });
 

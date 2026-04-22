@@ -44,8 +44,8 @@ export const HomePage = observer(() => {
           <Faq />
         </section>
 
-        <FeedbackSection className={styles.feedbackOnHome} />
       </div>
+      <FeedbackSection className={styles.feedbackOnHome} />
     </div>
   );
 });
