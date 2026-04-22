@@ -142,7 +142,7 @@ class AdminSpecialistsManagementStore {
       });
 
       runInAction(() => {
-        this.createdTemporaryPassword = result.temporaryPassword;
+        this.createdTemporaryPassword = result.temporaryPassword ?? '';
         this.createdEmail = result.account.email;
         this.createdSpecialistSlug = result.account.specialistSlug ?? '';
       });

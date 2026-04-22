@@ -1,5 +1,4 @@
 import { request } from '@/shared/api/http';
-import { authStore } from '@/features/auth';
 
 type SyncCartItem = {
   productId: string;
@@ -11,12 +10,6 @@ type MergeCartPayload = {
 };
 
 function getCartBasePath(): string {
-  const role = authStore.getState().user?.role;
-
-  if (role === 'specialist') {
-    return '/specialist/cart';
-  }
-
   return '/cart';
 }
 

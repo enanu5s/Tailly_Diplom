@@ -1,5 +1,4 @@
 import { request } from '@/shared/api/http';
-import { authStore } from '@/features/auth';
 
 type FavoriteListItem = {
   productId: string;
@@ -11,12 +10,6 @@ type FavoriteListResponse = {
 };
 
 function getFavoritesBasePath(): string {
-  const role = authStore.getState().user?.role;
-
-  if (role === 'specialist') {
-    return '/specialist/favorite';
-  }
-
   return '/favorite';
 }
 

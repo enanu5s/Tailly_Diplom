@@ -32,7 +32,7 @@ export type CreateSpecialistAccountPayload = {
 
 export type CreateSpecialistAccountResponse = {
   account: ManagedSpecialistAccount;
-  temporaryPassword: string;
+  temporaryPassword?: string;
 };
 
 export class AdminSpecialistsManagementError extends Error {

@@ -123,12 +123,20 @@ export const CreateSpecialistAccountModal = observer(
             <div className={styles.errorBanner}>{store.createError}</div>
           ) : null}
 
-          {store.createdTemporaryPassword ? (
+          {store.createdEmail ? (
             <div className={styles.successBanner}>
-              Кабинет создан для {store.createdEmail}. Временный пароль:{' '}
-              <span className={styles.passwordValue}>
-                {store.createdTemporaryPassword}
-              </span>
+              Кабинет создан для {store.createdEmail}.
+              {store.createdTemporaryPassword ? (
+                <>
+                  {' '}
+                  Временный пароль:{' '}
+                  <span className={styles.passwordValue}>
+                    {store.createdTemporaryPassword}
+                  </span>
+                </>
+              ) : (
+                ' Временный пароль backend не вернул.'
+              )}
               {store.createdSpecialistSlug ? (
                 <span className={styles.slugValue}>
                   {' '}

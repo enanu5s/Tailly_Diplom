@@ -281,10 +281,12 @@ class SpecialistApplicationsModerationStore {
     });
 
     try {
+      const reviewComment = this.draft.reviewComment.trim() || 'Собеседование назначено.';
+
       const updated = await specialistApplicationsService.assignInterview({
         applicationId: selected.id,
         interviewDate: this.draft.interviewDate,
-        reviewComment: this.draft.reviewComment.trim() || undefined,
+        reviewComment,
         reviewedBy,
       });
 
