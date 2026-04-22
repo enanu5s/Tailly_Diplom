@@ -1,6 +1,7 @@
 // src/features/specialist-applications/service/specialistApplicationsService.ts
 
 import { specialistApplicationsApi } from '../api/specialistApplicationsApi';
+import type { CreateSpecialistApplicationResult } from '../api/specialistApplicationsApi';
 
 import type {
   ApproveSpecialistApplicationPayload,
@@ -14,7 +15,7 @@ import type {
 export const specialistApplicationsService = {
   createApplication(
     payload: CreateSpecialistApplicationPayload,
-  ): Promise<{ ok: true; application: SpecialistApplication }> {
+  ): Promise<CreateSpecialistApplicationResult> {
     return specialistApplicationsApi.createApplication(payload);
   },
 

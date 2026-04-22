@@ -144,6 +144,23 @@ export async function mockGetOrderById(orderId: string): Promise<Order | null> {
   return order;
 }
 
+export async function mockGetMyOrders(): Promise<Order[]> {
+  const orders = readStoredOrders();
+  const userId = authStore.getState().user?.id;
+
+  if (!userId) {
+    return [];
+  }
+
+  return orders.filter((order) => {
+    if (order.ownerUserId) {
+      return order.ownerUserId === userId;
+    }
+
+    return userId === MOCK_UNSCOPED_SHOP_ORDER_FALLBACK_USER_ID;
+  });
+}
+
 export async function mockPayShopOrder(
   orderId: string,
   paymentMethod: 'card' | 'sbp',
@@ -227,4 +244,62 @@ export async function mockCancelOrder(orderId: string): Promise<Order> {
   notifyShopOrderEvent({ order: updated, event: 'cancelled' });
 
   return updated;
+}
+
+export async function mockRepeatOrder(orderId: string): Promise<Order> {
+  const sourceOrder = await mockGetOrderById(orderId);
+
+  if (!sourceOrder) {
+    throw new Error('Заказ не найден.');
+  }
+
+  const form = {
+    recipient: {
+      firstName: 'Имя',
+      lastName: 'Фамилия',
+      phone: '',
+      email: sourceOrder.recipientEmail ?? '',
+    },
+    deliveryMethod: sourceOrder.deliveryMethod,
+    address: {
+      city: '',
+      street: '',
+      house: '',
+      apartment: '',
+      comment: '',
+    },
+    pickupPointId: null,
+    paymentMethod: sourceOrder.paymentMethod,
+  } as const;
+
+  return mockCreateOrder({
+    form,
+    items: sourceOrder.items.map((item) => ({
+      productId: item.product.id,
+      quantity: item.quantity,
+    })),
+  });
+}
+
+export async function mockConfirmOrder(orderId: string): Promise<void> {
+  const orders = readStoredOrders();
+  const index = orders.findIndex((order) => order.id === orderId);
+
+  if (index === -1) {
+    throw new Error('Заказ не найден.');
+  }
+
+  const current = orders[index];
+  assertCurrentUserOwnsMockShopOrder(current);
+
+  if (current.status !== 'paid') {
+    throw new Error('Подтверждение оплаты доступно только для оплаченного заказа.');
+  }
+
+  orders[index] = {
+    ...current,
+    status: 'processing',
+  };
+
+  writeStoredOrders(orders);
 }

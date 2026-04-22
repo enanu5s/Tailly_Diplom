@@ -5,6 +5,7 @@ import { makeAutoObservable } from 'mobx';
 import { authStore } from '@/features/auth/model/authStore';
 import { isMockApiMode } from '@/shared/config/env';
 import { hasUsableAccessToken } from '@/shared/lib/auth/hasUsableAccessToken';
+import { canOrderShopProducts } from '@/shared/lib/auth/roleAccess';
 
 import { shopFavoritesApi } from '../api/shopFavoritesApi';
 
@@ -18,11 +19,16 @@ export class ShopFavoritesStore {
   private hasPendingSync = false;
   private lastSyncedSnapshot = '';
   private unsubscribeAuth: (() => void) | null = null;
+  private isHydratingFromServer = false;
 
   constructor() {
     makeAutoObservable(this, {}, { autoBind: true });
     this.restore();
     this.unsubscribeAuth = authStore.subscribe(this.handleAuthChanged);
+
+    if (this.canSyncWithServer()) {
+      void this.hydrateFromServer();
+    }
   }
 
   private persist(): void {
@@ -73,6 +79,11 @@ export class ShopFavoritesStore {
   }
 
   private handleAuthChanged(): void {
+    if (this.canSyncWithServer()) {
+      void this.hydrateFromServer();
+      return;
+    }
+
     this.scheduleServerSync();
   }
 
@@ -81,7 +92,10 @@ export class ShopFavoritesStore {
       return false;
     }
 
-    return hasUsableAccessToken(authStore.getToken());
+    return (
+      hasUsableAccessToken(authStore.getToken()) &&
+      canOrderShopProducts(authStore.getState().user)
+    );
   }
 
   private buildSnapshotSignature(productIds: string[]): string {
@@ -89,6 +103,10 @@ export class ShopFavoritesStore {
   }
 
   private scheduleServerSync(): void {
+    if (this.isHydratingFromServer) {
+      return;
+    }
+
     if (!this.canSyncWithServer()) {
       return;
     }
@@ -157,6 +175,25 @@ export class ShopFavoritesStore {
 
     if (this.hasPendingSync) {
       await this.flushServerSync();
+    }
+  }
+
+  private async hydrateFromServer(): Promise<void> {
+    if (!this.canSyncWithServer()) {
+      return;
+    }
+
+    this.isHydratingFromServer = true;
+
+    try {
+      const serverProductIds = await shopFavoritesApi.getFavorites();
+      this.productIds = serverProductIds;
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(this.productIds));
+      this.lastSyncedSnapshot = this.buildSnapshotSignature(serverProductIds);
+    } catch (error) {
+      console.warn('[favorites] hydrate from server failed', { error });
+    } finally {
+      this.isHydratingFromServer = false;
     }
   }
 

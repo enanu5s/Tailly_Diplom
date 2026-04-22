@@ -12,6 +12,10 @@ import type {
   CatalogProductsResponse,
   Product,
 } from '../model/types';
+import type {
+  CreateProductReviewPayload,
+  ReplyToProductReviewPayload,
+} from './shopApi';
 
 export async function mockGetCatalogMeta(): Promise<CatalogMetaResponse> {
   return buildCatalogMetaForLists(getShopProductsSnapshot(), getShopCategoriesSnapshot());
@@ -63,3 +67,12 @@ export async function mockGetProductsByIds(productIds: string[]): Promise<Produc
 export async function mockGetProductBySlug(slug: string): Promise<Product | null> {
   return getShopProductsSnapshot().find((product) => product.slug === slug) ?? null;
 }
+
+export async function mockSubmitProductReview(
+  _payload: CreateProductReviewPayload,
+): Promise<void> {}
+
+export async function mockReplyToProductReview(
+  _reviewId: string,
+  _payload: ReplyToProductReviewPayload,
+): Promise<void> {}

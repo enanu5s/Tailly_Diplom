@@ -5,6 +5,7 @@ import { authStore } from '@/features/auth';
 import type { AuthUser } from '@/features/auth/model/authStore';
 import { isMockApiMode } from '@/shared/config/env';
 import { hasUsableAccessToken } from '@/shared/lib/auth/hasUsableAccessToken';
+import { canOrderShopProducts } from '@/shared/lib/auth/roleAccess';
 
 import { shopCartApi } from '../api/shopCartApi';
 
@@ -243,6 +244,11 @@ export class ShopCartStore {
     this.activeStorageKey = userStorageKey;
     this.items = userItems;
 
+    if (!canOrderShopProducts(user)) {
+      this.pendingCartMergePrompt = null;
+      return;
+    }
+
     if (guestItems.length > 0) {
       console.log('[CART] SHOW PROMPT');
       this.pendingCartMergePrompt = {
@@ -285,6 +291,9 @@ export class ShopCartStore {
     this.writeItemsByStorageKey(userStorageKey, mergedItems);
     this.clearStorageKey(GUEST_STORAGE_KEY);
     this.pendingCartMergePrompt = null;
+    void shopCartApi.mergeAfterLogin({ merge: true }).catch((error) => {
+      console.warn('[CART] mergeAfterLogin(true) failed', { error });
+    });
   }
 
   discardGuestCartAfterLogin(): void {
@@ -307,6 +316,9 @@ export class ShopCartStore {
     });
     this.clearStorageKey(GUEST_STORAGE_KEY);
     this.pendingCartMergePrompt = null;
+    void shopCartApi.mergeAfterLogin({ merge: false }).catch((error) => {
+      console.warn('[CART] mergeAfterLogin(false) failed', { error });
+    });
   }
 
   private switchToGuestCart(): void {
@@ -376,7 +388,10 @@ export class ShopCartStore {
       return false;
     }
 
-    return hasUsableAccessToken(authStore.getToken());
+    return (
+      hasUsableAccessToken(authStore.getToken()) &&
+      canOrderShopProducts(authStore.getState().user)
+    );
   }
 
   private scheduleServerSync(): void {

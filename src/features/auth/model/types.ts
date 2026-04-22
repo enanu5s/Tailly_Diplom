@@ -5,7 +5,7 @@ import type { AuthUser } from './authStore';
 export type LoginPayload = {
   email: string;
   password: string;
-  requestedRole: 'client' | 'specialist';
+  requestedRole?: 'client' | 'specialist' | 'admin' | 'super_admin';
 };
 
 export type LoginSuccessResponse = {

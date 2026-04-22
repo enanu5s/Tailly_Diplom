@@ -6,12 +6,9 @@ import { authStore } from '@/features/auth/model/authStore';
 import { LoginError } from './types';
 import { authService } from '../service/authService';
 
-type LoginMode = 'client' | 'specialist';
-
 class LoginStore {
   email = '';
   password = '';
-
   loginAsSpecialist = false;
 
   isSubmitting = false;
@@ -35,7 +32,7 @@ class LoginStore {
     this.loginAsSpecialist = value;
   }
 
-  get requestedRole(): LoginMode {
+  get requestedRole(): 'client' | 'specialist' {
     return this.loginAsSpecialist ? 'specialist' : 'client';
   }
 

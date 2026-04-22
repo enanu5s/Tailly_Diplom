@@ -1,10 +1,23 @@
 // src/features/auth/service/authService.ts
 import { adminProfileStore } from '@/features/admin-profile';
+import { HttpError } from '@/shared/api/http';
 
 import { authStore, type AuthUser } from '@/features/auth/model/authStore';
 import { authApi } from '../api/authApi';
 
 import type { LoginPayload } from '../model/types';
+
+const LOGIN_ROLE_ATTEMPTS: Array<NonNullable<LoginPayload['requestedRole']>> = [
+  'client',
+  'specialist',
+  'super_admin',
+  'admin',
+];
+
+function isLikelyAdminEmail(email: string): boolean {
+  const normalized = email.trim().toLowerCase();
+  return normalized.includes('admin');
+}
 
 function readStringField(
   source: Record<string, unknown>,
@@ -26,7 +39,44 @@ function readStringField(
 
 export const authService = {
   async login(dto: LoginPayload) {
-    const res = await authApi.login(dto);
+    const roleAttempts = isLikelyAdminEmail(dto.email)
+      ? [
+          'super_admin',
+          'admin',
+          ...LOGIN_ROLE_ATTEMPTS.filter((role) => role !== 'super_admin' && role !== 'admin'),
+        ]
+      : dto.requestedRole
+        ? [
+            dto.requestedRole,
+            ...LOGIN_ROLE_ATTEMPTS.filter((role) => role !== dto.requestedRole),
+          ]
+        : LOGIN_ROLE_ATTEMPTS;
+    let res: Awaited<ReturnType<typeof authApi.login>> | null = null;
+    let resolvedRole: NonNullable<LoginPayload['requestedRole']> = roleAttempts[0]!;
+    let lastError: unknown = null;
+
+    for (const role of roleAttempts) {
+      try {
+        res = await authApi.login({
+          email: dto.email,
+          password: dto.password,
+          requestedRole: role,
+        });
+        resolvedRole = role;
+        break;
+      } catch (error) {
+        if (!(error instanceof HttpError) || error.code !== 'Auth.InvalidRole') {
+          throw error;
+        }
+
+        lastError = error;
+      }
+    }
+
+    if (!res) {
+      throw (lastError instanceof Error ? lastError : new Error('Не удалось выполнить вход.'));
+    }
+
     const responseRecord = res as unknown as Record<string, unknown>;
 
     const accessToken = readStringField(responseRecord, 'accessToken', 'AccessToken');
@@ -40,7 +90,7 @@ export const authService = {
     const fallbackUser: AuthUser = {
       id: 'authorized-user',
       email: dto.email.trim(),
-      role: dto.requestedRole,
+      role: resolvedRole,
     };
 
     authStore.setAuth({

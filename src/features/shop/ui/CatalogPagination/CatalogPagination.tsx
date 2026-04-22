@@ -11,8 +11,6 @@ export const CatalogPagination = observer(() => {
     return null;
   }
 
-  const pages = buildPages(filters.page, totalPages);
-
   return (
     <nav className={styles.pagination} aria-label="Пагинация каталога">
       <button
@@ -20,53 +18,22 @@ export const CatalogPagination = observer(() => {
         type="button"
         onClick={() => shopCatalogStore.setPage(filters.page - 1)}
         disabled={filters.page <= 1}
+        aria-label="Предыдущая страница"
       >
-        Назад
+        ←
       </button>
 
-      <div className={styles.pages}>
-        {pages.map((page, index) =>
-          page === 'dots' ? (
-            <span key={`dots - ${index}`} className={styles.dots}>
-              …
-            </span>
-          ) : (
-            <button
-              key={page}
-              className={`${styles.pageButton} ${page === filters.page ? styles.pageButtonActive : ''}`}
-              type="button"
-              onClick={() => shopCatalogStore.setPage(page)}
-            >
-              {page}
-            </button>
-          ),
-        )}
-      </div>
+      <div className={styles.pageText}>Страница {filters.page} из {totalPages}</div>
 
       <button
         className={styles.navButton}
         type="button"
         onClick={() => shopCatalogStore.setPage(filters.page + 1)}
         disabled={filters.page >= totalPages}
+        aria-label="Следующая страница"
       >
-        Вперёд
+        →
       </button>
     </nav>
   );
 });
-
-function buildPages(current: number, total: number): Array<number | 'dots'> {
-  if (total <= 7) {
-    return Array.from({ length: total }, (_, index) => index + 1);
-  }
-
-  if (current <= 3) {
-    return [1, 2, 3, 4, 'dots', total];
-  }
-
-  if (current >= total - 2) {
-    return [1, 'dots', total - 3, total - 2, total - 1, total];
-  }
-
-  return [1, 'dots', current - 1, current, current + 1, 'dots', total];
-}

@@ -77,6 +77,20 @@ export async function mockGetSpecialistProfileBySlug(
   return withComputedStats(cloneProfile(MOCK_SPECIALIST_PROFILES[profileIndex]));
 }
 
+export async function mockGetSpecialistProfileById(
+  id: string,
+): Promise<SpecialistProfileResponse> {
+  await delay(350);
+
+  const profile = MOCK_SPECIALIST_PROFILES.find((item) => item.id === id);
+
+  if (!profile) {
+    throw new Error('Профиль специалиста не найден.');
+  }
+
+  return withComputedStats(cloneProfile(profile));
+}
+
 export async function mockUpdateMainInfo(
   slug: string,
   payload: SpecialistMainInfoUpdatePayload,

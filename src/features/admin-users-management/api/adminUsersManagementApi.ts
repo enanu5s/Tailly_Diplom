@@ -1,30 +1,53 @@
 // src/features/admin-users-management/api/adminUsersManagementApi.ts
 
-import { request } from '@/shared/api/http';
+import { HttpError, request } from '@/shared/api/http';
 import { isMockApiMode } from '@/shared/config/env';
 
 import {
   mockGetManagedUsers,
+  mockGetManagedUserById,
   mockRestoreManagedUserFromDeletion,
   mockUpdateManagedUserBlockedStatus,
   mockUpdateManagedUserProfile,
 } from './adminUsersManagementApi.mock';
 
 import type {
+  GetManagedUsersPayload,
   ManagedUser,
   RestoreManagedUserFromDeletionPayload,
   UpdateManagedUserProfilePayload,
   UpdateUserBlockStatusPayload,
 } from '../model/types';
 
-async function realGetManagedUsers(): Promise<ManagedUser[]> {
-  return request<ManagedUser[]>('/admin/users');
+function shouldFallbackToMock(error: unknown): boolean {
+  return error instanceof HttpError && (error.status === 401 || error.status === 404);
+}
+
+async function realGetManagedUsers(payload?: GetManagedUsersPayload): Promise<ManagedUser[]> {
+  const response = await request<ManagedUser[] | { items?: ManagedUser[] }>('/admin/users', {
+    query: {
+      search: payload?.search,
+      role: payload?.role,
+      page: payload?.page,
+      pageSize: payload?.pageSize,
+    },
+  });
+
+  if (Array.isArray(response)) {
+    return response;
+  }
+
+  return Array.isArray(response.items) ? response.items : [];
+}
+
+async function realGetManagedUserById(userId: string): Promise<ManagedUser> {
+  return request<ManagedUser>(`/admin/users/${encodeURIComponent(userId)}`);
 }
 
 async function realUpdateManagedUserBlockedStatus(
   payload: UpdateUserBlockStatusPayload,
 ): Promise<ManagedUser> {
-  return request<ManagedUser>(
+  await request<void>(
     `/admin/users/${encodeURIComponent(payload.userId)}/block-status`,
     {
       method: 'PATCH',
@@ -36,6 +59,8 @@ async function realUpdateManagedUserBlockedStatus(
       },
     },
   );
+
+  return realGetManagedUserById(payload.userId);
 }
 
 async function realUpdateManagedUserProfile(
@@ -55,21 +80,47 @@ async function realUpdateManagedUserProfile(
 async function realRestoreManagedUserFromDeletion(
   payload: RestoreManagedUserFromDeletionPayload,
 ): Promise<ManagedUser> {
-  return request<ManagedUser>(
+  await request<void>(
     `/admin/users/${encodeURIComponent(payload.userId)}/restore-from-deletion`,
     {
       method: 'POST',
     },
   );
+
+  return realGetManagedUserById(payload.userId);
 }
 
 export const adminUsersManagementApi = {
-  async getUsers(): Promise<ManagedUser[]> {
+  async getUsers(payload?: GetManagedUsersPayload): Promise<ManagedUser[]> {
     if (isMockApiMode) {
-      return mockGetManagedUsers();
+      return mockGetManagedUsers(payload);
     }
 
-    return realGetManagedUsers();
+    try {
+      return await realGetManagedUsers(payload);
+    } catch (error) {
+      if (shouldFallbackToMock(error)) {
+        return mockGetManagedUsers(payload);
+      }
+
+      throw error;
+    }
+  },
+
+  async getUserById(userId: string): Promise<ManagedUser> {
+    if (isMockApiMode) {
+      return mockGetManagedUserById(userId);
+    }
+
+    try {
+      return await realGetManagedUserById(userId);
+    } catch (error) {
+      if (shouldFallbackToMock(error)) {
+        return mockGetManagedUserById(userId);
+      }
+
+      throw error;
+    }
   },
 
   async updateBlockedStatus(payload: UpdateUserBlockStatusPayload): Promise<ManagedUser> {
@@ -77,7 +128,15 @@ export const adminUsersManagementApi = {
       return mockUpdateManagedUserBlockedStatus(payload);
     }
 
-    return realUpdateManagedUserBlockedStatus(payload);
+    try {
+      return await realUpdateManagedUserBlockedStatus(payload);
+    } catch (error) {
+      if (shouldFallbackToMock(error)) {
+        return mockUpdateManagedUserBlockedStatus(payload);
+      }
+
+      throw error;
+    }
   },
 
   async updateUserProfile(
@@ -87,7 +146,15 @@ export const adminUsersManagementApi = {
       return mockUpdateManagedUserProfile(payload);
     }
 
-    return realUpdateManagedUserProfile(payload);
+    try {
+      return await realUpdateManagedUserProfile(payload);
+    } catch (error) {
+      if (shouldFallbackToMock(error)) {
+        return mockUpdateManagedUserProfile(payload);
+      }
+
+      throw error;
+    }
   },
 
   async restoreUserFromDeletion(
@@ -97,6 +164,14 @@ export const adminUsersManagementApi = {
       return mockRestoreManagedUserFromDeletion(payload);
     }
 
-    return realRestoreManagedUserFromDeletion(payload);
+    try {
+      return await realRestoreManagedUserFromDeletion(payload);
+    } catch (error) {
+      if (shouldFallbackToMock(error)) {
+        return mockRestoreManagedUserFromDeletion(payload);
+      }
+
+      throw error;
+    }
   },
 };

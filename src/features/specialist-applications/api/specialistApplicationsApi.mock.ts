@@ -23,10 +23,11 @@ import {
   type RejectSpecialistApplicationPayload,
   type SpecialistApplication,
 } from '../model/types';
+import type { CreateSpecialistApplicationResult } from './specialistApplicationsApi';
 
 export async function mockCreateApplication(
   payload: CreateSpecialistApplicationPayload,
-): Promise<{ ok: true; application: SpecialistApplication }> {
+): Promise<CreateSpecialistApplicationResult> {
   await delay();
   ensureMockSeed();
 
@@ -66,10 +67,7 @@ export async function mockCreateApplication(
     interviewDate: null,
   });
 
-  return {
-    ok: true,
-    application: JSON.parse(JSON.stringify(createdApplication)) as SpecialistApplication,
-  };
+  return { id: createdApplication.id };
 }
 
 export async function mockGetApplications(): Promise<SpecialistApplication[]> {

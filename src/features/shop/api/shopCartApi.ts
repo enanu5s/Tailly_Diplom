@@ -1,18 +1,33 @@
 import { request } from '@/shared/api/http';
+import { authStore } from '@/features/auth';
 
 type SyncCartItem = {
   productId: string;
   quantity: number;
 };
 
+type MergeCartPayload = {
+  merge: boolean;
+};
+
+function getCartBasePath(): string {
+  const role = authStore.getState().user?.role;
+
+  if (role === 'specialist') {
+    return '/specialist/cart';
+  }
+
+  return '/cart';
+}
+
 async function clearCart(): Promise<void> {
-  await request<void>('/cart', {
+  await request<void>(getCartBasePath(), {
     method: 'DELETE',
   });
 }
 
 async function addCartItem(item: SyncCartItem): Promise<void> {
-  await request<void>('/cart', {
+  await request<void>(getCartBasePath(), {
     method: 'POST',
     body: {
       productId: item.productId,
@@ -22,6 +37,13 @@ async function addCartItem(item: SyncCartItem): Promise<void> {
 }
 
 export const shopCartApi = {
+  mergeAfterLogin(payload: MergeCartPayload): Promise<void> {
+    return request<void>(`${getCartBasePath()}/merge`, {
+      method: 'POST',
+      body: payload,
+    });
+  },
+
   async syncSnapshot(items: SyncCartItem[]): Promise<void> {
     await clearCart();
 

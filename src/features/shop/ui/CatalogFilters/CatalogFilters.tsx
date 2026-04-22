@@ -8,7 +8,7 @@ import { shopCatalogStore } from '../../model/shopCatalogStore';
 import type { ProductSort } from '../../model/types';
 
 const SORT_LABELS: Record<ProductSort, string> = {
-  popular: 'Сначала популярные',
+  popular: 'По популярности',
   newest: 'Сначала новые',
   'rating-desc': 'По рейтингу',
   'price-asc': 'Сначала дешевле',
@@ -39,25 +39,41 @@ export const CatalogFilters = observer(() => {
   return (
     <aside className={styles.sidebar}>
       <div className={styles.section}>
-        <label className={styles.label} htmlFor="shop-search">
-          Поиск
+        <label className={styles.label} htmlFor="shop-sort">
+          Сортировка
         </label>
 
-        <input
-          id="shop-search"
-          className={styles.input}
-          type="text"
-          value={filters.search}
+        <select
+          id="shop-sort"
+          className={styles.select}
+          value={filters.sort}
           onChange={(event) => {
-            console.log('[CatalogFilters] search changed:', event.target.value);
-            shopCatalogStore.setSearch(event.target.value);
+            shopCatalogStore.setSort(event.target.value as ProductSort);
           }}
-          placeholder="Например: корм, миска, шампунь"
-        />
+        >
+          {availableSorts.map((sort) => (
+            <option key={sort} value={sort}>
+              {SORT_LABELS[sort]}
+            </option>
+          ))}
+        </select>
       </div>
 
       <div className={styles.section}>
-        <div className={styles.label}>Категории</div>
+        <label className={styles.checkboxItem}>
+          <input
+            type="checkbox"
+            checked={filters.onlyAvailable}
+            onChange={(event) => {
+              shopCatalogStore.setOnlyAvailable(event.target.checked);
+            }}
+          />
+          <span>Только в наличии</span>
+        </label>
+      </div>
+
+      <div className={styles.section}>
+        <div className={styles.label}>Категория</div>
 
         {isMetaLoading && !isMetaInitialized ? (
           <div className={styles.metaHint}>Загружаем категории...</div>
@@ -72,19 +88,7 @@ export const CatalogFilters = observer(() => {
                     type="checkbox"
                     checked={checked}
                     onChange={(event) => {
-                      console.log('[CatalogFilters] category toggle:', {
-                        categoryId: category.id,
-                        categoryTitle: category.title,
-                        checked: event.target.checked,
-                        before: filters.categoryIds,
-                      });
-
                       shopCatalogStore.setCategory(category.id, event.target.checked);
-
-                      console.log(
-                        '[CatalogFilters] categoryIds after toggle call:',
-                        shopCatalogStore.filters.categoryIds,
-                      );
                     }}
                   />
                   <span>{category.title}</span>
@@ -111,8 +115,6 @@ export const CatalogFilters = observer(() => {
             onChange={(event) => {
               const value = event.target.value.trim();
               const nextValue = value === '' ? null : Number(value);
-
-              console.log('[CatalogFilters] minPrice changed:', nextValue);
               shopCatalogStore.setMinPrice(nextValue);
             }}
             placeholder="От"
@@ -127,7 +129,6 @@ export const CatalogFilters = observer(() => {
             onChange={(event) => {
               const value = event.target.value.trim();
               const nextValue = value === '' ? null : Number(value);
-              console.log('[CatalogFilters] maxPrice changed:', nextValue);
               shopCatalogStore.setMaxPrice(nextValue);
             }}
             placeholder="До"
@@ -135,54 +136,14 @@ export const CatalogFilters = observer(() => {
         </div>
       </div>
 
-      <div className={styles.section}>
-        <label className={styles.checkboxItem}>
-          <input
-            type="checkbox"
-            checked={filters.onlyAvailable}
-            onChange={(event) => {
-              console.log(
-                '[CatalogFilters] onlyAvailable changed:',
-                event.target.checked,
-              );
-              shopCatalogStore.setOnlyAvailable(event.target.checked);
-            }}
-          />
-          <span>Только в наличии</span>
-        </label>
-      </div>
-
-      <div className={styles.section}>
-        <label className={styles.label} htmlFor="shop-sort">
-          Сортировка
-        </label>
-
-        <select
-          id="shop-sort"
-          className={styles.select}
-          value={filters.sort}
-          onChange={(event) => {
-            console.log('[CatalogFilters] sort changed:', event.target.value);
-            shopCatalogStore.setSort(event.target.value as ProductSort);
-          }}
-        >
-          {availableSorts.map((sort) => (
-            <option key={sort} value={sort}>
-              {SORT_LABELS[sort]}
-            </option>
-          ))}
-        </select>
-      </div>
-
       <button
         className={styles.resetButton}
         type="button"
         onClick={() => {
-          console.log('[CatalogFilters] reset filters');
           shopCatalogStore.resetFilters();
         }}
       >
-        Сбросить фильтры
+        Сбросить фильтр
       </button>
     </aside>
   );

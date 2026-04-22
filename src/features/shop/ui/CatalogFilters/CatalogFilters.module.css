@@ -2,78 +2,102 @@
 .sidebar {
   display: flex;
   flex-direction: column;
-  gap: 18px;
-  padding: 20px;
-  border: 1px solid #e5e7eb;
+  gap: 14px;
+  padding: 18px 14px 16px;
+  border: 1px solid #e9e4de;
   border-radius: 18px;
   background: #ffffff;
-  box-shadow: 0 10px 30px rgba(15, 23, 42, 0.06);
+  box-shadow: 0 8px 22px rgba(33, 21, 0, 0.06);
 }
 
 .section {
   display: flex;
   flex-direction: column;
-  gap: 10px;
+  gap: 8px;
 }
 
 .label {
-  color: #0f172a;
+  color: #211500;
+  font-family: 'Raleway', sans-serif;
   font-size: 14px;
   font-weight: 700;
+  line-height: 1.2;
 }
 
 .input,
 .select {
-  min-height: 46px;
-  padding: 0 14px;
-  border: 1px solid #dbe3ee;
-  border-radius: 14px;
+  min-height: 32px;
+  padding: 0 10px;
+  border: 1px solid #cfc7be;
+  border-radius: 8px;
   background: #ffffff;
-  color: #0f172a;
-  font-size: 14px;
+  color: #211500;
+  font-family: 'Rubik', sans-serif;
+  font-size: 13px;
   outline: none;
-  transition: border-color 0.2s ease;
+  transition:
+    border-color 0.2s ease,
+    box-shadow 0.2s ease;
 }
 
 .input:focus,
 .select:focus {
-  border-color: #6366f1;
+  border-color: #ffa232;
+  box-shadow: 0 0 0 3px rgba(255, 162, 50, 0.1);
 }
 
 .checkboxList {
   display: flex;
   flex-direction: column;
-  gap: 10px;
+  gap: 8px;
 }
 
 .checkboxItem {
   display: flex;
   align-items: center;
-  gap: 10px;
-  color: #334155;
-  font-size: 14px;
+  gap: 8px;
+  color: #6f685d;
+  font-family: 'Rubik', sans-serif;
+  font-size: 13px;
+  line-height: 1.2;
+}
+
+.checkboxItem input[type='checkbox'] {
+  width: 12px;
+  height: 12px;
+  accent-color: #211500;
 }
 
 .priceGrid {
   display: grid;
   grid-template-columns: 1fr 1fr;
-  gap: 10px;
+  gap: 8px;
 }
 
 .priceHint,
 .metaHint {
-  color: #64748b;
-  font-size: 13px;
-  line-height: 1.5;
+  color: #8f877b;
+  font-family: 'Rubik', sans-serif;
+  font-size: 12px;
+  line-height: 1.4;
 }
 
 .resetButton {
-  min-height: 46px;
-  border: 1px solid #c7d2fe;
-  border-radius: 14px;
-  background: #eef2ff;
-  color: #4338ca;
+  min-height: 30px;
+  border: 1px solid #9f9384;
+  border-radius: 999px;
+  background: #ffffff;
+  color: #211500;
+  font-family: 'Raleway', sans-serif;
   font-size: 14px;
   font-weight: 700;
   cursor: pointer;
+  transition:
+    background 0.2s ease,
+    transform 0.2s ease;
+}
+
+.resetButton:hover {
+  background: #fbfaf8;
+  transform: translateY(-1px);
 }

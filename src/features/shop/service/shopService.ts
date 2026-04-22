@@ -1,5 +1,9 @@
 // src/features/shop/service/shopService.ts
 import { shopApi } from '../api/shopApi';
+import type {
+  CreateProductReviewPayload,
+  ReplyToProductReviewPayload,
+} from '../api/shopApi';
 
 import type {
   CatalogFilterState,
@@ -25,5 +29,16 @@ export const shopService = {
 
   async getProductBySlug(slug: string): Promise<Product | null> {
     return shopApi.getProductBySlug(slug);
+  },
+
+  async submitProductReview(payload: CreateProductReviewPayload): Promise<void> {
+    return shopApi.submitProductReview(payload);
+  },
+
+  async replyToProductReview(
+    reviewId: string,
+    payload: ReplyToProductReviewPayload,
+  ): Promise<void> {
+    return shopApi.replyToProductReview(reviewId, payload);
   },
 };

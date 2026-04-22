@@ -6,11 +6,22 @@ import { mockDataSourceStore } from '@/shared/lib/mock/mockDataSourceStore';
 
 import { mockGetSpecialists } from './specialistsSearchApi.mock';
 
-import type { Specialist } from '../model/types';
+import type { SearchFilters, Specialist } from '../model/types';
 
 /* REAL */
-async function realGetSpecialists(): Promise<Specialist[]> {
-  return request<Specialist[]>('/specialists');
+async function realGetSpecialists(filters?: Partial<SearchFilters>): Promise<Specialist[]> {
+  return request<Specialist[]>('/specialists', {
+    query: {
+      cityQuery: filters?.cityQuery?.trim() || undefined,
+      districtQuery: filters?.districtQuery?.trim() || undefined,
+      serviceId:
+        filters?.serviceId && filters.serviceId !== 'any' ? filters.serviceId : undefined,
+      priceMin: filters?.priceMin ?? undefined,
+      priceMax: filters?.priceMax ?? undefined,
+      experienceMinYears: filters?.experienceMinYears ?? undefined,
+      hasReviewsOnly: filters?.hasReviewsOnly || undefined,
+    },
+  });
 }
 
 function shouldFallbackToMock(error: unknown): boolean {
@@ -18,14 +29,14 @@ function shouldFallbackToMock(error: unknown): boolean {
 }
 
 export const specialistsSearchApi = {
-  async getSpecialists(): Promise<Specialist[]> {
+  async getSpecialists(filters?: Partial<SearchFilters>): Promise<Specialist[]> {
     if (isMockApiMode) {
       mockDataSourceStore.setSource('specialists/list', true);
       return mockGetSpecialists();
     }
 
     try {
-      const data = await realGetSpecialists();
+      const data = await realGetSpecialists(filters);
       mockDataSourceStore.setSource('specialists/list', false);
       return data;
     } catch (error) {

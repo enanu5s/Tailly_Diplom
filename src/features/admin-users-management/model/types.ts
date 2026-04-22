@@ -20,6 +20,13 @@ export type ManagedUser = {
   scheduledDeletionDeadline?: string;
 };
 
+export type GetManagedUsersPayload = {
+  search?: string;
+  role?: ManagedUserRole;
+  page?: number;
+  pageSize?: number;
+};
+
 export type UpdateUserBlockStatusPayload = {
   userId: string;
   isBlocked: boolean;

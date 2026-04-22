@@ -5,6 +5,7 @@ import { isMockApiMode } from '@/shared/config/env';
 import { mockDataSourceStore } from '@/shared/lib/mock/mockDataSourceStore';
 
 import {
+  mockGetSpecialistProfileById,
   mockGetSpecialistProfileBySlug,
   mockUpdateCalendar,
   mockUpdateDetails,
@@ -26,30 +27,40 @@ async function realGetSpecialistProfileBySlug(
   return request<SpecialistProfileResponse>(`/specialists/${encodeURIComponent(slug)}`);
 }
 
+async function realGetSpecialistProfileById(
+  id: string,
+): Promise<SpecialistProfileResponse> {
+  return request<SpecialistProfileResponse>(`/specialists/${encodeURIComponent(id)}`);
+}
+
 async function realUpdateMainInfo(
   slug: string,
   payload: SpecialistMainInfoUpdatePayload,
 ): Promise<SpecialistProfileResponse> {
-  return request<SpecialistProfileResponse>(
+  await request<{ success: boolean }>(
     `/specialists/${encodeURIComponent(slug)}/main`,
     {
       method: 'PATCH',
       body: payload,
     },
   );
+
+  return realGetSpecialistProfileBySlug(slug);
 }
 
 async function realUpdateDetails(
   slug: string,
   payload: SpecialistDetailsUpdatePayload,
 ): Promise<SpecialistProfileResponse> {
-  return request<SpecialistProfileResponse>(
+  await request<{ success: boolean }>(
     `/specialists/${encodeURIComponent(slug)}/details`,
     {
       method: 'PATCH',
       body: payload,
     },
   );
+
+  return realGetSpecialistProfileBySlug(slug);
 }
 
 async function realUpdateCalendar(
@@ -105,6 +116,26 @@ export const specialistProfileApi = {
     }
   },
 
+  async getById(id: string): Promise<SpecialistProfileResponse> {
+    if (isMockApiMode) {
+      mockDataSourceStore.setSource('specialists/profile', true);
+      return mockGetSpecialistProfileById(id);
+    }
+
+    try {
+      const data = await realGetSpecialistProfileById(id);
+      mockDataSourceStore.setSource('specialists/profile', false);
+      return data;
+    } catch (error) {
+      if (shouldFallbackToMock(error)) {
+        mockDataSourceStore.setSource('specialists/profile', true);
+        return mockGetSpecialistProfileById(id);
+      }
+
+      throw error;
+    }
+  },
+
   updateMainInfo(
     slug: string,
     payload: SpecialistMainInfoUpdatePayload,
@@ -113,7 +144,13 @@ export const specialistProfileApi = {
       return mockUpdateMainInfo(slug, payload);
     }
 
-    return realUpdateMainInfo(slug, payload);
+    return realUpdateMainInfo(slug, payload).catch((error) => {
+      if (shouldFallbackToMock(error)) {
+        return mockUpdateMainInfo(slug, payload);
+      }
+
+      throw error;
+    });
   },
 
   updateDetails(
@@ -124,7 +161,13 @@ export const specialistProfileApi = {
       return mockUpdateDetails(slug, payload);
     }
 
-    return realUpdateDetails(slug, payload);
+    return realUpdateDetails(slug, payload).catch((error) => {
+      if (shouldFallbackToMock(error)) {
+        return mockUpdateDetails(slug, payload);
+      }
+
+      throw error;
+    });
   },
 
   updateCalendar(
@@ -135,7 +178,13 @@ export const specialistProfileApi = {
       return mockUpdateCalendar(slug, payload);
     }
 
-    return realUpdateCalendar(slug, payload);
+    return realUpdateCalendar(slug, payload).catch((error) => {
+      if (shouldFallbackToMock(error)) {
+        return mockUpdateCalendar(slug, payload);
+      }
+
+      throw error;
+    });
   },
 
   upsertReviewReply(
@@ -146,6 +195,12 @@ export const specialistProfileApi = {
       return mockUpsertReviewReply(slug, payload);
     }
 
-    return realUpsertReviewReply(slug, payload);
+    return realUpsertReviewReply(slug, payload).catch((error) => {
+      if (shouldFallbackToMock(error)) {
+        return mockUpsertReviewReply(slug, payload);
+      }
+
+      throw error;
+    });
   },
 };

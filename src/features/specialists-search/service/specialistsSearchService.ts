@@ -2,10 +2,10 @@
 
 import { specialistsSearchApi } from '../api/specialistsSearchApi';
 
-import type { Specialist } from '../model/types';
+import type { SearchFilters, Specialist } from '../model/types';
 
 export const specialistsSearchService = {
-  async getSpecialists(): Promise<Specialist[]> {
-    return specialistsSearchApi.getSpecialists();
+  async getSpecialists(filters?: Partial<SearchFilters>): Promise<Specialist[]> {
+    return specialistsSearchApi.getSpecialists(filters);
   },
 };

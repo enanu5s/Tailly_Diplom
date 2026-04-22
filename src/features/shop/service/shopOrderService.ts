@@ -34,6 +34,36 @@ export const shopOrderService = {
     return shopOrderApi.getOrderById(orderId);
   },
 
+  async getMyOrders(): Promise<Order[]> {
+    const user = authStore.getState().user;
+
+    if (!canOrderShopProducts(user)) {
+      throw new Error('Просмотр заказов доступен только клиентам и специалистам.');
+    }
+
+    return shopOrderApi.getMyOrders();
+  },
+
+  async repeatOrder(orderId: string): Promise<Order> {
+    const user = authStore.getState().user;
+
+    if (!canOrderShopProducts(user)) {
+      throw new Error('Повтор заказа доступен только клиентам и специалистам.');
+    }
+
+    return shopOrderApi.repeatOrder(orderId);
+  },
+
+  async confirmOrder(orderId: string): Promise<void> {
+    const user = authStore.getState().user;
+
+    if (!canOrderShopProducts(user)) {
+      throw new Error('Подтверждение заказа доступно только клиентам и специалистам.');
+    }
+
+    return shopOrderApi.confirmOrder(orderId);
+  },
+
   async payShopOrder(orderId: string, payload: PayShopOrderPayload): Promise<Order> {
     const user = authStore.getState().user;
 

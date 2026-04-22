@@ -35,6 +35,11 @@ export const specialistProfileService = {
     return mapProfileResponseToProfile(response);
   },
 
+  async getById(id: string): Promise<SpecialistProfile> {
+    const response = await specialistProfileApi.getById(id);
+    return mapProfileResponseToProfile(response);
+  },
+
   async updateMainInfo(
     slug: string,
     payload: SpecialistMainInfoUpdatePayload,

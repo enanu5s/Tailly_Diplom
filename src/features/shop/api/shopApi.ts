@@ -8,6 +8,8 @@ import {
   mockGetCatalogProducts,
   mockGetProductBySlug,
   mockGetProductsByIds,
+  mockReplyToProductReview,
+  mockSubmitProductReview,
 } from './shopApi.mock';
 
 import type {
@@ -16,6 +18,17 @@ import type {
   CatalogProductsResponse,
   Product,
 } from '../model/types';
+
+export type CreateProductReviewPayload = {
+  productId: string;
+  orderId: string;
+  rating: 1 | 2 | 3 | 4 | 5;
+  text: string;
+};
+
+export type ReplyToProductReviewPayload = {
+  text: string;
+};
 
 async function getCatalogMetaReal(): Promise<CatalogMetaResponse> {
   return request<CatalogMetaResponse>('/shop/catalog/meta');
@@ -54,6 +67,23 @@ async function getProductBySlugReal(slug: string): Promise<Product | null> {
   return request<Product | null>(`/shop/products/${encodeURIComponent(slug)}`);
 }
 
+async function submitProductReviewReal(payload: CreateProductReviewPayload): Promise<void> {
+  await request('/shop/reviews', {
+    method: 'POST',
+    body: payload,
+  });
+}
+
+async function replyToProductReviewReal(
+  reviewId: string,
+  payload: ReplyToProductReviewPayload,
+): Promise<void> {
+  await request(`/shop/reviews/${encodeURIComponent(reviewId)}/reply`, {
+    method: 'POST',
+    body: payload,
+  });
+}
+
 export const shopApi = {
   async getCatalogMeta(): Promise<CatalogMetaResponse> {
     if (isMockApiMode) {
@@ -87,5 +117,24 @@ export const shopApi = {
     }
 
     return getProductBySlugReal(slug);
+  },
+
+  async submitProductReview(payload: CreateProductReviewPayload): Promise<void> {
+    if (isMockApiMode) {
+      return mockSubmitProductReview(payload);
+    }
+
+    return submitProductReviewReal(payload);
+  },
+
+  async replyToProductReview(
+    reviewId: string,
+    payload: ReplyToProductReviewPayload,
+  ): Promise<void> {
+    if (isMockApiMode) {
+      return mockReplyToProductReview(reviewId, payload);
+    }
+
+    return replyToProductReviewReal(reviewId, payload);
   },
 };

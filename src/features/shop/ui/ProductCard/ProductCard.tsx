@@ -85,22 +85,13 @@ export const ProductCard = observer(({ product }: Props) => {
           onClick={handleToggleFavorite}
           aria-label={isFavorite ? 'Убрать из избранного' : 'Добавить в избранное'}
         >
-          {isFavorite ? '♥️' : '♡'}
+          {isFavorite ? '♥' : '♡'}
         </button>
       ) : null}
 
-      <Link
-        to={`/shop/${product.slug}`}
-        state={productLinkState}
-        className={styles.imageLink}
-      >
+      <Link to={`/shop/${product.slug}`} state={productLinkState} className={styles.imageLink}>
         {mainImage ? (
-          <img
-            className={styles.image}
-            src={mainImage.url}
-            alt={mainImage.alt}
-            loading="lazy"
-          />
+          <img className={styles.image} src={mainImage.url} alt={mainImage.alt} loading="lazy" />
         ) : (
           <div className={styles.imagePlaceholder}>Нет изображения</div>
         )}
@@ -109,14 +100,13 @@ export const ProductCard = observer(({ product }: Props) => {
       <div className={styles.content}>
         <div className={styles.meta}>
           <span className={styles.category}>{product.categoryTitle}</span>
-          <span className={styles.rating}>★ {product.rating.toFixed(1)}</span>
+          <span className={styles.rating}>
+            <span className={styles.ratingStar}>★</span>
+            <span>{product.rating.toFixed(1)}</span>
+          </span>
         </div>
 
-        <Link
-          to={`/shop/${product.slug}`}
-          state={productLinkState}
-          className={styles.titleLink}
-        >
+        <Link to={`/shop/${product.slug}`} state={productLinkState} className={styles.titleLink}>
           <h3 className={styles.title}>{product.title}</h3>
         </Link>
 
@@ -151,6 +141,7 @@ export const ProductCard = observer(({ product }: Props) => {
                 </button>
 
                 <span className={styles.quantityValue}>{quantity}</span>
+
                 <button
                   className={styles.quantityButton}
                   type="button"

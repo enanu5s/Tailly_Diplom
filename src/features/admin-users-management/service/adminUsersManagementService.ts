@@ -3,6 +3,7 @@
 import { adminUsersManagementApi } from '../api/adminUsersManagementApi';
 
 import type {
+  GetManagedUsersPayload,
   ManagedUser,
   RestoreManagedUserFromDeletionPayload,
   UpdateManagedUserProfilePayload,
@@ -10,8 +11,12 @@ import type {
 } from '../model/types';
 
 export const adminUsersManagementService = {
-  getUsers(): Promise<ManagedUser[]> {
-    return adminUsersManagementApi.getUsers();
+  getUsers(payload?: GetManagedUsersPayload): Promise<ManagedUser[]> {
+    return adminUsersManagementApi.getUsers(payload);
+  },
+
+  getUserById(userId: string): Promise<ManagedUser> {
+    return adminUsersManagementApi.getUserById(userId);
   },
 
   updateBlockedStatus(payload: UpdateUserBlockStatusPayload): Promise<ManagedUser> {

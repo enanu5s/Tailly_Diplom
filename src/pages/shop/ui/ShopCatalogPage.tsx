@@ -5,16 +5,11 @@ import { useEffect, useRef } from 'react';
 import { Link, useLocation } from 'react-router-dom';
 
 import { useAuth } from '@/features/auth/model/useAuth';
-import { ordersStore } from '@/features/orders/model/ordersStore';
-import { shouldOpenProductOrderDetails } from '@/features/orders/model/types';
 import { shopCartStore } from '@/features/shop/model/shopCartStore';
 import { shopCatalogStore } from '@/features/shop/model/shopCatalogStore';
 import { shopFavoritesStore } from '@/features/shop/model/shopFavoritesStore';
 import { CatalogFilters, CatalogPagination, ProductCard } from '@/features/shop/ui';
-import {
-  canOrderShopProducts,
-  shouldShowShopConsumerControls,
-} from '@/shared/lib/auth/roleAccess';
+import { shouldShowShopConsumerControls } from '@/shared/lib/auth/roleAccess';
 import { useAppNavigate } from '@/shared/lib/navigation/useAppNavigate';
 
 import styles from './ShopCatalogPage.module.css';
@@ -30,21 +25,10 @@ export const ShopCatalogPage = observer(() => {
   const restoredRef = useRef(false);
   const { user } = useAuth();
   const showShopConsumerUi = shouldShowShopConsumerControls(user);
-  const canSeeOwnShopOrders = canOrderShopProducts(user);
 
   const { filters, products, total, error, isLoading, isInitialized } = shopCatalogStore;
 
   const categoryIdsKey = filters.categoryIds.join('|');
-
-  useEffect(() => {
-    if (!canSeeOwnShopOrders) {
-      return;
-    }
-
-    if (ordersStore.productOrders.length === 0 && !ordersStore.productsLoading) {
-      void ordersStore.loadProducts();
-    }
-  }, [canSeeOwnShopOrders]);
 
   useEffect(() => {
     if (!shopCatalogStore.isMetaInitialized && !shopCatalogStore.isMetaLoading) {
@@ -162,89 +146,57 @@ export const ShopCatalogPage = observer(() => {
     },
   };
 
-  const activeOrders = ordersStore.productOrders.filter(shouldOpenProductOrderDetails);
-
   return (
     <div className={styles.page}>
       <div className={styles.container}>
-        <div className={styles.breadcrumbs}>
-          <Link to="/" className={styles.breadcrumbLink}>
-            Главная
-          </Link>
-          <span className={styles.breadcrumbSeparator}>/</span>
-          <span className={styles.breadcrumbCurrent}>Магазин</span>
-        </div>
-
-        {canSeeOwnShopOrders && !ordersStore.productsLoading && activeOrders.length > 0 ? (
-          <section className={styles.activeOrdersBanner}>
-            <div className={styles.activeOrdersHeader}>
-              <div>
-                <h2 className={styles.activeOrdersTitle}>У вас есть активные заказы</h2>
-                <p className={styles.activeOrdersSubtitle}>
-                  Открой заказ, чтобы посмотреть детали и при необходимости отменить его.
-                </p>
-              </div>
-
-              <Link to="/shop/orders" className={styles.activeOrdersProfileLink}>
-                Все заказы
-              </Link>
-            </div>
-
-            <div className={styles.activeOrdersList}>
-              {activeOrders.slice(0, 3).map((order) => (
-                <Link
-                  key={order.id}
-                  to={`/shop/order/${encodeURIComponent(order.id)}`}
-                  className={styles.activeOrderItem}
-                >
-                  <span className={styles.activeOrderNumber}>{order.number}</span>
-                  <span className={styles.activeOrderMeta}>
-                    {mapProductStatus(order.status)}
-                  </span>
-                </Link>
-              ))}
-            </div>
-          </section>
-        ) : null}
-
-        <header className={styles.hero}>
-          <div>
-            <h1 className={styles.title}>Магазин Tailly</h1>
-            <p className={styles.subtitle}>
-              Корм, игрушки, аксессуары и товары для ухода за питомцами.
-            </p>
-          </div>
-
-          {showShopConsumerUi ? (
-            <div className={styles.quickStats}>
-              <Link
-                to="/shop/favorites"
-                state={favoritesLinkState}
-                className={styles.quickCard}
-              >
-                <span className={styles.quickCardValue}>{shopFavoritesStore.total}</span>
-                <span className={styles.quickCardLabel}>В избранном</span>
-              </Link>
-
-              <Link to="/shop/cart" state={cartLinkState} className={styles.quickCard}>
-                <span className={styles.quickCardValue}>{shopCartStore.totalItems}</span>
-                <span className={styles.quickCardLabel}>В корзине</span>
-              </Link>
-            </div>
-          ) : null}
-        </header>
+        <h1 className={styles.title}>Товары для ваших питомцев от Тейлли</h1>
 
         <div className={styles.layout}>
           <div className={styles.sidebar}>
+            <h2 className={styles.filterTitle}>Фильтр</h2>
             <CatalogFilters />
           </div>
 
           <section className={styles.content}>
+            <div className={styles.controlsRow}>
+              <input
+                type="text"
+                className={styles.searchInput}
+                value={filters.search}
+                onChange={(event) => {
+                  shopCatalogStore.setSearch(event.target.value);
+                }}
+                placeholder="Поиск по товарам"
+              />
+
+              {showShopConsumerUi ? (
+                <div className={styles.quickActions}>
+                  <Link
+                    to="/shop/favorites"
+                    state={favoritesLinkState}
+                    className={styles.quickActionButton}
+                  >
+                    <span className={styles.quickActionIcon}>♡</span>
+                    <span>Избранное</span>
+                    {shopFavoritesStore.total > 0 ? (
+                      <span className={styles.quickActionCounter}>{shopFavoritesStore.total}</span>
+                    ) : null}
+                  </Link>
+
+                  <Link to="/shop/cart" state={cartLinkState} className={styles.quickActionButton}>
+                    <span className={styles.quickActionIcon}>🛒</span>
+                    <span>Корзина</span>
+                    {shopCartStore.totalItems > 0 ? (
+                      <span className={styles.quickActionCounter}>{shopCartStore.totalItems}</span>
+                    ) : null}
+                  </Link>
+                </div>
+              ) : null}
+            </div>
+
             <div className={styles.toolbar}>
               <div className={styles.results}>
-                {isLoading && !isInitialized
-                  ? 'Загрузка каталога...'
-                  : `Найдено товаров: ${total}`}
+                {isLoading && !isInitialized ? 'Загрузка каталога...' : `Найдено товаров: ${total}`}
               </div>
 
               <div className={styles.currentPage}>
@@ -318,13 +270,3 @@ export const ShopCatalogPage = observer(() => {
     </div>
   );
 });
-
-function mapProductStatus(status: string): string {
-  if (status === 'created') return 'Создан';
-  if (status === 'paid') return 'Оплачен';
-  if (status === 'shipped') return 'Отправлен';
-  if (status === 'delivered') return 'Доставлен';
-  if (status === 'canceled') return 'Отменён';
-
-  return status;
-}

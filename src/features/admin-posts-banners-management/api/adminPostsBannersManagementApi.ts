@@ -30,7 +30,15 @@ async function getRequest() {
 async function realGetAdminPostsBanners(): Promise<AdminPostsBannersResponse> {
   const request = await getRequest();
 
-  return request('/admin/content');
+  const [posts, banners] = await Promise.all([
+    request<AdminManagedPost[]>('/admin/content/posts'),
+    request<AdminManagedBanner[]>('/admin/content/banners'),
+  ]);
+
+  return {
+    posts,
+    banners,
+  };
 }
 
 async function realSaveAdminPost(

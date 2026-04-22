@@ -1,5 +1,5 @@
 // src/features/admin-profile/api/adminProfileApi.ts
-import { request } from '@/shared/api/http';
+import { HttpError, request } from '@/shared/api/http';
 import { isMockApiMode } from '@/shared/config/env';
 
 import {
@@ -18,6 +18,10 @@ import type {
   RequestSuperAdminEmailChangeResponse,
   UpdateAdminProfilePayload,
 } from '../model/types';
+
+function shouldFallbackToMock(error: unknown): boolean {
+  return error instanceof HttpError && (error.status === 401 || error.status === 404);
+}
 
 async function realGetAdminProfile(): Promise<AdminProfile> {
   return request<AdminProfile>('/admin/profile');
@@ -71,7 +75,15 @@ export const adminProfileApi = {
       return mockGetAdminProfile();
     }
 
-    return realGetAdminProfile();
+    try {
+      return await realGetAdminProfile();
+    } catch (error) {
+      if (shouldFallbackToMock(error)) {
+        return mockGetAdminProfile();
+      }
+
+      throw error;
+    }
   },
 
   async updateProfile(payload: UpdateAdminProfilePayload): Promise<AdminProfile> {
@@ -79,7 +91,15 @@ export const adminProfileApi = {
       return mockUpdateAdminProfile(payload);
     }
 
-    return realUpdateAdminProfile(payload);
+    try {
+      return await realUpdateAdminProfile(payload);
+    } catch (error) {
+      if (shouldFallbackToMock(error)) {
+        return mockUpdateAdminProfile(payload);
+      }
+
+      throw error;
+    }
   },
 
   async requestSuperAdminEmailChange(
@@ -89,7 +109,15 @@ export const adminProfileApi = {
       return mockRequestSuperAdminEmailChangeApi(payload);
     }
 
-    return realRequestSuperAdminEmailChange(payload);
+    try {
+      return await realRequestSuperAdminEmailChange(payload);
+    } catch (error) {
+      if (shouldFallbackToMock(error)) {
+        return mockRequestSuperAdminEmailChangeApi(payload);
+      }
+
+      throw error;
+    }
   },
 
   async confirmSuperAdminEmailChange(
@@ -99,7 +127,15 @@ export const adminProfileApi = {
       return mockConfirmSuperAdminEmailChangeApi(payload);
     }
 
-    return realConfirmSuperAdminEmailChange(payload);
+    try {
+      return await realConfirmSuperAdminEmailChange(payload);
+    } catch (error) {
+      if (shouldFallbackToMock(error)) {
+        return mockConfirmSuperAdminEmailChangeApi(payload);
+      }
+
+      throw error;
+    }
   },
 
   async cancelSuperAdminEmailChange(): Promise<void> {
@@ -107,7 +143,15 @@ export const adminProfileApi = {
       return mockCancelSuperAdminEmailChangeApi();
     }
 
-    return realCancelSuperAdminEmailChange();
+    try {
+      return await realCancelSuperAdminEmailChange();
+    } catch (error) {
+      if (shouldFallbackToMock(error)) {
+        return mockCancelSuperAdminEmailChangeApi();
+      }
+
+      throw error;
+    }
   },
 
   async clearPasswordAttemptsLock(): Promise<AdminProfile> {
@@ -115,6 +159,14 @@ export const adminProfileApi = {
       return mockClearPasswordAttemptsLockApi();
     }
 
-    return realClearPasswordAttemptsLock();
+    try {
+      return await realClearPasswordAttemptsLock();
+    } catch (error) {
+      if (shouldFallbackToMock(error)) {
+        return mockClearPasswordAttemptsLockApi();
+      }
+
+      throw error;
+    }
   },
 };

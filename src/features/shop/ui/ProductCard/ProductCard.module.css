@@ -4,30 +4,45 @@
   display: flex;
   flex-direction: column;
   min-height: 100%;
-  border: 1px solid #e5e7eb;
+  padding: 12px;
+  border: 1px solid #ede8e2;
   border-radius: 18px;
   background: #ffffff;
-  box-shadow: 0 10px 30px rgba(15, 23, 42, 0.08);
+  box-shadow: 0 6px 18px rgba(33, 21, 0, 0.06);
   overflow: hidden;
+  transition:
+    transform 0.2s ease,
+    box-shadow 0.2s ease,
+    border-color 0.2s ease;
+}
+
+.card:hover {
+  transform: translateY(-2px);
+  border-color: #f2d5b1;
+  box-shadow: 0 10px 26px rgba(255, 152, 28, 0.16);
 }
 
 .favoriteButton {
   position: absolute;
-  top: 14px;
-  right: 14px;
+  top: 18px;
+  right: 18px;
   z-index: 2;
-  width: 40px;
-  height: 40px;
-  border: none;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 28px;
+  height: 28px;
+  border: 1px solid #d9d2c8;
   border-radius: 999px;
-  background: rgba(255, 255, 255, 0.92);
-  box-shadow: 0 6px 18px rgba(15, 23, 42, 0.12);
-  font-size: 20px;
+  background: rgba(255, 255, 255, 0.96);
+  color: #6f685d;
+  font-size: 15px;
   line-height: 1;
   cursor: pointer;
   transition:
-    transform 0.2s ease,
-    background 0.2s ease;
+    border-color 0.2s ease,
+    color 0.2s ease,
+    transform 0.2s ease;
 }
 
 .favoriteButton:hover {
@@ -35,14 +50,16 @@
 }
 
 .favoriteButtonActive {
-  background: #eef2ff;
-  color: #6366f1;
+  border-color: #f4b35d;
+  color: #d94747;
 }
 
 .imageLink {
   display: block;
-  aspect-ratio: 1 / 1;
-  background: #f8fafc;
+  aspect-ratio: 1 / 0.98;
+  border-radius: 12px;
+  background: #f3f1ed;
+  overflow: hidden;
 }
 
 .image {
@@ -58,8 +75,9 @@
   justify-content: center;
   height: 100%;
   padding: 16px;
-  color: #64748b;
-  font-size: 14px;
+  color: #8f877b;
+  font-family: 'Rubik', sans-serif;
+  font-size: 13px;
   text-align: center;
 }
 
@@ -67,27 +85,44 @@
   display: flex;
   flex: 1;
   flex-direction: column;
-  gap: 14px;
-  padding: 18px;
+  gap: 8px;
+  padding: 10px 2px 2px;
 }
 
 .meta {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  gap: 12px;
+  gap: 8px;
 }
 
 .category {
-  color: #6366f1;
-  font-size: 13px;
-  font-weight: 700;
+  display: inline-flex;
+  align-items: center;
+  min-height: 20px;
+  padding: 0 9px;
+  border-radius: 999px;
+  background: #f6dcc2;
+  color: #6f4b16;
+  font-family: 'Rubik', sans-serif;
+  font-size: 11px;
+  font-weight: 400;
+  line-height: 1;
 }
 
 .rating {
-  color: #f59e0b;
-  font-size: 14px;
-  font-weight: 700;
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  color: #6f685d;
+  font-family: 'Rubik', sans-serif;
+  font-size: 12px;
+  font-weight: 500;
+  line-height: 1;
+}
+
+.ratingStar {
+  color: #f4b028;
 }
 
 .titleLink {
@@ -97,119 +132,134 @@
 
 .title {
   margin: 0;
-  color: #0f172a;
-  font-size: 18px;
-  line-height: 1.3;
+  color: #211500;
+  font-family: 'Raleway', sans-serif;
+  font-size: 15px;
+  font-weight: 700;
+  line-height: 1.25;
 }
 
 .description {
   margin: 0;
-  color: #475569;
-  font-size: 14px;
-  line-height: 1.5;
+  color: #7f776d;
+  font-family: 'Rubik', sans-serif;
+  font-size: 12px;
+  line-height: 1.35;
 }
 
 .priceRow {
   display: flex;
   flex-direction: column;
-  gap: 8px;
+  gap: 6px;
   margin-top: auto;
 }
 
 .prices {
   display: flex;
   align-items: baseline;
-  gap: 10px;
+  gap: 8px;
   flex-wrap: wrap;
 }
 
 .price {
-  color: #0f172a;
-  font-size: 22px;
-  font-weight: 800;
+  color: #211500;
+  font-family: 'Raleway', sans-serif;
+  font-size: 18px;
+  font-weight: 700;
+  line-height: 1;
 }
 
 .oldPrice {
-  color: #94a3b8;
-  font-size: 15px;
+  color: #a69b8d;
+  font-family: 'Rubik', sans-serif;
+  font-size: 13px;
   text-decoration: line-through;
 }
 
 .stock {
-  color: #16a34a;
-  font-size: 13px;
-  font-weight: 600;
+  display: none;
 }
 
 .unavailable {
-  color: #dc2626;
-  font-size: 13px;
-  font-weight: 600;
+  color: #c13d2b;
+  font-family: 'Rubik', sans-serif;
+  font-size: 12px;
+  font-weight: 500;
+  line-height: 1.2;
 }
 
 .actions {
   display: flex;
   align-items: center;
+  margin-top: 2px;
 }
 
 .cartButton {
   width: 100%;
-  min-height: 46px;
+  min-height: 28px;
   border: none;
-  border-radius: 14px;
-  background: #6366f1;
+  border-radius: 999px;
+  background: #211500;
   color: #ffffff;
-  font-size: 15px;
+  font-family: 'Raleway', sans-serif;
+  font-size: 13px;
   font-weight: 700;
+  line-height: 1;
   cursor: pointer;
   transition:
-    background 0.2s ease,
-    transform 0.2s ease;
+    transform 0.2s ease,
+    opacity 0.2s ease;
 }
 
 .cartButton:hover:not(:disabled) {
   transform: translateY(-1px);
-  background: #5558e8;
 }
 
 .cartButton:disabled {
-  background: #cbd5e1;
+  background: #d7d2cb;
+  color: #8f877b;
   cursor: not-allowed;
 }
 
 .quantityControl {
-  display: flex;
+  display: grid;
+  grid-template-columns: 28px 1fr 28px;
   align-items: center;
-  gap: 12px;
+  gap: 8px;
   width: 100%;
-  padding: 6px;
-  border: 1px solid #dbeafe;
-  border-radius: 14px;
-  background: #f8fbff;
+  min-height: 28px;
+  padding: 2px 4px;
+  border: 1px solid #ddd6ce;
+  border-radius: 999px;
+  background: #ffffff;
 }
 
 .quantityButton {
-  width: 38px;
-  height: 38px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 24px;
+  height: 24px;
   border: none;
-  border-radius: 10px;
-  background: #e0e7ff;
-  color: #3730a3;
-  font-size: 24px;
+  border-radius: 999px;
+  background: #ffa232;
+  color: #211500;
+  font-size: 18px;
+  font-weight: 700;
   line-height: 1;
   cursor: pointer;
 }
 
 .quantityButton:disabled {
-  background: #e5e7eb;
-  color: #94a3b8;
+  background: #ebe7e1;
+  color: #9d958b;
   cursor: not-allowed;
 }
 
 .quantityValue {
-  flex: 1;
-  color: #0f172a;
-  font-size: 16px;
-  font-weight: 700;
+  color: #211500;
+  font-family: 'Rubik', sans-serif;
+  font-size: 13px;
+  font-weight: 500;
   text-align: center;
 }
