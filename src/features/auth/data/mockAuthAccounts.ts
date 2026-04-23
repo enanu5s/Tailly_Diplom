@@ -20,6 +20,14 @@ import {
 import type { UserRole } from '../model/authStore';
 import type { LoginSuccessResponse } from '../model/types';
 
+/** Блокировка в mock только для указанной роли (клиент / специалист). */
+export type MockRoleBlockState = {
+  isBlocked: boolean;
+  blockReason?: string;
+  blockedUntil?: string;
+  isPermanentBlock?: boolean;
+};
+
 export type MockAuthAccount = {
   id: string;
   email: string;
@@ -37,6 +45,10 @@ export type MockAuthAccount = {
   blockedUntil?: string;
   /** Бессрочная блокировка (mock, по аналогии с управлением пользователями) */
   isPermanentBlock?: boolean;
+  /**
+   * Если задано — блокировка по роли (как на бэкенде). Иначе используются общие поля isBlocked* (legacy).
+   */
+  roleBlock?: Partial<Record<'client' | 'specialist', MockRoleBlockState>>;
   softDeletedAt?: string;
   softDeleteRestoreUntil?: string;
 };
@@ -83,6 +95,105 @@ export function syncBlockedState(account: MockAuthAccount): void {
     account.blockedUntil = undefined;
     account.blockReason = undefined;
   }
+}
+
+export function isMockRoleBlockEffective(slice: MockRoleBlockState): boolean {
+  if (slice.isPermanentBlock) {
+    return true;
+  }
+
+  if (slice.blockedUntil) {
+    const t = new Date(slice.blockedUntil).getTime();
+
+    if (Number.isNaN(t)) {
+      return slice.isBlocked;
+    }
+
+    return t > Date.now();
+  }
+
+  return slice.isBlocked;
+}
+
+export function syncRoleBlockStates(account: MockAuthAccount): void {
+  if (!account.roleBlock) {
+    return;
+  }
+
+  for (const key of ['client', 'specialist'] as const) {
+    const slice = account.roleBlock[key];
+
+    if (!slice || slice.isPermanentBlock || !slice.blockedUntil) {
+      continue;
+    }
+
+    const t = new Date(slice.blockedUntil).getTime();
+
+    if (Number.isNaN(t) || t > Date.now()) {
+      continue;
+    }
+
+    account.roleBlock[key] = {
+      isBlocked: false,
+      isPermanentBlock: false,
+      blockedUntil: undefined,
+      blockReason: undefined,
+    };
+  }
+}
+
+/** Блокировка входа для запрошенной роли (client / specialist / admin). */
+export function isRoleLoginBlocked(account: MockAuthAccount, requestedRole: UserRole): boolean {
+  syncBlockedState(account);
+  syncRoleBlockStates(account);
+
+  if (isAdminRole(requestedRole)) {
+    return account.isBlocked;
+  }
+
+  if (requestedRole !== 'client' && requestedRole !== 'specialist') {
+    return account.isBlocked;
+  }
+
+  const slice = account.roleBlock?.[requestedRole];
+
+  if (slice !== undefined) {
+    return isMockRoleBlockEffective(slice);
+  }
+
+  return account.isBlocked;
+}
+
+/** Поля блокировки для карточки пользователя в админке (по роли). */
+export function getMockBlockFieldsForRole(
+  account: MockAuthAccount,
+  role: 'client' | 'specialist',
+): {
+  isBlocked: boolean;
+  blockReason?: string;
+  blockedUntil?: string;
+  isPermanentBlock: boolean;
+} {
+  syncBlockedState(account);
+  syncRoleBlockStates(account);
+
+  const slice = account.roleBlock?.[role];
+
+  if (slice !== undefined) {
+    return {
+      isBlocked: isMockRoleBlockEffective(slice),
+      blockReason: slice.blockReason,
+      blockedUntil: slice.blockedUntil,
+      isPermanentBlock: Boolean(slice.isPermanentBlock),
+    };
+  }
+
+  return {
+    isBlocked: account.isBlocked,
+    blockReason: account.blockReason,
+    blockedUntil: account.blockedUntil,
+    isPermanentBlock: Boolean(account.isPermanentBlock),
+  };
 }
 
 export function getAdminAttemptState(email: string): MockAttemptState {
@@ -210,6 +321,10 @@ function chooseMoreCompleteAccount(
   return {
     ...baseAccount,
     roles: mergeRoles(currentAccount.roles, nextAccount.roles),
+    roleBlock: {
+      ...currentAccount.roleBlock,
+      ...nextAccount.roleBlock,
+    },
   };
 }
 
@@ -266,6 +381,7 @@ export function mapAccountToLoginSuccess(
   activeRole: UserRole,
 ): LoginSuccessResponse {
   syncBlockedState(account);
+  syncRoleBlockStates(account);
 
   return {
     accessToken: `mock-token-${account.id}-${activeRole}`,
@@ -280,7 +396,7 @@ export function mapAccountToLoginSuccess(
       specialistId: account.specialistId,
       specialistSlug: account.specialistSlug,
       adminId: account.adminId,
-      isBlocked: account.isBlocked,
+      isBlocked: isRoleLoginBlocked(account, activeRole),
     },
   };
 }

@@ -3,6 +3,7 @@ import { adminProfileStore } from '@/features/admin-profile';
 import { HttpError } from '@/shared/api/http';
 
 import { authStore, type AuthUser } from '@/features/auth/model/authStore';
+import { LoginError } from '@/features/auth/model/types';
 import { authApi } from '../api/authApi';
 
 import type { LoginPayload } from '../model/types';
@@ -37,6 +38,33 @@ function readStringField(
   return null;
 }
 
+function mapHttpErrorToLoginError(error: HttpError): LoginError | null {
+  switch (error.code) {
+    case 'Auth.AccountBlocked':
+      return new LoginError({
+        code: 'ACCOUNT_BLOCKED',
+        message: 'Ваш аккаунт заблокирован. Подробности отправлены на почту.',
+      });
+    case 'Auth.InvalidCredentials':
+      return new LoginError({
+        code: 'INVALID_CREDENTIALS',
+        message: 'Неверный email или пароль.',
+      });
+    case 'Auth.InvalidRole':
+      return new LoginError({
+        code: 'INVALID_ROLE',
+        message: 'Для этого аккаунта недоступна выбранная роль входа.',
+      });
+    case 'Auth.AccountPendingDeletion':
+      return new LoginError({
+        code: 'ACCOUNT_PENDING_DELETION',
+        message: 'Аккаунт запланирован к удалению. Подробности отправлены на почту.',
+      });
+    default:
+      return null;
+  }
+}
+
 export const authService = {
   async login(dto: LoginPayload) {
     const roleAttempts = isLikelyAdminEmail(dto.email)
@@ -66,6 +94,12 @@ export const authService = {
         break;
       } catch (error) {
         if (!(error instanceof HttpError) || error.code !== 'Auth.InvalidRole') {
+          if (error instanceof HttpError) {
+            const loginError = mapHttpErrorToLoginError(error);
+            if (loginError) {
+              throw loginError;
+            }
+          }
           throw error;
         }
 

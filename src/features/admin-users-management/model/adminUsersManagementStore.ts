@@ -29,7 +29,7 @@ class AdminUsersManagementStore {
   search = '';
   roleFilter: RoleFilter = 'all';
 
-  changingUserId: string | null = null;
+  changingUserKey: string | null = null;
   changeError = '';
   successMessage = '';
 
@@ -45,7 +45,7 @@ class AdminUsersManagementStore {
   editLastName = '';
   editMiddleName = '';
   editSpecialistSlug = '';
-  editingUserId: string | null = null;
+  editingUserKey: string | null = null;
 
   constructor() {
     makeAutoObservable(this, {}, { autoBind: true });
@@ -127,7 +127,7 @@ class AdminUsersManagementStore {
   }
 
   get canSubmitEdit(): boolean {
-    if (!this.editTargetUser || this.editingUserId) {
+    if (!this.editTargetUser || this.editingUserKey) {
       return false;
     }
 
@@ -153,7 +153,7 @@ class AdminUsersManagementStore {
   get canSubmitBlock(): boolean {
     return (
       Boolean(this.selectedUser) &&
-      !this.changingUserId &&
+      !this.changingUserKey &&
       this.blockReason.trim().length > 0 &&
       (this.isPermanentBlock || this.blockedUntil.trim().length > 0)
     );
@@ -229,7 +229,7 @@ class AdminUsersManagementStore {
     const targetUser = this.selectedUser;
 
     runInAction(() => {
-      this.changingUserId = targetUser.id;
+      this.changingUserKey = `${targetUser.id}:${targetUser.role}`;
       this.changeError = '';
       this.successMessage = '';
     });
@@ -237,6 +237,7 @@ class AdminUsersManagementStore {
     try {
       const updatedUser = await adminUsersManagementService.updateBlockedStatus({
         userId: targetUser.id,
+        role: targetUser.role,
         isBlocked: true,
         blockReason: this.blockReason.trim(),
         blockedUntil: this.isPermanentBlock ? undefined : this.blockedUntil,
@@ -245,11 +246,11 @@ class AdminUsersManagementStore {
 
       runInAction(() => {
         this.users = this.users.map((item) =>
-          item.id === updatedUser.id ? updatedUser : item,
+          item.id === updatedUser.id && item.role === updatedUser.role ? updatedUser : item,
         );
         this.successMessage = updatedUser.isPermanentBlock
-          ? `Пользователь ${updatedUser.email} заблокирован навсегда.`
-          : `Пользователь ${updatedUser.email} заблокирован до ${
+          ? `Пользователь ${updatedUser.email} (${updatedUser.role}) заблокирован навсегда.`
+          : `Пользователь ${updatedUser.email} (${updatedUser.role}) заблокирован до ${
               updatedUser.blockedUntil ?? 'указанной даты'
             }.`;
         this.closeBlockModal();
@@ -263,7 +264,7 @@ class AdminUsersManagementStore {
       });
     } finally {
       runInAction(() => {
-        this.changingUserId = null;
+        this.changingUserKey = null;
       });
     }
   }
@@ -276,7 +277,7 @@ class AdminUsersManagementStore {
     const target = this.editTargetUser;
 
     runInAction(() => {
-      this.editingUserId = target.id;
+      this.editingUserKey = `${target.id}:${target.role}`;
       this.changeError = '';
       this.successMessage = '';
     });
@@ -284,6 +285,7 @@ class AdminUsersManagementStore {
     try {
       const updatedUser = await adminUsersManagementService.updateUserProfile({
         userId: target.id,
+        role: target.role,
         firstName: this.editFirstName.trim(),
         lastName: this.editLastName.trim(),
         middleName: this.editMiddleName.trim() || undefined,
@@ -293,7 +295,7 @@ class AdminUsersManagementStore {
 
       runInAction(() => {
         this.users = this.users.map((item) =>
-          item.id === updatedUser.id ? updatedUser : item,
+          item.id === updatedUser.id && item.role === updatedUser.role ? updatedUser : item,
         );
         this.successMessage = `Данные пользователя ${updatedUser.email} сохранены.`;
         this.closeEditModal();
@@ -305,14 +307,14 @@ class AdminUsersManagementStore {
       });
     } finally {
       runInAction(() => {
-        this.editingUserId = null;
+        this.editingUserKey = null;
       });
     }
   }
 
   async restoreUserFromScheduledDeletion(user: ManagedUser): Promise<void> {
     runInAction(() => {
-      this.changingUserId = user.id;
+      this.changingUserKey = `${user.id}:${user.role}`;
       this.changeError = '';
       this.successMessage = '';
     });
@@ -320,11 +322,12 @@ class AdminUsersManagementStore {
     try {
       const updatedUser = await adminUsersManagementService.restoreUserFromDeletion({
         userId: user.id,
+        role: user.role,
       });
 
       runInAction(() => {
         this.users = this.users.map((item) =>
-          item.id === updatedUser.id ? updatedUser : item,
+          item.id === updatedUser.id && item.role === updatedUser.role ? updatedUser : item,
         );
         this.successMessage = `Аккаунт ${updatedUser.email} восстановлен.`;
       });
@@ -335,14 +338,14 @@ class AdminUsersManagementStore {
       });
     } finally {
       runInAction(() => {
-        this.changingUserId = null;
+        this.changingUserKey = null;
       });
     }
   }
 
   async unblockUser(user: ManagedUser): Promise<void> {
     runInAction(() => {
-      this.changingUserId = user.id;
+      this.changingUserKey = `${user.id}:${user.role}`;
       this.changeError = '';
       this.successMessage = '';
     });
@@ -350,14 +353,16 @@ class AdminUsersManagementStore {
     try {
       const updatedUser = await adminUsersManagementService.updateBlockedStatus({
         userId: user.id,
+        role: user.role,
         isBlocked: false,
       });
 
       runInAction(() => {
         this.users = this.users.map((item) =>
-          item.id === updatedUser.id ? updatedUser : item,
+          item.id === updatedUser.id && item.role === updatedUser.role ? updatedUser : item,
         );
-        this.successMessage = `Пользователь ${updatedUser.email} разблокирован.`;
+        const roleLabel = updatedUser.role === 'specialist' ? 'специалиста' : 'клиента';
+        this.successMessage = `Роль ${roleLabel} для ${updatedUser.email} разблокирована.`;
       });
     } catch (error) {
       runInAction(() => {
@@ -368,7 +373,7 @@ class AdminUsersManagementStore {
       });
     } finally {
       runInAction(() => {
-        this.changingUserId = null;
+        this.changingUserKey = null;
       });
     }
   }

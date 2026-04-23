@@ -12,6 +12,7 @@ import {
   putAdminAttemptState,
   resetAdminAttempts,
   syncBlockedState,
+  isRoleLoginBlocked,
   wait,
 } from '../data/mockAuthAccounts';
 import {
@@ -122,7 +123,7 @@ export async function mockLogin(payload: LoginPayload): Promise<LoginSuccessResp
     });
   }
 
-  if (account.isBlocked) {
+  if (isRoleLoginBlocked(account, requestedRole)) {
     throw new LoginError({
       code: 'ACCOUNT_BLOCKED',
       message: 'Аккаунт заблокирован.',

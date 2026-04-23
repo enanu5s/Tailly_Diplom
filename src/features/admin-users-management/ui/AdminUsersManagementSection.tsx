@@ -12,6 +12,10 @@ function getRoleLabel(role: 'client' | 'specialist'): string {
   return role === 'client' ? 'Клиент' : 'Специалист';
 }
 
+function userRowKey(user: { id: string; role: string }): string {
+  return `${user.id}:${user.role}`;
+}
+
 function getFullName(
   lastName?: string,
   firstName?: string,
@@ -136,7 +140,7 @@ export const AdminUsersManagementSection = observer((): ReactElement => {
           ) : (
             <div className={styles.grid}>
               {store.filteredUsers.map((user) => (
-                <article key={user.id} className={styles.card}>
+                <article key={userRowKey(user)} className={styles.card}>
                   <div className={styles.cardTop}>
                     <div>
                       <div className={styles.cardTitle}>
@@ -232,8 +236,8 @@ export const AdminUsersManagementSection = observer((): ReactElement => {
                       className={styles.editButton}
                       type="button"
                       disabled={
-                        store.changingUserId === user.id ||
-                        store.editingUserId === user.id
+                        store.changingUserKey === userRowKey(user) ||
+                        store.editingUserKey === userRowKey(user)
                       }
                       onClick={() => store.openEditModal(user)}
                     >
@@ -245,12 +249,12 @@ export const AdminUsersManagementSection = observer((): ReactElement => {
                         <button
                           className={styles.secondaryButton}
                           type="button"
-                          disabled={store.changingUserId === user.id}
+                          disabled={store.changingUserKey === userRowKey(user)}
                           onClick={() => {
                             void store.restoreUserFromScheduledDeletion(user);
                           }}
                         >
-                          {store.changingUserId === user.id
+                          {store.changingUserKey === userRowKey(user)
                             ? 'Сохраняем...'
                             : 'Восстановить аккаунт'}
                         </button>
@@ -260,12 +264,12 @@ export const AdminUsersManagementSection = observer((): ReactElement => {
                         <button
                           className={styles.secondaryButton}
                           type="button"
-                          disabled={store.changingUserId === user.id}
+                          disabled={store.changingUserKey === userRowKey(user)}
                           onClick={() => {
                             void store.unblockUser(user);
                           }}
                         >
-                          {store.changingUserId === user.id
+                          {store.changingUserKey === userRowKey(user)
                             ? 'Сохраняем...'
                             : 'Разблокировать'}
                         </button>
@@ -274,7 +278,7 @@ export const AdminUsersManagementSection = observer((): ReactElement => {
                           className={styles.dangerButton}
                           type="button"
                           disabled={
-                            store.changingUserId === user.id ||
+                            store.changingUserKey === userRowKey(user) ||
                             user.isScheduledForDeletion
                           }
                           onClick={() => store.openBlockModal(user)}
@@ -378,7 +382,7 @@ export const AdminUsersManagementSection = observer((): ReactElement => {
                 className={styles.secondaryButton}
                 type="button"
                 onClick={() => store.closeEditModal()}
-                disabled={Boolean(store.editingUserId)}
+                disabled={Boolean(store.editingUserKey)}
               >
                 Отмена
               </button>
@@ -391,7 +395,7 @@ export const AdminUsersManagementSection = observer((): ReactElement => {
                 }}
                 disabled={!store.canSubmitEdit}
               >
-                {store.editingUserId ? 'Сохраняем...' : 'Сохранить'}
+                {store.editingUserKey ? 'Сохраняем...' : 'Сохранить'}
               </button>
             </div>
           </div>
@@ -406,6 +410,9 @@ export const AdminUsersManagementSection = observer((): ReactElement => {
                 <h2 className={styles.modalTitle}>Блокировка пользователя</h2>
 
                 <p className={styles.modalSubtitle}>{store.selectedUser.email}</p>
+                <p className={styles.modalHint}>
+                  Блокируется роль: {getRoleLabel(store.selectedUser.role)}.
+                </p>
               </div>
 
               <button
@@ -485,7 +492,7 @@ export const AdminUsersManagementSection = observer((): ReactElement => {
                 className={styles.secondaryButton}
                 type="button"
                 onClick={() => store.closeBlockModal()}
-                disabled={Boolean(store.changingUserId)}
+                disabled={Boolean(store.changingUserKey)}
               >
                 Отмена
               </button>
@@ -498,7 +505,7 @@ export const AdminUsersManagementSection = observer((): ReactElement => {
                 }}
                 disabled={!store.canSubmitBlock}
               >
-                {store.changingUserId ? 'Сохраняем...' : 'Подтвердить блокировку'}
+                {store.changingUserKey ? 'Сохраняем...' : 'Подтвердить блокировку'}
               </button>
             </div>
           </div>

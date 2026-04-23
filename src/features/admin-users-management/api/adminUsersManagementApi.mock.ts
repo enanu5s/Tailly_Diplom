@@ -11,6 +11,7 @@ import {
 import type {
   GetManagedUsersPayload,
   ManagedUser,
+  ManagedUserRole,
   RestoreManagedUserFromDeletionPayload,
   UpdateManagedUserProfilePayload,
   UpdateUserBlockStatusPayload,
@@ -52,10 +53,13 @@ export async function mockGetManagedUsers(payload?: GetManagedUsersPayload): Pro
   return users.slice(start, start + pageSize);
 }
 
-export async function mockGetManagedUserById(userId: string): Promise<ManagedUser> {
+export async function mockGetManagedUserById(
+  userId: string,
+  role: ManagedUserRole,
+): Promise<ManagedUser> {
   await wait();
 
-  const user = cloneManagedUsers().find((item) => item.id === userId);
+  const user = cloneManagedUsers().find((item) => item.id === userId && item.role === role);
 
   if (!user) {
     throw new Error('Пользователь не найден.');

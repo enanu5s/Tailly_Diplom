@@ -29,6 +29,7 @@ export type GetManagedUsersPayload = {
 
 export type UpdateUserBlockStatusPayload = {
   userId: string;
+  role: ManagedUserRole;
   isBlocked: boolean;
   blockReason?: string;
   blockedUntil?: string;
@@ -38,6 +39,7 @@ export type UpdateUserBlockStatusPayload = {
 /** Профиль: ФИО; slug — только для роли specialist (публичный адрес профиля). */
 export type UpdateManagedUserProfilePayload = {
   userId: string;
+  role: ManagedUserRole;
   firstName: string;
   lastName: string;
   middleName?: string;
@@ -46,6 +48,7 @@ export type UpdateManagedUserProfilePayload = {
 
 export type RestoreManagedUserFromDeletionPayload = {
   userId: string;
+  role: ManagedUserRole;
 };
 
 export class AdminUsersManagementError extends Error {

@@ -5,6 +5,7 @@ import { adminUsersManagementApi } from '../api/adminUsersManagementApi';
 import type {
   GetManagedUsersPayload,
   ManagedUser,
+  ManagedUserRole,
   RestoreManagedUserFromDeletionPayload,
   UpdateManagedUserProfilePayload,
   UpdateUserBlockStatusPayload,
@@ -15,8 +16,8 @@ export const adminUsersManagementService = {
     return adminUsersManagementApi.getUsers(payload);
   },
 
-  getUserById(userId: string): Promise<ManagedUser> {
-    return adminUsersManagementApi.getUserById(userId);
+  getUserById(userId: string, role: ManagedUserRole): Promise<ManagedUser> {
+    return adminUsersManagementApi.getUserById(userId, role);
   },
 
   updateBlockedStatus(payload: UpdateUserBlockStatusPayload): Promise<ManagedUser> {

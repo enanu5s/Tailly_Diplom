@@ -4,7 +4,12 @@ import {
   getActiveSoftDeleteRecord,
   removeSoftDeleteRecord,
 } from '@/features/auth/data/mockAccountDeletionStorage';
-import { getMockAuthAccounts } from '@/features/auth/data/mockAuthAccounts';
+import {
+  getMockAuthAccounts,
+  getMockBlockFieldsForRole,
+  syncBlockedState,
+  syncRoleBlockStates,
+} from '@/features/auth/data/mockAuthAccounts';
 import { notifyAccountBlocked } from '@/shared/lib/emailNotifications';
 import {
   updateManagedSpecialistAccount,
@@ -61,58 +66,57 @@ function getAccountManagedRole(account: MockAuthAccount): ManagedUserRole | null
   return null;
 }
 
-function syncAutoUnblock(account: ExtendedMockAuthAccount): void {
-  if (!account.isBlocked) {
-    return;
-  }
+function mapAccountToManagedUserForRole(
+  account: ExtendedMockAuthAccount,
+  role: ManagedUserRole,
+): ManagedUser {
+  syncBlockedState(account);
+  syncRoleBlockStates(account);
 
-  if (account.isPermanentBlock) {
-    return;
-  }
-
-  if (!account.blockedUntil) {
-    return;
-  }
-
-  const blockedUntilTime = new Date(account.blockedUntil).getTime();
-
-  if (Number.isNaN(blockedUntilTime)) {
-    return;
-  }
-
-  if (blockedUntilTime <= Date.now()) {
-    account.isBlocked = false;
-    account.blockedUntil = undefined;
-    account.blockReason = undefined;
-    account.isPermanentBlock = false;
-  }
-}
-
-function mapAccountToManagedUser(account: ExtendedMockAuthAccount): ManagedUser {
-  syncAutoUnblock(account);
-
-  const role = getAccountManagedRole(account);
+  const block = getMockBlockFieldsForRole(account, role);
   const deletion = getActiveSoftDeleteRecord(account.id);
 
   return JSON.parse(
     JSON.stringify({
       id: account.id,
       email: account.email,
-      role: role ?? 'client',
+      role,
       firstName: account.firstName,
       lastName: account.lastName,
       middleName: account.middleName,
       name: buildDisplayName(account),
-      specialistId: account.specialistId,
-      specialistSlug: account.specialistSlug,
-      isBlocked: Boolean(account.isBlocked),
-      blockReason: account.blockReason,
-      blockedUntil: account.blockedUntil,
-      isPermanentBlock: Boolean(account.isPermanentBlock),
+      specialistId: role === 'specialist' ? account.specialistId : undefined,
+      specialistSlug: role === 'specialist' ? account.specialistSlug : undefined,
+      isBlocked: block.isBlocked,
+      blockReason: block.blockReason,
+      blockedUntil: block.blockedUntil,
+      isPermanentBlock: block.isPermanentBlock,
       isScheduledForDeletion: Boolean(deletion),
       scheduledDeletionDeadline: deletion?.restoreUntil,
     }),
   ) as ManagedUser;
+}
+
+function expandAccountToManagedUsers(account: ExtendedMockAuthAccount): ManagedUser[] {
+  const roles: ManagedUserRole[] = [];
+
+  if (account.roles.includes('specialist')) {
+    roles.push('specialist');
+  }
+
+  if (account.roles.includes('client')) {
+    roles.push('client');
+  }
+
+  if (!roles.length) {
+    const fallback = getAccountManagedRole(account);
+
+    if (fallback) {
+      roles.push(fallback);
+    }
+  }
+
+  return roles.map((role) => mapAccountToManagedUserForRole(account, role));
 }
 
 function buildDeduplicationKey(account: ExtendedMockAuthAccount): string {
@@ -133,15 +137,16 @@ function persistSpecialistBlockState(account: ExtendedMockAuthAccount): void {
   }
 
   const specialistKey = account.specialistId || account.id;
+  const specBlock = getMockBlockFieldsForRole(account, 'specialist');
 
   updateManagedSpecialistAccount(
     specialistKey,
     (currentAccount: ManagedSpecialistMockAccount): ManagedSpecialistMockAccount => ({
       ...currentAccount,
-      isBlocked: account.isBlocked,
-      blockReason: account.blockReason,
-      blockedUntil: account.blockedUntil,
-      isPermanentBlock: Boolean(account.isPermanentBlock),
+      isBlocked: specBlock.isBlocked,
+      blockReason: specBlock.blockReason,
+      blockedUntil: specBlock.blockedUntil,
+      isPermanentBlock: Boolean(specBlock.isPermanentBlock),
     }),
   );
 }
@@ -182,7 +187,8 @@ export function cloneManagedUsers(): ManagedUser[] {
   const uniqueAccountsMap = new Map<string, ExtendedMockAuthAccount>();
 
   for (const account of accounts) {
-    syncAutoUnblock(account);
+    syncBlockedState(account);
+    syncRoleBlockStates(account);
 
     if (account.roles.includes('specialist')) {
       persistSpecialistBlockState(account);
@@ -214,7 +220,7 @@ export function cloneManagedUsers(): ManagedUser[] {
     }
   }
 
-  return Array.from(uniqueAccountsMap.values()).map(mapAccountToManagedUser);
+  return Array.from(uniqueAccountsMap.values()).flatMap(expandAccountToManagedUsers);
 }
 
 export function updateManagedUserBlockedStatus(
@@ -222,15 +228,14 @@ export function updateManagedUserBlockedStatus(
 ): ManagedUser {
   const accounts = getMockAuthAccounts() as ExtendedMockAuthAccount[];
 
-  const account = accounts.find(
-    (item) => item.id === payload.userId && getAccountManagedRole(item) !== null,
-  );
+  const account = accounts.find((item) => item.id === payload.userId);
 
-  if (!account) {
+  if (!account || !account.roles.includes(payload.role)) {
     throw new AdminUsersManagementError('Пользователь не найден.');
   }
 
-  syncAutoUnblock(account);
+  syncBlockedState(account);
+  syncRoleBlockStates(account);
 
   if (payload.isBlocked) {
     const normalizedReason = payload.blockReason?.trim();
@@ -259,10 +264,19 @@ export function updateManagedUserBlockedStatus(
       }
     }
 
-    account.isBlocked = true;
-    account.blockReason = normalizedReason;
-    account.blockedUntil = isPermanentBlock ? undefined : normalizedBlockedUntil;
-    account.isPermanentBlock = isPermanentBlock;
+    account.roleBlock = {
+      ...account.roleBlock,
+      [payload.role]: {
+        isBlocked: true,
+        blockReason: normalizedReason,
+        blockedUntil: isPermanentBlock ? undefined : normalizedBlockedUntil,
+        isPermanentBlock,
+      },
+    };
+    account.isBlocked = false;
+    account.blockReason = undefined;
+    account.blockedUntil = undefined;
+    account.isPermanentBlock = false;
 
     const userName =
       `${account.firstName ?? ''} ${account.lastName ?? ''}`.trim() || 'пользователь';
@@ -280,6 +294,15 @@ export function updateManagedUserBlockedStatus(
       blockedUntilLabel,
     });
   } else {
+    account.roleBlock = {
+      ...account.roleBlock,
+      [payload.role]: {
+        isBlocked: false,
+        isPermanentBlock: false,
+        blockedUntil: undefined,
+        blockReason: undefined,
+      },
+    };
     account.isBlocked = false;
     account.blockReason = undefined;
     account.blockedUntil = undefined;
@@ -290,18 +313,18 @@ export function updateManagedUserBlockedStatus(
     persistSpecialistBlockState(account);
   }
 
-  return mapAccountToManagedUser(account);
+  return mapAccountToManagedUserForRole(account, payload.role);
 }
 
 export function updateManagedUserProfile(
   payload: UpdateManagedUserProfilePayload,
 ): ManagedUser {
   const accounts = getMockAuthAccounts();
-  const account = accounts.find(
-    (item) => item.id === payload.userId && getAccountManagedRole(item) !== null,
-  ) as ExtendedMockAuthAccount | undefined;
+  const account = accounts.find((item) => item.id === payload.userId) as
+    | ExtendedMockAuthAccount
+    | undefined;
 
-  if (!account) {
+  if (!account || !account.roles.includes(payload.role)) {
     throw new AdminUsersManagementError('Пользователь не найден.');
   }
 
@@ -318,9 +341,7 @@ export function updateManagedUserProfile(
   account.lastName = lastName;
   account.middleName = middleName || undefined;
 
-  const managedRole = getAccountManagedRole(account);
-
-  if (managedRole === 'specialist') {
+  if (payload.role === 'specialist') {
     if (payload.specialistSlug !== undefined) {
       const raw = payload.specialistSlug.trim().toLowerCase();
 
@@ -373,13 +394,14 @@ export function updateManagedUserProfile(
     }
   }
 
-  syncAutoUnblock(account);
+  syncBlockedState(account);
+  syncRoleBlockStates(account);
 
   if (account.roles.includes('specialist')) {
     persistSpecialistBlockState(account);
   }
 
-  return mapAccountToManagedUser(account);
+  return mapAccountToManagedUserForRole(account, payload.role);
 }
 
 export function restoreManagedUserFromDeletion(
@@ -387,11 +409,9 @@ export function restoreManagedUserFromDeletion(
 ): ManagedUser {
   const accounts = getMockAuthAccounts() as ExtendedMockAuthAccount[];
 
-  const account = accounts.find(
-    (item) => item.id === payload.userId && getAccountManagedRole(item) !== null,
-  );
+  const account = accounts.find((item) => item.id === payload.userId);
 
-  if (!account) {
+  if (!account || !account.roles.includes(payload.role)) {
     throw new AdminUsersManagementError('Пользователь не найден.');
   }
 
@@ -403,5 +423,5 @@ export function restoreManagedUserFromDeletion(
 
   removeSoftDeleteRecord(account.id);
 
-  return mapAccountToManagedUser(account);
+  return mapAccountToManagedUserForRole(account, payload.role);
 }
