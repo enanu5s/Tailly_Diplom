@@ -3,6 +3,7 @@ import type {
   CatalogMetaResponse,
   Product,
   ProductCategory,
+  ProductCharacteristics,
   ProductReview,
   ProductSort,
 } from '../model/types';
@@ -50,12 +51,124 @@ export type ProductMockInput = Omit<Product, 'rating' | 'reviewsCount'>;
 export function createProduct(input: ProductMockInput): Product {
   const reviewsCount = input.reviews.length;
   const rating = calculateRating(input.reviews);
+  const characteristics = buildMockCharacteristics(input);
 
   return {
     ...input,
     rating,
     reviewsCount,
+    characteristics,
   };
+}
+
+export function enrichMockProductData(product: Product): Product {
+  const imagePool = [
+    '/images/home/s-walk.png',
+    '/images/home/s-grooming.png',
+    '/images/home/s-training.png',
+    '/images/home/s-boarding.png',
+    '/images/home/s-photoshoot.png',
+    '/images/home/static-hero-banner.png',
+  ];
+
+  const normalizeImageUrl = (url: string, fallbackIndex: number): string => {
+    const trimmed = url.trim();
+    if (!trimmed) return imagePool[fallbackIndex % imagePool.length]!;
+
+    // Legacy mock paths under /images/shop/* no longer exist in public assets.
+    if (trimmed.startsWith('/images/shop/')) {
+      return imagePool[fallbackIndex % imagePool.length]!;
+    }
+
+    return trimmed;
+  };
+
+  const baseIndex = product.id
+    .split('')
+    .reduce((acc, char) => acc + char.charCodeAt(0), 0);
+
+  const safeImages =
+    product.images.length > 0
+      ? product.images.map((image, index) => ({
+          ...image,
+          url: normalizeImageUrl(image.url, baseIndex + index),
+          alt: image.alt?.trim() || `${product.title} ${index + 1}`,
+        }))
+      : [
+          {
+            id: `${product.id}-fallback-image`,
+            url: imagePool[baseIndex % imagePool.length]!,
+            alt: product.title,
+          },
+        ];
+
+  return {
+    ...product,
+    images: safeImages,
+    characteristics: buildMockCharacteristics(product),
+  };
+}
+
+function buildMockCharacteristics(input: ProductMockInput): ProductCharacteristics {
+  const base: ProductCharacteristics = {
+    brand: input.characteristics?.brand ?? 'Pet hobby',
+    countryOfOrigin: input.characteristics?.countryOfOrigin ?? 'Россия',
+    forWhom: input.characteristics?.forWhom ?? detectForWhom(input),
+    purpose: input.characteristics?.purpose ?? detectPurpose(input),
+    petSize: input.characteristics?.petSize ?? detectPetSize(input),
+    material: input.characteristics?.material ?? detectMaterial(input),
+  };
+
+  return base;
+}
+
+function detectForWhom(input: ProductMockInput): string {
+  const source = `${input.categoryTitle} ${input.title} ${input.shortDescription}`.toLowerCase();
+
+  if (source.includes('кош')) return 'Кошки';
+  if (source.includes('собак')) return 'Собаки';
+  return 'Кошки и собаки';
+}
+
+function detectPurpose(input: ProductMockInput): string {
+  switch (input.categoryTitle) {
+    case 'Корм':
+      return 'Питание';
+    case 'Игрушки':
+      return 'Развлечение';
+    case 'Уход':
+      return 'Гигиена';
+    case 'Аксессуары':
+      return 'Повседневное использование';
+    case 'Здоровье':
+      return 'Поддержка здоровья';
+    default:
+      return '';
+  }
+}
+
+function detectPetSize(input: ProductMockInput): string {
+  const source = `${input.title} ${input.shortDescription}`.toLowerCase();
+  if (source.includes('мелк')) return 'Мелкий';
+  if (source.includes('круп')) return 'Крупный';
+  return 'Универсальный';
+}
+
+function detectMaterial(input: ProductMockInput): string {
+  switch (input.categoryTitle) {
+    case 'Игрушки':
+      return 'Полимер';
+    case 'Аксессуары':
+      return 'Керамика';
+    case 'Уход':
+      return 'Минеральная основа';
+    case 'Корм':
+      return 'Сбалансированная формула';
+    case 'Здоровье':
+      return 'Витаминно-минеральный комплекс';
+    default:
+      return '';
+  }
 }
 
 export const SHOP_PRODUCTS_MOCK: Product[] = [

@@ -7,7 +7,7 @@
 }
 
 .container {
-  max-width: 1180px;
+  max-width: 1280px;
   margin: 0 auto;
 }
 
@@ -23,7 +23,7 @@
 
 .layout {
   display: grid;
-  grid-template-columns: 186px minmax(0, 1fr);
+  grid-template-columns: 288px minmax(0, 1fr);
   gap: 24px;
   align-items: start;
 }
@@ -31,6 +31,7 @@
 .sidebar {
   position: sticky;
   top: 92px;
+  min-width: 0;
 }
 
 .filterTitle {

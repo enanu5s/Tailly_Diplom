@@ -12,27 +12,30 @@ type Props = {
 
 export const ProductGallery = ({ images, productTitle }: Props) => {
   const [activeImageId, setActiveImageId] = useState<string | null>(null);
+  const [failedImageIds, setFailedImageIds] = useState<Set<string>>(() => new Set());
+
+  const visibleImages = images.filter((image) => !failedImageIds.has(image.id));
 
   const activeImage =
-    images.find((image) => image.id === activeImageId) ?? images[0] ?? null;
+    visibleImages.find((image) => image.id === activeImageId) ?? visibleImages[0] ?? null;
+
+  const handleImageError = (imageId: string): void => {
+    setFailedImageIds((current) => {
+      const next = new Set(current);
+      next.add(imageId);
+      return next;
+    });
+
+    if (activeImageId === imageId) {
+      setActiveImageId(null);
+    }
+  };
 
   return (
     <div className={styles.gallery}>
-      <div className={styles.mainImageWrap}>
-        {activeImage ? (
-          <img
-            className={styles.mainImage}
-            src={activeImage.url}
-            alt={activeImage.alt || productTitle}
-          />
-        ) : (
-          <div className={styles.emptyState}>Изображение товара отсутствует</div>
-        )}
-      </div>
-
-      {images.length > 1 ? (
+      {visibleImages.length > 1 ? (
         <div className={styles.thumbs} role="list" aria-label="Изображения товара">
-          {images.map((image) => {
+          {visibleImages.map((image) => {
             const isActive = image.id === activeImage?.id;
 
             return (
@@ -47,12 +50,35 @@ export const ProductGallery = ({ images, productTitle }: Props) => {
                   className={styles.thumbImage}
                   src={image.url}
                   alt={image.alt || productTitle}
+                  onError={() => handleImageError(image.id)}
                 />
               </button>
             );
           })}
         </div>
-      ) : null}
+      ) : (
+        <div className={styles.thumbsPlaceholder} />
+      )}
+
+      <div className={styles.mainImageWrap}>
+        {activeImage ? (
+          <img
+            className={styles.mainImage}
+            src={activeImage.url}
+            alt={activeImage.alt || productTitle}
+            onError={() => handleImageError(activeImage.id)}
+          />
+        ) : (
+          <div className={styles.emptyState}>
+            <div className={styles.emptyIcon} aria-hidden="true">
+              <span className={styles.emptySun} />
+              <span className={styles.emptyLineOne} />
+              <span className={styles.emptyLineTwo} />
+            </div>
+            <span>Фото недоступно</span>
+          </div>
+        )}
+      </div>
     </div>
   );
 };

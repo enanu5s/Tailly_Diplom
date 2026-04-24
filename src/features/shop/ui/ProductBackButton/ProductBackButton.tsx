@@ -36,7 +36,8 @@ export const ProductBackButton = ({ from, fallbackPath = '/shop' }: Props) => {
 
   return (
     <button className={styles.button} type="button" onClick={handleBack}>
-      ← Назад
+      <span className={styles.arrow}>←</span>
+      Назад к товарам
     </button>
   );
 };

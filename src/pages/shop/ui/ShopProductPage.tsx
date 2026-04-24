@@ -6,7 +6,6 @@ import { Link, useLocation, useParams } from 'react-router-dom';
 import { shopProductStore } from '@/features/shop/model/shopProductStore';
 import {
   ProductBackButton,
-  ProductDescription,
   ProductGallery,
   ProductPurchasePanel,
   ProductReviews,
@@ -118,8 +117,6 @@ export const ShopProductPage = observer(() => {
             </section>
 
             <section className={styles.details}>
-              <ProductDescription product={product} />
-
               <div id="product-reviews" ref={reviewsAnchorRef}>
                 <ProductReviews reviews={product.reviews} />
               </div>

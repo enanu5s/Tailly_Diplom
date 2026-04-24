@@ -3,23 +3,23 @@
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  min-height: 46px;
-  padding: 0 16px;
-  border: 1px solid #c7d2fe;
-  border-radius: 14px;
-  background: #eef2ff;
-  color: #4338ca;
+  gap: 10px;
+  min-height: 40px;
+  padding: 0 24px;
+  border: 1px solid #d9d0c5;
+  border-radius: 999px;
+  background: #ffffff;
+  color: rgba(33, 21, 0, 0.72);
   font-size: 14px;
-  font-weight: 700;
+  font-weight: 500;
   cursor: pointer;
-  transition:
-    background 0.2s ease,
-    transform 0.2s ease,
-    border-color 0.2s ease;
 }
 
 .button:hover {
-  transform: translateY(-1px);
-  background: #e0e7ff;
-  border-color: #a5b4fc;
+  background: #fbf7ef;
+}
+
+.arrow {
+  font-size: 18px;
+  line-height: 1;
 }

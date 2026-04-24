@@ -1,14 +1,17 @@
 /* src/features/shop/ui/CatalogFilters/CatalogFilters.module.css */
 .sidebar {
-  
+  width: 288px;
+  flex: 0 0 288px;
+  box-sizing: border-box;
+
   display: flex;
   flex-direction: column;
   gap: 18px;
-  padding: 18px 14px 16px;
+  padding: 30px 20px;
   border: 1px solid #e9e4de;
-  border-radius: 18px;
+  border-radius: 20px;
   background: #ffffff;
-  box-shadow: 0 8px 22px rgba(33, 21, 0, 0.06);
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
 }
 
 .section {
@@ -23,31 +26,6 @@
   font-size: 14px;
   font-weight: 700;
   line-height: 1.2;
-}
-
-.input {
-  min-height: 64px;
-  padding: 0 28px;
-  border: 1px solid #cfc7be;
-  border-radius: 16px;
-  background: #ffffff;
-  color: #211500;
-  font-family: 'Rubik', sans-serif;
-  font-size: 18px;
-  line-height: 1;
-  outline: none;
-  transition:
-    border-color 0.2s ease,
-    box-shadow 0.2s ease;
-}
-
-.input::placeholder {
-  color: #8f877b;
-}
-
-.input:focus {
-  border-color: #cfc7be;
-  box-shadow: none;
 }
 
 .customSelect {
@@ -124,11 +102,11 @@
 }
 
 .customSelectOption:hover {
-  background: #f7f4ef;
+  background: #F0EDE2;
 }
 
 .customSelectOptionActive {
-  background: #e8dcb7;
+  background: #FFF3CD;
   font-weight: 500;
 }
 
@@ -156,32 +134,41 @@
 
 .priceGrid {
   display: grid;
-  grid-template-columns: 1fr;
-  gap: 14px;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 12px;
 }
 
 .input {
   width: 100%;
   min-width: 0;
-  min-height: 64px;
-  padding: 0 28px;
+  height: 48px;
+  padding: 0 20px;
   box-sizing: border-box;
-  border: 1px solid #cfc7be;
-  border-radius: 16px;
+  border: 1px solid #c7c2ba;
+  border-radius: 10px;
   background: #ffffff;
   color: #211500;
   font-family: 'Rubik', sans-serif;
-  font-size: 18px;
-  line-height: 1;
+  font-size: 15px;
+  line-height: 18px;
   outline: none;
   transition:
     border-color 0.2s ease,
     box-shadow 0.2s ease;
 }
 
+.input::placeholder {
+  color: #6f685d;
+}
+
+.input:focus {
+  border-color: #211500;
+  box-shadow: 0 0 0 2px rgba(33, 21, 0, 0.08);
+}
+
 .resetButton {
   width: 100%;
-  min-height: 62px;
+  height: 45px;
   border: 1px solid #9f9384;
   border-radius: 999px;
   background: #ffffff;
@@ -198,4 +185,16 @@
 .resetButton:hover {
   background: #fbfaf8;
   transform: translateY(-1px);
+}
+
+
+@media (max-width: 1023px) {
+  .sidebar {
+    width: 100%;
+    flex-basis: auto;
+  }
+
+  .priceGrid {
+    grid-template-columns: 1fr;
+  }
 }

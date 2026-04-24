@@ -17,6 +17,7 @@ import type {
   CatalogMetaResponse,
   CatalogProductsResponse,
   Product,
+  ProductCharacteristics,
 } from '../model/types';
 
 export type CreateProductReviewPayload = {
@@ -37,7 +38,7 @@ async function getCatalogMetaReal(): Promise<CatalogMetaResponse> {
 async function getCatalogProductsReal(
   filters: CatalogFilterState,
 ): Promise<CatalogProductsResponse> {
-  return request<CatalogProductsResponse>('/shop/products', {
+  const response = await request<CatalogProductsResponse>('/shop/products', {
     query: {
       search: filters.search.trim() || undefined,
       categoryIds: filters.categoryIds.length ? filters.categoryIds.join(',') : undefined,
@@ -49,6 +50,11 @@ async function getCatalogProductsReal(
       limit: filters.limit,
     },
   });
+
+  return {
+    ...response,
+    items: response.items.map((item) => normalizeProduct(item)),
+  };
 }
 
 async function getProductsByIdsReal(productIds: string[]): Promise<Product[]> {
@@ -56,15 +62,57 @@ async function getProductsByIdsReal(productIds: string[]): Promise<Product[]> {
     return [];
   }
 
-  return request<Product[]>('/shop/products/by-ids', {
+  const response = await request<Product[]>('/shop/products/by-ids', {
     query: {
       ids: productIds.join(','),
     },
   });
+
+  return response.map((item) => normalizeProduct(item));
 }
 
 async function getProductBySlugReal(slug: string): Promise<Product | null> {
-  return request<Product | null>(`/shop/products/${encodeURIComponent(slug)}`);
+  const response = await request<Product | null>(`/shop/products/${encodeURIComponent(slug)}`);
+  return response ? normalizeProduct(response) : null;
+}
+
+function normalizeProduct(product: Product): Product {
+  return {
+    ...product,
+    characteristics: normalizeCharacteristics(product),
+  };
+}
+
+function normalizeCharacteristics(product: Product): ProductCharacteristics {
+  const raw = product.characteristics ?? {};
+
+  const fromFeatures = new Map<string, string>();
+  (product.descriptionContent?.features ?? []).forEach((item) => {
+    const separatorIndex = item.indexOf(':');
+    if (separatorIndex === -1) return;
+    const key = item.slice(0, separatorIndex).trim().toLowerCase();
+    const value = item.slice(separatorIndex + 1).trim();
+    if (!key || !value) return;
+    fromFeatures.set(key, value);
+  });
+
+  const pick = (primary?: string, ...aliases: string[]): string => {
+    if (primary?.trim()) return primary.trim();
+    for (const alias of aliases) {
+      const value = fromFeatures.get(alias.toLowerCase());
+      if (value?.trim()) return value.trim();
+    }
+    return '';
+  };
+
+  return {
+    brand: pick(raw.brand, 'бренды', 'бренд'),
+    countryOfOrigin: pick(raw.countryOfOrigin, 'страна-производитель', 'страна'),
+    forWhom: pick(raw.forWhom, 'для кого'),
+    purpose: pick(raw.purpose, 'назначение'),
+    petSize: pick(raw.petSize, 'размер питомца', 'размер'),
+    material: pick(raw.material, 'материал'),
+  };
 }
 
 async function submitProductReviewReal(payload: CreateProductReviewPayload): Promise<void> {

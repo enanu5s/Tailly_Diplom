@@ -11,7 +11,7 @@ export const ProductReviews = ({ reviews }: Props) => {
   return (
     <section className={styles.section}>
       <header className={styles.header}>
-        <h2 className={styles.title}>Отзывы</h2>
+        <h2 className={styles.title}>Отзывы о товаре</h2>
         <div className={styles.count}>{reviews.length}</div>
       </header>
 

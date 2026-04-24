@@ -56,6 +56,15 @@ export type ProductDescriptionContent = {
   composition?: string;
 };
 
+export type ProductCharacteristics = {
+  brand?: string;
+  countryOfOrigin?: string;
+  forWhom?: string;
+  purpose?: string;
+  petSize?: string;
+  material?: string;
+};
+
 export type Product = {
   id: string;
   slug: string;
@@ -65,6 +74,7 @@ export type Product = {
   shortDescription: string;
   description: string;
   descriptionContent?: ProductDescriptionContent;
+  characteristics?: ProductCharacteristics;
   price: number;
   oldPrice: number | null;
   rating: number;

@@ -1,5 +1,4 @@
-//src/features/shop/ui/ProductPurchasePanel/ProductPurchasePanel.tsx
-
+// src/features/shop/ui/ProductPurchasePanel/ProductPurchasePanel.tsx
 import { observer } from 'mobx-react-lite';
 
 import { useAuth } from '@/features/auth/model/useAuth';
@@ -8,6 +7,8 @@ import { shouldShowShopConsumerControls } from '@/shared/lib/auth/roleAccess';
 import styles from './ProductPurchasePanel.module.css';
 import { shopCartStore } from '../../model/shopCartStore';
 import { shopFavoritesStore } from '../../model/shopFavoritesStore';
+import favoriteOutlineIconUrl from '@/shared/ui/icons/favorite-outline.svg';
+import favoriteFilledIconUrl from '@/shared/ui/icons/favorite-filled.svg';
 
 import type { Product } from '../../model/types';
 
@@ -22,6 +23,15 @@ export const ProductPurchasePanel = observer(({ product, onReviewsClick }: Props
 
   const isFavorite = shopFavoritesStore.has(product.id);
   const quantity = shopCartStore.getQuantity(product.id);
+
+  const characteristicRows: Array<[string, string]> = [
+    ['Бренды', product.characteristics?.brand ?? ''],
+    ['Назначение', product.characteristics?.purpose ?? ''],
+    ['Страна-производитель', product.characteristics?.countryOfOrigin ?? ''],
+    ['Размер питомца', product.characteristics?.petSize ?? ''],
+    ['Для кого', product.characteristics?.forWhom ?? ''],
+    ['Материал', product.characteristics?.material ?? ''],
+  ];
 
   const handleToggleFavorite = (): void => {
     shopFavoritesStore.toggle(product.id);
@@ -47,31 +57,38 @@ export const ProductPurchasePanel = observer(({ product, onReviewsClick }: Props
     shopCartStore.decrement(product.id);
   };
 
-  const handleReviewsClick = (): void => {
-    onReviewsClick?.();
-  };
-
   return (
     <section className={styles.panel}>
       <header className={styles.header}>
-        <div>
-          <div className={styles.category}>{product.categoryTitle}</div>
+        <div className={styles.category}>{product.categoryTitle}</div>
 
-          <button
-            className={styles.ratingButton}
-            type="button"
-            onClick={handleReviewsClick}
-            disabled={product.reviewsCount === 0}
-            aria-label={`Перейти к отзывам о товаре. Всего отзывов: ${product.reviewsCount}`}
-          >
-            ★ {product.rating.toFixed(1)} · {product.reviewsCount} отзывов
-          </button>
-        </div>
+        <button
+          className={styles.ratingButton}
+          type="button"
+          onClick={onReviewsClick}
+          disabled={product.reviewsCount === 0}
+        >
+          <span className={styles.star}>★</span>
+          {product.rating.toFixed(1)} · {product.reviewsCount} отзывов
+        </button>
       </header>
 
       <h1 className={styles.title}>{product.title}</h1>
 
       <p className={styles.shortDescription}>{product.shortDescription}</p>
+
+      <div className={styles.characteristics}>
+        <h2 className={styles.characteristicsTitle}>Характеристики</h2>
+
+        <div className={styles.characteristicsGrid}>
+          {characteristicRows.map(([label, value]) => (
+            <div key={label} className={styles.characteristicItem}>
+              <span className={styles.characteristicLabel}>{label}:</span>
+              <span className={styles.characteristicValue}>{value}</span>
+            </div>
+          ))}
+        </div>
+      </div>
 
       <div className={styles.priceBlock}>
         <div className={styles.prices}>
@@ -82,34 +99,33 @@ export const ProductPurchasePanel = observer(({ product, onReviewsClick }: Props
           ) : null}
         </div>
 
-        {product.oldPrice !== null && product.oldPrice > product.price ? (
-          <div className={styles.discount}>
-            Скидка {formatPrice(product.oldPrice - product.price)}
-          </div>
-        ) : null}
-      </div>
-
-      <div className={styles.statusRow}>
-        {product.isAvailable ? (
-          <span className={styles.available}>В наличии: {product.stockQuantity} шт.</span>
-        ) : (
-          <span className={styles.unavailable}>Нет в наличии</span>
-        )}
+        <div className={styles.statusRow}>
+          {product.isAvailable ? (
+            <span className={styles.available}>
+              В наличии: {product.stockQuantity} шт.
+            </span>
+          ) : (
+            <span className={styles.unavailable}>Нет в наличии</span>
+          )}
+        </div>
       </div>
 
       {showConsumerControls ? (
         <div className={styles.actions}>
           <button
-            className={[
-              styles.favoriteButton,
-              isFavorite ? styles.favoriteButtonActive : '',
-            ]
-              .filter(Boolean)
-              .join(' ')}
+            className={`${styles.favoriteButton} ${
+              isFavorite ? styles.favoriteButtonActive : ''
+            }`}
             type="button"
             onClick={handleToggleFavorite}
           >
-            {isFavorite ? 'В избранном' : 'В избранное'}
+            <img
+              className={styles.favoriteIcon}
+              src={isFavorite ? favoriteFilledIconUrl : favoriteOutlineIconUrl}
+              alt=""
+              aria-hidden="true"
+            />
+            В избранное
           </button>
 
           {quantity > 0 ? (
@@ -118,7 +134,6 @@ export const ProductPurchasePanel = observer(({ product, onReviewsClick }: Props
                 className={styles.quantityButton}
                 type="button"
                 onClick={handleDecrement}
-                aria-label="Уменьшить количество"
               >
                 −
               </button>
@@ -130,7 +145,6 @@ export const ProductPurchasePanel = observer(({ product, onReviewsClick }: Props
                 type="button"
                 onClick={handleIncrement}
                 disabled={quantity >= product.stockQuantity}
-                aria-label="Увеличить количество"
               >
                 +
               </button>
@@ -145,12 +159,6 @@ export const ProductPurchasePanel = observer(({ product, onReviewsClick }: Props
               В корзину
             </button>
           )}
-
-          {quantity > 0 ? (
-            <div className={styles.cartHint}>
-              Товар уже добавлен в корзину. Количество можно изменить здесь.
-            </div>
-          ) : null}
         </div>
       ) : null}
     </section>
@@ -158,9 +166,7 @@ export const ProductPurchasePanel = observer(({ product, onReviewsClick }: Props
 });
 
 function formatPrice(value: number): string {
-  return new Intl.NumberFormat('ru-RU', {
-    style: 'currency',
-    currency: 'RUB',
+  return `${new Intl.NumberFormat('ru-RU', {
     maximumFractionDigits: 0,
-  }).format(value);
+  }).format(value)} ₽`;
 }
