@@ -1,17 +1,16 @@
 // src/features/specialist-profile/ui/SpecialistProfileView.tsx
 import { observer } from 'mobx-react-lite';
+import { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
 
-import { LocalitySuggestInput } from '@/features/specialists-search/ui/LocalitySuggestInput/LocalitySuggestInput';
 import { PET_TYPES, PET_WEIGHT_SIZES } from '@/features/pets/model/constants';
+import { LocalitySuggestInput } from '@/features/specialists-search/ui/LocalitySuggestInput/LocalitySuggestInput';
 
-import { SpecialistMiniCalendar } from './SpecialistMiniCalendar';
-import { SpecialistPhotoGallery } from './SpecialistPhotoGallery';
 import { ReviewsFiltersToolbar } from './ReviewsFiltersToolbar/ReviewsFiltersToolbar';
+import { SpecialistMiniCalendar } from './SpecialistMiniCalendar';
 import styles from './SpecialistProfileView.module.css';
 import { SpecialistServicePolicyEditor } from './SpecialistServicePolicyEditor';
 import {
-  SPECIALIST_ADVANTAGE_OPTIONS,
   SPECIALIST_CHILDREN_POLICY_LABELS,
   SPECIALIST_EXPERIENCE_UNIT_LABELS,
   SPECIALIST_HOUSING_TYPE_LABELS,
@@ -33,10 +32,8 @@ import type {
   SpecialistReview,
   SpecialistReviewsRatingFilter,
   SpecialistReviewsReplyFilter,
-  SpecialistService,
   SpecialistServicePriceUnit,
 } from '../model/types';
-
 import type { ReactNode } from 'react';
 
 type MainForm = {
@@ -92,6 +89,7 @@ type EditableServiceFormItem = {
   id: string;
   name: string;
   locationLabel: string;
+  description: string;
   price: string;
   priceUnit: SpecialistServicePriceUnit;
   bookingPolicy: EditableServiceBookingPolicyForm;
@@ -284,29 +282,8 @@ function formatPrice(price: number): string {
   return new Intl.NumberFormat('ru-RU').format(price);
 }
 
-function getRatingStars(rating: number): string {
-  const rounded = Math.max(0, Math.min(5, Math.round(rating)));
-  return '★'.repeat(rounded) + '☆'.repeat(5 - rounded);
-}
-
-function formatBookingModeLabel(mode: SpecialistBookingMode | undefined): string {
-  if (mode === 'fixed_slot') {
-    return 'Фиксированный слот';
-  }
-
-  if (mode === 'time_range') {
-    return 'Произвольный интервал';
-  }
-
-  if (mode === 'multi_day_stay') {
-    return 'Передержка на несколько дней';
-  }
-
-  if (mode === 'open_request') {
-    return 'Свободный запрос';
-  }
-
-  return 'Фиксированный слот';
+function getRoundedRating(rating: number): number {
+  return Math.max(0, Math.min(5, Math.round(rating)));
 }
 
 function buildFullName(params: {
@@ -326,111 +303,6 @@ function buildInitials(params: { firstName?: string; lastName?: string }): strin
     .charAt(0)}`.trim();
 }
 
-function buildServiceBookingSummary(service: SpecialistService): string[] {
-  const summary: string[] = [];
-
-  const bookingPolicy = service.bookingPolicy;
-
-  if (!bookingPolicy) {
-    summary.push('Бронирование по стандартному слоту специалиста.');
-    return summary;
-  }
-
-  const duration = bookingPolicy.duration;
-  const multiDay = bookingPolicy.multiDay;
-  const advance = bookingPolicy.advance;
-  const compatibility = bookingPolicy.compatibility;
-
-  if (bookingPolicy.mode === 'fixed_slot') {
-    if (typeof duration.defaultDurationMinutes === 'number') {
-      summary.push(`Обычная длительность: ${duration.defaultDurationMinutes} мин.`);
-    }
-
-    if (
-      typeof duration.minDurationMinutes === 'number' &&
-      typeof duration.maxDurationMinutes === 'number'
-    ) {
-      summary.push(
-        `Диапазон длительности: от ${duration.minDurationMinutes} до ${duration.maxDurationMinutes} мин.`,
-      );
-    }
-  }
-
-  if (bookingPolicy.mode === 'time_range') {
-    summary.push('Клиент может выбрать произвольный интервал в рамках доступного окна.');
-
-    if (
-      typeof duration.minDurationMinutes === 'number' &&
-      typeof duration.maxDurationMinutes === 'number'
-    ) {
-      summary.push(
-        `Допустимая длительность: от ${duration.minDurationMinutes} до ${duration.maxDurationMinutes} мин.`,
-      );
-    }
-  }
-
-  if (bookingPolicy.mode === 'multi_day_stay') {
-    summary.push('Бронирование оформляется как заезд и выезд.');
-
-    if (
-      typeof multiDay?.minStayDays === 'number' &&
-      typeof multiDay?.maxStayDays === 'number'
-    ) {
-      summary.push(
-        `Срок передержки: от ${multiDay.minStayDays} до ${multiDay.maxStayDays} дн.`,
-      );
-    }
-
-    if (multiDay?.checkInTime || multiDay?.checkOutTime) {
-      summary.push(
-        `Заезд ${
-          multiDay?.checkInTime ?? 'по согласованию'
-        }, выезд ${multiDay?.checkOutTime ?? 'по согласованию'}.`,
-      );
-    }
-  }
-
-  if (bookingPolicy.mode === 'open_request') {
-    summary.push('Клиент отправляет запрос, а точное время согласуется отдельно.');
-  }
-
-  if (
-    bookingPolicy.buffer.hasBufferBefore &&
-    bookingPolicy.buffer.bufferBeforeMinutes > 0
-  ) {
-    summary.push(`Буфер до услуги: ${bookingPolicy.buffer.bufferBeforeMinutes} мин.`);
-  }
-
-  if (
-    bookingPolicy.buffer.hasBufferAfter &&
-    bookingPolicy.buffer.bufferAfterMinutes > 0
-  ) {
-    summary.push(`Буфер после услуги: ${bookingPolicy.buffer.bufferAfterMinutes} мин.`);
-  }
-
-  if (typeof advance.minAdvanceMinutes === 'number' && advance.minAdvanceMinutes > 0) {
-    const hours = Math.ceil(advance.minAdvanceMinutes / 60);
-    summary.push(`Минимум за ${hours} ч до начала.`);
-  }
-
-  if (typeof advance.maxAdvanceDays === 'number' && advance.maxAdvanceDays > 0) {
-    summary.push(`Можно бронировать максимум за ${advance.maxAdvanceDays} дн вперёд.`);
-  }
-
-  if (bookingPolicy.requiresSpecialistConfirmation) {
-    summary.push('Заказ требует подтверждения специалистом.');
-  } else {
-    summary.push('Подтверждение специалистом не требуется.');
-  }
-
-  if (compatibility.canOverlapWithOtherServices) {
-    summary.push('Может совмещаться с некоторыми другими услугами.');
-  } else {
-    summary.push('Не совмещается с другими услугами по времени.');
-  }
-
-  return summary;
-}
 
 export const SpecialistProfileView = observer(
   ({
@@ -494,6 +366,32 @@ export const SpecialistProfileView = observer(
     ownerWorkspace,
     bookingCta,
   }: Props) => {
+    const [activeGalleryIndex, setActiveGalleryIndex] = useState<number | null>(null);
+    const [isAllServicesVisible, setIsAllServicesVisible] = useState(false);
+    const isGalleryViewerOpen = activeGalleryIndex !== null;
+
+    useEffect(() => {
+      if (!isGalleryViewerOpen) {
+        return;
+      }
+
+      const onKeyDown = (event: KeyboardEvent) => {
+        if (event.key === 'Escape') {
+          setActiveGalleryIndex(null);
+        }
+      };
+
+      window.addEventListener('keydown', onKeyDown);
+
+      return () => {
+        window.removeEventListener('keydown', onKeyDown);
+      };
+    }, [isGalleryViewerOpen]);
+
+    useEffect(() => {
+      setIsAllServicesVisible(false);
+    }, [profile?.id]);
+
     if (isLoading) {
       return (
         <div className={styles.stateCard}>
@@ -584,12 +482,61 @@ export const SpecialistProfileView = observer(
           id: service.id,
           name: service.name.trim(),
           locationLabel: service.locationLabel.trim(),
+          description: service.description.trim(),
           price: Number(service.price),
           priceUnit: service.priceUnit,
         }))
       : profile.services;
+    const hasHiddenServices = !isEditingDetails && currentServices.length > 3;
+    const visibleServices =
+      hasHiddenServices && !isAllServicesVisible
+        ? currentServices.slice(0, 3)
+        : currentServices;
 
     const currentAbout = currentDetails ? currentDetails.about : profile.details.about;
+    const galleryItems = currentSpecialistGallery;
+    const hasFewGalleryPhotos = galleryItems.length > 0 && galleryItems.length <= 2;
+    const shouldCollapseGalleryTail = galleryItems.length > 5;
+    const visibleGalleryItems = shouldCollapseGalleryTail
+      ? galleryItems.slice(0, 4)
+      : galleryItems.slice(0, 5);
+    const hiddenGalleryCount = shouldCollapseGalleryTail
+      ? Math.max(galleryItems.length - visibleGalleryItems.length, 0)
+      : 0;
+    const currentGalleryImage =
+      activeGalleryIndex !== null ? galleryItems[activeGalleryIndex] : undefined;
+    const canPrevGalleryImage = activeGalleryIndex !== null && activeGalleryIndex > 0;
+    const canNextGalleryImage =
+      activeGalleryIndex !== null && activeGalleryIndex < galleryItems.length - 1;
+
+    const handleOpenGalleryViewer = (index: number): void => {
+      if (galleryItems.length === 0) {
+        return;
+      }
+
+      const safeIndex = Math.max(0, Math.min(index, galleryItems.length - 1));
+      setActiveGalleryIndex(safeIndex);
+    };
+
+    const handleCloseGalleryViewer = (): void => {
+      setActiveGalleryIndex(null);
+    };
+
+    const handlePrevGalleryImage = (): void => {
+      if (!canPrevGalleryImage || activeGalleryIndex === null) {
+        return;
+      }
+
+      setActiveGalleryIndex(activeGalleryIndex - 1);
+    };
+
+    const handleNextGalleryImage = (): void => {
+      if (!canNextGalleryImage || activeGalleryIndex === null) {
+        return;
+      }
+
+      setActiveGalleryIndex(activeGalleryIndex + 1);
+    };
 
     const isAllPetSizesSelected = currentDetails
       ? currentDetails.petSizes.length === PET_SIZE_OPTIONS.length
@@ -600,95 +547,97 @@ export const SpecialistProfileView = observer(
       : currentPetAges.length === PET_AGE_OPTIONS.length;
 
     return (
-      <div className={styles.layout}>
-        <div className={styles.leftColumn}>
-          <section className={styles.card}>
-            <div className={styles.cardHeader}>
-              <h2 className={styles.cardTitle}>Основные данные</h2>
-              {profile.isOwner ? (
-                isEditingMain ? (
-                  <div className={styles.actionsRow}>
+      <div className={styles.pageContainer}>
+        <div className={styles.layout}>
+          <div className={styles.leftColumn}>
+            <section className={styles.mainCard}>
+              <div className={styles.mainCardHeader}>
+                <h2 className={styles.cardTitle}>Основные данные</h2>
+
+                {profile.isOwner ? (
+                  isEditingMain ? (
+                    <div className={styles.actionsRow}>
+                      <button
+                        type="button"
+                        className={styles.secondaryButton}
+                        onClick={onCancelMainEditing}
+                        disabled={isSavingMain}
+                      >
+                        Отмена
+                      </button>
+
+                      <button
+                        type="button"
+                        className={styles.primaryButton}
+                        onClick={onSaveMain}
+                        disabled={isSavingMain}
+                      >
+                        {isSavingMain ? 'Сохранение...' : 'Сохранить'}
+                      </button>
+                    </div>
+                  ) : (
                     <button
                       type="button"
-                      className={styles.secondaryButton}
-                      onClick={onCancelMainEditing}
-                      disabled={isSavingMain}
-                    >
-                      Отмена
-                    </button>
-                    <button
-                      type="button"
-                      className={styles.primaryButton}
-                      onClick={onSaveMain}
-                      disabled={isSavingMain}
-                    >
-                      {isSavingMain ? 'Сохранение...' : 'Сохранить'}
-                    </button>
-                  </div>
-                ) : (
-                  <button
-                    type="button"
-                    className={styles.secondaryButton}
-                    onClick={onStartMainEditing}
-                  >
-                    Редактировать
-                  </button>
-                )
-              ) : null}
-            </div>
-
-            {mainSaveError ? (
-              <div className={styles.formError}>{mainSaveError}</div>
-            ) : null}
-
-            <div className={styles.mainInfo}>
-              <div className={styles.avatarWrap}>
-                {currentAvatarUrl ? (
-                  <img
-                    className={styles.avatar}
-                    src={currentAvatarUrl}
-                    alt={currentName || 'Специалист'}
-                  />
-                ) : (
-                  <div className={styles.avatarPlaceholder}>
-                    {buildInitials({
-                      firstName: currentMain.firstName,
-                      lastName: currentMain.lastName,
-                    })}
-                  </div>
-                )}
-
-                {isEditingMain ? (
-                  <div className={styles.inlineAvatarEditor}>
-                    <input
-                      className={styles.input}
-                      value={mainForm?.avatarUrl ?? ''}
-                      onChange={(event) =>
-                        onSetMainField('avatarUrl', event.target.value)
-                      }
-                      placeholder="Ссылка на фото"
+                      className={styles.editIconButton}
+                      aria-label="Редактировать основные данные"
+                      onClick={onStartMainEditing}
                     />
-                    <label className={styles.uploadButton}>
-                      <span>Загрузить с компьютера</span>
-                      <input
-                        className={styles.hiddenFileInput}
-                        type="file"
-                        accept="image/*"
-                        onChange={(event) => {
-                          const file = event.target.files?.[0] ?? null;
-                          void onSetMainAvatarFile(file);
-                          event.currentTarget.value = '';
-                        }}
-                      />
-                    </label>
-                  </div>
+                  )
                 ) : null}
               </div>
 
-              <div className={styles.mainInfoBody}>
-                {isEditingMain ? (
-                  <div className={styles.inlineNameFields}>
-                    <div className={styles.inlineFieldBlock}>
+              {mainSaveError ? (
+                <div className={styles.formError}>{mainSaveError}</div>
+              ) : null}
+
+              <div className={styles.mainInfo}>
+                <div className={styles.avatarWrap}>
+                  {currentAvatarUrl ? (
+                    <img
+                      className={styles.avatar}
+                      src={currentAvatarUrl}
+                      alt={currentName || 'Специалист'}
+                    />
+                  ) : (
+                    <div className={styles.avatarPlaceholder}>
+                      {buildInitials({
+                        firstName: currentMain.firstName,
+                        lastName: currentMain.lastName,
+                      })}
+                    </div>
+                  )}
+
+                  {isEditingMain ? (
+                    <div className={styles.inlineAvatarEditor}>
+                      <input
+                        className={styles.input}
+                        value={mainForm?.avatarUrl ?? ''}
+                        onChange={(event) =>
+                          onSetMainField('avatarUrl', event.target.value)
+                        }
+                        placeholder="Ссылка на фото"
+                      />
+
+                      <label className={styles.uploadButton}>
+                        <span>Загрузить</span>
+                        <input
+                          className={styles.hiddenFileInput}
+                          type="file"
+                          accept="image/*"
+                          onChange={(event) => {
+                            const file = event.target.files?.[0] ?? null;
+                            void onSetMainAvatarFile(file);
+                            event.currentTarget.value = '';
+                          }}
+                        />
+                      </label>
+                    </div>
+                  ) : null}
+                </div>
+
+                <div className={styles.mainInfoBody}>
+                  {isEditingMain ? (
+                    <div className={styles.inlineNameFields}>
                       <input
                         className={styles.inlineTitleInput}
                         value={mainForm?.lastName ?? ''}
@@ -697,14 +646,7 @@ export const SpecialistProfileView = observer(
                         }
                         placeholder="Фамилия"
                       />
-                      {mainFormErrors.lastName ? (
-                        <span className={styles.fieldError}>
-                          {mainFormErrors.lastName}
-                        </span>
-                      ) : null}
-                    </div>
 
-                    <div className={styles.inlineFieldBlock}>
                       <input
                         className={styles.inlineTitleInput}
                         value={mainForm?.firstName ?? ''}
@@ -713,14 +655,7 @@ export const SpecialistProfileView = observer(
                         }
                         placeholder="Имя"
                       />
-                      {mainFormErrors.firstName ? (
-                        <span className={styles.fieldError}>
-                          {mainFormErrors.firstName}
-                        </span>
-                      ) : null}
-                    </div>
 
-                    <div className={styles.inlineFieldBlock}>
                       <input
                         className={styles.inlineTitleInput}
                         value={mainForm?.middleName ?? ''}
@@ -729,41 +664,33 @@ export const SpecialistProfileView = observer(
                         }
                         placeholder="Отчество"
                       />
-                      {mainFormErrors.middleName ? (
-                        <span className={styles.fieldError}>
-                          {mainFormErrors.middleName}
-                        </span>
-                      ) : null}
                     </div>
-                  </div>
-                ) : (
-                  <h1 className={styles.specialistName}>{currentName || 'Без имени'}</h1>
-                )}
+                  ) : (
+                    <h1 className={styles.specialistName}>
+                      {currentName || 'Без имени'}
+                    </h1>
+                  )}
 
-                <ul className={styles.metaList}>
-                  <li className={styles.metaItem}>
-                    <span className={styles.metaLabel}>Город</span>
-                    {isEditingMain ? (
-                      <div className={styles.inlineFieldBlock}>
+                  <ul className={styles.metaList}>
+                    <li className={styles.metaItem}>
+                      <span className={styles.metaLabel}>Город:</span>
+
+                      {isEditingMain ? (
                         <LocalitySuggestInput
                           value={mainForm?.city ?? ''}
                           onChange={(next) => onSetMainField('city', next)}
-                          placeholder="Начните вводить город или ПГТ…"
+                          placeholder="Город"
                           inputClassName={styles.inlineValueInput}
                         />
-                        {mainFormErrors.city ? (
-                          <span className={styles.fieldError}>{mainFormErrors.city}</span>
-                        ) : null}
-                      </div>
-                    ) : (
-                      <span className={styles.metaValue}>{currentCity || '—'}</span>
-                    )}
-                  </li>
+                      ) : (
+                        <span className={styles.metaValue}>{currentCity || '—'}</span>
+                      )}
+                    </li>
 
-                  <li className={styles.metaItem}>
-                    <span className={styles.metaLabel}>Район</span>
-                    {isEditingMain ? (
-                      <div className={styles.inlineFieldBlock}>
+                    <li className={styles.metaItem}>
+                      <span className={styles.metaLabel}>Район:</span>
+
+                      {isEditingMain ? (
                         <input
                           className={styles.inlineValueInput}
                           value={mainForm?.district ?? ''}
@@ -772,795 +699,743 @@ export const SpecialistProfileView = observer(
                           }
                           placeholder="Район"
                         />
-                        {mainFormErrors.district ? (
-                          <span className={styles.fieldError}>
-                            {mainFormErrors.district}
+                      ) : (
+                        <span className={styles.metaValue}>{currentDistrict || '—'}</span>
+                      )}
+                    </li>
+
+                    {profile.isOwner ? (
+                      <>
+                        <li className={styles.metaItem}>
+                          <span className={styles.metaLabel}>Телефон:</span>
+
+                          {isEditingMain ? (
+                            <input
+                              className={styles.inlineValueInput}
+                              value={mainForm?.phone ?? ''}
+                              onChange={(event) =>
+                                onSetMainField('phone', event.target.value)
+                              }
+                              placeholder="Телефон"
+                            />
+                          ) : currentPhone ? (
+                            <a
+                              className={styles.metaValueMuted}
+                              href={`tel:${currentPhone}`}
+                            >
+                              {formatPhone(currentPhone)}
+                            </a>
+                          ) : (
+                            <span className={styles.metaValueMuted}>—</span>
+                          )}
+                        </li>
+
+                        <li className={styles.metaItem}>
+                          <span className={styles.metaLabel}>Email:</span>
+                          <span className={styles.metaValueMuted}>
+                            {currentEmail || '—'}
                           </span>
-                        ) : null}
-                      </div>
-                    ) : (
-                      <span className={styles.metaValue}>{currentDistrict || '—'}</span>
-                    )}
-                  </li>
-
-                  <li className={styles.metaItem}>
-                    <span className={styles.metaLabel}>Телефон</span>
-                    {isEditingMain ? (
-                      <div className={styles.inlineFieldBlock}>
-                        <input
-                          className={styles.inlineValueInput}
-                          value={mainForm?.phone ?? ''}
-                          onChange={(event) =>
-                            onSetMainField('phone', event.target.value)
-                          }
-                          placeholder="Телефон"
-                        />
-                        {mainFormErrors.phone ? (
-                          <span className={styles.fieldError}>
-                            {mainFormErrors.phone}
-                          </span>
-                        ) : null}
-                      </div>
-                    ) : currentPhone ? (
-                      <a className={styles.metaValueLink} href={`tel:${currentPhone}`}>
-                        {formatPhone(currentPhone)}
-                      </a>
-                    ) : (
-                      <span className={styles.metaValue}>—</span>
-                    )}
-                  </li>
-
-                  <li className={styles.metaItem}>
-                    <span className={styles.metaLabel}>Email</span>
-                    <span className={styles.metaValue}>{currentEmail || '—'}</span>
-                  </li>
-
-                  <li className={styles.metaItem}>
-                    <span className={styles.metaLabel}>Доступ</span>
-                    <span className={styles.metaValue}>
-                      Email и пароль можно изменить только через настройки профиля клиента
-                    </span>
-                  </li>
-                </ul>
+                        </li>
+                      </>
+                    ) : null}
+                  </ul>
+                </div>
               </div>
-            </div>
-          </section>
+            </section>
 
-          <section className={styles.card}>
-            <div className={styles.calendarSection}>
-              <SpecialistMiniCalendar
-                calendar={profile.calendar}
-                editHref={
-                  profile.isOwner
-                    ? `/specialists/${profile.slug.trim()}/calendar/edit`
-                    : undefined
-                }
-              />
-            </div>
+            <section className={styles.experienceCard}>
+              <span className={styles.experienceLabel}>Опыт работы с животными</span>
+              <span className={styles.experienceValue}>
+                {profile.stats.experienceYears} лет
+              </span>
+            </section>
 
-            <div className={styles.badgesColumn}>
-              <div className={styles.infoBadge}>
-                <span className={styles.infoBadgeLabel}>Опыт ухода за животными</span>
-                <span className={styles.infoBadgeValue}>
-                  {profile.stats.experienceYears} лет
-                </span>
-              </div>
+            <SpecialistMiniCalendar
+              calendar={profile.calendar}
+              editHref={
+                profile.isOwner
+                  ? `/specialists/${profile.slug.trim()}/calendar/edit`
+                  : undefined
+              }
+            />
 
-              <div className={styles.ratingCard}>
-                <div className={styles.ratingTop}>
-                  <div>
-                    <div className={styles.ratingValue}>
-                      {profile.stats.rating.toFixed(2)}
-                    </div>
-                    <div className={styles.ratingStars}>
-                      {getRatingStars(profile.stats.rating)}
-                    </div>
-                  </div>
-
-                  {!profile.isOwner ? (
-                    <a className={styles.primaryLinkButton} href="#specialist-reviews">
-                      Перейти в отзывы
-                    </a>
-                  ) : null}
+            <section className={styles.ratingCard}>
+              <div className={styles.ratingTop}>
+                <div className={styles.ratingMain}>
+                  <img
+                    src="/images/specialist-profile/Star.svg"
+                    alt=""
+                    aria-hidden="true"
+                    className={styles.ratingStarIcon}
+                  />
+                  <span className={styles.ratingValue}>
+                    {profile.stats.rating.toFixed(2)}
+                  </span>
                 </div>
 
-                <div className={styles.statsGrid}>
-                  <div className={styles.statItem}>
-                    <span className={styles.statNumber}>
-                      {profile.stats.reviewsCount}
-                    </span>
-                    <span className={styles.statLabel}>отзывов</span>
-                  </div>
-                  <div className={styles.statItem}>
-                    <span className={styles.statNumber}>
-                      {profile.stats.completedOrdersCount}
-                    </span>
-                    <span className={styles.statLabel}>выполненных заказов</span>
-                  </div>
-                  <div className={styles.statItem}>
-                    <span className={styles.statNumber}>
-                      {profile.stats.repeatOrdersCount}
-                    </span>
-                    <span className={styles.statLabel}>повторных заказов</span>
-                  </div>
-                </div>
-
-                {profile.isOwner && ownerWorkspace ? (
-                  <>
-                    <div className={styles.ownerWorkspaceLinks}>
-                      <Link
-                        className={styles.ownerWorkspaceLink}
-                        to={ownerWorkspace.ordersPath}
-                      >
-                        Заказы клиентов
-                      </Link>
-                      <Link
-                        className={styles.ownerWorkspaceLink}
-                        to={ownerWorkspace.orderStatsPath}
-                      >
-                        Статистика заказов
-                      </Link>
-                      <Link
-                        className={styles.ownerWorkspaceLink}
-                        to={ownerWorkspace.reviewsPath}
-                      >
-                        Ответы на отзывы
-                      </Link>
-                    </div>
-                    <div className={styles.ownerDangerZone}>
-                      <Link className={styles.ownerDangerLink} to="/account/delete">
-                        Удаление аккаунта
-                      </Link>
-                    </div>
-                  </>
+                {!profile.isOwner ? (
+                  <a className={styles.reviewsLink} href="#specialist-reviews">
+                    Перейти в отзывы →
+                  </a>
                 ) : null}
               </div>
-            </div>
-          </section>
-        </div>
 
-        <div className={styles.rightColumn}>
-          {bookingCta ? <div className={styles.bookingCtaWrap}>{bookingCta}</div> : null}
+              <div className={styles.statsGrid}>
+                <div className={styles.statItem}>
+                  <span className={styles.statNumber}>{profile.stats.reviewsCount}</span>
+                  <span className={styles.statLabel}>отзывов</span>
+                </div>
 
-          <section className={styles.cardLarge}>
-            <div className={styles.cardHeader}>
-              <h2 className={styles.cardTitle}>Детали</h2>
+                <div className={styles.statItem}>
+                  <span className={styles.statNumber}>
+                    {profile.stats.completedOrdersCount}
+                  </span>
+                  <span className={styles.statLabel}>заказа выполнено</span>
+                </div>
 
-              <div className={styles.actionsRow}>
-                {onContactSpecialist ? (
-                  <button
-                    type="button"
-                    className={styles.primaryButton}
-                    onClick={onContactSpecialist}
-                  >
-                    Связаться
-                  </button>
-                ) : null}
+                <div className={styles.statItem}>
+                  <span className={styles.statNumber}>
+                    {profile.stats.repeatOrdersCount}
+                  </span>
+                  <span className={styles.statLabel}>повторных заказов</span>
+                </div>
+              </div>
 
-                {profile.isOwner ? (
-                  isEditingDetails ? (
-                    <>
-                      <button
-                        type="button"
-                        className={styles.secondaryButton}
-                        onClick={onCancelDetailsEditing}
-                        disabled={isSavingDetails}
-                      >
-                        Отмена
-                      </button>
-                      <button
-                        type="button"
-                        className={styles.primaryButton}
-                        onClick={onSaveDetails}
-                        disabled={isSavingDetails}
-                      >
-                        {isSavingDetails ? 'Сохранение...' : 'Сохранить'}
-                      </button>
-                    </>
-                  ) : (
-                    <button
-                      type="button"
-                      className={styles.secondaryButton}
-                      onClick={onStartDetailsEditing}
+              {profile.isOwner && ownerWorkspace ? (
+                <>
+                  <div className={styles.ownerWorkspaceLinks}>
+                    <Link
+                      className={styles.ownerWorkspaceLink}
+                      to={ownerWorkspace.ordersPath}
                     >
-                      Редактировать
-                    </button>
-                  )
-                ) : null}
-              </div>
-            </div>
+                      Заказы клиентов
+                    </Link>
 
-            {detailsSaveError ? (
-              <div className={styles.formError}>{detailsSaveError}</div>
+                    <Link
+                      className={styles.ownerWorkspaceLink}
+                      to={ownerWorkspace.orderStatsPath}
+                    >
+                      Статистика
+                    </Link>
+
+                    <Link
+                      className={styles.ownerWorkspaceLink}
+                      to={ownerWorkspace.reviewsPath}
+                    >
+                      Ответы
+                    </Link>
+                  </div>
+
+                  <div className={styles.ownerDangerZone}>
+                    <Link className={styles.ownerDangerLink} to="/account/delete">
+                      Удаление аккаунта
+                    </Link>
+                  </div>
+                </>
+              ) : null}
+            </section>
+          </div>
+
+          <div className={styles.rightColumn}>
+            {bookingCta ? (
+              <div className={styles.bookingCtaWrap}>{bookingCta}</div>
             ) : null}
 
-            <div className={styles.subsection}>
-              <h3>Фотографии специалиста</h3>
+            <section className={styles.detailsCard}>
+              <div
+                className={`${styles.detailsTop} ${
+                  hasFewGalleryPhotos ? styles.detailsTopFewPhotos : ''
+                }`}
+              >
+                <div className={styles.galleryBlock}>
+                  <h2 className={styles.cardTitle}>Фотографии специалиста</h2>
 
-              {isEditingDetails ? (
-                <>
-                  {currentSpecialistGallery.length > 0 ? (
-                    <div className={styles.specialistGalleryGrid}>
-                      {currentSpecialistGallery.map((item, index) => (
-                        <div key={item.id} className={styles.specialistGalleryCard}>
-                          <img
-                            className={styles.specialistGalleryImage}
-                            src={item.imageUrl}
-                            alt={item.alt}
+                  {isEditingDetails ? (
+                    <>
+                      {galleryItems.length > 0 ? (
+                        <div className={styles.galleryPreviewGrid}>
+                          {visibleGalleryItems.map((item, index) => (
+                            <div
+                              key={item.id}
+                              className={
+                                index === 0
+                                  ? styles.galleryPreviewMain
+                                  : styles.galleryPreviewSmall
+                              }
+                              onClick={() => handleOpenGalleryViewer(index)}
+                            >
+                              <img src={item.imageUrl} alt={item.alt} />
+
+                              <button
+                                type="button"
+                                className={styles.galleryRemoveButton}
+                                onClick={() => onRemoveSpecialistGalleryImage(index)}
+                              >
+                                Удалить
+                              </button>
+                            </div>
+                          ))}
+
+                          {hiddenGalleryCount > 0 ? (
+                            <div
+                              className={styles.galleryMore}
+                              onClick={() => handleOpenGalleryViewer(visibleGalleryItems.length)}
+                            >
+                              +{hiddenGalleryCount}
+                            </div>
+                          ) : null}
+                        </div>
+                      ) : (
+                        <p className={styles.emptyText}>Пока фотографий нет.</p>
+                      )}
+
+                      <div className={styles.galleryActions}>
+                        <label className={styles.secondaryButton}>
+                          <span>Загрузить с компьютера</span>
+                          <input
+                            className={styles.hiddenFileInput}
+                            type="file"
+                            accept="image/*"
+                            multiple
+                            onChange={(event) => {
+                              void onAddSpecialistGalleryFiles(event.currentTarget.files);
+                              event.currentTarget.value = '';
+                            }}
+                          />
+                        </label>
+
+                        <div className={styles.galleryUrlRow}>
+                          <input
+                            className={styles.input}
+                            type="text"
+                            value={detailsForm?.specialistGalleryUrlInput ?? ''}
+                            onChange={(event) =>
+                              onSetSpecialistGalleryUrlInput(event.target.value)
+                            }
+                            placeholder="Ссылка на фото"
                           />
 
                           <button
                             type="button"
-                            className={styles.removeGalleryButton}
-                            onClick={() => onRemoveSpecialistGalleryImage(index)}
+                            className={styles.secondaryButton}
+                            onClick={onAddSpecialistGalleryImageByUrl}
                           >
-                            Удалить
+                            Добавить
                           </button>
                         </div>
+                      </div>
+                    </>
+                  ) : galleryItems.length > 0 ? (
+                    <div className={styles.galleryPreviewGrid}>
+                      {visibleGalleryItems.map((item, index) => (
+                        <div
+                          key={item.id}
+                          className={
+                            index === 0
+                              ? styles.galleryPreviewMain
+                              : styles.galleryPreviewSmall
+                          }
+                          onClick={() => handleOpenGalleryViewer(index)}
+                        >
+                          <img src={item.imageUrl} alt={item.alt} />
+                        </div>
                       ))}
+
+                      {hiddenGalleryCount > 0 ? (
+                        <div
+                          className={styles.galleryMore}
+                          onClick={() => handleOpenGalleryViewer(visibleGalleryItems.length)}
+                        >
+                          +{hiddenGalleryCount}
+                        </div>
+                      ) : null}
                     </div>
                   ) : (
-                    <p className={styles.emptyState}>Пока фотографий нет.</p>
+                    <p className={styles.emptyText}>Пока фотографий нет.</p>
                   )}
-
-                  <div className={styles.galleryActions}>
-                    <label className={styles.fileUpload}>
-                      <span>Загрузить с компьютера</span>
-                      <input
-                        type="file"
-                        accept="image/*"
-                        multiple
-                        onChange={(event) => {
-                          void onAddSpecialistGalleryFiles(event.currentTarget.files);
-                          event.currentTarget.value = '';
-                        }}
-                      />
-                    </label>
-
-                    <div className={styles.galleryUrlRow}>
-                      <input
-                        className={styles.input}
-                        type="text"
-                        value={detailsForm?.specialistGalleryUrlInput ?? ''}
-                        onChange={(event) =>
-                          onSetSpecialistGalleryUrlInput(event.target.value)
-                        }
-                        placeholder="Ссылка на фото"
-                      />
-
-                      <button
-                        type="button"
-                        className={styles.secondaryButton}
-                        onClick={onAddSpecialistGalleryImageByUrl}
-                      >
-                        Добавить
-                      </button>
-                    </div>
-                  </div>
-
-                  {detailsFormErrors.specialistGallery ? (
-                    <p className={styles.fieldError}>
-                      {detailsFormErrors.specialistGallery}
-                    </p>
-                  ) : null}
-                </>
-              ) : (
-                <SpecialistPhotoGallery
-                  items={currentSpecialistGallery}
-                  title="Фотографии специалиста"
-                  emptyText="Пока фотографий нет."
-                />
-              )}
-            </div>
-
-            <div className={styles.detailsSection}>
-              <div className={styles.detailRow}>
-                <span className={styles.detailName}>Опыт ухода за животными</span>
-
-                {isEditingDetails && detailsForm ? (
-                  <div className={styles.experienceEditor}>
-                    <input
-                      className={styles.inlineValueInput}
-                      type="number"
-                      min="1"
-                      step="1"
-                      value={detailsForm.experienceDurationValue}
-                      onChange={(event) =>
-                        onSetDetailsField('experienceDurationValue', event.target.value)
-                      }
-                      placeholder="Число"
-                    />
-                    <select
-                      className={styles.inlineSelect}
-                      value={detailsForm.experienceDurationUnit}
-                      onChange={(event) =>
-                        onSetDetailsField(
-                          'experienceDurationUnit',
-                          event.target.value as SpecialistExperienceUnit,
-                        )
-                      }
-                    >
-                      {Object.entries(SPECIALIST_EXPERIENCE_UNIT_LABELS).map(
-                        ([value, label]) => (
-                          <option key={value} value={value}>
-                            {label}
-                          </option>
-                        ),
-                      )}
-                    </select>
-                    {detailsFormErrors.experienceDurationValue ? (
-                      <span className={styles.fieldError}>
-                        {detailsFormErrors.experienceDurationValue}
-                      </span>
-                    ) : null}
-                  </div>
-                ) : (
-                  <span className={styles.detailValue}>{currentExperienceLabel}</span>
-                )}
-              </div>
-
-              <div className={styles.detailRow}>
-                <span className={styles.detailName}>Тип жилья</span>
-
-                {isEditingDetails && detailsForm ? (
-                  <select
-                    className={styles.inlineSelect}
-                    value={detailsForm.housingType}
-                    onChange={(event) =>
-                      onSetDetailsField(
-                        'housingType',
-                        event.target.value as SpecialistHousingType,
-                      )
-                    }
-                  >
-                    {HOUSING_OPTIONS.map((option) => (
-                      <option key={option} value={option}>
-                        {SPECIALIST_HOUSING_TYPE_LABELS[option]}
-                      </option>
-                    ))}
-                  </select>
-                ) : (
-                  <span className={styles.detailValue}>
-                    {SPECIALIST_HOUSING_TYPE_LABELS[currentHousingType]}
-                  </span>
-                )}
-              </div>
-
-              <div className={styles.detailRowWide}>
-                <span className={styles.detailName}>Размер питомцев</span>
-                {isEditingDetails && detailsForm ? (
-                  <div className={styles.inlineCheckboxGroup}>
-                    <label className={styles.checkboxItem}>
-                      <input
-                        type="checkbox"
-                        checked={isAllPetSizesSelected}
-                        onChange={() => onToggleAllPetSizes()}
-                      />
-                      <span>Любой</span>
-                    </label>
-
-                    {PET_SIZE_OPTIONS.map((option) => (
-                      <label key={option} className={styles.checkboxItem}>
-                        <input
-                          type="checkbox"
-                          checked={detailsForm.petSizes.includes(option)}
-                          onChange={() => onTogglePetSize(option)}
-                        />
-                        <span>{SPECIALIST_PET_SIZE_LABELS[option]}</span>
-                      </label>
-                    ))}
-
-                    {detailsFormErrors.petSizes ? (
-                      <span className={styles.fieldError}>
-                        {detailsFormErrors.petSizes}
-                      </span>
-                    ) : null}
-                  </div>
-                ) : (
-                  <span className={styles.detailValue}>
-                    {currentPetSizes.length === PET_SIZE_OPTIONS.length
-                      ? 'Любой'
-                      : currentPetSizes
-                          .map((size) => SPECIALIST_PET_SIZE_LABELS[size])
-                          .join(', ') || '—'}
-                  </span>
-                )}
-              </div>
-
-              <div className={styles.detailRowWide}>
-                <span className={styles.detailName}>Возраст питомцев</span>
-
-                {isEditingDetails && detailsForm ? (
-                  <div className={styles.inlineCheckboxGroup}>
-                    <label className={styles.checkboxItem}>
-                      <input
-                        type="checkbox"
-                        checked={isAllPetAgesSelected}
-                        onChange={() => onToggleAllPetAges()}
-                      />
-                      <span>Любой</span>
-                    </label>
-
-                    {PET_AGE_OPTIONS.map((option) => (
-                      <label key={option} className={styles.checkboxItem}>
-                        <input
-                          type="checkbox"
-                          checked={detailsForm.petAges.includes(option)}
-                          onChange={() => onTogglePetAge(option)}
-                        />
-                        <span>{SPECIALIST_PET_AGE_LABELS[option]}</span>
-                      </label>
-                    ))}
-
-                    {detailsFormErrors.petAges ? (
-                      <span className={styles.fieldError}>
-                        {detailsFormErrors.petAges}
-                      </span>
-                    ) : null}
-                  </div>
-                ) : (
-                  <span className={styles.detailValue}>
-                    {currentPetAges.length === PET_AGE_OPTIONS.length
-                      ? 'Любой'
-                      : currentPetAges
-                          .map((age) => SPECIALIST_PET_AGE_LABELS[age])
-                          .join(', ') || '—'}
-                  </span>
-                )}
-              </div>
-
-              <div className={styles.detailRow}>
-                <span className={styles.detailName}>Дети до 10 лет рядом</span>
-                {isEditingDetails && detailsForm ? (
-                  <select
-                    className={styles.inlineSelect}
-                    value={detailsForm.hasChildrenUnderTen}
-                    onChange={(event) =>
-                      onSetDetailsField(
-                        'hasChildrenUnderTen',
-                        event.target.value as SpecialistChildrenPolicy,
-                      )
-                    }
-                  >
-                    {CHILDREN_OPTIONS.map((option) => (
-                      <option key={option} value={option}>
-                        {SPECIALIST_CHILDREN_POLICY_LABELS[option]}
-                      </option>
-                    ))}
-                  </select>
-                ) : (
-                  <span className={styles.detailValue}>
-                    {SPECIALIST_CHILDREN_POLICY_LABELS[currentChildrenPolicy]}
-                  </span>
-                )}
-              </div>
-
-              <div className={styles.detailRowWide}>
-                <span className={styles.detailName}>Типы питомцев</span>
-
-                {isEditingDetails && detailsForm ? (
-                  <div className={styles.inlineCheckboxGroup}>
-                    {PET_TYPE_OPTIONS.map((option) => (
-                      <label key={option} className={styles.checkboxItem}>
-                        <input
-                          type="checkbox"
-                          checked={detailsForm.petTypes.includes(option)}
-                          onChange={() => onTogglePetType(option)}
-                        />
-                        <span>{SPECIALIST_PET_TYPE_LABELS[option]}</span>
-                      </label>
-                    ))}
-                    {detailsFormErrors.petTypes ? (
-                      <span className={styles.fieldError}>
-                        {detailsFormErrors.petTypes}
-                      </span>
-                    ) : null}
-                  </div>
-                ) : (
-                  <span className={styles.detailValue}>
-                    {currentPetTypes
-                      .map((petType) => SPECIALIST_PET_TYPE_LABELS[petType])
-                      .join(', ') || '—'}
-                  </span>
-                )}
-              </div>
-            </div>
-
-            <div className={styles.subsection}>
-              {isEditingDetails && detailsForm ? (
-                <div className={styles.advantagesEditor}>
-                  {SPECIALIST_ADVANTAGE_OPTIONS.map((advantage) => (
-                    <label key={advantage} className={styles.advantageItem}>
-                      <input
-                        type="checkbox"
-                        checked={detailsForm.selectedAdvantages.includes(advantage)}
-                        onChange={() => onToggleAdvantage(advantage)}
-                      />
-                      <span>{advantage}</span>
-                    </label>
-                  ))}
-                  <div className={styles.advantagesHint}>
-                    Выбрано: {detailsForm.selectedAdvantages.length} / 3
-                  </div>
-                  {detailsFormErrors.selectedAdvantages ? (
-                    <span className={styles.fieldError}>
-                      {detailsFormErrors.selectedAdvantages}
-                    </span>
-                  ) : null}
                 </div>
-              ) : currentAdvantages.length > 0 ? (
-                <div className={styles.advantagesList}>
-                  {currentAdvantages.map((advantage, index) => (
-                    <div key={`${advantage}-${index}`} className={styles.advantageCard}>
-                      {advantage}
-                    </div>
-                  ))}
-                </div>
-              ) : null}
-            </div>
 
-            <div className={styles.subsection}>
-              <div className={styles.subsectionHeader}>
-                <h3 className={styles.subsectionTitle}>Услуги</h3>
-                {isEditingDetails ? (
-                  <button
-                    type="button"
-                    className={styles.secondaryButton}
-                    onClick={onAddService}
-                  >
-                    Добавить услугу
-                  </button>
-                ) : null}
-              </div>
+                <div className={styles.detailsInfoBlock}>
+                  <div className={styles.detailsHeader}>
+                    <h2 className={styles.cardTitle}>Детали</h2>
 
-              <div className={styles.servicesList}>
-                {currentServices.length > 0 ? (
-                  currentServices.map((service, index) => {
-                    const price = Number(service.price);
-                    const fullService = profile.services.find(
-                      (item) => item.id === service.id,
-                    );
-                    const bookingSummary = fullService
-                      ? buildServiceBookingSummary(fullService)
-                      : [];
+                    <div className={styles.actionsRow}>
+                      {onContactSpecialist && !profile.isOwner ? (
+                        <button
+                          type="button"
+                          className={styles.contactButton}
+                          onClick={onContactSpecialist}
+                        >
+                          <img
+                            src="/images/specialist-profile/tabler_message.svg"
+                            alt=""
+                            aria-hidden="true"
+                            className={styles.contactButtonIcon}
+                          />
+                          Связаться
+                        </button>
+                      ) : null}
 
-                    return (
-                      <article key={service.id} className={styles.serviceCard}>
-                        {isEditingDetails && detailsForm ? (
+                      {profile.isOwner ? (
+                        isEditingDetails ? (
                           <>
-                            <SpecialistServicePolicyEditor
-                              service={detailsForm.services[index]}
-                              index={index}
-                              allServices={detailsForm.services}
-                              onSetServiceField={onSetServiceField}
-                              onSetServiceBookingMode={onSetServiceBookingMode}
-                              onSetServiceDurationField={onSetServiceDurationField}
-                              onSetServiceBufferField={onSetServiceBufferField}
-                              onSetServiceCompatibilityField={
-                                onSetServiceCompatibilityField
-                              }
-                              onSetServiceAdvanceField={onSetServiceAdvanceField}
-                              onSetServiceMultiDayField={onSetServiceMultiDayField}
-                              onSetServiceFlagField={onSetServiceFlagField}
-                            />
+                            <button
+                              type="button"
+                              className={styles.secondaryButton}
+                              onClick={onCancelDetailsEditing}
+                              disabled={isSavingDetails}
+                            >
+                              Отмена
+                            </button>
 
                             <button
                               type="button"
-                              className={styles.removeButton}
-                              onClick={() => onRemoveService(index)}
+                              className={styles.primaryButton}
+                              onClick={onSaveDetails}
+                              disabled={isSavingDetails}
                             >
-                              Удалить услугу
+                              {isSavingDetails ? 'Сохранение...' : 'Сохранить'}
                             </button>
                           </>
                         ) : (
-                          <>
-                            <div className={styles.serviceTop}>
-                              <div>
-                                <h4 className={styles.serviceName}>
-                                  {service.name || 'Без названия'}
-                                </h4>
-                                {fullService ? (
-                                  <div className={styles.tag}>
-                                    {formatBookingModeLabel(
-                                      fullService.bookingPolicy?.mode,
-                                    )}
-                                  </div>
-                                ) : null}
-                              </div>
-
-                              <div className={styles.servicePriceBlock}>
-                                <div className={styles.servicePrice}>
-                                  {Number.isFinite(price) && price > 0
-                                    ? `${formatPrice(price)} ₽`
-                                    : 'Бесплатно'}
-                                </div>
-                                <div className={styles.servicePriceUnit}>
-                                  {
-                                    SPECIALIST_SERVICE_PRICE_UNIT_LABELS[
-                                      service.priceUnit
-                                    ]
-                                  }
-                                </div>
-                              </div>
-                            </div>
-
-                            <div className={styles.serviceMeta}>
-                              <span>{service.locationLabel || 'Место не указано'}</span>
-                            </div>
-
-                            {bookingSummary.length > 0 ? (
-                              <div className={styles.serviceMeta}>
-                                {bookingSummary.map((item, itemIndex) => (
-                                  <span key={`${service.id}-${itemIndex}`}>{item}</span>
-                                ))}
-                              </div>
-                            ) : null}
-
-                            {!profile.isOwner &&
-                            (onBookService || onContactSpecialist) ? (
-                              <div className={styles.actionsRow}>
-                                <button
-                                  type="button"
-                                  className={styles.primaryButton}
-                                  onClick={() => {
-                                    if (onBookService) {
-                                      onBookService(service.id);
-                                      return;
-                                    }
-
-                                    onContactSpecialist?.();
-                                  }}
-                                >
-                                  Записаться на услугу
-                                </button>
-
-                                {onContactSpecialist ? (
-                                  <button
-                                    type="button"
-                                    className={styles.secondaryButton}
-                                    onClick={onContactSpecialist}
-                                  >
-                                    Сначала обсудить детали
-                                  </button>
-                                ) : null}
-                              </div>
-                            ) : null}
-                          </>
-                        )}
-                      </article>
-                    );
-                  })
-                ) : (
-                  <p className={styles.emptyText}>Пока услуги не добавлены.</p>
-                )}
-              </div>
-
-              {detailsFormErrors.services ? (
-                <span className={styles.fieldError}>{detailsFormErrors.services}</span>
-              ) : null}
-            </div>
-
-            <div className={styles.subsection}>
-              <h3 className={styles.subsectionTitle}>Обо мне</h3>
-
-              {isEditingDetails && detailsForm ? (
-                <>
-                  <textarea
-                    className={styles.textarea}
-                    rows={10}
-                    value={detailsForm.about}
-                    onChange={(event) => onSetDetailsField('about', event.target.value)}
-                    placeholder="Расскажи о себе, опыте, отношении к животным и условиях передержки"
-                  />
-                  {detailsFormErrors.about ? (
-                    <span className={styles.fieldError}>{detailsFormErrors.about}</span>
-                  ) : null}
-                </>
-              ) : (
-                <div className={styles.aboutText}>
-                  {(currentAbout || '')
-                    .split('\n')
-                    .filter((paragraph) => paragraph.trim().length > 0)
-                    .map((paragraph, index) => (
-                      <p key={`${paragraph}-${index}`} className={styles.aboutParagraph}>
-                        {paragraph}
-                      </p>
-                    ))}
-
-                  {!currentAbout.trim() ? (
-                    <p className={styles.emptyText}>Пока описание не заполнено.</p>
-                  ) : null}
-                </div>
-              )}
-            </div>
-
-            <div id="specialist-reviews" className={styles.subsection}>
-              <h3 className={styles.subsectionTitle}>Отзывы о специалисте</h3>
-
-              {profile.isOwner && ownerWorkspace ? (
-                <p className={styles.reviewsOwnerNote}>
-                  Ответы на отзывы оформляются на отдельной странице:{' '}
-                  <Link className={styles.inlineLink} to={ownerWorkspace.reviewsPath}>
-                    открыть раздел ответов
-                  </Link>
-                  .
-                </p>
-              ) : null}
-
-              {profile.reviews.length > 0 ? (
-                <ReviewsFiltersToolbar
-                  searchQuery={reviewsSearchQuery}
-                  ratingFilter={reviewsRatingFilter}
-                  replyFilter={reviewsReplyFilter}
-                  totalCount={profile.reviews.length}
-                  filteredCount={reviewsFilteredCount}
-                  onSearchChange={onSetReviewsSearchQuery}
-                  onRatingFilterChange={onSetReviewsRatingFilter}
-                  onReplyFilterChange={onSetReviewsReplyFilter}
-                />
-              ) : null}
-
-              {profile.reviews.length === 0 ? (
-                <p className={styles.emptyText}>Пока отзывов нет.</p>
-              ) : reviewsFilteredCount === 0 ? (
-                <p className={styles.emptyText}>
-                  Ничего не найдено. Измените поиск или фильтры.
-                </p>
-              ) : (
-                <>
-                  <div className={styles.reviewsList}>
-                    {visibleReviews.map((review) => (
-                      <article key={review.id} className={styles.reviewCard}>
-                        <div className={styles.reviewHeader}>
-                          <div>
-                            <div className={styles.reviewAuthorRow}>
-                              <span className={styles.reviewAuthor}>
-                                {review.authorName}
-                              </span>
-                              {review.petName ? (
-                                <span className={styles.reviewPetName}>
-                                  Питомец: {review.petName}
-                                </span>
-                              ) : null}
-                            </div>
-                            <div className={styles.reviewMeta}>
-                              <span>{formatDate(review.createdAt)}</span>
-                              <span>{getRatingStars(review.rating)}</span>
-                            </div>
-                          </div>
-                        </div>
-
-                        <p className={styles.reviewText}>{review.text}</p>
-
-                        {review.specialistReply ? (
-                          <div className={styles.replyCard}>
-                            <div className={styles.replyTitle}>Ответ специалиста</div>
-                            <div className={styles.replyDate}>
-                              {formatDate(review.specialistReply.createdAt)}
-                            </div>
-                            <p className={styles.replyText}>
-                              {review.specialistReply.text}
-                            </p>
-                          </div>
-                        ) : null}
-                      </article>
-                    ))}
+                          <button
+                            type="button"
+                            className={styles.editIconButton}
+                            aria-label="Редактировать детали"
+                            onClick={onStartDetailsEditing}
+                          />
+                        )
+                      ) : null}
+                    </div>
                   </div>
 
-                  {canLoadMoreReviews ? (
+                  {detailsSaveError ? (
+                    <div className={styles.formError}>{detailsSaveError}</div>
+                  ) : null}
+
+                  <div className={styles.detailsCompactList}>
+                    <div className={styles.detailsCompactRow}>
+                      <span>Тип жилья:</span>
+
+                      {isEditingDetails && detailsForm ? (
+                        <select
+                          className={styles.inlineSelect}
+                          value={detailsForm.housingType}
+                          onChange={(event) =>
+                            onSetDetailsField(
+                              'housingType',
+                              event.target.value as SpecialistHousingType,
+                            )
+                          }
+                        >
+                          {HOUSING_OPTIONS.map((option) => (
+                            <option key={option} value={option}>
+                              {SPECIALIST_HOUSING_TYPE_LABELS[option]}
+                            </option>
+                          ))}
+                        </select>
+                      ) : (
+                        <strong>
+                          {SPECIALIST_HOUSING_TYPE_LABELS[currentHousingType]}
+                        </strong>
+                      )}
+                    </div>
+
+                    <div className={styles.detailsCompactRow}>
+                      <span>Размер питомца:</span>
+                      <strong>
+                        {currentPetSizes.length === PET_SIZE_OPTIONS.length
+                          ? 'Любой'
+                          : currentPetSizes
+                              .map((size) => SPECIALIST_PET_SIZE_LABELS[size])
+                              .join(', ') || '—'}
+                      </strong>
+                    </div>
+
+                    <div className={styles.detailsCompactRow}>
+                      <span>Возраст питомца:</span>
+                      <strong>
+                        {currentPetAges.length === PET_AGE_OPTIONS.length
+                          ? 'Любой'
+                          : currentPetAges
+                              .map((age) => SPECIALIST_PET_AGE_LABELS[age])
+                              .join(', ') || '—'}
+                      </strong>
+                    </div>
+
+                    <div className={styles.detailsCompactRow}>
+                      <span>Дети до 10 лет:</span>
+                      <strong>
+                        {SPECIALIST_CHILDREN_POLICY_LABELS[currentChildrenPolicy]}
+                      </strong>
+                    </div>
+                  </div>
+
+                  <div className={styles.petTypesBlock}>
+                    <div className={styles.petTypesTitle}>Типы питомцев:</div>
+
+                    {isEditingDetails && detailsForm ? (
+                      <div className={styles.inlineCheckboxGroup}>
+                        {PET_TYPE_OPTIONS.map((option) => (
+                          <label key={option} className={styles.checkboxItem}>
+                            <input
+                              type="checkbox"
+                              checked={detailsForm.petTypes.includes(option)}
+                              onChange={() => onTogglePetType(option)}
+                            />
+                            <span>{SPECIALIST_PET_TYPE_LABELS[option]}</span>
+                          </label>
+                        ))}
+                      </div>
+                    ) : (
+                      <div className={styles.tags}>
+                        {currentPetTypes.map((petType) => (
+                          <span key={petType} className={styles.tag}>
+                            {SPECIALIST_PET_TYPE_LABELS[petType]}
+                          </span>
+                        ))}
+                      </div>
+                    )}
+                  </div>
+                </div>
+              </div>
+
+              <section className={styles.servicesSection}>
+                <div className={styles.subsectionHeader}>
+                  <h3 className={styles.subsectionTitle}>Услуги</h3>
+
+                  {isEditingDetails ? (
                     <button
                       type="button"
-                      className={styles.primaryButton}
-                      onClick={onLoadMoreReviews}
+                      className={styles.secondaryButton}
+                      onClick={onAddService}
                     >
-                      Загрузить еще
+                      Добавить услугу
                     </button>
                   ) : null}
-                </>
-              )}
-            </div>
-          </section>
+                </div>
+
+                <div className={styles.servicesList}>
+                  {currentServices.length > 0 ? (
+                    visibleServices.map((service, index) => {
+                      const price = Number(service.price);
+
+                      return (
+                        <article key={service.id} className={styles.serviceCard}>
+                          {isEditingDetails && detailsForm ? (
+                            <>
+                              <SpecialistServicePolicyEditor
+                                service={detailsForm.services[index]}
+                                index={index}
+                                allServices={detailsForm.services}
+                                onSetServiceField={onSetServiceField}
+                                onSetServiceBookingMode={onSetServiceBookingMode}
+                                onSetServiceDurationField={onSetServiceDurationField}
+                                onSetServiceBufferField={onSetServiceBufferField}
+                                onSetServiceCompatibilityField={
+                                  onSetServiceCompatibilityField
+                                }
+                                onSetServiceAdvanceField={onSetServiceAdvanceField}
+                                onSetServiceMultiDayField={onSetServiceMultiDayField}
+                                onSetServiceFlagField={onSetServiceFlagField}
+                              />
+
+                              <button
+                                type="button"
+                                className={styles.removeButton}
+                                onClick={() => onRemoveService(index)}
+                              >
+                                Удалить услугу
+                              </button>
+                            </>
+                          ) : (
+                            <>
+                              <div className={styles.serviceTop}>
+                                <div>
+                                  <h4 className={styles.serviceName}>
+                                    {service.name || 'Без названия'}
+                                  </h4>
+
+                                  <p className={styles.serviceDescription}>
+                                    {service.description ||
+                                      service.locationLabel ||
+                                      'Описание услуги не указано'}
+                                  </p>
+                                </div>
+
+                                <div className={styles.servicePriceBlock}>
+                                  <div className={styles.servicePrice}>
+                                    {Number.isFinite(price) && price > 0
+                                      ? `от ${formatPrice(price)} ₽`
+                                      : 'Бесплатно'}
+                                  </div>
+
+                                  <div className={styles.servicePriceUnit}>
+                                    {
+                                      SPECIALIST_SERVICE_PRICE_UNIT_LABELS[
+                                        service.priceUnit
+                                      ]
+                                    }
+                                  </div>
+                                </div>
+                              </div>
+
+                              {!profile.isOwner &&
+                              (onBookService || onContactSpecialist) ? (
+                                <div className={styles.serviceActions}>
+                                  <button
+                                    type="button"
+                                    className={styles.primaryButton}
+                                    onClick={() => {
+                                      if (onBookService) {
+                                        onBookService(service.id);
+                                        return;
+                                      }
+
+                                      onContactSpecialist?.();
+                                    }}
+                                  >
+                                    Записаться на услугу
+                                  </button>
+
+                                  {onContactSpecialist ? (
+                                    <button
+                                      type="button"
+                                      className={styles.secondaryButton}
+                                      onClick={onContactSpecialist}
+                                    >
+                                      Обсудить детали
+                                    </button>
+                                  ) : null}
+                                </div>
+                              ) : null}
+                              
+                            </>
+                          )}
+                        </article>
+                      );
+                    })
+                  ) : (
+                    <p className={styles.emptyText}>Пока услуги не добавлены.</p>
+                  )}
+                </div>
+
+                {hasHiddenServices ? (
+                  <button
+                    type="button"
+                    className={`${styles.secondaryButton} ${styles.showMoreServicesButton}`}
+                    onClick={() => setIsAllServicesVisible((prev) => !prev)}
+                  >
+                    {isAllServicesVisible ? 'Скрыть услуги' : 'Показать еще'}
+                  </button>
+                ) : null}
+              </section>
+
+              <section className={styles.aboutSection}>
+                <h3 className={styles.subsectionTitle}>Обо мне</h3>
+
+                {isEditingDetails && detailsForm ? (
+                  <>
+                    <textarea
+                      className={styles.textarea}
+                      rows={10}
+                      value={detailsForm.about}
+                      onChange={(event) => onSetDetailsField('about', event.target.value)}
+                      placeholder="Расскажи о себе, опыте, отношении к животным и условиях передержки"
+                    />
+
+                    {detailsFormErrors.about ? (
+                      <span className={styles.fieldError}>{detailsFormErrors.about}</span>
+                    ) : null}
+                  </>
+                ) : (
+                  <div className={styles.aboutText}>
+                    {(currentAbout || '')
+                      .split('\n')
+                      .filter((paragraph) => paragraph.trim().length > 0)
+                      .map((paragraph, index) => (
+                        <p
+                          key={`${paragraph}-${index}`}
+                          className={styles.aboutParagraph}
+                        >
+                          {paragraph}
+                        </p>
+                      ))}
+
+                    {!currentAbout.trim() ? (
+                      <p className={styles.emptyText}>Пока описание не заполнено.</p>
+                    ) : null}
+                  </div>
+                )}
+              </section>
+
+              <section id="specialist-reviews" className={styles.reviewsSection}>
+                <h3 className={styles.subsectionTitle}>Отзывы о специалисте</h3>
+
+                {profile.isOwner && ownerWorkspace ? (
+                  <p className={styles.reviewsOwnerNote}>
+                    Ответы на отзывы оформляются на отдельной странице:{' '}
+                    <Link className={styles.inlineLink} to={ownerWorkspace.reviewsPath}>
+                      открыть раздел ответов
+                    </Link>
+                    .
+                  </p>
+                ) : null}
+
+                {profile.reviews.length > 0 ? (
+                  <ReviewsFiltersToolbar
+                    searchQuery={reviewsSearchQuery}
+                    ratingFilter={reviewsRatingFilter}
+                    replyFilter={reviewsReplyFilter}
+                    totalCount={profile.reviews.length}
+                    filteredCount={reviewsFilteredCount}
+                    onSearchChange={onSetReviewsSearchQuery}
+                    onRatingFilterChange={onSetReviewsRatingFilter}
+                    onReplyFilterChange={onSetReviewsReplyFilter}
+                  />
+                ) : null}
+
+                {profile.reviews.length === 0 ? (
+                  <p className={styles.emptyText}>Пока отзывов нет.</p>
+                ) : reviewsFilteredCount === 0 ? (
+                  <p className={styles.emptyText}>
+                    Ничего не найдено. Измените поиск или фильтры.
+                  </p>
+                ) : (
+                  <>
+                    <div className={styles.reviewsList}>
+                      {visibleReviews.map((review) => (
+                        <article key={review.id} className={styles.reviewCard}>
+                          <div className={styles.reviewHeader}>
+                            <div>
+                              <div className={styles.reviewMeta}>
+                                <span className={styles.reviewDate}>
+                                  {formatDate(review.createdAt)}
+                                </span>
+                              </div>
+
+                              <h4 className={styles.reviewService}>Передержка</h4>
+
+                              <div className={styles.reviewAuthorRow}>
+                                <span className={styles.reviewAuthor}>
+                                  {review.authorName}
+                                </span>
+
+                                {review.petName ? (
+                                  <span className={styles.reviewPetName}>
+                                    Питомец: {review.petName}
+                                  </span>
+                                ) : null}
+                              </div>
+                            </div>
+
+                            <div className={styles.reviewStars}>
+                              {Array.from({ length: 5 }, (_, index) => (
+                                <img
+                                  key={`${review.id}-star-${index}`}
+                                  src="/images/specialist-profile/Star.svg"
+                                  alt=""
+                                  aria-hidden="true"
+                                  className={
+                                    index < getRoundedRating(review.rating)
+                                      ? styles.reviewStarIcon
+                                      : styles.reviewStarIconInactive
+                                  }
+                                />
+                              ))}
+                            </div>
+                          </div>
+
+                          <p className={styles.reviewText}>{review.text}</p>
+
+                          {review.specialistReply ? (
+                            <div className={styles.replyCard}>
+                              <div className={styles.reviewDate}>
+                                {formatDate(review.specialistReply.createdAt)}
+                              </div>
+
+                              <div className={styles.replyTitle}>Ответ специалиста</div>
+
+                              <p className={styles.replyText}>
+                                {review.specialistReply.text}
+                              </p>
+                            </div>
+                          ) : null}
+                        </article>
+                      ))}
+                    </div>
+
+                    {canLoadMoreReviews ? (
+                      <button
+                        type="button"
+                        className={styles.secondaryButton}
+                        onClick={onLoadMoreReviews}
+                      >
+                        Загрузить еще
+                      </button>
+                    ) : null}
+                  </>
+                )}
+              </section>
+            </section>
+          </div>
         </div>
+
+        {isGalleryViewerOpen && currentGalleryImage ? (
+          <div
+            className={styles.galleryViewerOverlay}
+            onClick={handleCloseGalleryViewer}
+            role="dialog"
+            aria-modal="true"
+            aria-label="Просмотр фотографий специалиста"
+          >
+            <div
+              className={styles.galleryViewerModal}
+              onClick={(event) => event.stopPropagation()}
+            >
+              <button
+                type="button"
+                className={styles.galleryViewerClose}
+                onClick={handleCloseGalleryViewer}
+                aria-label="Закрыть"
+              >
+                ✕
+              </button>
+
+              <div className={styles.galleryViewerImageWrap}>
+                <img
+                  className={styles.galleryViewerImage}
+                  src={currentGalleryImage.imageUrl}
+                  alt={currentGalleryImage.alt || 'Фотография специалиста'}
+                />
+              </div>
+
+              <div className={styles.galleryViewerControls}>
+                <button
+                  type="button"
+                  className={styles.galleryViewerArrow}
+                  disabled={!canPrevGalleryImage}
+                  onClick={handlePrevGalleryImage}
+                  aria-label="Предыдущее фото"
+                >
+                  ←
+                </button>
+                <span className={styles.galleryViewerCounter}>
+                  {(activeGalleryIndex ?? 0) + 1} / {galleryItems.length}
+                </span>
+                <button
+                  type="button"
+                  className={styles.galleryViewerArrow}
+                  disabled={!canNextGalleryImage}
+                  onClick={handleNextGalleryImage}
+                  aria-label="Следующее фото"
+                >
+                  →
+                </button>
+              </div>
+            </div>
+          </div>
+        ) : null}
       </div>
     );
   },

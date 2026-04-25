@@ -4,6 +4,10 @@ import {
   getMockServiceOrderById,
   updateMockServiceOrder,
 } from '@/features/orders/data/mockOrders';
+import {
+  syncMockSpecialistCalendarSlotsFromProfile,
+  syncMockSpecialistListingStatsFromProfile,
+} from '@/features/specialists-search/data/mockSpecialists';
 import { notifySpecialistServicesChanged } from '@/shared/lib/emailNotifications';
 
 import {
@@ -13,10 +17,6 @@ import {
   MOCK_SPECIALIST_PROFILES,
 } from '../data/mockSpecialistProfiles';
 import { computeSpecialistStats } from '../lib/computeSpecialistStats';
-import {
-  syncMockSpecialistCalendarSlotsFromProfile,
-  syncMockSpecialistListingStatsFromProfile,
-} from '@/features/specialists-search/data/mockSpecialists';
 
 import type {
   SpecialistCalendarUpdatePayload,
@@ -140,6 +140,7 @@ export async function mockUpdateDetails(
     id: service.id,
     name: service.name,
     locationLabel: service.locationLabel,
+    description: service.description?.trim() || '',
     price: service.price,
     priceUnit: service.priceUnit,
   });
@@ -173,6 +174,7 @@ export async function mockUpdateDetails(
       id: service.id || `service-${Date.now()}-${index}`,
       name: service.name.trim(),
       locationLabel: service.locationLabel.trim(),
+      description: service.description?.trim() || undefined,
       price: service.price,
       priceUnit: service.priceUnit,
     })),
@@ -199,6 +201,7 @@ export async function mockUpdateDetails(
       prev.name !== next.name ||
       prev.price !== next.price ||
       prev.locationLabel !== next.locationLabel ||
+      prev.description !== next.description ||
       prev.priceUnit !== next.priceUnit
     ) {
       lines.push(

@@ -135,6 +135,7 @@ type EditableServiceFormItem = {
   id: string;
   name: string;
   locationLabel: string;
+  description: string;
   price: string;
   priceUnit: SpecialistServicePriceUnit;
   bookingPolicy: EditableServiceBookingPolicyForm;
@@ -291,6 +292,7 @@ function mapServiceToForm(service: SpecialistService): EditableServiceFormItem {
     id: service.id,
     name: service.name,
     locationLabel: service.locationLabel,
+    description: service.description ?? '',
     price: String(service.price),
     priceUnit: service.priceUnit,
     bookingPolicy: mapBookingPolicyToForm(service.bookingPolicy),
@@ -876,6 +878,7 @@ export class SpecialistProfileStore {
       id: createLocalId('service'),
       name: '',
       locationLabel: '',
+      description: '',
       price: '0',
       priceUnit: 'service',
       bookingPolicy: createDefaultBookingPolicy(),
@@ -915,7 +918,7 @@ export class SpecialistProfileStore {
       service.priceUnit = value as SpecialistServicePriceUnit;
     } else if (field === 'price') {
       service.price = clampPriceString(value);
-    } else if (field === 'name' || field === 'locationLabel') {
+    } else if (field === 'name' || field === 'locationLabel' || field === 'description') {
       service[field] = value;
     }
 
@@ -1288,6 +1291,7 @@ export class SpecialistProfileStore {
         id: service.id,
         name: service.name.trim(),
         locationLabel: service.locationLabel.trim(),
+        description: service.description.trim() || undefined,
         price: Number(service.price || 0),
         priceUnit: service.priceUnit,
         bookingPolicy: normalizeBookingPolicyForSave(service.bookingPolicy),

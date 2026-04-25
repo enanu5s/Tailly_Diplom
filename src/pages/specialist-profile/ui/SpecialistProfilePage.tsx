@@ -7,7 +7,6 @@ import { useParams } from 'react-router-dom';
 import { useAuth } from '@/features/auth/model/useAuth';
 import { messagesStore } from '@/features/messages';
 import { specialistProfileStore } from '@/features/specialist-profile/model/specialistProfileStore';
-import { SpecialistProfileBookingCta } from '@/features/specialist-profile/ui/SpecialistProfileBookingCta';
 import { SpecialistProfileView } from '@/features/specialist-profile/ui/SpecialistProfileView';
 import {
   canClientBookSpecialist,
@@ -135,18 +134,6 @@ export const SpecialistProfilePage = observer((): ReactElement => {
     });
 
     navigate('/messages');
-  };
-
-  const handleStartBooking = (): void => {
-    if (!store.profile) {
-      return;
-    }
-
-    navigate('/service-booking', {
-      state: {
-        specialistSlug: store.profile.slug,
-      },
-    });
   };
 
   const handleBookService = (serviceId: string): void => {
@@ -282,11 +269,6 @@ export const SpecialistProfilePage = observer((): ReactElement => {
                   orderStatsPath: `/specialists/${store.profile.slug.trim()}/orders/stats`,
                 }
               : undefined
-          }
-          bookingCta={
-            canBookSpecialist && store.profile ? (
-              <SpecialistProfileBookingCta onStartBooking={handleStartBooking} />
-            ) : null
           }
         />
       </div>

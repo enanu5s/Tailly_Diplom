@@ -1,9 +1,8 @@
 /* src/pages/profile/ui/ProfilePage.module.css */
-
 .page {
   min-height: calc(100vh - 160px);
-  padding: 40px 20px 80px;
-  background: #f8fafc;
+  padding: 48px 20px 96px;
+  background: #f8f8f8;
 }
 
 .container {
@@ -13,15 +12,16 @@
 }
 
 .title {
-  margin: 0 0 24px;
+  margin: 0 0 28px;
   font-size: 36px;
-  line-height: 1.1;
-  color: #111827;
+  font-weight: 500;
+  line-height: 1.15;
+  color: #201600;
 }
 
 .grid {
   display: grid;
-  grid-template-columns: minmax(320px, 420px) minmax(0, 1fr);
+  grid-template-columns: 360px minmax(0, 1fr);
   gap: 24px;
   align-items: start;
 }
@@ -30,39 +30,16 @@
 .rightColumn {
   display: flex;
   flex-direction: column;
-  gap: 24px;
+  gap: 20px;
 }
 
-.adminCard {
-  padding: 28px;
-  border-radius: 18px;
-  background: #ffffff;
-  border: 1px solid #e5e7eb;
-  box-shadow: 0 16px 40px rgba(15, 23, 42, 0.08);
+@media (max-width: 1100px) {
+  .grid {
+    grid-template-columns: 320px minmax(0, 1fr);
+  }
 }
 
-.adminBadge {
-  display: inline-flex;
-  align-items: center;
-  min-height: 32px;
-  padding: 0 12px;
-  border-radius: 999px;
-  background: #eef2ff;
-  color: #4338ca;
-  font-size: 13px;
-  font-weight: 700;
-  text-transform: uppercase;
-}
-
-.adminText {
-  margin: 0;
-  max-width: 760px;
-  font-size: 15px;
-  line-height: 1.7;
-  color: #4b5563;
-}
-
-@media (max-width: 1024px) {
+@media (max-width: 900px) {
   .grid {
     grid-template-columns: 1fr;
   }
@@ -70,14 +47,20 @@
 
 @media (max-width: 768px) {
   .page {
-    padding: 28px 16px 64px;
+    padding: 32px 16px 72px;
   }
 
   .title {
+    margin-bottom: 20px;
     font-size: 30px;
   }
 
-  .adminCard {
-    padding: 20px;
+  .grid {
+    gap: 20px;
+  }
+
+  .leftColumn,
+  .rightColumn {
+    gap: 16px;
   }
 }

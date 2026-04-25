@@ -2,29 +2,30 @@
 
 import styles from './SpecialistProfileBookingCta.module.css';
 
-import type { ReactElement } from 'react';
-
-type Props = {
+type SpecialistProfileBookingCtaProps = {
   onStartBooking: () => void;
 };
 
-export function SpecialistProfileBookingCta({ onStartBooking }: Props): ReactElement {
+export function SpecialistProfileBookingCta(
+  props: SpecialistProfileBookingCtaProps,
+) {
   return (
-    <section className={styles.card} aria-labelledby="specialist-booking-cta-title">
+    <section className={styles.card} aria-label="Быстрое оформление бронирования">
       <div className={styles.content}>
         <div className={styles.text}>
-          <h2 id="specialist-booking-cta-title" className={styles.title}>
-            Готовы оформить услугу?
-          </h2>
+          <h3 className={styles.title}>Готовы оформить заказ?</h3>
           <p className={styles.description}>
-            Выберите услугу, питомца, дату и время. После создания заказ сразу появится у
-            вас в профиле.
+            Выберите услугу и свободное время в один шаг.
           </p>
         </div>
 
         <div className={styles.actions}>
-          <button type="button" className={styles.primaryButton} onClick={onStartBooking}>
-            Оформить заказ
+          <button
+            type="button"
+            className={styles.primaryButton}
+            onClick={props.onStartBooking}
+          >
+            Забронировать
           </button>
         </div>
       </div>

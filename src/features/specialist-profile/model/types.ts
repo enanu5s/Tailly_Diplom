@@ -108,6 +108,7 @@ export type SpecialistService = {
   id: string;
   name: string;
   locationLabel: string;
+  description?: string;
   price: number;
   priceUnit: SpecialistServicePriceUnit;
   bookingPolicy?: SpecialistServiceBookingPolicy;
@@ -262,6 +263,7 @@ export type SpecialistServiceUpdateItem = {
   id: string;
   name: string;
   locationLabel: string;
+  description?: string;
   price: number;
   priceUnit: SpecialistServicePriceUnit;
   bookingPolicy?: SpecialistServiceBookingPolicy;

@@ -1,5 +1,4 @@
 // src/features/specialist-profile/ui/SpecialistMiniCalendar.tsx
-
 import { useState } from 'react';
 
 import { useAppNavigate } from '@/shared/lib/navigation/useAppNavigate';
@@ -29,10 +28,8 @@ const STATUS_CLASS_NAMES: Record<SpecialistCalendarDayStatus, string> = {
 };
 
 const LEGEND_ITEMS: SpecialistCalendarDayStatus[] = [
-  'available',
   'partially_booked',
-  'fully_booked',
-  'day_off',
+  'available',
 ];
 
 export function SpecialistMiniCalendar({
@@ -49,6 +46,7 @@ export function SpecialistMiniCalendar({
     month: 'long',
     year: 'numeric',
   });
+
   const todayIsoDate = toIsoDate(new Date());
 
   const handleEditCalendarClick = (): void => {
@@ -78,39 +76,38 @@ export function SpecialistMiniCalendar({
   return (
     <section className={styles.card} aria-label="Календарь специалиста">
       <div className={styles.header}>
-        <div>
-          <h3 className={styles.title}>Календарь</h3>
-
-          <div className={styles.monthControls}>
-            <button
-              type="button"
-              className={styles.monthNavButton}
-              onClick={handlePrevMonth}
-            >
-              ←
-            </button>
-
-            <p className={styles.monthLabel}>{monthLabel}</p>
-
-            <button
-              type="button"
-              className={styles.monthNavButton}
-              onClick={handleNextMonth}
-            >
-              →
-            </button>
-          </div>
-        </div>
+        <h3 className={styles.title}>Календарь</h3>
 
         {editHref ? (
           <button
             type="button"
-            className={styles.editLinkButton}
+            className={styles.editButton}
+            aria-label="Редактировать календарь"
             onClick={handleEditCalendarClick}
-          >
-            Редактировать календарь
-          </button>
+          />
         ) : null}
+      </div>
+
+      <div className={styles.monthControls}>
+        <button
+          type="button"
+          className={styles.monthNavButton}
+          aria-label="Предыдущий месяц"
+          onClick={handlePrevMonth}
+        >
+          ‹
+        </button>
+
+        <p className={styles.monthLabel}>{monthLabel}</p>
+
+        <button
+          type="button"
+          className={styles.monthNavButton}
+          aria-label="Следующий месяц"
+          onClick={handleNextMonth}
+        >
+          ›
+        </button>
       </div>
 
       <div className={styles.weekdays}>
@@ -129,25 +126,33 @@ export function SpecialistMiniCalendar({
           const isPast =
             isoDate !== null && isoDate !== todayIsoDate && isoDate < todayIsoDate;
 
+          const statusClassName = day.status ? STATUS_CLASS_NAMES[day.status] : '';
+
           return (
             <div
               key={day.isoDate ?? `empty-${index}`}
-              className={`${styles.dayCell} ${
-                day.isCurrentMonth ? styles.dayCellCurrent : styles.dayCellEmpty
-              } ${day.status ? STATUS_CLASS_NAMES[day.status] : ''} ${
-                isToday ? styles.today : ''
-              } ${isPast ? styles.pastDay : ''}`}
+              className={[
+                styles.dayCell,
+                day.isCurrentMonth ? styles.dayCellCurrent : styles.dayCellEmpty,
+                statusClassName,
+                isToday ? styles.today : '',
+                isPast ? styles.pastDay : '',
+              ]
+                .filter(Boolean)
+                .join(' ')}
             >
               {day.dayNumber ? (
                 <>
                   <span className={styles.dayNumber}>{day.dayNumber}</span>
 
                   {day.status === 'partially_booked' ? (
-                    <span className={styles.dot} aria-hidden="true" />
-                  ) : day.status === 'available' &&
-                    day.hasAvailabilityWindows ? (
                     <span
-                      className={`${styles.dot} ${styles.dotOpenSlots}`}
+                      className={`${styles.dot} ${styles.dotBusy}`}
+                      aria-hidden="true"
+                    />
+                  ) : day.status === 'available' && day.hasAvailabilityWindows ? (
+                    <span
+                      className={`${styles.dot} ${styles.dotAvailable}`}
                       aria-hidden="true"
                     />
                   ) : null}
@@ -162,7 +167,12 @@ export function SpecialistMiniCalendar({
         {LEGEND_ITEMS.map((status) => (
           <div key={status} className={styles.legendItem}>
             <span
-              className={`${styles.legendDot} ${STATUS_CLASS_NAMES[status]}`}
+              className={[
+                styles.legendDot,
+                status === 'partially_booked'
+                  ? styles.legendDotBusy
+                  : styles.legendDotAvailable,
+              ].join(' ')}
               aria-hidden="true"
             />
             <span>{CALENDAR_STATUS_LABELS[status]}</span>

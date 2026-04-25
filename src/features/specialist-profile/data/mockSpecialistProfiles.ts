@@ -91,6 +91,8 @@ const PRIMARY_SPECIALIST_PROFILE: SpecialistProfileResponse = {
       id: 'service-walk-1',
       name: 'Прогулка с собакой',
       locationLabel: 'На улице рядом с домом клиента',
+      description:
+        'Прогулка с собакой на улице рядом с домом клиента, длительность 60 минут.',
       price: 900,
       priceUnit: 'walk',
       bookingPolicy: {
@@ -123,6 +125,8 @@ const PRIMARY_SPECIALIST_PROFILE: SpecialistProfileResponse = {
       id: 'service-photo-1',
       name: 'Фотосессия питомца',
       locationLabel: 'На прогулке или дома у клиента',
+      description:
+        'Фотосессия питомца на прогулке или дома у клиента, длительность от 90 до 240 минут.',
       price: 2500,
       priceUnit: 'service',
       bookingPolicy: {
@@ -155,6 +159,8 @@ const PRIMARY_SPECIALIST_PROFILE: SpecialistProfileResponse = {
       id: 'service-boarding-1',
       name: 'Передержка у специалиста',
       locationLabel: 'У специалиста дома',
+      description:
+        'Передержка осуществляется у специалиста или у клиента. Срок передержки: от 1 до 30 дней.',
       price: 1200,
       priceUnit: 'day',
       bookingPolicy: {
@@ -194,6 +200,8 @@ const PRIMARY_SPECIALIST_PROFILE: SpecialistProfileResponse = {
       id: 'service-visit-1',
       name: 'Визит на дом',
       locationLabel: 'У клиента',
+      description:
+        'Визит к питомцу у вас дома: кормление, уход, игры и короткая прогулка, длительность 60 минут.',
       price: 1300,
       priceUnit: 'visit',
       bookingPolicy: {
@@ -226,6 +234,8 @@ const PRIMARY_SPECIALIST_PROFILE: SpecialistProfileResponse = {
       id: 'service-consult-1',
       name: 'Онлайн-консультация',
       locationLabel: 'Онлайн',
+      description:
+        'Онлайн-консультация по уходу и поведению питомца, длительность 30–60 минут.',
       price: 700,
       priceUnit: 'service',
       bookingPolicy: {

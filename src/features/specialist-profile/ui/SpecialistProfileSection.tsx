@@ -11,7 +11,6 @@ import {
 } from '@/shared/lib/auth/roleAccess';
 import { useAppNavigate } from '@/shared/lib/navigation/useAppNavigate';
 
-import { SpecialistProfileBookingCta } from './SpecialistProfileBookingCta';
 import { SpecialistProfileView } from './SpecialistProfileView';
 import { specialistProfileStore } from '../model/specialistProfileStore';
 
@@ -47,7 +46,6 @@ export const SpecialistProfileSection = observer((): ReactElement => {
       state: {
         specialistId: profile.id,
         specialistSlug: profile.slug,
-        specialistName: profile.main.displayName,
         specialistAvatarUrl: profile.main.avatarUrl,
         source: 'specialist-profile',
       },
@@ -161,11 +159,6 @@ export const SpecialistProfileSection = observer((): ReactElement => {
         canClientBookSpecialist(user ?? null, { slug: profile.slug, id: profile.id })
           ? handleBookService
           : undefined
-      }
-      bookingCta={
-        canShowBookingCta ? (
-          <SpecialistProfileBookingCta onStartBooking={handleStartBooking} />
-        ) : null
       }
     />
   );

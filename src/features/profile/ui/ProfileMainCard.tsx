@@ -1,13 +1,17 @@
 //src/features/profile/ui/ProfileMainCard.tsx
-
 import { observer } from 'mobx-react-lite';
 import { useEffect, type ChangeEvent, type ReactElement } from 'react';
-import { Link } from 'react-router-dom';
 
 import { LocalitySuggestInput } from '@/features/specialists-search/ui/LocalitySuggestInput/LocalitySuggestInput';
 
-import styles from './ProfileMainCard.module.css';
 import { profileStore } from '../model/profileStore';
+import styles from './ProfileMainCard.module.css';
+
+type ProfileMainCardMode = 'visitor' | 'owner';
+
+type ProfileMainCardProps = {
+  mode?: ProfileMainCardMode;
+};
 
 function buildFullName(params: {
   lastName?: string;
@@ -21,116 +25,102 @@ function buildFullName(params: {
     .trim();
 }
 
-export const ProfileMainCard = observer((): ReactElement => {
-  useEffect(() => {
-    if (!profileStore.profile && !profileStore.loading) {
-      void profileStore.load();
-    }
-  }, []);
+export const ProfileMainCard = observer(
+  ({ mode = 'owner' }: ProfileMainCardProps): ReactElement => {
+    useEffect(() => {
+      if (!profileStore.profile && !profileStore.loading) {
+        void profileStore.load();
+      }
+    }, []);
 
-  const profile = profileStore.profile;
-  const isEditing = profileStore.editing;
+    const profile = profileStore.profile;
+    const isEditing = profileStore.editing;
+    const isOwnerMode = mode === 'owner';
 
-  const avatarSrc = isEditing
-    ? profileStore.draftAvatarUrl.trim()
-    : (profile?.avatarUrl ?? '').trim();
+    const avatarSrc = isEditing
+      ? profileStore.draftAvatarUrl.trim()
+      : (profile?.avatarUrl ?? '').trim();
 
-  const fullName = isEditing
-    ? buildFullName({
-        lastName: profileStore.draftLastName,
-        firstName: profileStore.draftFirstName,
-        middleName: profileStore.draftMiddleName,
-      }) || 'Профиль'
-    : buildFullName({
-        lastName: profile?.lastName,
-        firstName: profile?.firstName,
-        middleName: profile?.middleName,
-      }) || 'Профиль';
+    const fullName = isEditing
+      ? buildFullName({
+          lastName: profileStore.draftLastName,
+          firstName: profileStore.draftFirstName,
+          middleName: profileStore.draftMiddleName,
+        }) || 'Профиль'
+      : buildFullName({
+          lastName: profile?.lastName,
+          firstName: profile?.firstName,
+          middleName: profile?.middleName,
+        }) || 'Профиль';
 
-  const handleAvatarChange = (event: ChangeEvent<HTMLInputElement>): void => {
-    const file = event.target.files?.[0];
+    const handleAvatarChange = (event: ChangeEvent<HTMLInputElement>): void => {
+      const file = event.target.files?.[0];
 
-    if (!file) {
-      return;
-    }
+      if (!file) {
+        return;
+      }
 
-    profileStore.setAvatarFromFile(file);
-    event.target.value = '';
-  };
+      profileStore.setAvatarFromFile(file);
+      event.target.value = '';
+    };
 
-  return (
-    <section className={styles.card}>
-      <div className={styles.headerRow}>
-        <h2 className={styles.title}>Основные данные</h2>
+    const cardClassName = [
+      styles.card,
+      isEditing
+        ? styles.cardEdit
+        : isOwnerMode
+          ? styles.cardOwner
+          : styles.cardVisitor,
+    ].join(' ');
 
-        {!isEditing && profile ? (
-          <button
-            className={styles.secondaryBtn}
-            type="button"
-            onClick={() => profileStore.startEdit()}
-          >
-            Редактировать
-          </button>
+    return (
+      <section className={cardClassName}>
+        <div className={styles.headerRow}>
+          <h2 className={styles.title}>Основные данные</h2>
+
+          {!isEditing && profile && isOwnerMode ? (
+            <button
+              className={styles.editBtn}
+              type="button"
+              aria-label="Редактировать профиль"
+              onClick={() => profileStore.startEdit()}
+            />
+          ) : null}
+        </div>
+
+        {profileStore.error ? (
+          <div className={styles.error}>{profileStore.error}</div>
         ) : null}
-      </div>
 
-      {profileStore.error ? (
-        <div className={styles.error}>{profileStore.error}</div>
-      ) : null}
+        {profileStore.loading && !profile ? (
+          <div className={styles.state}>Загружаем профиль...</div>
+        ) : null}
 
-      {profileStore.loading && !profile ? (
-        <div className={styles.state}>Загружаем профиль...</div>
-      ) : null}
+        {profile ? (
+          isEditing ? (
+            <div className={styles.editContent}>
+              <div className={styles.editTopRow}>
+                <div className={styles.avatarBlock}>
+                  <div className={styles.avatarWrap}>
+                    {avatarSrc ? (
+                      <img className={styles.avatar} src={avatarSrc} alt={fullName} />
+                    ) : (
+                      <div className={styles.avatarPlaceholder}>Фото</div>
+                    )}
+                  </div>
 
-      {profile ? (
-        <div className={styles.grid}>
-          <div className={styles.avatarCol}>
-            <div className={styles.avatarWrap}>
-              {avatarSrc ? (
-                <img className={styles.avatar} src={avatarSrc} alt={fullName} />
-              ) : (
-                <div className={styles.avatarPlaceholder}>Фото</div>
-              )}
-            </div>
+                  <label className={styles.uploadBtn}>
+                    Загрузить
+                    <input
+                      className={styles.fileInput}
+                      type="file"
+                      accept="image/*"
+                      onChange={handleAvatarChange}
+                    />
+                  </label>
+                </div>
 
-            <div className={styles.fullName}>{fullName}</div>
-
-            {isEditing ? (
-              <div className={styles.fieldActions}>
-                <label className={styles.secondaryBtn}>
-                  Изменить фото
-                  <input
-                    className={styles.fileInput}
-                    type="file"
-                    accept="image/*"
-                    onChange={handleAvatarChange}
-                  />
-                </label>
-              </div>
-            ) : null}
-
-            <div className={styles.note}>
-              Данные профиля клиента используются в заказах и при общении со
-              специалистами.
-            </div>
-          </div>
-
-          <div className={styles.fieldsCol}>
-            <div>
-              <div className={styles.label}>ФИО</div>
-
-              {isEditing ? (
-                <div className={styles.nameRow}>
-                  <input
-                    className={styles.input}
-                    value={profileStore.draftLastName}
-                    onChange={(event) =>
-                      profileStore.setDraftLastName(event.target.value)
-                    }
-                    placeholder="Фамилия"
-                    required
-                  />
-
+                <div className={styles.nameFields}>
                   <input
                     className={styles.input}
                     value={profileStore.draftFirstName}
@@ -143,111 +133,144 @@ export const ProfileMainCard = observer((): ReactElement => {
 
                   <input
                     className={styles.input}
+                    value={profileStore.draftLastName}
+                    onChange={(event) =>
+                      profileStore.setDraftLastName(event.target.value)
+                    }
+                    placeholder="Фамилия"
+                    required
+                  />
+
+                  <input
+                    className={styles.input}
                     value={profileStore.draftMiddleName}
                     onChange={(event) =>
                       profileStore.setDraftMiddleName(event.target.value)
                     }
-                    placeholder="Отчество"
+                    placeholder="Отчество (не обязательно)"
                   />
                 </div>
-              ) : (
-                <div className={styles.value}>{fullName || '—'}</div>
-              )}
-            </div>
-
-            <div>
-              <div className={styles.label}>Город</div>
-
-              {isEditing ? (
-                <LocalitySuggestInput
-                  id="profile-client-city"
-                  value={profileStore.draftCity}
-                  onChange={(next) => profileStore.setDraftCity(next)}
-                  placeholder="Начните вводить название…"
-                  inputClassName={styles.input}
-                  required
-                />
-              ) : (
-                <div className={styles.value}>{profile.city || '—'}</div>
-              )}
-            </div>
-
-            <div>
-              <div className={styles.label}>Телефон</div>
-
-              {isEditing ? (
-                <input
-                  className={styles.input}
-                  value={profileStore.draftPhone}
-                  onChange={(event) => profileStore.setDraftPhone(event.target.value)}
-                  placeholder="+7 ..."
-                  required
-                />
-              ) : (
-                <div className={styles.value}>{profile.phone || '—'}</div>
-              )}
-            </div>
-
-            <div>
-              <div className={styles.label}>Почта</div>
-              <div className={styles.value}>{profile.email || '—'}</div>
-              <div className={styles.muted}>Нужен код подтверждения.</div>
-            </div>
-
-            <div>
-              <div className={styles.label}>Пароль</div>
-              <div className={styles.value}>••••••••</div>
-              <div className={styles.muted}>
-                Смена пароля находится в разделе безопасности.
               </div>
-            </div>
 
-            <div className={styles.securityBtns}>
-              <Link className={styles.secondaryBtn} to="/profile/security/email">
-                Сменить почту
-              </Link>
+              <div className={styles.editFields}>
+                <div className={styles.editFieldRow}>
+                  <label className={styles.editLabel} htmlFor="profile-client-city">
+                    Город:
+                  </label>
 
-              <Link className={styles.secondaryBtn} to="/profile/security/password">
-                Сменить пароль
-              </Link>
+                  <LocalitySuggestInput
+                    id="profile-client-city"
+                    value={profileStore.draftCity}
+                    onChange={(next) => profileStore.setDraftCity(next)}
+                    placeholder="Город"
+                    inputClassName={styles.input}
+                    required
+                  />
+                </div>
 
-              <Link className={styles.dangerLink} to="/account/delete">
-                Удалить аккаунт
-              </Link>
-            </div>
+                <div className={styles.editFieldRow}>
+                  <div className={styles.editLabel}>Район:</div>
+                  <div className={styles.inputLike}>—</div>
+                </div>
 
-            {isEditing ? (
+                <div className={styles.editFieldRow}>
+                  <label className={styles.editLabel} htmlFor="profile-client-phone">
+                    Телефон:
+                  </label>
+
+                  <input
+                    id="profile-client-phone"
+                    className={styles.input}
+                    value={profileStore.draftPhone}
+                    onChange={(event) =>
+                      profileStore.setDraftPhone(event.target.value)
+                    }
+                    placeholder="+7 ..."
+                    required
+                  />
+                </div>
+
+                <div className={styles.editFieldRow}>
+                  <div className={styles.editLabel}>Email:</div>
+                  <div className={styles.inputLike}>{profile.email || '—'}</div>
+                </div>
+              </div>
+
+              {profileStore.saveError ? (
+                <div className={styles.error}>{profileStore.saveError}</div>
+              ) : null}
+
+              {profileStore.saveSuccess ? (
+                <div className={styles.success}>Данные сохранены.</div>
+              ) : null}
+
               <div className={styles.actions}>
-                {profileStore.saveError ? (
-                  <div className={styles.error}>{profileStore.saveError}</div>
-                ) : null}
-
-                {profileStore.saveSuccess ? (
-                  <div className={styles.success}>Данные сохранены.</div>
-                ) : null}
-
                 <button
-                  className={styles.primaryBtn}
-                  type="button"
-                  disabled={profileStore.saveLoading}
-                  onClick={() => void profileStore.save()}
-                >
-                  {profileStore.saveLoading ? 'Сохраняем...' : 'Сохранить'}
-                </button>
-
-                <button
-                  className={styles.secondaryBtn}
+                  className={styles.cancelBtn}
                   type="button"
                   disabled={profileStore.saveLoading}
                   onClick={() => profileStore.cancelEdit()}
                 >
                   Отмена
                 </button>
+
+                <button
+                  className={styles.saveBtn}
+                  type="button"
+                  disabled={profileStore.saveLoading}
+                  onClick={() => void profileStore.save()}
+                >
+                  {profileStore.saveLoading ? 'Сохраняем...' : 'Сохранить'}
+                </button>
               </div>
-            ) : null}
-          </div>
-        </div>
-      ) : null}
-    </section>
-  );
-});
+            </div>
+          ) : (
+            <div className={styles.viewContent}>
+              <div className={styles.avatarWrap}>
+                {avatarSrc ? (
+                  <img className={styles.avatar} src={avatarSrc} alt={fullName} />
+                ) : (
+                  <div className={styles.avatarPlaceholder}>Фото</div>
+                )}
+              </div>
+
+              <div className={styles.viewInfo}>
+                <div className={styles.fullName}>{fullName || '—'}</div>
+
+                <div className={styles.metaList}>
+                  <div className={styles.metaRow}>
+                    <span className={styles.metaLabel}>Город:</span>
+                    <span className={styles.metaValue}>{profile.city || '—'}</span>
+                  </div>
+
+                  <div className={styles.metaRow}>
+                    <span className={styles.metaLabel}>Район:</span>
+                    <span className={styles.metaValue}>—</span>
+                  </div>
+
+                  {isOwnerMode ? (
+                    <>
+                      <div className={styles.metaRow}>
+                        <span className={styles.metaLabel}>Телефон:</span>
+                        <span className={styles.metaValueMuted}>
+                          {profile.phone || '—'}
+                        </span>
+                      </div>
+
+                      <div className={styles.metaRow}>
+                        <span className={styles.metaLabel}>Email:</span>
+                        <span className={styles.metaValueMuted}>
+                          {profile.email || '—'}
+                        </span>
+                      </div>
+                    </>
+                  ) : null}
+                </div>
+              </div>
+            </div>
+          )
+        ) : null}
+      </section>
+    );
+  },
+);

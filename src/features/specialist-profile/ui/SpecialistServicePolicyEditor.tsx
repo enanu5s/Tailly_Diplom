@@ -41,6 +41,7 @@ type EditableServiceFormItem = {
   id: string;
   name: string;
   locationLabel: string;
+  description: string;
   price: string;
   priceUnit: SpecialistServicePriceUnit;
   bookingPolicy: EditableServiceBookingPolicyForm;
@@ -162,6 +163,15 @@ export function SpecialistServicePolicyEditor({
             onSetServiceField(index, 'locationLabel', event.target.value)
           }
           placeholder="Где проходит услуга"
+        />
+
+        <input
+          className={styles.input}
+          value={service.description}
+          onChange={(event) =>
+            onSetServiceField(index, 'description', event.target.value)
+          }
+          placeholder="Описание услуги для клиента"
         />
 
         <input

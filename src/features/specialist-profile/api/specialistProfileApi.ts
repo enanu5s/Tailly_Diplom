@@ -18,8 +18,56 @@ import type {
   SpecialistDetailsUpdatePayload,
   SpecialistMainInfoUpdatePayload,
   SpecialistProfileResponse,
+  SpecialistService,
   SpecialistReviewReplyUpsertPayload,
 } from '../model/types';
+
+function buildServiceDescription(service: SpecialistService): string {
+  const provided = service.description?.trim();
+  if (provided) {
+    return provided;
+  }
+
+  const name = service.name.trim().toLowerCase();
+  const location = service.locationLabel.trim() || 'по согласованию';
+
+  if (name.includes('прогул')) {
+    const duration = service.bookingPolicy?.duration.defaultDurationMinutes;
+    const durationSuffix =
+      typeof duration === 'number' && duration > 0 ? `, длительность ${duration} минут.` : '.';
+    return `Прогулка с собакой ${location.toLowerCase()}${durationSuffix}`;
+  }
+
+  if (name.includes('передерж')) {
+    const minStay = service.bookingPolicy?.multiDay?.minStayDays;
+    const maxStay = service.bookingPolicy?.multiDay?.maxStayDays;
+    if (typeof minStay === 'number' && typeof maxStay === 'number') {
+      return `Передержка осуществляется у специалиста или у клиента. Срок передержки: от ${minStay} до ${maxStay} дней.`;
+    }
+    return `Передержка осуществляется ${location.toLowerCase()}.`;
+  }
+
+  if (name.includes('дрес')) {
+    const duration = service.bookingPolicy?.duration.defaultDurationMinutes;
+    const durationSuffix =
+      typeof duration === 'number' && duration > 0 ? `. Длительность ${duration} минут.` : '.';
+    return `Дресировка вашего питомца ${location.toLowerCase()}. Помогу разобраться в поведении вашего любимца${durationSuffix}`;
+  }
+
+  return location;
+}
+
+function normalizeProfileResponse(
+  response: SpecialistProfileResponse,
+): SpecialistProfileResponse {
+  return {
+    ...response,
+    services: response.services.map((service) => ({
+      ...service,
+      description: buildServiceDescription(service),
+    })),
+  };
+}
 
 async function realGetSpecialistProfileBySlug(
   slug: string,
@@ -99,17 +147,17 @@ export const specialistProfileApi = {
   async getBySlug(slug: string): Promise<SpecialistProfileResponse> {
     if (isMockApiMode) {
       mockDataSourceStore.setSource('specialists/profile', true);
-      return mockGetSpecialistProfileBySlug(slug);
+      return normalizeProfileResponse(await mockGetSpecialistProfileBySlug(slug));
     }
 
     try {
       const data = await realGetSpecialistProfileBySlug(slug);
       mockDataSourceStore.setSource('specialists/profile', false);
-      return data;
+      return normalizeProfileResponse(data);
     } catch (error) {
       if (shouldFallbackToMock(error)) {
         mockDataSourceStore.setSource('specialists/profile', true);
-        return mockGetSpecialistProfileBySlug(slug);
+        return normalizeProfileResponse(await mockGetSpecialistProfileBySlug(slug));
       }
 
       throw error;
@@ -119,17 +167,17 @@ export const specialistProfileApi = {
   async getById(id: string): Promise<SpecialistProfileResponse> {
     if (isMockApiMode) {
       mockDataSourceStore.setSource('specialists/profile', true);
-      return mockGetSpecialistProfileById(id);
+      return normalizeProfileResponse(await mockGetSpecialistProfileById(id));
     }
 
     try {
       const data = await realGetSpecialistProfileById(id);
       mockDataSourceStore.setSource('specialists/profile', false);
-      return data;
+      return normalizeProfileResponse(data);
     } catch (error) {
       if (shouldFallbackToMock(error)) {
         mockDataSourceStore.setSource('specialists/profile', true);
-        return mockGetSpecialistProfileById(id);
+        return normalizeProfileResponse(await mockGetSpecialistProfileById(id));
       }
 
       throw error;
@@ -141,16 +189,18 @@ export const specialistProfileApi = {
     payload: SpecialistMainInfoUpdatePayload,
   ): Promise<SpecialistProfileResponse> {
     if (isMockApiMode) {
-      return mockUpdateMainInfo(slug, payload);
+      return mockUpdateMainInfo(slug, payload).then(normalizeProfileResponse);
     }
 
-    return realUpdateMainInfo(slug, payload).catch((error) => {
-      if (shouldFallbackToMock(error)) {
-        return mockUpdateMainInfo(slug, payload);
-      }
+    return realUpdateMainInfo(slug, payload)
+      .then(normalizeProfileResponse)
+      .catch((error) => {
+        if (shouldFallbackToMock(error)) {
+          return mockUpdateMainInfo(slug, payload).then(normalizeProfileResponse);
+        }
 
-      throw error;
-    });
+        throw error;
+      });
   },
 
   updateDetails(
@@ -158,16 +208,18 @@ export const specialistProfileApi = {
     payload: SpecialistDetailsUpdatePayload,
   ): Promise<SpecialistProfileResponse> {
     if (isMockApiMode) {
-      return mockUpdateDetails(slug, payload);
+      return mockUpdateDetails(slug, payload).then(normalizeProfileResponse);
     }
 
-    return realUpdateDetails(slug, payload).catch((error) => {
-      if (shouldFallbackToMock(error)) {
-        return mockUpdateDetails(slug, payload);
-      }
+    return realUpdateDetails(slug, payload)
+      .then(normalizeProfileResponse)
+      .catch((error) => {
+        if (shouldFallbackToMock(error)) {
+          return mockUpdateDetails(slug, payload).then(normalizeProfileResponse);
+        }
 
-      throw error;
-    });
+        throw error;
+      });
   },
 
   updateCalendar(
@@ -175,16 +227,18 @@ export const specialistProfileApi = {
     payload: SpecialistCalendarUpdatePayload,
   ): Promise<SpecialistProfileResponse> {
     if (isMockApiMode) {
-      return mockUpdateCalendar(slug, payload);
+      return mockUpdateCalendar(slug, payload).then(normalizeProfileResponse);
     }
 
-    return realUpdateCalendar(slug, payload).catch((error) => {
-      if (shouldFallbackToMock(error)) {
-        return mockUpdateCalendar(slug, payload);
-      }
+    return realUpdateCalendar(slug, payload)
+      .then(normalizeProfileResponse)
+      .catch((error) => {
+        if (shouldFallbackToMock(error)) {
+          return mockUpdateCalendar(slug, payload).then(normalizeProfileResponse);
+        }
 
-      throw error;
-    });
+        throw error;
+      });
   },
 
   upsertReviewReply(
@@ -192,15 +246,17 @@ export const specialistProfileApi = {
     payload: SpecialistReviewReplyUpsertPayload,
   ): Promise<SpecialistProfileResponse> {
     if (isMockApiMode) {
-      return mockUpsertReviewReply(slug, payload);
+      return mockUpsertReviewReply(slug, payload).then(normalizeProfileResponse);
     }
 
-    return realUpsertReviewReply(slug, payload).catch((error) => {
-      if (shouldFallbackToMock(error)) {
-        return mockUpsertReviewReply(slug, payload);
-      }
+    return realUpsertReviewReply(slug, payload)
+      .then(normalizeProfileResponse)
+      .catch((error) => {
+        if (shouldFallbackToMock(error)) {
+          return mockUpsertReviewReply(slug, payload).then(normalizeProfileResponse);
+        }
 
-      throw error;
-    });
+        throw error;
+      });
   },
 };
