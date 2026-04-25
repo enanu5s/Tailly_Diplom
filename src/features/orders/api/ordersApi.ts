@@ -1,10 +1,10 @@
 // src/features/orders/api/ordersApi.ts
 
+import { authStore } from '@/features/auth/model/authStore';
 import { HttpError, request } from '@/shared/api/http';
 import { isMockApiMode } from '@/shared/config/env';
 import { hasUsableAccessToken } from '@/shared/lib/auth/hasUsableAccessToken';
 import { mockDataSourceStore } from '@/shared/lib/mock/mockDataSourceStore';
-import { authStore } from '@/features/auth/model/authStore';
 
 import {
   mockCancelProductOrder,
@@ -19,6 +19,8 @@ import {
   mockLeaveServiceReview,
   mockRepeatProductOrder,
   mockRepeatServiceOrder,
+  mockSyncProductOrderStatus,
+  mockSyncProductOrdersStatuses,
   mockStartServiceOrder,
 } from './ordersApi.mock';
 
@@ -100,6 +102,18 @@ async function realGetProductOrders(): Promise<ProductOrder[]> {
 
 async function realGetProductOrderById(orderId: string): Promise<ProductOrder> {
   return request<ProductOrder>(`/me/orders/products/${encodeURIComponent(orderId)}`);
+}
+
+async function realSyncProductOrdersStatuses(): Promise<ProductOrder[]> {
+  return request<ProductOrder[]>('/me/orders/products/sync', {
+    method: 'POST',
+  });
+}
+
+async function realSyncProductOrderStatus(orderId: string): Promise<ProductOrder> {
+  return request<ProductOrder>(`/me/orders/products/${encodeURIComponent(orderId)}/sync`, {
+    method: 'POST',
+  });
 }
 
 async function realCancelProductOrder(orderId: string): Promise<CancelOrderResult> {
@@ -302,6 +316,40 @@ export const ordersApi = {
       if (shouldFallbackToMock(error)) {
         console.warn('[ordersApi.getProductOrderById] falling back to mock:', error);
         return mockGetProductOrderById(orderId);
+      }
+
+      throw error;
+    }
+  },
+
+  async syncProductOrdersStatuses(): Promise<ProductOrder[]> {
+    if (isMockApiMode || !hasUsableAccessToken(authStore.getToken())) {
+      return mockSyncProductOrdersStatuses();
+    }
+
+    try {
+      return await realSyncProductOrdersStatuses();
+    } catch (error) {
+      if (shouldFallbackToMock(error)) {
+        console.warn('[ordersApi.syncProductOrdersStatuses] falling back to mock:', error);
+        return mockSyncProductOrdersStatuses();
+      }
+
+      throw error;
+    }
+  },
+
+  async syncProductOrderStatus(orderId: string): Promise<ProductOrder> {
+    if (isMockApiMode) {
+      return mockSyncProductOrderStatus(orderId);
+    }
+
+    try {
+      return await realSyncProductOrderStatus(orderId);
+    } catch (error) {
+      if (shouldFallbackToMock(error)) {
+        console.warn('[ordersApi.syncProductOrderStatus] falling back to mock:', error);
+        return mockSyncProductOrderStatus(orderId);
       }
 
       throw error;

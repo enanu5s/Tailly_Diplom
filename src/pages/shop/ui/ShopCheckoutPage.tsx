@@ -1,3 +1,4 @@
+// src/pages/shop/ui/ShopCheckoutPage.tsx
 import { observer } from 'mobx-react-lite';
 import { useEffect } from 'react';
 import { Link, useLocation } from 'react-router-dom';
@@ -8,6 +9,15 @@ import { ProductBackButton } from '@/features/shop/ui';
 import { useAppNavigate } from '@/shared/lib/navigation/useAppNavigate';
 
 import styles from './ShopCheckoutPage.module.css';
+
+const CHECKOUT_ICONS = {
+  deliveryCourier: '/images/shop-checkout/carbon_delivery.svg',
+  deliveryPickup: '/images/shop-checkout/teenyicons_shop-outline.svg',
+  payCard: '/images/shop-checkout/mdi_account-credit-card-outline.svg',
+  paySbp: '/images/shop-checkout/f7_qrcode.svg',
+  payCardCourier: '/images/shop-checkout/ion_card-outline.svg',
+  payCash: '/images/shop-checkout/ph_money-light.svg',
+} as const;
 
 type ShopCheckoutPageLocationState = {
   from?: {
@@ -29,10 +39,7 @@ export const ShopCheckoutPage = observer(() => {
   const from = state?.from;
 
   useEffect(() => {
-    window.scrollTo({
-      top: 0,
-      behavior: 'auto',
-    });
+    window.scrollTo({ top: 0, behavior: 'auto' });
   }, []);
 
   useEffect(() => {
@@ -60,7 +67,6 @@ export const ShopCheckoutPage = observer(() => {
 
     if (order.paymentMethod === 'card' || order.paymentMethod === 'sbp') {
       navigate(`/shop/order/${order.id}/payment`);
-
       return;
     }
 
@@ -85,32 +91,15 @@ export const ShopCheckoutPage = observer(() => {
 
   return (
     <div className={styles.page}>
+      <div className={styles.blur} />
+
       <div className={styles.container}>
         <div className={styles.topBar}>
           <ProductBackButton from={from} fallbackPath="/shop/cart" />
         </div>
 
-        <div className={styles.breadcrumbs}>
-          <Link to="/" className={styles.breadcrumbLink}>
-            Главная
-          </Link>
-          <span className={styles.breadcrumbSeparator}>/</span>
-          <Link to="/shop" className={styles.breadcrumbLink}>
-            Магазин
-          </Link>
-          <span className={styles.breadcrumbSeparator}>/</span>
-          <Link to="/shop/cart" className={styles.breadcrumbLink}>
-            Корзина
-          </Link>
-          <span className={styles.breadcrumbSeparator}>/</span>
-          <span className={styles.breadcrumbCurrent}>Оформление заказа</span>
-        </div>
-
         <header className={styles.header}>
           <h1 className={styles.title}>Оформление заказа</h1>
-          <p className={styles.subtitle}>
-            Заполни данные для доставки и выбери способ оплаты.
-          </p>
         </header>
 
         {error ? <div className={styles.errorBanner}>{error}</div> : null}
@@ -144,7 +133,8 @@ export const ShopCheckoutPage = observer(() => {
             <section className={styles.formSection}>
               <div className={styles.block}>
                 <h2 className={styles.blockTitle}>Личные данные</h2>
-                <div className={styles.grid}>
+
+                <div className={styles.personalGrid}>
                   <label className={styles.field}>
                     <span className={styles.label}>Имя</span>
                     <input
@@ -156,7 +146,7 @@ export const ShopCheckoutPage = observer(() => {
                           event.target.value,
                         )
                       }
-                      placeholder="Иван"
+                      placeholder="Елена"
                     />
                     {validationErrors.firstName ? (
                       <span className={styles.fieldError}>
@@ -176,13 +166,18 @@ export const ShopCheckoutPage = observer(() => {
                           event.target.value,
                         )
                       }
-                      placeholder="Иванов"
+                      placeholder="Смирнова"
                     />
                     {validationErrors.lastName ? (
                       <span className={styles.fieldError}>
                         {validationErrors.lastName}
                       </span>
                     ) : null}
+                  </label>
+
+                  <label className={`${styles.field} ${styles.patronymicField}`}>
+                    <span className={styles.label}>Отчество (не обязательно)</span>
+                    <input className={styles.input} placeholder="" />
                   </label>
 
                   <label className={styles.field}>
@@ -193,7 +188,7 @@ export const ShopCheckoutPage = observer(() => {
                       onChange={(event) =>
                         shopCheckoutStore.setRecipientField('phone', event.target.value)
                       }
-                      placeholder="+7 (900) 000-00-00"
+                      placeholder="+7 (900) 000-00-20"
                     />
                     {validationErrors.phone ? (
                       <span className={styles.fieldError}>{validationErrors.phone}</span>
@@ -208,7 +203,7 @@ export const ShopCheckoutPage = observer(() => {
                       onChange={(event) =>
                         shopCheckoutStore.setRecipientField('email', event.target.value)
                       }
-                      placeholder="mail@example.com"
+                      placeholder="specialist@tailly.com"
                     />
                     {validationErrors.email ? (
                       <span className={styles.fieldError}>{validationErrors.email}</span>
@@ -221,144 +216,180 @@ export const ShopCheckoutPage = observer(() => {
                 <h2 className={styles.blockTitle}>Способ доставки</h2>
 
                 <div className={styles.options}>
-                  <label className={styles.optionCard}>
+                  <label
+                    className={`${styles.optionCard} ${
+                      form.deliveryMethod === 'courier' ? styles.deliveryActive : ''
+                    }`}
+                  >
                     <input
+                      className={styles.hiddenRadio}
                       type="radio"
                       checked={form.deliveryMethod === 'courier'}
                       onChange={() => {
                         void shopCheckoutStore.setDeliveryMethod('courier');
                       }}
                     />
+                    <span className={styles.optionIcon} aria-hidden>
+                      <img
+                        className={styles.optionIconImg}
+                        src={CHECKOUT_ICONS.deliveryCourier}
+                        alt=""
+                      />
+                    </span>
                     <span>Курьером</span>
                   </label>
 
-                  <label className={styles.optionCard}>
+                  <label
+                    className={`${styles.optionCard} ${
+                      form.deliveryMethod === 'pickup-point' ? styles.deliveryActive : ''
+                    }`}
+                  >
                     <input
+                      className={styles.hiddenRadio}
                       type="radio"
                       checked={form.deliveryMethod === 'pickup-point'}
                       onChange={() => {
                         void shopCheckoutStore.setDeliveryMethod('pickup-point');
                       }}
                     />
-                    <span>Забрать из ПВЗ СДЭК</span>
+                    <span className={styles.optionIcon} aria-hidden>
+                      <img
+                        className={styles.optionIconImg}
+                        src={CHECKOUT_ICONS.deliveryPickup}
+                        alt=""
+                      />
+                    </span>
+                    <span>Забрать из ПВЗ СДЕК</span>
                   </label>
                 </div>
 
-                <div className={styles.grid}>
-                  <label className={styles.field}>
-                    <span className={styles.label}>Город</span>
-                    <input
-                      className={styles.input}
-                      value={form.address.city}
-                      onChange={(event) =>
-                        shopCheckoutStore.setAddressField('city', event.target.value)
-                      }
-                      placeholder="Москва"
-                    />
-                    {validationErrors.city ? (
-                      <span className={styles.fieldError}>{validationErrors.city}</span>
-                    ) : null}
-                  </label>
+                {form.deliveryMethod === 'courier' ? (
+                  <div className={styles.deliveryGrid}>
+                    <label className={styles.field}>
+                      <span className={styles.label}>Город</span>
+                      <input
+                        className={styles.input}
+                        value={form.address.city}
+                        onChange={(event) =>
+                          shopCheckoutStore.setAddressField('city', event.target.value)
+                        }
+                        placeholder="Москва"
+                      />
+                      {validationErrors.city ? (
+                        <span className={styles.fieldError}>{validationErrors.city}</span>
+                      ) : null}
+                    </label>
 
-                  {form.deliveryMethod === 'courier' ? (
-                    <>
-                      <label className={styles.field}>
-                        <span className={styles.label}>Улица</span>
-                        <input
-                          className={styles.input}
-                          value={form.address.street}
-                          onChange={(event) =>
-                            shopCheckoutStore.setAddressField(
-                              'street',
-                              event.target.value,
-                            )
-                          }
-                          placeholder="Тверская"
-                        />
-                        {validationErrors.street ? (
-                          <span className={styles.fieldError}>
-                            {validationErrors.street}
-                          </span>
-                        ) : null}
-                      </label>
+                    <label className={`${styles.field} ${styles.streetField}`}>
+                      <span className={styles.label}>Улица</span>
+                      <input
+                        className={styles.input}
+                        value={form.address.street}
+                        onChange={(event) =>
+                          shopCheckoutStore.setAddressField('street', event.target.value)
+                        }
+                        placeholder="Тверская улица"
+                      />
+                      {validationErrors.street ? (
+                        <span className={styles.fieldError}>
+                          {validationErrors.street}
+                        </span>
+                      ) : null}
+                    </label>
 
-                      <label className={styles.field}>
-                        <span className={styles.label}>Дом</span>
-                        <input
-                          className={styles.input}
-                          value={form.address.house}
-                          onChange={(event) =>
-                            shopCheckoutStore.setAddressField('house', event.target.value)
-                          }
-                          placeholder="12"
-                        />
-                        {validationErrors.house ? (
-                          <span className={styles.fieldError}>
-                            {validationErrors.house}
-                          </span>
-                        ) : null}
-                      </label>
+                    <label className={styles.field}>
+                      <span className={styles.label}>Дом</span>
+                      <input
+                        className={styles.input}
+                        value={form.address.house}
+                        onChange={(event) =>
+                          shopCheckoutStore.setAddressField('house', event.target.value)
+                        }
+                        placeholder="124"
+                      />
+                      {validationErrors.house ? (
+                        <span className={styles.fieldError}>
+                          {validationErrors.house}
+                        </span>
+                      ) : null}
+                    </label>
 
-                      <label className={styles.field}>
-                        <span className={styles.label}>Квартира</span>
-                        <input
-                          className={styles.input}
-                          value={form.address.apartment}
-                          onChange={(event) =>
-                            shopCheckoutStore.setAddressField(
-                              'apartment',
-                              event.target.value,
-                            )
-                          }
-                          placeholder="45"
-                        />
-                      </label>
+                    <label className={styles.field}>
+                      <span className={styles.label}>Корпус</span>
+                      <input className={styles.input} placeholder="1" />
+                    </label>
 
-                      <label className={`${styles.field} ${styles.fieldFull}`}>
-                        <span className={styles.label}>Комментарий для курьера</span>
-                        <textarea
-                          className={styles.textarea}
-                          value={form.address.comment}
-                          onChange={(event) =>
-                            shopCheckoutStore.setAddressField(
-                              'comment',
-                              event.target.value,
-                            )
-                          }
-                          placeholder="Домофон, подъезд, этаж"
-                        />
-                      </label>
-                    </>
-                  ) : (
-                    <label className={`${styles.field} ${styles.fieldFull}`}>
-                      <span className={styles.label}>ПВЗ СДЭК</span>
-                      <div className={styles.inlineActions}>
-                        <select
-                          className={styles.select}
-                          value={form.pickupPointId ?? ''}
-                          onChange={(event) =>
-                            shopCheckoutStore.setPickupPointId(event.target.value)
-                          }
-                          disabled={isPickupPointsLoading}
-                        >
-                          {pickupPoints.map((point) => (
-                            <option key={point.id} value={point.id}>
-                              {point.title} — {point.address}
-                            </option>
-                          ))}
-                        </select>
+                    <label className={styles.field}>
+                      <span className={styles.label}>Подъезд</span>
+                      <input className={styles.input} placeholder="3" />
+                    </label>
 
-                        <button
-                          className={styles.secondaryButton}
-                          type="button"
-                          onClick={() => {
-                            void shopCheckoutStore.loadPickupPoints();
-                          }}
-                          disabled={isPickupPointsLoading}
-                        >
-                          Обновить ПВЗ
-                        </button>
-                      </div>
+                    <label className={styles.field}>
+                      <span className={styles.label}>Этаж</span>
+                      <input className={styles.input} placeholder="12" />
+                    </label>
+
+                    <label className={styles.field}>
+                      <span className={styles.label}>Квартира</span>
+                      <input
+                        className={styles.input}
+                        value={form.address.apartment}
+                        onChange={(event) =>
+                          shopCheckoutStore.setAddressField(
+                            'apartment',
+                            event.target.value,
+                          )
+                        }
+                        placeholder="234"
+                      />
+                    </label>
+
+                    <label className={`${styles.field} ${styles.commentField}`}>
+                      <span className={styles.label}>Комментарий для курьера</span>
+                      <textarea
+                        className={styles.textarea}
+                        value={form.address.comment}
+                        onChange={(event) =>
+                          shopCheckoutStore.setAddressField('comment', event.target.value)
+                        }
+                        placeholder="Например: Нет доступа к шлагбауму"
+                      />
+                    </label>
+                  </div>
+                ) : (
+                  <div className={styles.pickupBlock}>
+                    <label className={styles.field}>
+                      <span className={styles.label}>Город</span>
+                      <input
+                        className={styles.input}
+                        value={form.address.city}
+                        onChange={(event) =>
+                          shopCheckoutStore.setAddressField('city', event.target.value)
+                        }
+                        placeholder="Москва"
+                      />
+                      {validationErrors.city ? (
+                        <span className={styles.fieldError}>{validationErrors.city}</span>
+                      ) : null}
+                    </label>
+
+                    <label className={`${styles.field} ${styles.pickupPointField}`}>
+                      <span className={styles.label}>ПВЗ СДЕК</span>
+
+                      <select
+                        className={styles.select}
+                        value={form.pickupPointId ?? ''}
+                        onChange={(event) =>
+                          shopCheckoutStore.setPickupPointId(event.target.value)
+                        }
+                        disabled={isPickupPointsLoading}
+                      >
+                        {pickupPoints.map((point) => (
+                          <option key={point.id} value={point.id}>
+                            {point.title} — {point.address}
+                          </option>
+                        ))}
+                      </select>
 
                       {validationErrors.pickupPointId ? (
                         <span className={styles.fieldError}>
@@ -370,45 +401,105 @@ export const ShopCheckoutPage = observer(() => {
                         <span className={styles.fieldError}>{pickupPointsError}</span>
                       ) : null}
                     </label>
-                  )}
-                </div>
+                  </div>
+                )}
               </div>
 
               <div className={styles.block}>
                 <h2 className={styles.blockTitle}>Способ оплаты</h2>
 
-                <div className={styles.options}>
-                  <label className={styles.optionCard}>
+                <div className={styles.paymentOptions}>
+                  <label
+                    className={`${styles.optionCard} ${
+                      form.paymentMethod === 'card' ? styles.paymentActive : ''
+                    }`}
+                  >
                     <input
+                      className={styles.hiddenRadio}
                       type="radio"
                       checked={form.paymentMethod === 'card'}
                       onChange={() => shopCheckoutStore.setPaymentMethod('card')}
                     />
+                    <span className={styles.optionIcon} aria-hidden>
+                      <img
+                        className={styles.optionIconImg}
+                        src={CHECKOUT_ICONS.payCard}
+                        alt=""
+                      />
+                    </span>
                     <span>Карта</span>
                   </label>
 
-                  <label className={styles.optionCard}>
+                  <label
+                    className={`${styles.optionCard} ${
+                      form.paymentMethod === 'sbp' ? styles.paymentActive : ''
+                    }`}
+                  >
                     <input
+                      className={styles.hiddenRadio}
                       type="radio"
                       checked={form.paymentMethod === 'sbp'}
                       onChange={() => shopCheckoutStore.setPaymentMethod('sbp')}
                     />
+                    <span className={styles.optionIcon} aria-hidden>
+                      <img
+                        className={styles.optionIconImg}
+                        src={CHECKOUT_ICONS.paySbp}
+                        alt=""
+                      />
+                    </span>
                     <span>СБП</span>
                   </label>
 
                   <label
                     className={`${styles.optionCard} ${
+                      form.paymentMethod === 'card_courier' ? styles.paymentActive : ''
+                    } ${
                       form.deliveryMethod === 'pickup-point'
                         ? styles.optionCardDisabled
                         : ''
                     }`}
                   >
                     <input
+                      className={styles.hiddenRadio}
+                      type="radio"
+                      checked={form.paymentMethod === 'card_courier'}
+                      onChange={() => shopCheckoutStore.setPaymentMethod('card_courier')}
+                      disabled={form.deliveryMethod === 'pickup-point'}
+                    />
+                    <span className={styles.optionIcon} aria-hidden>
+                      <img
+                        className={styles.optionIconImg}
+                        src={CHECKOUT_ICONS.payCardCourier}
+                        alt=""
+                      />
+                    </span>
+                    <span>Картой курьеру</span>
+                  </label>
+
+                  <label
+                    className={`${styles.optionCard} ${
+                      form.paymentMethod === 'cash' ? styles.paymentActive : ''
+                    } ${
+                      form.deliveryMethod === 'pickup-point'
+                        ? styles.optionCardDisabled
+                        : ''
+                    }`}
+                  >
+                    <input
+                      className={styles.hiddenRadio}
                       type="radio"
                       checked={form.paymentMethod === 'cash'}
                       onChange={() => shopCheckoutStore.setPaymentMethod('cash')}
                       disabled={form.deliveryMethod === 'pickup-point'}
                     />
+                    <span className={styles.optionIcon} aria-hidden>
+                      <img
+                        className={styles.optionIconImg}
+                        src={CHECKOUT_ICONS.payCash}
+                        alt=""
+                      />
+                    </span>
                     <span>Наличными курьеру</span>
                   </label>
                 </div>
@@ -428,6 +519,7 @@ export const ShopCheckoutPage = observer(() => {
                         </span>
                         <span className={styles.summaryItemQty}>{item.quantity} шт.</span>
                       </div>
+
                       <span className={styles.summaryItemPrice}>
                         {formatPrice(item.lineTotal)}
                       </span>
@@ -435,15 +527,19 @@ export const ShopCheckoutPage = observer(() => {
                   ))}
                 </div>
 
+                <div className={styles.summaryDivider} />
+
                 <div className={styles.summaryTotals}>
                   <div className={styles.summaryRow}>
-                    <span>Товаров</span>
-                    <span>{totalItems}</span>
+                    <span>Количество товаров</span>
+                    <strong>{totalItems} шт.</strong>
                   </div>
 
                   <div className={styles.summaryRow}>
-                    <span>Итого</span>
-                    <strong>{formatPrice(totalPrice)}</strong>
+                    <span>Итоговая сумма</span>
+                    <strong className={styles.totalPrice}>
+                      {formatPrice(totalPrice)}
+                    </strong>
                   </div>
                 </div>
 
@@ -458,7 +554,7 @@ export const ShopCheckoutPage = observer(() => {
                   {isSubmitting
                     ? 'Оформляем заказ...'
                     : form.paymentMethod === 'card' || form.paymentMethod === 'sbp'
-                      ? 'Перейти к оплате'
+                      ? 'Перейти к оформлению'
                       : 'Подтвердить заказ'}
                 </button>
               </div>

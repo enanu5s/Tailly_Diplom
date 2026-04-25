@@ -220,7 +220,7 @@ export type ProductOrderDelivery = {
 };
 
 export type ProductOrderPayment = {
-  method: 'card' | 'sbp' | 'cash_on_delivery';
+  method: 'card' | 'sbp' | 'cash_on_delivery' | 'card_on_delivery';
   status: 'pending' | 'paid' | 'refunded';
 };
 
@@ -241,6 +241,8 @@ export type ProductOrder = {
   productThumbs?: string[];
   /** В mock — для фильтрации списка по текущему пользователю */
   ownerUserId?: string;
+  /** Актуальная возможность отмены (если приходит из API) */
+  canBeCancelled?: boolean;
 
   items: ProductOrderItem[];
 
@@ -292,7 +294,13 @@ export function isProductOrderActive(order: ProductOrder): boolean {
   );
 }
 
-export function canCancelProductOrder(order: ProductOrder): boolean {
+export function canCancelProductOrder(
+  order: Pick<ProductOrder, 'status' | 'canBeCancelled'>,
+): boolean {
+  if (order.canBeCancelled === false) {
+    return false;
+  }
+
   return order.status === 'created' || order.status === 'paid';
 }
 

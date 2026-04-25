@@ -7,10 +7,6 @@ import {
   isAdminRole,
 } from '@/shared/lib/auth/roleAccess';
 
-/**
- * Корзина магазина — только для клиента и специалиста (как оформление заказа).
- * Гость перенаправляется на вход; администратор — в админ-панель.
- */
 export function ShopCartAuthGuard() {
   const location = useLocation();
   const { isAuth, user } = useAuth();

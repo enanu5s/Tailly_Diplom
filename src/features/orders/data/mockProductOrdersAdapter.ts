@@ -65,6 +65,7 @@ export function readProductOrdersFromShop(): ProductOrder[] {
       currency: 'RUB',
       itemsCount: order.items.length,
       ownerUserId: order.ownerUserId,
+      canBeCancelled: order.canBeCancelled,
       productThumbs: order.items
         .map((item) => item.product.images[0]?.url ?? '')
         .filter((value): value is string => value.length > 0),
@@ -91,9 +92,11 @@ export function readProductOrdersFromShop(): ProductOrder[] {
         method:
           order.paymentMethod === 'cash'
             ? 'cash_on_delivery'
-            : order.paymentMethod === 'sbp'
-              ? 'sbp'
-              : 'card',
+            : order.paymentMethod === 'card_courier'
+              ? 'card_on_delivery'
+              : order.paymentMethod === 'sbp'
+                ? 'sbp'
+                : 'card',
         status:
           order.status === 'paid'
             ? 'paid'
@@ -126,7 +129,9 @@ export function readProductOrdersFromShop(): ProductOrder[] {
 function mapStatus(status: string): ProductOrder['status'] {
   if (status === 'created') return 'created';
   if (status === 'paid') return 'paid';
+  if (status === 'processing') return 'paid';
   if (status === 'delivering') return 'shipped';
+  if (status === 'ready-for-pickup') return 'shipped';
   if (status === 'completed') return 'delivered';
   if (status === 'cancelled') return 'canceled';
 

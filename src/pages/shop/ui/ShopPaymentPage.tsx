@@ -1,14 +1,30 @@
 // src/pages/shop/ui/ShopPaymentPage.tsx
 
-import { useCallback, useEffect, useState } from 'react';
-import { Link, useNavigate, useParams } from 'react-router-dom';
+import { useCallback, useEffect, useMemo, useState } from 'react';
+import { useNavigate, useParams } from 'react-router-dom';
 
-import type { Order, PaymentMethod } from '@/features/shop/model/types';
+import type { PayShopOrderPayload } from '@/features/shop/api/shopOrderApi';
+import type { Order } from '@/features/shop/model/types';
 import { shopOrderService } from '@/features/shop/service/shopOrderService';
 
 import styles from './ShopPaymentPage.module.css';
 
-type PayTab = 'card' | 'sbp';
+type PayTab = 'card' | 'sbp' | 'card_courier' | 'cash';
+
+const PAYMENT_TABS: Array<{ id: PayTab; label: string; iconSrc: string }> = [
+  { id: 'card', label: 'Карта', iconSrc: '/images/shop-checkout/ion_card-outline.svg' },
+  { id: 'sbp', label: 'СБП', iconSrc: '/images/shop-checkout/f7_qrcode.svg' },
+  {
+    id: 'card_courier',
+    label: 'Картой курьеру',
+    iconSrc: '/images/shop-checkout/ion_card-outline.svg',
+  },
+  {
+    id: 'cash',
+    label: 'Наличными курьеру',
+    iconSrc: '/images/shop-checkout/ph_money-light.svg',
+  },
+];
 
 export function ShopPaymentPage() {
   const { orderId } = useParams<{ orderId: string }>();
@@ -22,21 +38,18 @@ export function ShopPaymentPage() {
   const [cardNumber, setCardNumber] = useState('');
   const [cardExpiry, setCardExpiry] = useState('');
   const [cardCvc, setCardCvc] = useState('');
+  const [saveCard, setSaveCard] = useState(true);
   const [payError, setPayError] = useState<string | null>(null);
   const [isPaying, setIsPaying] = useState(false);
 
   useEffect(() => {
-    window.scrollTo({
-      top: 0,
-      behavior: 'auto',
-    });
+    window.scrollTo({ top: 0, behavior: 'auto' });
   }, []);
 
   useEffect(() => {
     if (!orderId) {
       setLoadError('Не указан номер заказа.');
       setIsLoading(false);
-
       return;
     }
 
@@ -56,34 +69,24 @@ export function ShopPaymentPage() {
         if (!loaded) {
           setLoadError('Заказ не найден.');
           setOrder(null);
-
-          return;
-        }
-
-        if (loaded.paymentMethod === 'cash') {
-          navigate(`/shop/order/${encodeURIComponent(orderId)}`, {
-            replace: true,
-          });
-
           return;
         }
 
         if (loaded.status === 'paid') {
-          navigate(`/shop/order/${encodeURIComponent(orderId)}`, {
-            replace: true,
-          });
-
+          navigate(`/shop/order/${encodeURIComponent(orderId)}`, { replace: true });
           return;
         }
 
         setOrder(loaded);
-        setTab(
-          loaded.paymentMethod === 'sbp'
-            ? 'sbp'
-            : loaded.paymentMethod === 'card'
-              ? 'card'
-              : 'card',
-        );
+
+        if (
+          loaded.paymentMethod === 'card' ||
+          loaded.paymentMethod === 'sbp' ||
+          loaded.paymentMethod === 'card_courier' ||
+          loaded.paymentMethod === 'cash'
+        ) {
+          setTab(loaded.paymentMethod);
+        }
       } catch {
         if (!cancelled) {
           setLoadError('Не удалось загрузить заказ.');
@@ -101,21 +104,43 @@ export function ShopPaymentPage() {
     };
   }, [navigate, orderId]);
 
+  const totalQuantity = useMemo(() => {
+    if (!order) {
+      return 0;
+    }
+
+    return order.items.reduce((sum, item) => sum + item.quantity, 0);
+  }, [order]);
+
+  const availableTabs = useMemo(() => {
+    if (order?.deliveryMethod === 'pickup-point') {
+      return PAYMENT_TABS.filter((item) => item.id === 'card' || item.id === 'sbp');
+    }
+
+    return PAYMENT_TABS;
+  }, [order?.deliveryMethod]);
+
+  useEffect(() => {
+    if (!availableTabs.some((item) => item.id === tab)) {
+      setTab('card');
+    }
+  }, [availableTabs, tab]);
+
   const digitsOnly = (value: string): string => value.replace(/\D/g, '');
 
   const cardValid =
     digitsOnly(cardNumber).length >= 16 &&
-    cardExpiry.trim().length >= 4 &&
+    cardExpiry.trim().length >= 5 &&
     digitsOnly(cardCvc).length >= 3;
 
-  const canSubmit = tab === 'sbp' ? true : cardValid;
+  const canSubmit = tab === 'card' ? cardValid : true;
 
   const handlePay = useCallback(async (): Promise<void> => {
-    if (!orderId || !order) {
+    if (!orderId || !order || !canSubmit) {
       return;
     }
 
-    const method: PaymentMethod = tab === 'sbp' ? 'sbp' : 'card';
+    const method: PayShopOrderPayload['paymentMethod'] = tab === 'sbp' ? 'sbp' : 'card';
 
     setPayError(null);
     setIsPaying(true);
@@ -128,7 +153,7 @@ export function ShopPaymentPage() {
     } finally {
       setIsPaying(false);
     }
-  }, [navigate, order, orderId, tab]);
+  }, [canSubmit, navigate, order, orderId, tab]);
 
   const formatCardInput = (raw: string): string => {
     const d = digitsOnly(raw).slice(0, 16);
@@ -151,165 +176,243 @@ export function ShopPaymentPage() {
     return `${d.slice(0, 2)}/${d.slice(2)}`;
   };
 
-  return (
-    <div className={styles.page}>
-      <div className={styles.container}>
-        <div className={styles.breadcrumbs}>
-          <Link to="/" className={styles.breadcrumbLink}>
-            Главная
-          </Link>
-          <span className={styles.breadcrumbSeparator}>/</span>
-          <Link to="/shop" className={styles.breadcrumbLink}>
-            Магазин
-          </Link>
-          <span className={styles.breadcrumbSeparator}>/</span>
-          {orderId ? (
-            <Link
-              to={`/shop/order/${encodeURIComponent(orderId)}`}
-              className={styles.breadcrumbLink}
-            >
-              Заказ
-            </Link>
-          ) : (
-            <span className={styles.breadcrumbLink}>Заказ</span>
-          )}
-          <span className={styles.breadcrumbSeparator}>/</span>
-          <span className={styles.breadcrumbCurrent}>Оплата</span>
-        </div>
+  const goBack = (): void => {
+    if (orderId) {
+      navigate(`/shop/order/${encodeURIComponent(orderId)}`);
+      return;
+    }
 
-        <header className={styles.header}>
-          <h1 className={styles.title}>Оплата заказа</h1>
-          <p className={styles.subtitle}>
-            Выберите способ оплаты и подтвердите платёж. Данные используются только для
-            демонстрации интерфейса.
-          </p>
-        </header>
+    navigate('/shop');
+  };
+
+  return (
+    <main className={styles.page}>
+      <div className={styles.blur} />
+
+      <div className={styles.container}>
+        <button type="button" className={styles.backButton} onClick={goBack}>
+          <span className={styles.backIcon}>←</span>
+          Назад
+        </button>
+
+        <h1 className={styles.title}>Оплата заказа</h1>
 
         {payError ? <div className={styles.errorBanner}>{payError}</div> : null}
 
         {isLoading ? (
-          <div className={styles.stateCard}>
+          <section className={styles.stateCard}>
             <h2 className={styles.stateTitle}>Загружаем заказ</h2>
             <p className={styles.stateText}>Подготавливаем данные для оплаты.</p>
-          </div>
+          </section>
         ) : null}
 
         {!isLoading && loadError ? (
-          <div className={styles.stateCard}>
+          <section className={styles.stateCard}>
             <h2 className={styles.stateTitle}>Оплата недоступна</h2>
             <p className={styles.stateText}>{loadError}</p>
-            <Link to="/shop" className={styles.primaryLink}>
+            <button type="button" className={styles.payButton} onClick={() => navigate('/shop')}>
               В каталог
-            </Link>
-          </div>
+            </button>
+          </section>
         ) : null}
 
         {!isLoading && !loadError && order ? (
           <div className={styles.layout}>
-            <section className={styles.mainCard}>
-              <p className={styles.orderMeta}>
-                Заказ <strong>{order.id}</strong>
-              </p>
+            <div className={styles.leftColumn}>
+              <section className={styles.methodCard}>
+                <h2 className={styles.sectionTitle}>Способ оплаты</h2>
 
-              <div className={styles.methodTabs}>
-                <button
-                  type="button"
-                  className={`${styles.methodTab} ${
-                    tab === 'card' ? styles.methodTabActive : ''
-                  }`}
-                  onClick={() => setTab('card')}
-                >
-                  Банковская карта
-                </button>
-                <button
-                  type="button"
-                  className={`${styles.methodTab} ${
-                    tab === 'sbp' ? styles.methodTabActive : ''
-                  }`}
-                  onClick={() => setTab('sbp')}
-                >
-                  СБП
-                </button>
-              </div>
+                <div className={styles.methodTabs}>
+                  {availableTabs.map((item) => (
+                    <button
+                      key={item.id}
+                      type="button"
+                      className={`${styles.methodTab} ${
+                        tab === item.id ? styles.methodTabActive : ''
+                      }`}
+                      onClick={() => setTab(item.id)}
+                    >
+                      <span className={styles.methodIcon} aria-hidden>
+                        <img className={styles.methodIconImg} src={item.iconSrc} alt="" />
+                      </span>
+                      {item.label}
+                    </button>
+                  ))}
+                </div>
+              </section>
 
               {tab === 'card' ? (
-                <div className={styles.panel}>
-                  <p className={styles.panelHint}>
-                    Введите реквизиты карты. В демо-режиме оплата проходит без списания
-                    средств.
+                <section className={styles.paymentCard}>
+                  <div className={styles.cardForm}>
+                    <h2 className={styles.sectionTitle}>Реквизиты карты</h2>
+
+                    <label className={styles.field}>
+                      <span className={styles.label}>Номер карты</span>
+                      <input
+                        className={styles.input}
+                        inputMode="numeric"
+                        autoComplete="cc-number"
+                        placeholder="0000 0000 0000 0000"
+                        value={cardNumber}
+                        onChange={(event) => setCardNumber(formatCardInput(event.target.value))}
+                      />
+                    </label>
+
+                    <div className={styles.inputRow}>
+                      <label className={styles.field}>
+                        <span className={styles.label}>Срок</span>
+                        <input
+                          className={styles.input}
+                          inputMode="numeric"
+                          autoComplete="cc-exp"
+                          placeholder="ММ/ГГ"
+                          value={cardExpiry}
+                          onChange={(event) =>
+                            setCardExpiry(formatExpiryInput(event.target.value))
+                          }
+                        />
+                      </label>
+
+                      <label className={styles.field}>
+                        <span className={styles.label}>CVC/CVV</span>
+                        <input
+                          className={styles.input}
+                          inputMode="numeric"
+                          autoComplete="cc-csc"
+                          placeholder="000"
+                          maxLength={4}
+                          value={cardCvc}
+                          onChange={(event) =>
+                            setCardCvc(digitsOnly(event.target.value).slice(0, 4))
+                          }
+                        />
+                      </label>
+                    </div>
+
+                    <label className={styles.checkboxLabel}>
+                      <input
+                        className={styles.checkboxInput}
+                        type="checkbox"
+                        checked={saveCard}
+                        onChange={(event) => setSaveCard(event.target.checked)}
+                      />
+                      <span className={styles.checkboxCustom} />
+                      <span>Сохранить реквизиты карты</span>
+                    </label>
+
+                    <button
+                      type="button"
+                      className={styles.payButton}
+                      disabled={!canSubmit || isPaying}
+                      onClick={() => {
+                        void handlePay();
+                      }}
+                    >
+                      {isPaying ? 'Обработка…' : `Оплатить ${formatPrice(order.totalPrice)}`}
+                    </button>
+                  </div>
+
+                  <div className={styles.illustration} aria-hidden="true">
+                    <img
+                      className={styles.illustrationImage}
+                      src="/images/shop-payment/Frame_480_card.png"
+                      alt=""
+                    />
+                  </div>
+                </section>
+              ) : null}
+
+              {tab === 'sbp' ? (
+                <section className={`${styles.paymentCard} ${styles.sbpCard}`}>
+                  <p className={styles.sbpHint}>
+                    Отсканируйте QR-код в приложении банка или подтвердите перевод по СБП
                   </p>
 
-                  <label className={styles.field}>
-                    <span className={styles.label}>Номер карты</span>
-                    <input
-                      className={styles.input}
-                      inputMode="numeric"
-                      autoComplete="cc-number"
-                      placeholder="0000 0000 0000 0000"
-                      value={cardNumber}
-                      onChange={(event) =>
-                        setCardNumber(formatCardInput(event.target.value))
-                      }
-                    />
-                  </label>
+                  <div className={styles.sbpContent}>
+                    <div className={styles.illustrationSbpLeft} aria-hidden="true">
+                      <img
+                        className={styles.sbpSideImage}
+                        src="/images/shop-payment/Group_sbp_men.png"
+                        alt=""
+                      />
+                    </div>
 
-                  <div className={styles.inputRow}>
-                    <label className={styles.field}>
-                      <span className={styles.label}>Срок (ММ/ГГ)</span>
-                      <input
-                        className={styles.input}
-                        inputMode="numeric"
-                        autoComplete="cc-exp"
-                        placeholder="ММ/ГГ"
-                        value={cardExpiry}
-                        onChange={(event) =>
-                          setCardExpiry(formatExpiryInput(event.target.value))
-                        }
+                    <div className={styles.qrFrame}>
+                      <img
+                        className={styles.qrCode}
+                        src="/images/shop-checkout/f7_qrcode.svg"
+                        alt=""
+                        aria-hidden="true"
                       />
-                    </label>
-                    <label className={styles.field}>
-                      <span className={styles.label}>CVC</span>
-                      <input
-                        className={styles.input}
-                        inputMode="numeric"
-                        autoComplete="cc-csc"
-                        placeholder="000"
-                        maxLength={4}
-                        value={cardCvc}
-                        onChange={(event) =>
-                          setCardCvc(digitsOnly(event.target.value).slice(0, 4))
-                        }
+                    </div>
+
+                    <div className={styles.illustrationSbpRight} aria-hidden="true">
+                      <img
+                        className={styles.sbpSideImage}
+                        src="/images/shop-payment/Group_sbp_women.png"
+                        alt=""
                       />
-                    </label>
+                    </div>
                   </div>
+                </section>
+              ) : null}
+
+              {tab === 'card_courier' || tab === 'cash' ? (
+                <section className={styles.paymentCard}>
+                  <h2 className={styles.sectionTitle}>
+                    {tab === 'card_courier' ? 'Оплата картой курьеру' : 'Оплата наличными курьеру'}
+                  </h2>
+                  <p className={styles.deliveryPayText}>
+                    Оплата будет произведена при получении заказа. Подтвердите выбранный способ
+                    оплаты, чтобы перейти к заказу.
+                  </p>
 
                   <button
                     type="button"
                     className={styles.payButton}
-                    disabled={!canSubmit || isPaying}
+                    disabled={isPaying}
                     onClick={() => {
                       void handlePay();
                     }}
                   >
-                    {isPaying
-                      ? 'Обработка…'
-                      : `Оплатить ${formatPrice(order.totalPrice)}`}
+                    {isPaying ? 'Сохраняем…' : 'Подтвердить способ оплаты'}
                   </button>
+                </section>
+              ) : null}
+            </div>
+
+            <aside className={styles.rightColumn}>
+              <section className={styles.summaryCard}>
+                <h2 className={styles.sectionTitle}>Ваш заказ</h2>
+
+                <div className={styles.summaryList}>
+                  {order.items.map((item) => (
+                    <div key={item.product.id} className={styles.summaryItem}>
+                      <div className={styles.summaryInfo}>
+                        <span className={styles.summaryName}>{item.product.title}</span>
+                        <span className={styles.summaryQty}>{item.quantity} шт.</span>
+                      </div>
+
+                      <span className={styles.summaryPrice}>{formatPrice(item.lineTotal)}</span>
+                    </div>
+                  ))}
                 </div>
-              ) : (
-                <div className={styles.panel}>
-                  <p className={styles.panelHint}>
-                    Отсканируйте QR-код в приложении банка или подтвердите перевод по СБП.
-                    Ниже — имитация экрана оплаты.
-                  </p>
 
-                  <div className={styles.sbpQr}>
-                    <div className={styles.sbpQrBox} aria-hidden />
-                    <p className={styles.sbpQrCaption}>
-                      После подтверждения в банке нажмите «Подтвердить оплату».
-                    </p>
-                  </div>
+                <div className={styles.summaryDivider} />
 
+                <div className={styles.summaryRow}>
+                  <span>Количество товаров</span>
+                  <strong>{totalQuantity} шт.</strong>
+                </div>
+
+                <div className={styles.summaryTotal}>
+                  <span>Итоговая сумма</span>
+                  <strong>{formatPrice(order.totalPrice)}</strong>
+                </div>
+              </section>
+
+              {tab === 'sbp' ? (
+                <div className={styles.sbpAsideAction}>
                   <button
                     type="button"
                     className={styles.payButton}
@@ -322,43 +425,17 @@ export function ShopPaymentPage() {
                       ? 'Проверяем оплату…'
                       : `Подтвердить оплату ${formatPrice(order.totalPrice)}`}
                   </button>
+
+                  <p className={styles.sbpAsideHint}>
+                    После подтверждения в банке нажмите «Подтвердить оплату»
+                  </p>
                 </div>
-              )}
-
-              <Link
-                to={`/shop/order/${encodeURIComponent(order.id)}`}
-                className={styles.secondaryLink}
-              >
-                Вернуться к заказу без оплаты
-              </Link>
-            </section>
-
-            <aside className={styles.summaryCard}>
-              <h2 className={styles.summaryTitle}>Состав</h2>
-              <div className={styles.summaryList}>
-                {order.items.map((item) => (
-                  <div key={item.product.id} className={styles.summaryItem}>
-                    <div className={styles.summaryItemMeta}>
-                      <span className={styles.summaryItemTitle}>
-                        {item.product.title}
-                      </span>
-                      <span className={styles.summaryItemQty}>{item.quantity} шт.</span>
-                    </div>
-                    <span className={styles.summaryItemPrice}>
-                      {formatPrice(item.lineTotal)}
-                    </span>
-                  </div>
-                ))}
-              </div>
-              <div className={styles.totalRow}>
-                <span>К оплате</span>
-                <strong>{formatPrice(order.totalPrice)}</strong>
-              </div>
+              ) : null}
             </aside>
           </div>
         ) : null}
       </div>
-    </div>
+    </main>
   );
 }
 

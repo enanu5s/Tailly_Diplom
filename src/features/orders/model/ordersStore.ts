@@ -138,6 +138,7 @@ export class OrdersStore {
     this.productsError = null;
 
     try {
+      await ordersService.syncProductOrdersStatuses();
       const list = await ordersService.getProductOrders();
 
       runInAction(() => {
@@ -158,6 +159,7 @@ export class OrdersStore {
     this.selectedProductError = null;
 
     try {
+      await ordersService.syncProductOrderStatus(orderId);
       const order = await ordersService.getProductOrderById(orderId);
 
       runInAction(() => {
@@ -170,6 +172,29 @@ export class OrdersStore {
           error instanceof Error ? error.message : 'Не удалось загрузить заказ товара';
         this.selectedProductLoading = false;
       });
+    }
+  }
+
+  async syncSelectedProductOrderStatus(): Promise<void> {
+    const current = this.selectedProductOrder;
+
+    if (!current) {
+      return;
+    }
+
+    try {
+      const synced = await ordersService.syncProductOrderStatus(current.id);
+
+      runInAction(() => {
+        this.selectedProductOrder = synced;
+
+        const index = this.productOrders.findIndex((item) => item.id === synced.id);
+        if (index !== -1) {
+          this.productOrders[index] = synced;
+        }
+      });
+    } catch {
+      // Фоновая синхронизация не должна ломать интерфейс ошибками.
     }
   }
 

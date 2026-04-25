@@ -313,7 +313,7 @@ export class ShopCheckoutStore {
     }
 
     if (value === 'pickup-point') {
-      if (this.form.paymentMethod === 'cash') {
+      if (this.form.paymentMethod === 'cash' || this.form.paymentMethod === 'card_courier') {
         this.form.paymentMethod = 'card';
       }
 

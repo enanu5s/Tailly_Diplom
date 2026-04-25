@@ -15,7 +15,7 @@ export type ProductSort =
 
 export type DeliveryMethod = 'courier' | 'pickup-point';
 
-export type PaymentMethod = 'card' | 'sbp' | 'cash';
+export type PaymentMethod = 'card' | 'sbp' | 'card_courier' | 'cash';
 
 export type OrderStatus =
   | 'created'

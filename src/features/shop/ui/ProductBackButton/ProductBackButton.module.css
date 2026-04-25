@@ -3,23 +3,27 @@
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  gap: 10px;
-  min-height: 40px;
+  gap: 12px;
+  min-width: 134px;
+  min-height: 45px;
   padding: 0 24px;
-  border: 1px solid #d9d0c5;
-  border-radius: 999px;
+  border: 1px solid #c7c2ba;
+  border-radius: 23px;
   background: #ffffff;
-  color: rgba(33, 21, 0, 0.72);
-  font-size: 14px;
-  font-weight: 500;
+  color: #6f685d;
+  font-family: 'Raleway', sans-serif;
+  font-size: 16px;
+  font-weight: 600;
+  line-height: 19px;
   cursor: pointer;
+  font-feature-settings: 'pnum' on, 'lnum' on;
 }
 
 .button:hover {
-  background: #fbf7ef;
+  background: #f8f8f8;
 }
 
 .arrow {
-  font-size: 18px;
+  font-size: 20px;
   line-height: 1;
 }

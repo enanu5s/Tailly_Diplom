@@ -1,23 +1,25 @@
 // src/features/orders/api/ordersApi.mock.ts
 
 import { authStore } from '@/features/auth/model/authStore';
-import { isClientBlockedFromBookingOwnSpecialist } from '@/shared/lib/auth/roleAccess';
 import { mockCancelOrder } from '@/features/shop/api/shopOrderApi.mock';
+import { readStoredOrders, writeStoredOrders } from '@/features/shop/data/mockShopOrders';
+import type { Order as ShopOrder } from '@/features/shop/model/types';
 import {
   MOCK_SPECIALIST_PROFILES,
   cloneProfile,
   findProfileIndexBySlug,
 } from '@/features/specialist-profile/data/mockSpecialistProfiles';
 import { computeSpecialistStats } from '@/features/specialist-profile/lib/computeSpecialistStats';
-import {
-  syncMockSpecialistCalendarSlotsFromProfile,
-  syncMockSpecialistListingStatsFromProfile,
-} from '@/features/specialists-search/data/mockSpecialists';
 import type {
   SpecialistCalendarBookedSlot,
   SpecialistReview,
   SpecialistService,
 } from '@/features/specialist-profile/model/types';
+import {
+  syncMockSpecialistCalendarSlotsFromProfile,
+  syncMockSpecialistListingStatsFromProfile,
+} from '@/features/specialists-search/data/mockSpecialists';
+import { isClientBlockedFromBookingOwnSpecialist } from '@/shared/lib/auth/roleAccess';
 import {
   notifyServiceOrderCreated,
   notifyServiceOrderStatusChanged,
@@ -34,6 +36,7 @@ import {
   readProductOrdersFromShop,
 } from '../data/mockProductOrdersAdapter';
 
+
 import type { ProductOrderRepeatCheckoutDraft } from '../model/productOrderRepeatCheckout';
 import type {
   CancelOrderResult,
@@ -49,6 +52,8 @@ import type {
   ServicesFilter,
   StartOrderResult,
 } from '../model/types';
+
+const MOCK_UNSCOPED_SHOP_ORDER_FALLBACK_USER_ID = 'client-1';
 
 function wait(delay = 300): Promise<void> {
   return new Promise((resolve) => {
@@ -863,6 +868,109 @@ function addReviewToSpecialist(order: ServiceOrder, review: ServiceOrderReview):
   syncMockSpecialistListingStatsFromProfile(nextProfile);
 }
 
+function isShopOrderVisibleToCurrentViewer(order: ShopOrder): boolean {
+  const uid = authStore.getState().user?.id;
+
+  if (!uid) {
+    return false;
+  }
+
+  if (order.ownerUserId) {
+    return order.ownerUserId === uid;
+  }
+
+  return uid === MOCK_UNSCOPED_SHOP_ORDER_FALLBACK_USER_ID;
+}
+
+function getOrderAgeMs(order: ShopOrder): number {
+  const createdAtMs = new Date(order.createdAt).getTime();
+
+  if (Number.isNaN(createdAtMs)) {
+    return 0;
+  }
+
+  return Math.max(0, Date.now() - createdAtMs);
+}
+
+function getNextShopOrderStatus(order: ShopOrder): ShopOrder['status'] {
+  const ageMs = getOrderAgeMs(order);
+  const toProcessingMs = 2 * 60 * 1000;
+  const toShippingMs = 10 * 60 * 1000;
+  const toCompletedMs = 24 * 60 * 60 * 1000;
+
+  if (order.status === 'created') {
+    if (
+      (order.paymentMethod === 'cash' || order.paymentMethod === 'card_courier') &&
+      ageMs >= toProcessingMs
+    ) {
+      return 'processing';
+    }
+
+    return 'created';
+  }
+
+  if (order.status === 'paid') {
+    if (ageMs < toProcessingMs) {
+      return 'paid';
+    }
+
+    return 'processing';
+  }
+
+  if (order.status === 'processing') {
+    if (ageMs < toShippingMs) {
+      return 'processing';
+    }
+
+    return order.deliveryMethod === 'courier' ? 'delivering' : 'ready-for-pickup';
+  }
+
+  if (order.status === 'delivering' || order.status === 'ready-for-pickup') {
+    if (ageMs < toCompletedMs) {
+      return order.status;
+    }
+
+    return 'completed';
+  }
+
+  return order.status;
+}
+
+function syncShopOrderStatusesByIds(ids: Set<string> | null): boolean {
+  const orders = readStoredOrders();
+  let changed = false;
+
+  const nextOrders = orders.map((order) => {
+    if (!isShopOrderVisibleToCurrentViewer(order)) {
+      return order;
+    }
+
+    if (ids && !ids.has(order.id)) {
+      return order;
+    }
+
+    const nextStatus = getNextShopOrderStatus(order);
+
+    if (nextStatus === order.status) {
+      return order;
+    }
+
+    changed = true;
+
+    return {
+      ...order,
+      status: nextStatus,
+      canBeCancelled: nextStatus === 'created' || nextStatus === 'paid',
+    };
+  });
+
+  if (changed) {
+    writeStoredOrders(nextOrders);
+  }
+
+  return changed;
+}
+
 /* ---------------- SERVICE ORDERS ---------------- */
 
 export async function mockGetServiceOrders(
@@ -1039,6 +1147,30 @@ export async function mockGetProductOrders(): Promise<ProductOrder[]> {
 
 export async function mockGetProductOrderById(orderId: string): Promise<ProductOrder> {
   await wait();
+
+  const order = filterMockProductOrdersForCurrentViewer(readProductOrdersFromShop()).find(
+    (item) => item.id === orderId,
+  );
+
+  if (!order) {
+    throw new Error('Заказ не найден.');
+  }
+
+  return order;
+}
+
+export async function mockSyncProductOrdersStatuses(): Promise<ProductOrder[]> {
+  await wait(200);
+  syncShopOrderStatusesByIds(null);
+
+  return filterMockProductOrdersForCurrentViewer(readProductOrdersFromShop()).sort(
+    (a, b) => +new Date(b.createdAt) - +new Date(a.createdAt),
+  );
+}
+
+export async function mockSyncProductOrderStatus(orderId: string): Promise<ProductOrder> {
+  await wait(200);
+  syncShopOrderStatusesByIds(new Set([orderId]));
 
   const order = filterMockProductOrdersForCurrentViewer(readProductOrdersFromShop()).find(
     (item) => item.id === orderId,

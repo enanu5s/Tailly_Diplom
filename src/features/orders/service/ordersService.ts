@@ -80,6 +80,16 @@ export const ordersService = {
     return ordersApi.getProductOrders();
   },
 
+  syncProductOrdersStatuses(): Promise<ProductOrder[]> {
+    const user = authStore.getState().user;
+
+    if (!canOrderShopProducts(user)) {
+      return Promise.resolve([]);
+    }
+
+    return ordersApi.syncProductOrdersStatuses();
+  },
+
   getProductOrderById(orderId: string): Promise<ProductOrder> {
     const user = authStore.getState().user;
 
@@ -88,6 +98,16 @@ export const ordersService = {
     }
 
     return ordersApi.getProductOrderById(orderId);
+  },
+
+  syncProductOrderStatus(orderId: string): Promise<ProductOrder> {
+    const user = authStore.getState().user;
+
+    if (!canOrderShopProducts(user)) {
+      return Promise.reject(new Error('Заказ не найден.'));
+    }
+
+    return ordersApi.syncProductOrderStatus(orderId);
   },
 
   cancelProductOrder(orderId: string): Promise<CancelOrderResult> {

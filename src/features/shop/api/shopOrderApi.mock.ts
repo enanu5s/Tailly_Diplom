@@ -118,7 +118,7 @@ export async function mockCreateOrder(payload: CreateOrderPayload): Promise<Orde
   const existingOrders = readStoredOrders();
   writeStoredOrders([order, ...existingOrders]);
 
-  if (payload.form.paymentMethod === 'cash') {
+  if (payload.form.paymentMethod === 'cash' || payload.form.paymentMethod === 'card_courier') {
     applyShopOrderStockDelta(order, 'subtract');
   }
 
@@ -184,7 +184,7 @@ export async function mockPayShopOrder(
     throw new Error('Заказ уже оплачен.');
   }
 
-  if (current.paymentMethod === 'cash') {
+  if (current.paymentMethod === 'cash' || current.paymentMethod === 'card_courier') {
     throw new Error('Для этого заказа предусмотрена оплата при получении.');
   }
 
@@ -228,7 +228,10 @@ export async function mockCancelOrder(orderId: string): Promise<Order> {
 
   if (current.status === 'paid') {
     applyShopOrderStockDelta(current, 'add');
-  } else if (current.status === 'created' && current.paymentMethod === 'cash') {
+  } else if (
+    current.status === 'created' &&
+    (current.paymentMethod === 'cash' || current.paymentMethod === 'card_courier')
+  ) {
     applyShopOrderStockDelta(current, 'add');
   }
 
