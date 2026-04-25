@@ -1,45 +1,103 @@
 /* src/shared/ui/static-page/StaticPageLayout.module.css */
 .page {
-  padding: 40px 16px 64px;
+  min-height: calc(100vh - 80px);
+  padding: 32px 20px 108px;
+  background: #f8f8f8;
 }
 
 .container {
-  width: 100%;
-  max-width: 960px;
+  width: min(100%, 1214px);
   margin: 0 auto;
 }
 
-.header {
-  margin-bottom: 24px;
+.backButton {
+  display: inline-flex;
+  align-items: center;
+  gap: 12px;
+  height: 44px;
+  padding: 0 27px;
+  margin-bottom: 28px;
+  border: 1px solid #cfc8bf;
+  border-radius: 999px;
+  background: transparent;
+  color: #6f675d;
+  font-size: 18px;
+  line-height: 1;
+  cursor: pointer;
+}
+
+.backIcon {
+  font-size: 25px;
+  line-height: 1;
 }
 
 .title {
-  margin: 0;
-  font-size: 32px;
-  line-height: 1.2;
-  color: #0f172a;
+  margin: 0 0 34px;
+  color: #211500;
+  font-size: 44px;
+  font-weight: 500;
+  line-height: 1.18;
+  letter-spacing: -0.02em;
 }
 
-.content {
-  padding: 24px;
-  border-radius: 18px;
+.card {
+  max-width: 1214px;
+  min-height: 510px;
+  padding: 32px 32px 28px;
+  border-radius: 20px;
   background: #ffffff;
-  box-shadow: 0 16px 40px rgba(15, 23, 42, 0.08);
-  color: #334155;
+  box-shadow: 0 12px 36px rgb(33 21 0 / 12%);
 }
 
-.content p {
-  margin: 0 0 16px;
-  line-height: 1.65;
+.card p {
+  margin: 0;
+  color: #211500;
+  font-size: 16px;
+  font-weight: 400;
+  line-height: 1.22;
 }
 
-.content p:last-child {
-  margin-bottom: 0;
+.card section {
+  margin-top: 28px;
 }
 
-.content h2 {
-  margin: 24px 0 12px;
-  font-size: 22px;
-  line-height: 1.3;
-  color: #0f172a;
+.card h2 {
+  margin: 0 0 12px;
+  color: #211500;
+  font-size: 27px;
+  font-weight: 500;
+  line-height: 1.15;
+  letter-spacing: -0.01em;
+}
+
+@media (max-width: 768px) {
+  .page {
+    padding: 24px 16px 72px;
+  }
+
+  .backButton {
+    height: 40px;
+    padding: 0 22px;
+    margin-bottom: 24px;
+    font-size: 15px;
+  }
+
+  .title {
+    margin-bottom: 24px;
+    font-size: 32px;
+  }
+
+  .card {
+    padding: 24px 20px;
+    border-radius: 18px;
+  }
+
+  .card h2 {
+    font-size: 22px;
+  }
+
+  .card p {
+    font-size: 15px;
+    line-height: 1.35;
+  }
 }

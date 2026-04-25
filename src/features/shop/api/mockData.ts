@@ -37,6 +37,10 @@ export const SHOP_PRODUCTS_MOCK: Product[] = [
     categoryId: '1',
     categoryTitle: 'Корм',
     shortDescription: 'Сухой корм для взрослых кошек, 1.5 кг.',
+    deliveryRange: {
+      from: '2026-04-18T00:00:00.000Z',
+      to: '2026-04-22T00:00:00.000Z',
+    },
     description:
       'Сбалансированный корм для ежедневного питания взрослых кошек. Содержит белок, омега-3, витамины и полезные микроэлементы.',
     price: 1890,
@@ -76,6 +80,10 @@ export const SHOP_PRODUCTS_MOCK: Product[] = [
     categoryId: '2',
     categoryTitle: 'Игрушки',
     shortDescription: 'Прочная игрушка для активных игр.',
+    deliveryRange: {
+      from: '2026-04-19T00:00:00.000Z',
+      to: '2026-04-23T00:00:00.000Z',
+    },
     description:
       'Подходит для игр дома и на улице. Помогает снизить тревожность, поддерживать активность и отвлекать питомца.',
     price: 790,
@@ -102,6 +110,10 @@ export const SHOP_PRODUCTS_MOCK: Product[] = [
     categoryId: '3',
     categoryTitle: 'Аксессуары',
     shortDescription: 'Устойчивая миска для воды и корма.',
+    deliveryRange: {
+      from: '2026-04-20T00:00:00.000Z',
+      to: '2026-04-24T00:00:00.000Z',
+    },
     description:
       'Керамическая миска с нескользящим основанием. Подходит для воды, влажного и сухого корма.',
     price: 990,
@@ -128,6 +140,10 @@ export const SHOP_PRODUCTS_MOCK: Product[] = [
     categoryId: '5',
     categoryTitle: 'Уход',
     shortDescription: 'Мягкий шампунь для собак и кошек.',
+    deliveryRange: {
+      from: '2026-04-21T00:00:00.000Z',
+      to: '2026-04-25T00:00:00.000Z',
+    },
     description:
       'Подходит для деликатного ухода за шерстью и кожей питомца. Без агрессивных ПАВ и сильной отдушки.',
     price: 650,

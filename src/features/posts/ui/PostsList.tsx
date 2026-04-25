@@ -1,31 +1,40 @@
 // src/features/posts/ui/PostsList.tsx
-
 import { observer } from 'mobx-react-lite';
 import { useEffect } from 'react';
 
 import { useAppNavigate } from '@/shared/lib/navigation/useAppNavigate';
 import { saveScrollPosition } from '@/shared/lib/scroll';
 
-import styles from './PostsList.module.css';
 import { getPostGalleryUrls } from '../lib/postGallery';
 import { postsStore } from '../model/postsStore';
 
+import styles from './PostsList.module.css';
+
 import type { Post, PostsSort } from '../model/types';
 
-function PostListThumbs({ post }: { post: Post }) {
-  const urls = getPostGalleryUrls(post);
+const formatDate = (value: string): string =>
+  new Date(value).toLocaleDateString('ru-RU', {
+    year: 'numeric',
+    month: '2-digit',
+    day: '2-digit',
+  });
 
-  if (urls.length === 0) {
-    return null;
+function PostPreviewImage({ post }: { post: Post }) {
+  const urls = getPostGalleryUrls(post);
+  const [firstUrl] = urls;
+  const extraCount = Math.max(0, urls.length - 1);
+
+  if (!firstUrl) {
+    return <div className={styles.imagePlaceholder} aria-hidden="true" />;
   }
 
   return (
-    <div className={styles.listThumbScroller}>
-      {urls.map((url, index) => (
-        <div key={`${url}-${index}`} className={styles.listThumb}>
-          <img src={url} alt="" loading="lazy" />
-        </div>
-      ))}
+    <div className={styles.imageWrap}>
+      <img className={styles.image} src={firstUrl} alt="" loading="lazy" />
+
+      {extraCount > 0 ? (
+        <span className={styles.extraBadge}>+{extraCount}</span>
+      ) : null}
     </div>
   );
 }
@@ -46,13 +55,18 @@ export const PostsList = observer(() => {
     postsStore.setSort(value as PostsSort);
   };
 
+  const handlePostClick = (postId: string): void => {
+    saveScrollPosition('/posts');
+    navigate(`/posts/${postId}`);
+  };
+
   return (
     <div className={styles.root}>
       <form className={styles.controls} onSubmit={onSearchSubmit}>
         <input
           className={styles.search}
           type="text"
-          placeholder="Поиск по постам..."
+          placeholder="Поиск по постам и новостям..."
           value={postsStore.list.search}
           onChange={(event) => postsStore.setSearch(event.target.value)}
         />
@@ -64,8 +78,8 @@ export const PostsList = observer(() => {
         >
           <option value="newest">Сначала новые</option>
           <option value="oldest">Сначала старые</option>
-          <option value="title_asc">По названию (А–Я)</option>
-          <option value="title_desc">По названию (Я–А)</option>
+          <option value="title_asc">По названию А–Я</option>
+          <option value="title_desc">По названию Я–А</option>
         </select>
 
         <button
@@ -78,20 +92,9 @@ export const PostsList = observer(() => {
       </form>
 
       {postsStore.list.availableTags.length > 0 ? (
-        <div className={styles.tagsSection}>
+        <section className={styles.tagsSection}>
           <div className={styles.tagsHeader}>
-            <span className={styles.tagsTitle}>Темы</span>
-
-            {postsStore.hasActiveFilters ? (
-              <button
-                type="button"
-                className={styles.clearFiltersButton}
-                onClick={() => postsStore.clearFilters()}
-                disabled={postsStore.list.loading}
-              >
-                Сбросить фильтры
-              </button>
-            ) : null}
+            <span className={styles.tagsTitle}>Популярные темы</span>
           </div>
 
           <div className={styles.tagsList}>
@@ -128,7 +131,7 @@ export const PostsList = observer(() => {
               );
             })}
           </div>
-        </div>
+        </section>
       ) : null}
 
       {postsStore.list.error ? (
@@ -149,25 +152,13 @@ export const PostsList = observer(() => {
                 key={post.id}
                 type="button"
                 className={styles.card}
-                onClick={() => {
-                  saveScrollPosition('/posts');
-                  navigate(`/posts/${post.id}`);
-                }}
+                onClick={() => handlePostClick(post.id)}
               >
-                <div className={styles.cardHeader}>
-                  <div className={styles.cardTitle}>{post.title}</div>
-                  <div className={styles.cardDate}>
-                    {new Date(post.publishedAt).toLocaleDateString('ru-RU', {
-                      year: 'numeric',
-                      month: 'long',
-                      day: '2-digit',
-                    })}
-                  </div>
-                </div>
+                <PostPreviewImage post={post} />
 
                 {post.tags && post.tags.length > 0 ? (
                   <div className={styles.cardTags}>
-                    {post.tags.map((tag) => (
+                    {post.tags.slice(0, 4).map((tag) => (
                       <span key={tag} className={styles.cardTag}>
                         #{tag}
                       </span>
@@ -175,27 +166,32 @@ export const PostsList = observer(() => {
                   </div>
                 ) : null}
 
-                <PostListThumbs post={post} />
+                <h2 className={styles.cardTitle}>{post.title}</h2>
 
                 <div className={styles.cardTextWrap}>
                   <p className={styles.cardText}>{post.content}</p>
                   <div className={styles.fade} />
                 </div>
+
+                <time className={styles.cardDate} dateTime={post.publishedAt}>
+                  {formatDate(post.publishedAt)}
+                </time>
               </button>
             ))}
       </div>
 
       <div className={styles.pagination}>
         <button
-          className={styles.pageBtn}
+          className={`${styles.pageBtn} ${styles.pageBtnPrev}`}
           type="button"
           onClick={() => {
             postsStore.setListPage(postsStore.list.page - 1);
             void postsStore.loadList();
           }}
           disabled={postsStore.list.loading || postsStore.list.page <= 1}
+          aria-label="Предыдущая страница"
         >
-          ← Назад
+          ←
         </button>
 
         <div className={styles.pageInfo}>
@@ -203,7 +199,7 @@ export const PostsList = observer(() => {
         </div>
 
         <button
-          className={styles.pageBtn}
+          className={`${styles.pageBtn} ${styles.pageBtnNext}`}
           type="button"
           onClick={() => {
             postsStore.setListPage(postsStore.list.page + 1);
@@ -212,8 +208,9 @@ export const PostsList = observer(() => {
           disabled={
             postsStore.list.loading || postsStore.list.page >= postsStore.totalPages
           }
+          aria-label="Следующая страница"
         >
-          Вперёд →
+          →
         </button>
       </div>
     </div>

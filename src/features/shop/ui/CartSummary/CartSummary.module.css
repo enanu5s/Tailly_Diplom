@@ -3,17 +3,17 @@
   display: flex;
   flex-direction: column;
   gap: 18px;
-  padding: 24px;
-  border: 1px solid #e5e7eb;
-  border-radius: 22px;
+  padding: 20px;
+  border-radius: 16px;
   background: #ffffff;
-  box-shadow: 0 14px 34px rgba(15, 23, 42, 0.07);
+  box-shadow: 0 8px 24px rgba(33, 21, 0, 0.08);
 }
 
 .title {
   margin: 0;
-  color: #0f172a;
+  color: #211500;
   font-size: 24px;
+  font-weight: 500;
 }
 
 .rows {
@@ -30,37 +30,39 @@
 }
 
 .label {
-  color: #64748b;
+  color: #6f685d;
   font-size: 14px;
+  font-weight: 600;
 }
 
 .value {
-  color: #0f172a;
+  color: #211500;
   font-size: 15px;
-  font-weight: 700;
-}
-
-.total {
-  color: #0f172a;
-  font-size: 28px;
   font-weight: 800;
 }
 
+.total {
+  color: #211500;
+  font-size: 24px;
+  font-weight: 500;
+}
+
 .hint {
-  color: #475569;
-  font-size: 14px;
-  line-height: 1.6;
+  margin: 0;
+  color: #6f685d;
+  font-size: 13px;
+  line-height: 1.5;
 }
 
 .checkoutButton {
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  min-height: 48px;
-  border-radius: 16px;
-  background: #6366f1;
+  min-height: 38px;
+  border-radius: 999px;
+  background: #211500;
   color: #ffffff;
-  font-size: 15px;
+  font-size: 14px;
   font-weight: 700;
   text-decoration: none;
 }

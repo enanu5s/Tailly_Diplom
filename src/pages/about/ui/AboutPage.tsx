@@ -1,19 +1,62 @@
 //src/pages/about/ui/AboutPage.tsx
-
 import { useEffect } from 'react';
 import { Link, useLocation } from 'react-router-dom';
 
 import { PostsCarousel } from '@/features/posts/ui/PostsCarousel';
 import { consumeScrollPosition } from '@/shared/lib/scroll';
 import { FeedbackSection } from '@/shared/ui/feedback';
+import documentsIcon1Url from '@/shared/assets/icons/documents-1.svg';
+import documentsIcon2Url from '@/shared/assets/icons/documents-2.svg';
+import documentsIcon3Url from '@/shared/assets/icons/documents-3.svg';
+import documentsIcon4Url from '@/shared/assets/icons/documents-4.svg';
+import documentsIcon5Url from '@/shared/assets/icons/documents-5.svg';
 
 import styles from './AboutPage.module.css';
+
+type DocItem = {
+  to: string;
+  title: string;
+  icon: string;
+  activeIcon?: string;
+  isActive?: boolean;
+};
+
+const docs: DocItem[] = [
+  {
+    to: '/user-agreement',
+    title: 'Пользовательское соглашение',
+    icon: documentsIcon1Url,
+  },
+  {
+    to: '/refund-policy',
+    title: 'Условия возврата',
+    icon: documentsIcon3Url,
+    activeIcon: documentsIcon2Url,
+    isActive: true,
+  },
+  {
+    to: '/agency-contract',
+    title: 'Агентский договор',
+    icon: documentsIcon3Url,
+  },
+  {
+    to: '/privacy-policy',
+    title: 'Политика конфи-денциальности',
+    icon: documentsIcon4Url,
+  },
+  {
+    to: '/public-offer',
+    title: 'Публичная оферта',
+    icon: documentsIcon5Url,
+  },
+];
 
 export const AboutPage = () => {
   const location = useLocation();
 
   useEffect(() => {
     const y = consumeScrollPosition(location.pathname);
+
     if (y != null) {
       window.scrollTo({ top: y, left: 0, behavior: 'auto' });
       return;
@@ -24,48 +67,38 @@ export const AboutPage = () => {
 
   return (
     <div className={styles.page}>
-      <section className={styles.banner}>
+      <section className={styles.hero}>
         <div className={styles.container}>
-          <div className={styles.bannerGrid}>
-            <div className={styles.bannerText}>
-              <h1 className={styles.h1}>О нас</h1>
+          <div className={styles.heroGrid}>
+            <div className={styles.heroText}>
+              <h1 className={styles.heroTitle}>
+                Тейлли — там, где ваши питомцы в надёжных руках
+              </h1>
 
-              <h2 className={styles.h2}>Пет.Сит — сервис, где питомцы как дома</h2>
+              <div className={styles.heroDescription}>
+                <p>
+                  Тейлли — сервис подбора проверенных специалистов для питомцев и
+                  магазин товаров для животных. Мы тщательно отбираем ситтеров,
+                  грумеров, кинологов и других специалистов, которые искренне любят
+                  животных. Подбор всегда индивидуальный с учётом характера, возраста
+                  и особенностей вашего любимца.
+                </p>
 
-              <p className={styles.p}>
-                Пет.Сит — это сервис, который помогает вашим питомцам чувствовать себя
-                комфортно, когда вас нет рядом. Мы подбираем ответственных ситтеров,
-                которые искренне любят животных и умеют находить к ним подход. Каждый
-                специалист проходит тщательный отбор, чтобы обеспечить вашему любимцу
-                правильный уход и внимание.
-              </p>
+                <p>
+                  В нашем магазине только полезные и проверенные товары: корма,
+                  средства ухода, лежанки и аксессуары. Главное для нас — ваше
+                  спокойствие и комфорт питомца.
+                </p>
 
-              <p className={styles.p}>
-                Мы понимаем, что у каждого животного свои привычки и характер. Поэтому
-                перед началом работы обязательно знакомимся с вашим питомцем, узнаём его
-                распорядок дня и особенности поведения. Это позволяет создать для него
-                максимально комфортные условия, будь то разовый выгул, присмотр дома или
-                длительная передержка.
-              </p>
-
-              <p className={styles.p}>
-                Особое внимание уделяем животным, требующим специального ухода. Наши
-                ситтеры имеют опыт работы с пожилыми питомцами, животными после операций и
-                экзотическими видами. Вы всегда будете в курсе, как чувствует себя ваш
-                любимец, благодаря регулярным фото- и видеоотчётам.
-              </p>
-
-              <p className={styles.p}>
-                Главное для нас — ваше спокойствие и комфорт вашего питомца. Мы делаем
-                всё, чтобы время разлуки прошло для него легко и незаметно.
-              </p>
+                <p>С Тейлли о вашем любимце позаботятся с душой!</p>
+              </div>
             </div>
 
-            <div className={styles.bannerImageWrap}>
+            <div className={styles.heroImageWrap}>
               <img
-                className={styles.bannerImage}
-                src="/images/Picture_bg_5.png"
-                alt="Пет.Сит — забота о питомцах"
+                className={styles.heroImage}
+                src="/images/Picture_bg_6.png"
+                alt="Тейлли — забота о питомцах"
               />
             </div>
           </div>
@@ -79,21 +112,29 @@ export const AboutPage = () => {
           <h2 className={styles.sectionTitle}>Наши правила и условия</h2>
 
           <div className={styles.docsGrid}>
-            <Link className={styles.docCard} to="/user-agreement">
-              Пользовательское соглашение
-            </Link>
-            <Link className={styles.docCard} to="/refund-policy">
-              Условия возврата
-            </Link>
-            <Link className={styles.docCard} to="/agency-contract">
-              Агентский договор
-            </Link>
-            <Link className={styles.docCard} to="/privacy-policy">
-              Политика конфиденциальности
-            </Link>
-            <Link className={styles.docCard} to="/public-offer">
-              Публичная оферта
-            </Link>
+            {docs.map((doc) => (
+              <Link
+                key={doc.to}
+                className={`${styles.docCard} ${doc.isActive ? styles.docCardActive : ''}`}
+                to={doc.to}
+                state={{
+                  from: {
+                    pathname: location.pathname,
+                    scrollY: window.scrollY,
+                  },
+                }}
+              >
+                <span className={styles.docIcon} aria-hidden="true">
+                  <img
+                    className={styles.docIconImage}
+                    src={doc.isActive && doc.activeIcon ? doc.activeIcon : doc.icon}
+                    alt=""
+                  />
+                </span>
+
+                <span className={styles.docTitle}>{doc.title}</span>
+              </Link>
+            ))}
           </div>
         </div>
       </section>
@@ -104,28 +145,22 @@ export const AboutPage = () => {
 
           <div className={styles.reqsGrid}>
             <div className={styles.reqCol}>
-              <div className={styles.reqTitle}>ООО и регистрационные данные</div>
-              <div className={styles.reqText}>ООО «Пет.Сит»</div>
-              <div className={styles.reqText}>ИНН: 7723456789</div>
-              <div className={styles.reqText}>ОГРН: 1237700001234</div>
+              <p>ООО «Тейлли»</p>
+              <p>ИНН: 7723456789</p>
+              <p>ОГРН: 1237700001234</p>
             </div>
 
             <div className={styles.reqCol}>
-              <div className={styles.reqTitle}>Адрес главного офиса</div>
-              <div className={styles.reqText}>
-                123456, г. Москва, ул. Тверская, д. 10, офис 5
-              </div>
+              <p>Адрес главного офиса:</p>
+              <p>123456, г. Москва, ул. Тверская, д. 10, офис 5</p>
             </div>
 
             <div className={styles.reqCol}>
-              <div className={styles.reqTitle}>Оператор персональных данных</div>
-              <div className={styles.reqText}>
-                ООО «Пет.Сит» является оператором, осуществляющим обработку персональных
-                данных пользователей сервиса.
-              </div>
-              <div className={styles.reqText}>
-                Номер в Реестре Роскомнадзора: 77-24-012345
-              </div>
+              <p>
+                ООО «Тейлли» является зарегистрированным оператором, осуществляющим
+                сбор персональных данных пользователей.
+              </p>
+              <p>Номер в Реестре Роскомнадзора: 77-24-012345</p>
             </div>
           </div>
         </div>

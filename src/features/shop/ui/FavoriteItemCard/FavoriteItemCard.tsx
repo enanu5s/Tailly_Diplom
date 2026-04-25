@@ -8,6 +8,9 @@ import { shouldShowShopConsumerControls } from '@/shared/lib/auth/roleAccess';
 import styles from './FavoriteItemCard.module.css';
 import { shopCartStore } from '../../model/shopCartStore';
 import { shopFavoritesStore } from '../../model/shopFavoritesStore';
+import minusIconUrl from '@/shared/assets/icons/minus.svg';
+import plusIconUrl from '@/shared/assets/icons/plus.svg';
+import favoriteFilledIconUrl from '@/shared/ui/icons/favorite-filled.svg';
 
 import type { Product } from '../../model/types';
 
@@ -47,18 +50,12 @@ export const FavoriteItemCard = observer(({ product }: Props) => {
   };
 
   const handleAddToCart = (): void => {
-    if (!product.isAvailable) {
-      return;
-    }
-
+    if (!product.isAvailable) return;
     shopCartStore.add(product.id, 1);
   };
 
   const handleIncrement = (): void => {
-    if (!product.isAvailable || quantity >= product.stockQuantity) {
-      return;
-    }
-
+    if (!product.isAvailable || quantity >= product.stockQuantity) return;
     shopCartStore.increment(product.id);
   };
 
@@ -70,7 +67,7 @@ export const FavoriteItemCard = observer(({ product }: Props) => {
     <article
       className={styles.card}
       data-shop-product-id={product.id}
-      id={`shop - favorite - card - ${product.id}`}
+      id={`shop-favorite-card-${product.id}`}
     >
       <Link
         to={`/shop/${product.slug}`}
@@ -85,85 +82,91 @@ export const FavoriteItemCard = observer(({ product }: Props) => {
             loading="lazy"
           />
         ) : (
-          <div className={styles.imagePlaceholder}> Нет изображения</div>
+          <div className={styles.imagePlaceholder}>Нет изображения</div>
         )}
       </Link>
 
-      <div className={styles.content}>
-        <div className={styles.topRow}>
-          <div className={styles.meta}>
-            <div className={styles.category}>{product.categoryTitle}</div>
+      {showConsumerControls ? (
+        <button
+          className={styles.favoriteButton}
+          type="button"
+          onClick={handleRemoveFromFavorites}
+          aria-label="Удалить из избранного"
+        >
+          <img
+            className={styles.favoriteIcon}
+            src={favoriteFilledIconUrl}
+            alt=""
+            aria-hidden="true"
+          />
+        </button>
+      ) : null}
 
-            <Link
-              to={`/shop/${product.slug}`}
-              state={productLinkState}
-              className={styles.titleLink}
-            >
-              <h3 className={styles.title}>{product.title}</h3>
-            </Link>
+      <div className={styles.metaRow}>
+        <span className={styles.category}>{product.categoryTitle}</span>
 
-            <p className={styles.description}>{product.shortDescription}</p>
-          </div>
+        {typeof product.rating === 'number' ? (
+          <span className={styles.rating}>★ {product.rating.toFixed(1)}</span>
+        ) : null}
+      </div>
 
-          {showConsumerControls ? (
-            <button
-              className={styles.removeButton}
-              type="button"
-              onClick={handleRemoveFromFavorites}
-            >
-              Удалить
-            </button>
-          ) : null}
-        </div>
+      <Link
+        to={`/shop/${product.slug}`}
+        state={productLinkState}
+        className={styles.titleLink}
+      >
+        <h3 className={styles.title}>{product.title}</h3>
+      </Link>
 
-        <div className={styles.bottomRow}>
-          <div className={styles.priceBlock}>
-            <span className={styles.price}>{formatPrice(product.price)}</span>
-            {product.oldPrice !== null ? (
-              <span className={styles.oldPrice}>{formatPrice(product.oldPrice)}</span>
-            ) : null}
-          </div>
+      <p className={styles.description}>{product.shortDescription}</p>
 
-          {showConsumerControls ? (
-            <div className={styles.actions}>
-              {quantity > 0 ? (
-                <div className={styles.quantityControl}>
-                  <button
-                    className={styles.quantityButton}
-                    type="button"
-                    onClick={handleDecrement}
-                    aria-label="Уменьшить количество"
-                  >
-                    −
-                  </button>
+      <div className={styles.footer}>
+        <span className={styles.price}>{formatPrice(product.price)}</span>
 
-                  <span className={styles.quantityValue}>{quantity}</span>
-                  <button
-                    className={styles.quantityButton}
-                    type="button"
-                    onClick={handleIncrement}
-                    aria-label="Увеличить количество"
-                    disabled={quantity >= product.stockQuantity}
-                  >
-                    +
-                  </button>
-                </div>
-              ) : (
-                <button
-                  className={styles.cartButton}
-                  type="button"
-                  onClick={handleAddToCart}
-                  disabled={!product.isAvailable}
-                >
-                  В корзину
-                </button>
-              )}
+        {showConsumerControls ? (
+          quantity > 0 ? (
+            <div className={styles.quantityControl}>
+              <button
+                className={styles.quantityButton}
+                type="button"
+                onClick={handleDecrement}
+                aria-label="Уменьшить количество"
+              >
+                <img
+                  className={styles.quantityIcon}
+                  src={minusIconUrl}
+                  alt="-"
+                  aria-hidden="true"
+                />
+              </button>
+
+              <span className={styles.quantityValue}>{quantity}</span>
+
+              <button
+                className={styles.quantityButton}
+                type="button"
+                onClick={handleIncrement}
+                aria-label="Увеличить количество"
+                disabled={quantity >= product.stockQuantity}
+              >
+                <img
+                  className={styles.quantityIcon}
+                  src={plusIconUrl}
+                  alt="+"
+                  aria-hidden="true"
+                />
+              </button>
             </div>
-          ) : null}
-        </div>
-
-        {!product.isAvailable ? (
-          <div className={styles.unavailable}>Товар сейчас недоступен для заказа</div>
+          ) : (
+            <button
+              className={styles.cartButton}
+              type="button"
+              onClick={handleAddToCart}
+              disabled={!product.isAvailable}
+            >
+              {product.isAvailable ? 'В корзину' : 'Нет в наличии'}
+            </button>
+          )
         ) : null}
       </div>
     </article>

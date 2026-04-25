@@ -65,6 +65,11 @@ export type ProductCharacteristics = {
   material?: string;
 };
 
+export type ProductDeliveryRange = {
+  from: string;
+  to: string;
+};
+
 export type Product = {
   id: string;
   slug: string;
@@ -75,6 +80,7 @@ export type Product = {
   description: string;
   descriptionContent?: ProductDescriptionContent;
   characteristics?: ProductCharacteristics;
+  deliveryRange?: ProductDeliveryRange;
   price: number;
   oldPrice: number | null;
   rating: number;

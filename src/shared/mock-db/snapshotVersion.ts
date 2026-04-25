@@ -2,7 +2,7 @@
 
 import { MOCK_DB_VERSION } from './constants';
 import { cloneDeep } from './cloneDeep';
-import { SEED_CMS_BANNERS, SEED_CMS_POSTS } from './seed/cms.seed';
+import { SEED_CMS_BANNERS, SEED_CMS_DATA_REVISION, SEED_CMS_POSTS } from './seed/cms.seed';
 
 import type { MockDbMeta, MockDbSnapshot } from './types';
 
@@ -21,6 +21,7 @@ function upgradeV1ToV2(v1: MockDbSnapshotV1): MockDbSnapshot {
     meta: {
       ...base.meta,
       schemaVersion: MOCK_DB_VERSION,
+      cmsDataRevision: SEED_CMS_DATA_REVISION,
     } satisfies MockDbMeta,
     cms: {
       posts: cloneDeep(SEED_CMS_POSTS),

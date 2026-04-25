@@ -5,6 +5,9 @@ import { Link, useLocation } from 'react-router-dom';
 import styles from './CartItemCard.module.css';
 import { shopCartStore } from '../../model/shopCartStore';
 import { shopFavoritesStore } from '../../model/shopFavoritesStore';
+import favoriteOutlineIconUrl from '@/shared/ui/icons/favorite-outline.svg';
+import favoriteFilledIconUrl from '@/shared/ui/icons/favorite-filled.svg';
+import deleteIconUrl from '@/shared/assets/icons/delete.svg';
 
 import type { Product } from '../../model/types';
 
@@ -58,6 +61,10 @@ export const CartItemCard = observer(({ product, quantity }: Props) => {
     shopFavoritesStore.toggle(product.id);
   };
 
+  const deliveryText = product.deliveryRange
+    ? formatDeliveryRange(product.deliveryRange.from, product.deliveryRange.to)
+    : product.shortDescription;
+
   return (
     <article className={styles.card}>
       <Link
@@ -90,7 +97,7 @@ export const CartItemCard = observer(({ product, quantity }: Props) => {
               <h3 className={styles.title}>{product.title}</h3>
             </Link>
 
-            <p className={styles.description}>{product.shortDescription}</p>
+            <p className={styles.description}>{deliveryText}</p>
           </div>
 
           <div className={styles.topActions}>
@@ -98,12 +105,23 @@ export const CartItemCard = observer(({ product, quantity }: Props) => {
               className={`${styles.favoriteButton} ${isFavorite ? styles.favoriteButtonActive : ''}`}
               type="button"
               onClick={handleToggleFavorite}
+              aria-label={isFavorite ? 'Убрать из избранного' : 'Добавить в избранное'}
             >
-              {isFavorite ? 'В избранном' : 'В избранное'}
+              <img
+                className={styles.favoriteIcon}
+                src={isFavorite ? favoriteFilledIconUrl : favoriteOutlineIconUrl}
+                alt=""
+                aria-hidden="true"
+              />
             </button>
 
-            <button className={styles.removeButton} type="button" onClick={handleRemove}>
-              Удалить
+            <button
+              className={styles.removeButton}
+              type="button"
+              onClick={handleRemove}
+              aria-label="Удалить из корзины"
+            >
+              <img className={styles.removeIcon} src={deleteIconUrl} alt="" aria-hidden="true" />
             </button>
           </div>
         </div>
@@ -153,4 +171,20 @@ function formatPrice(value: number): string {
     currency: 'RUB',
     maximumFractionDigits: 0,
   }).format(value);
+}
+
+function formatDeliveryRange(from: string, to: string): string {
+  const fromDate = new Date(from);
+  const toDate = new Date(to);
+
+  if (Number.isNaN(fromDate.getTime()) || Number.isNaN(toDate.getTime())) {
+    return 'Срок доставки уточняется';
+  }
+
+  const formatter = new Intl.DateTimeFormat('ru-RU', {
+    day: 'numeric',
+    month: 'long',
+  });
+
+  return `с ${formatter.format(fromDate)} - по ${formatter.format(toDate)}`;
 }

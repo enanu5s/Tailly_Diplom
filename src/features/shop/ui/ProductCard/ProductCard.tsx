@@ -8,6 +8,10 @@ import { shouldShowShopConsumerControls } from '@/shared/lib/auth/roleAccess';
 import styles from './ProductCard.module.css';
 import { shopCartStore } from '../../model/shopCartStore';
 import { shopFavoritesStore } from '../../model/shopFavoritesStore';
+import favoriteOutlineIconUrl from '@/shared/ui/icons/favorite-outline.svg';
+import favoriteFilledIconUrl from '@/shared/ui/icons/favorite-filled.svg';
+import minusIconUrl from '@/shared/assets/icons/minus.svg';
+import plusIconUrl from '@/shared/assets/icons/plus.svg';
 
 import type { Product } from '../../model/types';
 
@@ -85,7 +89,12 @@ export const ProductCard = observer(({ product }: Props) => {
           onClick={handleToggleFavorite}
           aria-label={isFavorite ? 'Убрать из избранного' : 'Добавить в избранное'}
         >
-          {isFavorite ? '♥' : '♡'}
+          <img
+            className={styles.favoriteIcon}
+            src={isFavorite ? favoriteFilledIconUrl : favoriteOutlineIconUrl}
+            alt=""
+            aria-hidden="true"
+          />
         </button>
       ) : null}
 
@@ -137,7 +146,12 @@ export const ProductCard = observer(({ product }: Props) => {
                   onClick={handleDecrement}
                   aria-label="Уменьшить количество"
                 >
-                  −
+                  <img
+                    className={styles.quantityIcon}
+                    src={minusIconUrl}
+                    alt="-"
+                    aria-hidden="true"
+                  />
                 </button>
 
                 <span className={styles.quantityValue}>{quantity}</span>
@@ -149,7 +163,12 @@ export const ProductCard = observer(({ product }: Props) => {
                   aria-label="Увеличить количество"
                   disabled={quantity >= product.stockQuantity}
                 >
-                  +
+                  <img
+                    className={styles.quantityIcon}
+                    src={plusIconUrl}
+                    alt="+"
+                    aria-hidden="true"
+                  />
                 </button>
               </div>
             ) : (

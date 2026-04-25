@@ -4,6 +4,7 @@ import { useEffect } from 'react';
 import { Link, Navigate, useLocation } from 'react-router-dom';
 
 import { useAuth } from '@/features/auth/model/useAuth';
+import { shopCartStore } from '@/features/shop/model/shopCartStore';
 import { shopFavoritesPageStore } from '@/features/shop/model/shopFavoritesPageStore';
 import { shopFavoritesStore } from '@/features/shop/model/shopFavoritesStore';
 import { FavoriteItemCard, ProductBackButton } from '@/features/shop/ui';
@@ -29,16 +30,11 @@ export const ShopFavoritesPage = observer(() => {
   const showConsumerUi = shouldShowShopConsumerControls(user);
 
   useEffect(() => {
-    window.scrollTo({
-      top: 0,
-      behavior: 'auto',
-    });
+    window.scrollTo({ top: 0, behavior: 'auto' });
   }, []);
 
   useEffect(() => {
-    if (!showConsumerUi) {
-      return;
-    }
+    if (!showConsumerUi) return;
 
     void shopFavoritesPageStore.load();
 
@@ -61,38 +57,29 @@ export const ShopFavoritesPage = observer(() => {
           <ProductBackButton from={from} fallbackPath="/shop" />
         </div>
 
-        <div className={styles.breadcrumbs}>
-          <Link to="/" className={styles.breadcrumbLink}>
-            Главная
-          </Link>
-          <span className={styles.breadcrumbSeparator}>/</span>
-
-          <Link to="/shop" className={styles.breadcrumbLink}>
-            Магазин
-          </Link>
-          <span className={styles.breadcrumbSeparator}>/</span>
-
-          <span className={styles.breadcrumbCurrent}>Избранное</span>
-        </div>
-
         <header className={styles.header}>
-          <div>
-            <h1 className={styles.title}>Избранное</h1>
-            <p className={styles.subtitle}>
-              Сохрани понравившиеся товары и вернись к ним позже.
-            </p>
-          </div>
+          <h1 className={styles.title}>Избранное</h1>
 
           {!isEmpty ? (
-            <button
-              className={styles.clearButton}
-              type="button"
-              onClick={() => {
-                shopFavoritesStore.clear();
-              }}
-            >
-              Очистить избранное
-            </button>
+            <div className={styles.headerActions}>
+              <button
+                className={styles.clearButton}
+                type="button"
+                onClick={() => {
+                  shopFavoritesStore.clear();
+                }}
+              >
+                Очистить избранное
+              </button>
+
+              <Link to="/shop/cart" className={styles.cartLink}>
+                <span aria-hidden="true">🛒</span>
+                Корзина
+                {shopCartStore.totalItems > 0 ? (
+                  <span className={styles.cartBadge}>{shopCartStore.totalItems}</span>
+                ) : null}
+              </Link>
+            </div>
           ) : null}
         </header>
 

@@ -3,8 +3,12 @@
 const KEY_PREFIX = 'tailly:scroll:';
 
 export function saveScrollPosition(pathname: string) {
+  saveScrollPositionValue(pathname, window.scrollY);
+}
+
+export function saveScrollPositionValue(pathname: string, y: number) {
   try {
-    sessionStorage.setItem(`${KEY_PREFIX}${pathname}`, String(window.scrollY));
+    sessionStorage.setItem(`${KEY_PREFIX}${pathname}`, String(y));
   } catch {
     // ignore
   }

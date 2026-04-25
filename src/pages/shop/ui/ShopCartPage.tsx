@@ -90,37 +90,10 @@ export const ShopCartPage = observer(() => {
           <ProductBackButton from={from} fallbackPath="/shop" />
         </div>
 
-        <div className={styles.breadcrumbs}>
-          <Link to="/" className={styles.breadcrumbLink}>
-            Главная
-          </Link>
-          <span className={styles.breadcrumbSeparator}>/</span>
-
-          <Link to="/shop" className={styles.breadcrumbLink}>
-            Магазин
-          </Link>
-          <span className={styles.breadcrumbSeparator}>/</span>
-
-          <span className={styles.breadcrumbCurrent}>Корзина</span>
-        </div>
-
         <header className={styles.header}>
-          <div>
-            <h1 className={styles.title}>Корзина</h1>
-            <p className={styles.subtitle}>
-              Проверь выбранные товары перед оформлением заказа.
-            </p>
-          </div>
+          <h1 className={styles.title}>Корзина</h1>
 
           <div className={styles.headerActions}>
-            <Link
-              to="/shop/favorites"
-              state={favoritesLinkState}
-              className={styles.secondaryLink}
-            >
-              Перейти в избранное
-            </Link>
-
             {!isEmpty ? (
               <button
                 className={styles.clearButton}
@@ -132,6 +105,15 @@ export const ShopCartPage = observer(() => {
                 Очистить корзину
               </button>
             ) : null}
+
+            <Link
+              to="/shop/favorites"
+              state={favoritesLinkState}
+              className={styles.secondaryLink}
+            >
+              <span aria-hidden="true">♡</span>
+              Избранное
+            </Link>
           </div>
         </header>
 

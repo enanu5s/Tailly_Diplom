@@ -30,6 +30,8 @@ import type { MOCK_DB_VERSION } from './constants';
 
 export type MockDbMeta = {
   schemaVersion: typeof MOCK_DB_VERSION;
+  /** Версия сида CMS (посты/баннеры) — при смене пересобираем `cms` из `cms.seed.ts` */
+  cmsDataRevision?: number;
   /** Старые ключи localStorage уже смержены в этот снимок */
   legacyImported?: boolean;
 };

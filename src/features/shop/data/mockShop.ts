@@ -1,6 +1,7 @@
 import type {
   CatalogFilterState,
   CatalogMetaResponse,
+  ProductDeliveryRange,
   Product,
   ProductCategory,
   ProductCharacteristics,
@@ -46,18 +47,40 @@ function calculateRating(reviews: ProductReview[]): number {
   return Number((total / reviews.length).toFixed(1));
 }
 
-export type ProductMockInput = Omit<Product, 'rating' | 'reviewsCount'>;
+export type ProductMockInput = Omit<
+  Product,
+  'rating' | 'reviewsCount' | 'deliveryRange'
+> & {
+  deliveryRange?: ProductDeliveryRange;
+};
 
 export function createProduct(input: ProductMockInput): Product {
   const reviewsCount = input.reviews.length;
   const rating = calculateRating(input.reviews);
   const characteristics = buildMockCharacteristics(input);
+  const deliveryRange = input.deliveryRange ?? buildDefaultDeliveryRange(input.id);
 
   return {
     ...input,
     rating,
     reviewsCount,
     characteristics,
+    deliveryRange,
+  };
+}
+
+function buildDefaultDeliveryRange(productId: string): ProductDeliveryRange {
+  const baseDay = 18;
+  const spread = 4;
+  const offset = productId
+    .split('')
+    .reduce((acc, char) => acc + char.charCodeAt(0), 0) % spread;
+  const fromDay = baseDay + offset;
+  const toDay = fromDay + 4;
+
+  return {
+    from: `2026-04-${String(fromDay).padStart(2, '0')}T00:00:00.000Z`,
+    to: `2026-04-${String(toDay).padStart(2, '0')}T00:00:00.000Z`,
   };
 }
 
@@ -102,10 +125,13 @@ export function enrichMockProductData(product: Product): Product {
           },
         ];
 
+  const deliveryRange = product.deliveryRange ?? buildDefaultDeliveryRange(product.id);
+
   return {
     ...product,
     images: safeImages,
     characteristics: buildMockCharacteristics(product),
+    deliveryRange,
   };
 }
 

@@ -6,7 +6,7 @@
   min-height: 100%;
   padding: 12px;
   border: 1px solid #ede8e2;
-  border-radius: 18px;
+  border-radius: 20px;
   background: #ffffff;
   box-shadow: 0 6px 18px rgba(33, 21, 0, 0.06);
   overflow: hidden;
@@ -19,7 +19,7 @@
 .card:hover {
   transform: translateY(-2px);
   border-color: #f2d5b1;
-  box-shadow: 0 10px 26px rgba(255, 152, 28, 0.16);
+  box-shadow: 0 4px 20px rgba(255, 152, 28, 0.6);
 }
 
 .favoriteButton {
@@ -43,6 +43,14 @@
     border-color 0.2s ease,
     color 0.2s ease,
     transform 0.2s ease;
+}
+
+.favoriteIcon {
+  display: block;
+  width: 16px;
+  height: 14px;
+  object-fit: contain;
+  pointer-events: none;
 }
 
 .favoriteButton:hover {
@@ -196,7 +204,7 @@
 
 .cartButton {
   width: 100%;
-  min-height: 28px;
+  min-height: 45px;
   border: none;
   border-radius: 999px;
   background: #211500;
@@ -223,11 +231,11 @@
 
 .quantityControl {
   display: grid;
-  grid-template-columns: 28px 1fr 28px;
+  grid-template-columns: 28px 1fr 34px;
   align-items: center;
   gap: 8px;
   width: 100%;
-  min-height: 28px;
+  height: 45px;
   padding: 2px 4px;
   border: 1px solid #ddd6ce;
   border-radius: 999px;
@@ -238,8 +246,8 @@
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  width: 24px;
-  height: 24px;
+  width: 35px;
+  height: 35px;
   border: none;
   border-radius: 999px;
   background: #ffa232;
@@ -254,6 +262,14 @@
   background: #ebe7e1;
   color: #9d958b;
   cursor: not-allowed;
+}
+
+.quantityIcon {
+  display: block;
+  width: 14px;
+  height: 14px;
+  object-fit: contain;
+  pointer-events: none;
 }
 
 .quantityValue {

@@ -11,6 +11,7 @@ import { shopFavoritesStore } from '@/features/shop/model/shopFavoritesStore';
 import { CatalogFilters, CatalogPagination, ProductCard } from '@/features/shop/ui';
 import { shouldShowShopConsumerControls } from '@/shared/lib/auth/roleAccess';
 import { useAppNavigate } from '@/shared/lib/navigation/useAppNavigate';
+import favoriteOutlineIconUrl from '@/shared/ui/icons/favorite-outline.svg';
 
 import styles from './ShopCatalogPage.module.css';
 
@@ -176,7 +177,9 @@ export const ShopCatalogPage = observer(() => {
                     state={favoritesLinkState}
                     className={styles.quickActionButton}
                   >
-                    <span className={styles.quickActionIcon}>♡</span>
+                    <span className={styles.quickActionIcon} aria-hidden="true">
+                      <img className={styles.quickActionFavoriteIcon} src={favoriteOutlineIconUrl} alt="" />
+                    </span>
                     <span>Избранное</span>
                   </Link>
 
@@ -194,10 +197,6 @@ export const ShopCatalogPage = observer(() => {
             <div className={styles.toolbar}>
               <div className={styles.results}>
                 {isLoading && !isInitialized ? 'Загрузка каталога...' : `Найдено товаров: ${total}`}
-              </div>
-
-              <div className={styles.currentPage}>
-                Страница {filters.page} из {shopCatalogStore.totalPages}
               </div>
             </div>
 

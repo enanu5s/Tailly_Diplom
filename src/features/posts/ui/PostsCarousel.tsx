@@ -1,7 +1,6 @@
 //src/features/posts/ui/PostsCarousel.tsx
-
 import { observer } from 'mobx-react-lite';
-import { useEffect, useMemo, useRef } from 'react';
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { useLocation } from 'react-router-dom';
 
 import { useAppNavigate } from '@/shared/lib/navigation/useAppNavigate';
@@ -13,84 +12,155 @@ import { postsStore } from '../model/postsStore';
 
 import type { Post } from '../model/types';
 
-const TEXT_LIMIT = 220;
-
-function PostCardImages({ post }: { post: Post }) {
-  const urls = getPostGalleryUrls(post);
-
-  if (urls.length === 0) {
-    return null;
-  }
-
-  const [main, ...rest] = urls;
-  const maxThumbs = 3;
-  const thumbs = rest.slice(0, maxThumbs);
-  const hidden = Math.max(0, rest.length - maxThumbs);
-
-  return (
-    <div className={styles.cardMedia}>
-      <div className={styles.cardMainImageWrap}>
-        <img className={styles.cardMainImage} src={main} alt="" loading="lazy" />
-        {urls.length > 1 ? (
-          <span className={styles.photoCount}>{urls.length} фото</span>
-        ) : null}
-      </div>
-      {thumbs.length > 0 ? (
-        <div className={styles.cardThumbRow}>
-          {thumbs.map((url, index) => (
-            <div key={`${url}-${index}`} className={styles.cardThumb}>
-              <img src={url} alt="" loading="lazy" />
-            </div>
-          ))}
-          {hidden > 0 ? <div className={styles.cardThumbMore}>+{hidden}</div> : null}
-        </div>
-      ) : null}
-    </div>
-  );
+function formatDate(date: string) {
+  return new Date(date).toLocaleDateString('ru-RU', {
+    year: 'numeric',
+    month: '2-digit',
+    day: '2-digit',
+  });
 }
 
-function truncate(text: string, limit: number) {
-  const t = text.trim();
-  if (t.length <= limit) return t;
-  return t.slice(0, limit);
+function PostCardImage({ post }: { post: Post }) {
+  const urls = getPostGalleryUrls(post);
+  const imageUrl = urls[0];
+
+  if (!imageUrl) {
+    return <div className={styles.imageFallback} aria-hidden="true" />;
+  }
+
+  return <img className={styles.cardImage} src={imageUrl} alt="" loading="lazy" />;
+}
+
+function PostTags({ post }: { post: Post }) {
+  const tags = post.tags ?? [];
+
+  if (tags.length === 0) {
+    return <div className={styles.tagsPlaceholder} />;
+  }
+
+  return (
+    <div className={styles.tags}>
+      {tags.slice(0, 3).map((tag) => (
+        <span key={tag} className={styles.tag}>
+          #{tag}
+        </span>
+      ))}
+    </div>
+  );
 }
 
 export const PostsCarousel = observer(() => {
   const scrollerRef = useRef<HTMLDivElement | null>(null);
 
+  const [isAtStart, setIsAtStart] = useState(true);
+  const [isAtEnd, setIsAtEnd] = useState(false);
+  const [hasOverflow, setHasOverflow] = useState(false);
+
+  const updateScrollState = useCallback(() => {
+    const el = scrollerRef.current;
+
+    if (!el) {
+      return;
+    }
+
+    const computedStyle = window.getComputedStyle(el);
+    const startInset = Number.parseFloat(computedStyle.paddingLeft) || 0;
+    const maxScrollLeft = el.scrollWidth - el.clientWidth;
+    const threshold = 2;
+    const overflow = maxScrollLeft > threshold;
+
+    setHasOverflow(overflow);
+    setIsAtStart(!overflow || el.scrollLeft <= startInset + threshold);
+    setIsAtEnd(!overflow || el.scrollLeft >= maxScrollLeft - threshold);
+  }, []);
+
   const navigate = useAppNavigate();
   const location = useLocation();
+  const items = postsStore.latest.items;
+
+  useEffect(() => {
+    void postsStore.loadLatest();
+  }, []);
+
+  useEffect(() => {
+    updateScrollState();
+  }, [items.length, updateScrollState]);
+
+  const canScroll = useMemo(() => items.length > 0, [items.length]);
 
   const goToAllPosts = () => {
     saveScrollPosition(location.pathname);
     navigate('/posts');
   };
 
-  useEffect(() => {
-    void postsStore.loadLatest(5);
-  }, []);
-
-  const items = postsStore.latest.items;
-
-  const canScroll = useMemo(() => items.length > 0, [items.length]);
+  const openPost = (postId: string) => {
+    saveScrollPosition(location.pathname);
+    navigate(`/posts/${postId}`);
+  };
 
   const scrollByCard = (dir: -1 | 1) => {
     const el = scrollerRef.current;
-    if (!el) return;
+
+    if (!el) {
+      return;
+    }
+
     const card = el.querySelector<HTMLElement>(`.${styles.card}`);
-    const step = (card?.offsetWidth ?? 320) + 16;
+    const step = (card?.offsetWidth ?? 596) + 20;
+
     el.scrollBy({ left: dir * step, behavior: 'smooth' });
+    window.setTimeout(updateScrollState, 220);
   };
 
   return (
     <section className={styles.section}>
       <div className={styles.container}>
-        <div className={styles.headerRow}>
-          <h2 className={styles.title}>Актуальные посты и новости</h2>
+        <h2 className={styles.title}>Актуальные посты и новости</h2>
 
-          <div className={styles.controls}>
+        {postsStore.latest.error && (
+          <div className={styles.error}>{postsStore.latest.error}</div>
+        )}
+
+        <div
+          className={`${styles.carousel} ${hasOverflow ? styles.hasOverflow : ''} ${
+            isAtStart ? styles.atStart : ''
+          } ${
+            isAtEnd ? styles.atEnd : ''
+          }`}
+        >
+          <div className={styles.scroller} ref={scrollerRef} onScroll={updateScrollState}>
+            {postsStore.latest.loading && items.length === 0
+              ? Array.from({ length: 3 }).map((_, index) => (
+                  <div key={index} className={styles.skeletonCard} />
+                ))
+              : items.map((post) => (
+                  <button
+                    key={post.id}
+                    type="button"
+                    className={styles.card}
+                    onClick={() => openPost(post.id)}
+                  >
+                    <div className={styles.imageWrap}>
+                      <PostCardImage post={post} />
+                    </div>
+
+                    <PostTags post={post} />
+
+                    <h3 className={styles.cardTitle}>{post.title}</h3>
+
+                    <div className={styles.previewWrap}>
+                      <p className={styles.previewText}>{post.content.trim()}</p>
+                      <span className={styles.fade} aria-hidden="true" />
+                    </div>
+
+                    <span className={styles.date}>{formatDate(post.publishedAt)}</span>
+                  </button>
+                ))}
+          </div>
+
+          <div className={styles.bottomControls}>
             <button
-              className={styles.arrow}
+              className={`${styles.arrow} ${styles.arrowLeft}`}
               type="button"
               onClick={() => scrollByCard(-1)}
               disabled={!canScroll || postsStore.latest.loading}
@@ -98,8 +168,13 @@ export const PostsCarousel = observer(() => {
             >
               ←
             </button>
+
+            <button className={styles.allButton} type="button" onClick={goToAllPosts}>
+              Смотреть все посты и новости
+            </button>
+
             <button
-              className={styles.arrow}
+              className={`${styles.arrow} ${styles.arrowRight}`}
               type="button"
               onClick={() => scrollByCard(1)}
               disabled={!canScroll || postsStore.latest.loading}
@@ -108,55 +183,6 @@ export const PostsCarousel = observer(() => {
               →
             </button>
           </div>
-        </div>
-
-        {postsStore.latest.error && (
-          <div className={styles.error}>{postsStore.latest.error}</div>
-        )}
-
-        <div className={styles.scroller} ref={scrollerRef}>
-          {postsStore.latest.loading && items.length === 0 ? (
-            <div className={styles.skeletonRow}>
-              {Array.from({ length: 3 }).map((_, i) => (
-                <div key={i} className={styles.skeletonCard} />
-              ))}
-            </div>
-          ) : (
-            items.map((p) => (
-              <button
-                key={p.id}
-                type="button"
-                className={styles.card}
-                onClick={() => {
-                  saveScrollPosition(location.pathname);
-                  navigate(`/posts/${p.id}`);
-                }}
-              >
-                <div className={styles.cardHeader}>
-                  <div className={styles.cardTitle}>{p.title}</div>
-                  <div className={styles.cardDate}>
-                    {new Date(p.publishedAt).toLocaleDateString('ru-RU', {
-                      year: 'numeric',
-                      month: 'long',
-                      day: '2-digit',
-                    })}
-                  </div>
-                </div>
-
-                <PostCardImages post={p} />
-
-                <div className={styles.previewWrap}>
-                  <p className={styles.previewText}>{truncate(p.content, TEXT_LIMIT)}</p>
-                  <div className={styles.fade} />
-                </div>
-              </button>
-            ))
-          )}
-        </div>
-        <div className={styles.footerRow}>
-          <button className={styles.allButton} type="button" onClick={goToAllPosts}>
-            Смотреть все посты
-          </button>
         </div>
       </div>
     </section>

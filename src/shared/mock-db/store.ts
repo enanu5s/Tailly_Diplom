@@ -1,6 +1,7 @@
 // src/shared/mock-db/store.ts
 
 import { buildInitialSnapshot } from './buildInitialSnapshot';
+import { applyCmsDataRevisionIfStale } from './applyCmsDataRevision';
 import { cloneDeep } from './cloneDeep';
 import { MOCK_DB_STORAGE_KEY, MOCK_DB_VERSION } from './constants';
 import { mergeLegacyLocalStorageIfNeeded } from './migrateLegacy';
@@ -67,8 +68,9 @@ function loadOrCreate(): MockDbSnapshot {
 
       if (normalized) {
         const merged = mergeLegacyLocalStorageIfNeeded(normalized);
-        persistSnapshot(merged);
-        return merged;
+        const withCms = applyCmsDataRevisionIfStale(merged);
+        persistSnapshot(withCms);
+        return withCms;
       }
     }
   } catch {
@@ -77,8 +79,9 @@ function loadOrCreate(): MockDbSnapshot {
 
   const fresh = buildInitialSnapshot();
   const mergedFresh = mergeLegacyLocalStorageIfNeeded(fresh);
-  persistSnapshot(mergedFresh);
-  return mergedFresh;
+  const withCmsFresh = applyCmsDataRevisionIfStale(mergedFresh);
+  persistSnapshot(withCmsFresh);
+  return withCmsFresh;
 }
 
 /**
