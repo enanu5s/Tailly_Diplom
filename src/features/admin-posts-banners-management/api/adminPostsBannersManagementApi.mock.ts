@@ -16,6 +16,21 @@ import type {
   SaveAdminPostPayload,
 } from '../model/types';
 
+const DEFAULT_POST_TAG_OPTIONS = [
+  'собаки',
+  'кошки',
+  'здоровье',
+  'весна',
+  'путешествия',
+  'совет',
+  'поведение',
+  'передержка',
+  'документы',
+  'зима',
+];
+
+const MOCK_PAGE_SIZE = 10;
+
 function createId(prefix: string): string {
   return `${prefix}-${Date.now()}-${Math.random().toString(36).slice(2, 8)}`;
 }
@@ -48,9 +63,15 @@ function resolveBannerLinkUrl(target: BannerLinkTarget, linkedPostId?: string): 
 }
 
 export async function mockGetAdminPostsBanners(): Promise<AdminPostsBannersResponse> {
+  const posts = await readAdminManagedPosts();
+  const banners = readAdminManagedBanners();
+
   return {
-    posts: await readAdminManagedPosts(),
-    banners: readAdminManagedBanners(),
+    posts,
+    banners,
+    postTagOptions: DEFAULT_POST_TAG_OPTIONS,
+    postsTotalPages: Math.max(1, Math.ceil(posts.length / MOCK_PAGE_SIZE)),
+    bannersTotalPages: Math.max(1, Math.ceil(banners.length / MOCK_PAGE_SIZE)),
   };
 }
 

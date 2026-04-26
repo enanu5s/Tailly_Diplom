@@ -39,6 +39,9 @@ export type AdminManagedBanner = {
 export type AdminPostsBannersResponse = {
   posts: AdminManagedPost[];
   banners: AdminManagedBanner[];
+  postTagOptions: string[];
+  postsTotalPages: number;
+  bannersTotalPages: number;
 };
 
 export type SaveAdminPostPayload = {

@@ -30,14 +30,28 @@ async function getRequest() {
 async function realGetAdminPostsBanners(): Promise<AdminPostsBannersResponse> {
   const request = await getRequest();
 
-  const [posts, banners] = await Promise.all([
+  const [posts, banners, meta] = await Promise.all([
     request<AdminManagedPost[]>('/admin/content/posts'),
     request<AdminManagedBanner[]>('/admin/content/banners'),
+    request<{
+      postTagOptions?: string[];
+      postsTotalPages?: number;
+      bannersTotalPages?: number;
+    }>('/admin/content/meta').catch(() => ({})),
   ]);
 
   return {
     posts,
     banners,
+    postTagOptions: Array.isArray(meta.postTagOptions) ? meta.postTagOptions : [],
+    postsTotalPages:
+      typeof meta.postsTotalPages === 'number' && meta.postsTotalPages > 0
+        ? meta.postsTotalPages
+        : 1,
+    bannersTotalPages:
+      typeof meta.bannersTotalPages === 'number' && meta.bannersTotalPages > 0
+        ? meta.bannersTotalPages
+        : 1,
   };
 }
 

@@ -12,26 +12,49 @@ import type {
   BannerPlacement,
 } from './types';
 
+const DEFAULT_POST_TAG_OPTIONS = [
+  'собаки',
+  'кошки',
+  'здоровье',
+  'весна',
+  'путешествия',
+  'совет',
+  'поведение',
+  'передержка',
+  'документы',
+  'зима',
+];
+
 type ManagementTab = 'posts' | 'banners';
 
 export type AdminPostsListSort =
   | 'updated_desc'
   | 'updated_asc'
   | 'title_asc'
-  | 'title_desc'
-  | 'published_desc';
+  | 'title_desc';
 
 export type AdminBannersListSort =
   | 'updated_desc'
   | 'updated_asc'
   | 'title_asc'
-  | 'title_desc'
-  | 'starts_desc'
-  | 'starts_asc';
+  | 'title_desc';
 
 type PostStatusFilter = 'all' | AdminPostStatus;
 type BannerStatusFilter = 'all' | AdminBannerStatus;
 type BannerPlacementFilter = 'all' | BannerPlacement;
+type PendingDeletion =
+  | {
+      kind: 'post';
+      item: AdminManagedPost;
+      index: number;
+      timeoutId: number;
+    }
+  | {
+      kind: 'banner';
+      item: AdminManagedBanner;
+      index: number;
+      timeoutId: number;
+    };
 
 function compareRu(a: string, b: string): number {
   return a.localeCompare(b, 'ru', { sensitivity: 'base' });
@@ -52,13 +75,6 @@ function sortPostsList(
       return next.sort((a, b) => compareRu(a.title, b.title));
     case 'title_desc':
       return next.sort((a, b) => compareRu(b.title, a.title));
-    case 'published_desc':
-      return next.sort((a, b) => {
-        const ta = a.publishedAt ? new Date(a.publishedAt).getTime() : 0;
-        const tb = b.publishedAt ? new Date(b.publishedAt).getTime() : 0;
-
-        return tb - ta;
-      });
     case 'updated_desc':
     default:
       return next.sort(
@@ -82,20 +98,6 @@ function sortBannersList(
       return next.sort((a, b) => compareRu(a.title, b.title));
     case 'title_desc':
       return next.sort((a, b) => compareRu(b.title, a.title));
-    case 'starts_asc':
-      return next.sort((a, b) => {
-        const ta = a.startsAt ? new Date(a.startsAt).getTime() : 0;
-        const tb = b.startsAt ? new Date(b.startsAt).getTime() : 0;
-
-        return ta - tb;
-      });
-    case 'starts_desc':
-      return next.sort((a, b) => {
-        const ta = a.startsAt ? new Date(a.startsAt).getTime() : 0;
-        const tb = b.startsAt ? new Date(b.startsAt).getTime() : 0;
-
-        return tb - ta;
-      });
     case 'updated_desc':
     default:
       return next.sort(
@@ -198,6 +200,9 @@ function readFileAsDataUrl(file: File): Promise<string> {
 class AdminPostsBannersManagementStore {
   posts: AdminManagedPost[] = [];
   banners: AdminManagedBanner[] = [];
+  postTagOptions: string[] = [];
+  postsTotalPages = 1;
+  bannersTotalPages = 1;
 
   isLoading = false;
   loadError = '';
@@ -220,6 +225,7 @@ class AdminPostsBannersManagementStore {
 
   deletingPostId: string | null = null;
   deletingBannerId: string | null = null;
+  pendingDeletion: PendingDeletion | null = null;
 
   isPostEditorOpen = false;
   isBannerEditorOpen = false;
@@ -263,6 +269,14 @@ class AdminPostsBannersManagementStore {
   resetFeedback(): void {
     this.actionError = '';
     this.successMessage = '';
+  }
+
+  clearSuccessMessage(): void {
+    this.successMessage = '';
+  }
+
+  get hasPendingDeletion(): boolean {
+    return this.pendingDeletion !== null;
   }
 
   get filteredPosts(): AdminManagedPost[] {
@@ -337,6 +351,11 @@ class AdminPostsBannersManagementStore {
       runInAction(() => {
         this.posts = content.posts;
         this.banners = content.banners;
+        this.postTagOptions = content.postTagOptions.length
+          ? content.postTagOptions
+          : DEFAULT_POST_TAG_OPTIONS;
+        this.postsTotalPages = content.postsTotalPages;
+        this.bannersTotalPages = content.bannersTotalPages;
       });
     } catch (error) {
       runInAction(() => {
@@ -513,7 +532,7 @@ class AdminPostsBannersManagementStore {
   }
 
   async deletePost(post: AdminManagedPost): Promise<void> {
-    if (this.deletingPostId) {
+    if (this.deletingPostId || this.pendingDeletion) {
       return;
     }
 
@@ -525,33 +544,34 @@ class AdminPostsBannersManagementStore {
       return;
     }
 
+    const index = this.posts.findIndex((item) => item.id === post.id);
+
+    if (index < 0) {
+      return;
+    }
+
     runInAction(() => {
-      this.deletingPostId = post.id;
       this.actionError = '';
-      this.successMessage = '';
+      this.successMessage = `Публикация "${post.title}" удалена.`;
+      this.posts = this.posts.filter((item) => item.id !== post.id);
+
+      if (this.postForm.id === post.id) {
+        this.closePostEditor();
+      }
     });
 
-    try {
-      await adminPostsBannersManagementService.deletePost(post.id);
+    const timeoutId = window.setTimeout(() => {
+      void this.commitPendingDeletion();
+    }, 10000);
 
-      runInAction(() => {
-        this.posts = this.posts.filter((item) => item.id !== post.id);
-        this.successMessage = `Публикация "${post.title}" удалена.`;
-
-        if (this.postForm.id === post.id) {
-          this.closePostEditor();
-        }
-      });
-    } catch (error) {
-      runInAction(() => {
-        this.actionError =
-          error instanceof Error ? error.message : 'Не удалось удалить публикацию.';
-      });
-    } finally {
-      runInAction(() => {
-        this.deletingPostId = null;
-      });
-    }
+    runInAction(() => {
+      this.pendingDeletion = {
+        kind: 'post',
+        item: post,
+        index,
+        timeoutId,
+      };
+    });
   }
 
   startCreateBanner(): void {
@@ -661,7 +681,7 @@ class AdminPostsBannersManagementStore {
   }
 
   async deleteBanner(banner: AdminManagedBanner): Promise<void> {
-    if (this.deletingBannerId) {
+    if (this.deletingBannerId || this.pendingDeletion) {
       return;
     }
 
@@ -673,31 +693,87 @@ class AdminPostsBannersManagementStore {
       return;
     }
 
+    const index = this.banners.findIndex((item) => item.id === banner.id);
+
+    if (index < 0) {
+      return;
+    }
+
     runInAction(() => {
-      this.deletingBannerId = banner.id;
       this.actionError = '';
-      this.successMessage = '';
+      this.successMessage = `Баннер "${banner.title}" удалён.`;
+      this.banners = this.banners.filter((item) => item.id !== banner.id);
+
+      if (this.bannerForm.id === banner.id) {
+        this.closeBannerEditor();
+      }
     });
 
+    const timeoutId = window.setTimeout(() => {
+      void this.commitPendingDeletion();
+    }, 10000);
+
+    runInAction(() => {
+      this.pendingDeletion = {
+        kind: 'banner',
+        item: banner,
+        index,
+        timeoutId,
+      };
+    });
+  }
+
+  undoPendingDeletion(): void {
+    if (!this.pendingDeletion) {
+      return;
+    }
+
+    window.clearTimeout(this.pendingDeletion.timeoutId);
+
+    if (this.pendingDeletion.kind === 'post') {
+      const nextPosts = [...this.posts];
+      nextPosts.splice(this.pendingDeletion.index, 0, this.pendingDeletion.item);
+      this.posts = nextPosts;
+      this.successMessage = 'Удаление поста отменено.';
+    } else {
+      const nextBanners = [...this.banners];
+      nextBanners.splice(this.pendingDeletion.index, 0, this.pendingDeletion.item);
+      this.banners = nextBanners;
+      this.successMessage = 'Удаление баннера отменено.';
+    }
+
+    this.pendingDeletion = null;
+  }
+
+  private async commitPendingDeletion(): Promise<void> {
+    if (!this.pendingDeletion) {
+      return;
+    }
+
+    const deletion = this.pendingDeletion;
+    this.pendingDeletion = null;
+
     try {
-      await adminPostsBannersManagementService.deleteBanner(banner.id);
-
-      runInAction(() => {
-        this.banners = this.banners.filter((item) => item.id !== banner.id);
-        this.successMessage = `Баннер "${banner.title}" удалён.`;
-
-        if (this.bannerForm.id === banner.id) {
-          this.closeBannerEditor();
-        }
-      });
+      if (deletion.kind === 'post') {
+        await adminPostsBannersManagementService.deletePost(deletion.item.id);
+      } else {
+        await adminPostsBannersManagementService.deleteBanner(deletion.item.id);
+      }
     } catch (error) {
       runInAction(() => {
-        this.actionError =
-          error instanceof Error ? error.message : 'Не удалось удалить баннер.';
-      });
-    } finally {
-      runInAction(() => {
-        this.deletingBannerId = null;
+        if (deletion.kind === 'post') {
+          const nextPosts = [...this.posts];
+          nextPosts.splice(deletion.index, 0, deletion.item);
+          this.posts = nextPosts;
+          this.actionError =
+            error instanceof Error ? error.message : 'Не удалось удалить публикацию.';
+        } else {
+          const nextBanners = [...this.banners];
+          nextBanners.splice(deletion.index, 0, deletion.item);
+          this.banners = nextBanners;
+          this.actionError =
+            error instanceof Error ? error.message : 'Не удалось удалить баннер.';
+        }
       });
     }
   }
