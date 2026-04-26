@@ -66,10 +66,19 @@ function adminToEditForm(admin: ManagedAdmin): EditAdminForm {
   };
 }
 
+type PendingAdminDeletion = {
+  admin: ManagedAdmin;
+  index: number;
+  timeoutId: number;
+};
+
 class SuperAdminAdminsManagementStore {
+  private static readonly PAGE_SIZE = 10;
+
   admins: ManagedAdmin[] = [];
   isLoading = false;
   loadError = '';
+  currentPage = 1;
 
   isCreateModalOpen = false;
   isCreating = false;
@@ -79,6 +88,7 @@ class SuperAdminAdminsManagementStore {
 
   deletingAdminId: string | null = null;
   deleteError = '';
+  pendingAdminDeletion: PendingAdminDeletion | null = null;
 
   isEditModalOpen = false;
   editingAdminId: string | null = null;
@@ -106,6 +116,7 @@ class SuperAdminAdminsManagementStore {
   blockReason = '';
   blockedUntil = '';
   isPermanentBlock = false;
+  selectedQuickBlockDays: number | null = null;
 
   constructor() {
     makeAutoObservable(this, {}, { autoBind: true });
@@ -188,6 +199,44 @@ class SuperAdminAdminsManagementStore {
     );
   }
 
+  get totalPages(): number {
+    return Math.max(1, Math.ceil(this.activeAdmins.length / SuperAdminAdminsManagementStore.PAGE_SIZE));
+  }
+
+  get paginatedActiveAdmins(): ManagedAdmin[] {
+    const start = (this.currentPage - 1) * SuperAdminAdminsManagementStore.PAGE_SIZE;
+    const end = start + SuperAdminAdminsManagementStore.PAGE_SIZE;
+    return this.activeAdmins.slice(start, end);
+  }
+
+  get canGoPrevPage(): boolean {
+    return this.currentPage > 1;
+  }
+
+  get canGoNextPage(): boolean {
+    return this.currentPage < this.totalPages;
+  }
+
+  get hasPendingAdminDeletion(): boolean {
+    return this.pendingAdminDeletion !== null;
+  }
+
+  goToPrevPage(): void {
+    if (!this.canGoPrevPage) {
+      return;
+    }
+
+    this.currentPage -= 1;
+  }
+
+  goToNextPage(): void {
+    if (!this.canGoNextPage) {
+      return;
+    }
+
+    this.currentPage += 1;
+  }
+
   get canSubmitCreateForm(): boolean {
     return (
       !this.isCreating &&
@@ -205,10 +254,12 @@ class SuperAdminAdminsManagementStore {
 
   setBlockedUntil(value: string): void {
     this.blockedUntil = value;
+    this.selectedQuickBlockDays = null;
   }
 
   setPermanentBlock(value: boolean): void {
     this.isPermanentBlock = value;
+    this.selectedQuickBlockDays = null;
 
     if (value) {
       this.blockedUntil = '';
@@ -218,6 +269,7 @@ class SuperAdminAdminsManagementStore {
   applyQuickBlockPeriod(days: number): void {
     this.isPermanentBlock = false;
     this.blockedUntil = buildBlockedUntilValue(days);
+    this.selectedQuickBlockDays = days;
   }
 
   openBlockModal(admin: ManagedAdmin): void {
@@ -230,6 +282,7 @@ class SuperAdminAdminsManagementStore {
     this.blockReason = '';
     this.blockedUntil = '';
     this.isPermanentBlock = false;
+    this.selectedQuickBlockDays = null;
     this.changeError = '';
     this.isBlockModalOpen = true;
   }
@@ -240,6 +293,7 @@ class SuperAdminAdminsManagementStore {
     this.blockReason = '';
     this.blockedUntil = '';
     this.isPermanentBlock = false;
+    this.selectedQuickBlockDays = null;
   }
 
   get canSubmitBlock(): boolean {
@@ -256,6 +310,10 @@ class SuperAdminAdminsManagementStore {
     this.successMessage = '';
   }
 
+  clearSuccessMessage(): void {
+    this.successMessage = '';
+  }
+
   async load(): Promise<void> {
     runInAction(() => {
       this.isLoading = true;
@@ -267,6 +325,7 @@ class SuperAdminAdminsManagementStore {
 
       runInAction(() => {
         this.admins = admins;
+        this.currentPage = 1;
         this.successMessage = '';
       });
     } catch (error) {
@@ -312,6 +371,7 @@ class SuperAdminAdminsManagementStore {
 
       runInAction(() => {
         this.admins.unshift(result.admin);
+        this.currentPage = 1;
         this.createdTemporaryPassword = result.temporaryPassword;
         this.recentlyCreatedAdminEmail = result.admin.email;
         this.form = createInitialForm();
@@ -482,22 +542,84 @@ class SuperAdminAdminsManagementStore {
     }
   }
 
-  async deleteAdmin(adminId: string): Promise<void> {
+  async deleteAdmin(admin: ManagedAdmin): Promise<void> {
+    if (this.pendingAdminDeletion) {
+      return;
+    }
+
+    const fullName = [admin.lastName, admin.firstName, admin.middleName]
+      .filter(Boolean)
+      .join(' ');
+    const isConfirmed = window.confirm(
+      `Вы точно хотите удалить администратора?\n\n${fullName}\n${admin.email}`,
+    );
+
+    if (!isConfirmed) {
+      return;
+    }
+
+    const index = this.admins.findIndex((item) => item.adminId === admin.adminId);
+    if (index < 0) {
+      return;
+    }
+
     runInAction(() => {
-      this.deletingAdminId = adminId;
       this.deleteError = '';
+      this.successMessage = `Администратор ${admin.email} удалён.`;
+      this.admins = this.admins.filter((item) => item.adminId !== admin.adminId);
+      this.currentPage = Math.min(this.currentPage, this.totalPages);
+    });
+
+    const timeoutId = window.setTimeout(() => {
+      void this.commitPendingAdminDeletion();
+    }, 6000);
+
+    runInAction(() => {
+      this.pendingAdminDeletion = {
+        admin,
+        index,
+        timeoutId,
+      };
+    });
+  }
+
+  undoPendingAdminDeletion(): void {
+    if (!this.pendingAdminDeletion) {
+      return;
+    }
+
+    window.clearTimeout(this.pendingAdminDeletion.timeoutId);
+
+    const nextAdmins = [...this.admins];
+    nextAdmins.splice(this.pendingAdminDeletion.index, 0, this.pendingAdminDeletion.admin);
+    this.admins = nextAdmins;
+    this.currentPage = Math.min(this.currentPage, this.totalPages);
+    this.successMessage = 'Удаление администратора отменено.';
+    this.pendingAdminDeletion = null;
+  }
+
+  private async commitPendingAdminDeletion(): Promise<void> {
+    if (!this.pendingAdminDeletion) {
+      return;
+    }
+
+    const deletion = this.pendingAdminDeletion;
+    this.pendingAdminDeletion = null;
+
+    runInAction(() => {
+      this.deletingAdminId = deletion.admin.adminId;
     });
 
     try {
       await superAdminAdminsManagementService.deleteAdmin({
-        adminId,
-      });
-
-      runInAction(() => {
-        this.admins = this.admins.filter((admin) => admin.adminId !== adminId);
+        adminId: deletion.admin.adminId,
       });
     } catch (error) {
       runInAction(() => {
+        const nextAdmins = [...this.admins];
+        nextAdmins.splice(deletion.index, 0, deletion.admin);
+        this.admins = nextAdmins;
+        this.currentPage = Math.min(this.currentPage, this.totalPages);
         this.deleteError =
           error instanceof Error ? error.message : 'Не удалось удалить администратора.';
       });

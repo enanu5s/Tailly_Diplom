@@ -1,12 +1,11 @@
 // src/features/super-admin-admins-management/ui/SuperAdminAdminsManagementSection.tsx
-
 import { observer } from 'mobx-react-lite';
 import { useEffect } from 'react';
+import { useAppNavigate } from '@/shared/lib/navigation/useAppNavigate';
 
 import styles from './SuperAdminAdminsManagementSection.module.css';
 import {
   ADMIN_DEPARTMENT_OPTIONS,
-  ADMIN_POSITION_OPTIONS,
   mergeWithCurrentOption,
 } from '../data/adminOrganizationOptions';
 import { superAdminAdminsManagementStore } from '../model/superAdminAdminsManagementStore';
@@ -52,44 +51,78 @@ function formatDateTime(value?: string | null): string {
   }).format(date);
 }
 
+function getFullName(admin: ManagedAdmin): string {
+  return [admin.lastName, admin.firstName, admin.middleName].filter(Boolean).join(' ');
+}
+
 function getAccessStatusBadge(admin: ManagedAdmin): { label: string; className: string } {
   if (admin.isBlocked) {
     return { label: 'Заблокирован', className: styles.statusBlocked };
   }
 
   if (admin.passwordAttemptsLockUntil) {
-    return { label: 'Временный лок входа', className: styles.statusPasswordLock };
+    return { label: 'Лок входа', className: styles.statusPasswordLock };
   }
 
   return { label: 'Активен', className: styles.statusActive };
 }
 
+type AdminMetaProps = {
+  label: string;
+  value: string;
+};
+
+function AdminMeta({ label, value }: AdminMetaProps): ReactElement {
+  return (
+    <div className={styles.metaLine}>
+      <span className={styles.metaLabel}>{label}:</span>
+      <span className={styles.metaValue}>{value}</span>
+    </div>
+  );
+}
+
 export const SuperAdminAdminsManagementSection = observer((): ReactElement => {
   const store = superAdminAdminsManagementStore;
+  const navigate = useAppNavigate();
 
   useEffect(() => {
     void store.load();
   }, [store]);
 
+  useEffect(() => {
+    if (!store.successMessage) {
+      return;
+    }
+
+    const timeoutId = window.setTimeout(() => {
+      store.clearSuccessMessage();
+    }, 6000);
+
+    return () => {
+      window.clearTimeout(timeoutId);
+    };
+  }, [store, store.successMessage]);
+
   return (
     <div className={styles.root}>
-      <div className={styles.hero}>
-        <div className={styles.heroContent}>
-          <span className={styles.badge}>Только для главного администратора</span>
+      <button
+        className={styles.backButton}
+        type="button"
+        onClick={() => navigate('/admin')}
+      >
+        <span className={styles.backIcon}>←</span>
+        Назад
+      </button>
 
-          <h1 className={styles.title}>Управление администраторами</h1>
-
-          <p className={styles.subtitle}>
-            Здесь можно создавать обычных администраторов, редактировать их данные
-            (должность и отдел — из списков), а также удалять неактуальные аккаунты.
-          </p>
-        </div>
+      <div className={styles.pageHeader}>
+        <h1 className={styles.title}>Управление администраторами</h1>
 
         <button
-          className={styles.primaryButton}
+          className={styles.addButton}
           type="button"
           onClick={() => store.openCreateModal()}
         >
+          <span className={styles.addIcon}>＋</span>
           Добавить администратора
         </button>
       </div>
@@ -99,12 +132,21 @@ export const SuperAdminAdminsManagementSection = observer((): ReactElement => {
       ) : null}
 
       {store.successMessage ? (
-        <div className={styles.successBanner}>{store.successMessage}</div>
+        <div className={styles.successBanner}>
+          <span>{store.successMessage}</span>
+          {store.hasPendingAdminDeletion ? (
+            <button
+              type="button"
+              className={styles.successUndoButton}
+              onClick={() => store.undoPendingAdminDeletion()}
+            >
+              Отменить
+            </button>
+          ) : null}
+        </div>
       ) : null}
 
-      {store.deleteError ? (
-        <div className={styles.errorBanner}>{store.deleteError}</div>
-      ) : null}
+      {store.deleteError ? <div className={styles.errorBanner}>{store.deleteError}</div> : null}
 
       {store.isLoading ? (
         <div className={styles.stateCard}>Загрузка администраторов...</div>
@@ -115,146 +157,82 @@ export const SuperAdminAdminsManagementSection = observer((): ReactElement => {
       ) : null}
 
       {!store.isLoading && !store.loadError ? (
-        <div className={styles.content}>
-          <section className={styles.section}>
-            <div className={styles.sectionHeader}>
-              <h2 className={styles.sectionTitle}>Активные администраторы</h2>
-              <span className={styles.counter}>{store.activeAdmins.length}</span>
-            </div>
+        <section className={styles.section}>
+          <h2 className={styles.sectionTitle}>
+            Активные администраторы: {store.activeAdmins.length}
+          </h2>
 
-            {store.activeAdmins.length === 0 ? (
-              <div className={styles.emptyCard}>Пока нет активных администраторов.</div>
-            ) : (
+          {store.activeAdmins.length === 0 ? (
+            <div className={styles.emptyCard}>Пока нет активных администраторов.</div>
+          ) : (
+            <>
               <div className={styles.grid}>
-                {store.activeAdmins.map((admin) => {
+                {store.paginatedActiveAdmins.map((admin) => {
                   const accessBadge = getAccessStatusBadge(admin);
 
                   return (
-                  <article key={admin.adminId} className={styles.card}>
-                    <div className={styles.cardTop}>
-                      <div>
-                        <div className={styles.cardTitle}>
-                          {admin.lastName} {admin.firstName} {admin.middleName ?? ''}
+                    <article key={admin.adminId} className={styles.card}>
+                      <div className={styles.cardDepartment}>
+                        Отдел: {admin.department || 'Не указано'}
+                      </div>
+
+                      <span className={accessBadge.className}>{accessBadge.label}</span>
+
+                      <h3 className={styles.cardTitle}>{getFullName(admin)}</h3>
+
+                      <div className={styles.cardEmail}>{admin.email}</div>
+
+                      <div className={styles.cardInfo}>
+                        <div className={styles.cardInfoColumn}>
+                          <AdminMeta label="Дата рождения" value={formatDate(admin.birthDate)} />
+                          <AdminMeta label="Телефон" value={admin.phone || '—'} />
+                          <AdminMeta label="Создан" value={formatDate(admin.createdAt)} />
+                          <AdminMeta
+                            label="Последний вход"
+                            value={formatDate(admin.lastLoginAt)}
+                          />
                         </div>
 
-                        <div className={styles.cardEmail}>{admin.email}</div>
+                        <div className={styles.cardInfoColumn}>
+                          <AdminMeta
+                            label="Временный лок входа (пароль)"
+                            value={formatDateTime(admin.passwordAttemptsLockUntil)}
+                          />
+                          <AdminMeta
+                            label="Блокировка до"
+                            value={
+                              admin.isPermanentBlock
+                                ? 'Навсегда'
+                                : formatDateTime(admin.blockedUntil)
+                            }
+                          />
+                          <AdminMeta
+                            label="Причина блокировки"
+                            value={admin.blockReason || '—'}
+                          />
+                        </div>
                       </div>
 
-                      <div className={styles.badges}>
-                        <span
-                          className={
-                            admin.role === 'super_admin'
-                              ? styles.roleSuper
-                              : styles.roleAdmin
-                          }
-                        >
-                          {admin.role === 'super_admin'
-                            ? 'Главный администратор'
-                            : 'Администратор'}
-                        </span>
-                        <span className={accessBadge.className}>{accessBadge.label}</span>
-                      </div>
-                    </div>
-
-                    <div className={styles.cardGrid}>
-                      <div className={styles.metaItem}>
-                        <span className={styles.metaLabel}>Дата рождения</span>
-                        <span className={styles.metaValue}>
-                          {formatDate(admin.birthDate)}
-                        </span>
-                      </div>
-
-                      <div className={styles.metaItem}>
-                        <span className={styles.metaLabel}>Телефон</span>
-                        <span className={styles.metaValue}>{admin.phone || '—'}</span>
-                      </div>
-
-                      <div className={styles.metaItem}>
-                        <span className={styles.metaLabel}>Должность</span>
-                        <span className={styles.metaValue}>{admin.position || '—'}</span>
-                      </div>
-
-                      <div className={styles.metaItem}>
-                        <span className={styles.metaLabel}>Отдел</span>
-                        <span className={styles.metaValue}>
-                          {admin.department || '—'}
-                        </span>
-                      </div>
-
-                      <div className={styles.metaItem}>
-                        <span className={styles.metaLabel}>Создан</span>
-                        <span className={styles.metaValue}>
-                          {formatDate(admin.createdAt)}
-                        </span>
-                      </div>
-
-                      <div className={styles.metaItem}>
-                        <span className={styles.metaLabel}>Последний вход</span>
-                        <span className={styles.metaValue}>
-                          {formatDate(admin.lastLoginAt)}
-                        </span>
-                      </div>
-
-                      <div className={styles.metaItem}>
-                        <span className={styles.metaLabel}>Причина блокировки</span>
-                        <span className={styles.metaValue}>
-                          {admin.blockReason || '—'}
-                        </span>
-                      </div>
-
-                      <div className={styles.metaItem}>
-                        <span className={styles.metaLabel}>Блокировка до</span>
-                        <span className={styles.metaValue}>
-                          {admin.isPermanentBlock
-                            ? 'Навсегда'
-                            : formatDateTime(admin.blockedUntil)}
-                        </span>
-                      </div>
-
-                      <div className={styles.metaItem}>
-                        <span className={styles.metaLabel}>Временный лок входа (пароль)</span>
-                        <span className={styles.metaValue}>
-                          {formatDateTime(admin.passwordAttemptsLockUntil)}
-                        </span>
-                      </div>
-                    </div>
-
-                    <div className={styles.cardActions}>
-                      {admin.role === 'admin' ? (
+                      <div className={styles.cardActions}>
                         <button
-                          className={styles.secondaryButton}
+                          className={styles.dangerButton}
                           type="button"
                           disabled={
-                            store.isUpdating ||
+                            admin.role === 'super_admin' ||
                             store.deletingAdminId === admin.adminId ||
                             store.changingAdminId === admin.adminId
                           }
-                          onClick={() => store.openEditModal(admin)}
+                          onClick={() => {
+                            void store.deleteAdmin(admin);
+                          }}
                         >
-                          Редактировать
+                          {store.deletingAdminId === admin.adminId ? 'Удаление...' : 'Удалить'}
                         </button>
-                      ) : null}
-
-                      <div className={styles.cardActionsRisk}>
-                        {admin.role === 'admin' && admin.passwordAttemptsLockUntil ? (
-                          <button
-                            className={styles.secondaryButton}
-                            type="button"
-                            disabled={store.changingAdminId === admin.adminId}
-                            onClick={() => {
-                              void store.clearAdminPasswordLock(admin);
-                            }}
-                          >
-                            {store.changingAdminId === admin.adminId
-                              ? 'Сохраняем...'
-                              : 'Снять временный лок'}
-                          </button>
-                        ) : null}
 
                         {admin.role === 'admin' ? (
                           admin.isBlocked ? (
                             <button
-                              className={styles.secondaryButton}
+                              className={styles.outlineButton}
                               type="button"
                               disabled={store.changingAdminId === admin.adminId}
                               onClick={() => {
@@ -267,7 +245,7 @@ export const SuperAdminAdminsManagementSection = observer((): ReactElement => {
                             </button>
                           ) : (
                             <button
-                              className={styles.dangerButton}
+                              className={styles.dangerOutlineButton}
                               type="button"
                               disabled={
                                 store.changingAdminId === admin.adminId ||
@@ -280,117 +258,125 @@ export const SuperAdminAdminsManagementSection = observer((): ReactElement => {
                           )
                         ) : null}
 
-                        <button
-                          className={styles.dangerButton}
-                          type="button"
-                          disabled={
-                            admin.role === 'super_admin' ||
-                            store.deletingAdminId === admin.adminId ||
-                            store.changingAdminId === admin.adminId
-                          }
-                          onClick={() => {
-                            void store.deleteAdmin(admin.adminId);
-                          }}
-                        >
-                          {store.deletingAdminId === admin.adminId
-                            ? 'Удаление...'
-                            : 'Удалить'}
-                        </button>
+                        {admin.role === 'admin' && admin.passwordAttemptsLockUntil ? (
+                          <button
+                            className={styles.dangerOutlineButton}
+                            type="button"
+                            disabled={store.changingAdminId === admin.adminId}
+                            onClick={() => {
+                              void store.clearAdminPasswordLock(admin);
+                            }}
+                          >
+                            {store.changingAdminId === admin.adminId
+                              ? 'Сохраняем...'
+                              : 'Снять лок'}
+                          </button>
+                        ) : null}
+
+                        {admin.role === 'admin' ? (
+                          <button
+                            className={styles.outlineButton}
+                            type="button"
+                            disabled={
+                              store.isUpdating ||
+                              store.changingAdminId === admin.adminId ||
+                              store.deletingAdminId === admin.adminId
+                            }
+                            onClick={() => store.openEditModal(admin)}
+                          >
+                            Редактировать
+                          </button>
+                        ) : null}
                       </div>
-                    </div>
-                  </article>
+                    </article>
                   );
                 })}
               </div>
-            )}
-          </section>
-        </div>
+
+              <div className={styles.pagination}>
+                <button
+                  type="button"
+                  aria-label="Предыдущая страница"
+                  disabled={!store.canGoPrevPage}
+                  onClick={() => store.goToPrevPage()}
+                >
+                  ←
+                </button>
+                <span>
+                  Страница {store.currentPage} из {store.totalPages}
+                </span>
+                <button
+                  type="button"
+                  aria-label="Следующая страница"
+                  disabled={!store.canGoNextPage}
+                  onClick={() => store.goToNextPage()}
+                >
+                  →
+                </button>
+              </div>
+            </>
+          )}
+        </section>
       ) : null}
 
       {store.isCreateModalOpen ? (
         <div className={styles.overlay}>
-          <div className={styles.modal}>
-            <div className={styles.modalHeader}>
-              <div>
-                <h2 className={styles.modalTitle}>Новый администратор</h2>
-                <p className={styles.modalSubtitle}>
-                  После создания временный пароль нужно отправить обычному администратору
-                  по email.
-                </p>
-              </div>
+          <div className={`${styles.modal} ${styles.modalCreate}`}>
+            <button
+              className={styles.closeButton}
+              type="button"
+              aria-label="Закрыть"
+              onClick={() => store.closeCreateModal()}
+            />
 
-              <button
-                className={styles.modalClose}
-                type="button"
-                onClick={() => store.closeCreateModal()}
-              >
-                Закрыть
-              </button>
-            </div>
+            <h2 className={styles.modalTitle}>Добавление нового администратора</h2>
 
-            <div className={styles.formGrid}>
-              <label className={styles.field}>
+            <div className={styles.modalForm}>
+              <label className={`${styles.field} ${styles.fieldEmail}`}>
                 <span className={styles.fieldLabel}>Email</span>
                 <input
                   className={styles.input}
                   type="email"
                   value={store.form.email}
                   onChange={(event) => store.setFormField('email', event.target.value)}
-                  placeholder="admin@example.com"
+                  placeholder="admin@tailly.local"
                   required
                 />
               </label>
 
-              <label className={styles.field}>
+              <label className={`${styles.field} ${styles.fieldFirstName}`}>
                 <span className={styles.fieldLabel}>Имя</span>
                 <input
                   className={styles.input}
                   value={store.form.firstName}
-                  onChange={(event) =>
-                    store.setFormField('firstName', event.target.value)
-                  }
-                  placeholder="Имя"
+                  onChange={(event) => store.setFormField('firstName', event.target.value)}
+                  placeholder="Введите имя"
                   required
                 />
               </label>
 
-              <label className={styles.field}>
+              <label className={`${styles.field} ${styles.fieldLastName}`}>
                 <span className={styles.fieldLabel}>Фамилия</span>
                 <input
                   className={styles.input}
                   value={store.form.lastName}
                   onChange={(event) => store.setFormField('lastName', event.target.value)}
-                  placeholder="Фамилия"
+                  placeholder="Введите фамилию"
                   required
                 />
               </label>
 
-              <label className={styles.field}>
+              <label className={`${styles.field} ${styles.fieldMiddleName}`}>
                 <span className={styles.fieldLabel}>Отчество</span>
                 <input
                   className={styles.input}
                   value={store.form.middleName}
-                  onChange={(event) =>
-                    store.setFormField('middleName', event.target.value)
-                  }
-                  placeholder="Отчество"
+                  onChange={(event) => store.setFormField('middleName', event.target.value)}
+                  placeholder="Введите отчество"
                 />
               </label>
 
-              <label className={styles.field}>
-                <span className={styles.fieldLabel}>Дата рождения</span>
-                <input
-                  className={styles.input}
-                  type="date"
-                  value={store.form.birthDate}
-                  onChange={(event) =>
-                    store.setFormField('birthDate', event.target.value)
-                  }
-                  required
-                />
-              </label>
-
-              <label className={styles.field}>
+              <label className={`${styles.field} ${styles.fieldPhone}`}>
                 <span className={styles.fieldLabel}>Телефон</span>
                 <input
                   className={styles.input}
@@ -400,30 +386,12 @@ export const SuperAdminAdminsManagementSection = observer((): ReactElement => {
                 />
               </label>
 
-              <label className={styles.field}>
-                <span className={styles.fieldLabel}>Должность</span>
-                <select
-                  className={`${styles.input} ${styles.inputSelect}`}
-                  value={store.form.position}
-                  onChange={(event) => store.setFormField('position', event.target.value)}
-                >
-                  <option value="">Не указано</option>
-                  {ADMIN_POSITION_OPTIONS.map((option) => (
-                    <option key={option} value={option}>
-                      {option}
-                    </option>
-                  ))}
-                </select>
-              </label>
-
-              <label className={styles.field}>
+              <label className={`${styles.field} ${styles.fieldDepartment}`}>
                 <span className={styles.fieldLabel}>Отдел</span>
                 <select
-                  className={`${styles.input} ${styles.inputSelect}`}
+                  className={`${styles.input} ${styles.select}`}
                   value={store.form.department}
-                  onChange={(event) =>
-                    store.setFormField('department', event.target.value)
-                  }
+                  onChange={(event) => store.setFormField('department', event.target.value)}
                 >
                   <option value="">Не указано</option>
                   {ADMIN_DEPARTMENT_OPTIONS.map((option) => (
@@ -432,6 +400,17 @@ export const SuperAdminAdminsManagementSection = observer((): ReactElement => {
                     </option>
                   ))}
                 </select>
+              </label>
+
+              <label className={`${styles.field} ${styles.fieldBirthDate}`}>
+                <span className={styles.fieldLabel}>День рождения</span>
+                <input
+                  className={styles.input}
+                  type="date"
+                  value={store.form.birthDate}
+                  onChange={(event) => store.setFormField('birthDate', event.target.value)}
+                  required
+                />
               </label>
             </div>
 
@@ -442,27 +421,24 @@ export const SuperAdminAdminsManagementSection = observer((): ReactElement => {
                 onChange={(event) => store.setFormField('consent', event.target.checked)}
               />
               <span>
-                Подтверждаю создание аккаунта и обработку персональных данных
-                администратора.
+                Подтверждаю создание аккаунта и обработку персональных данных администратора
               </span>
             </label>
 
             {store.createError ? (
-              <div className={styles.errorBanner}>{store.createError}</div>
+              <div className={styles.modalError}>{store.createError}</div>
             ) : null}
 
             {store.createdTemporaryPassword ? (
-              <div className={styles.successBanner}>
+              <div className={styles.modalSuccess}>
                 Администратор {store.recentlyCreatedAdminEmail} создан. Временный пароль:{' '}
-                <span className={styles.passwordValue}>
-                  {store.createdTemporaryPassword}
-                </span>
+                <span>{store.createdTemporaryPassword}</span>
               </div>
             ) : null}
 
             <div className={styles.modalActions}>
               <button
-                className={styles.secondaryButton}
+                className={styles.modalCancelButton}
                 type="button"
                 onClick={() => store.closeCreateModal()}
               >
@@ -470,14 +446,14 @@ export const SuperAdminAdminsManagementSection = observer((): ReactElement => {
               </button>
 
               <button
-                className={styles.primaryButton}
+                className={styles.modalSubmitButton}
                 type="button"
                 disabled={!store.canSubmitCreateForm}
                 onClick={() => {
                   void store.createAdmin();
                 }}
               >
-                {store.isCreating ? 'Создание...' : 'Создать администратора'}
+                {store.isCreating ? 'Создание...' : 'Добавить администратора'}
               </button>
             </div>
           </div>
@@ -486,39 +462,30 @@ export const SuperAdminAdminsManagementSection = observer((): ReactElement => {
 
       {store.isEditModalOpen ? (
         <div className={styles.overlay}>
-          <div className={styles.modal}>
-            <div className={styles.modalHeader}>
-              <div>
-                <h2 className={styles.modalTitle}>Редактирование администратора</h2>
-                <p className={styles.modalSubtitle}>
-                  Email аккаунта менять нельзя. Должность и отдел выбираются из
-                  справочника.
-                </p>
-              </div>
+          <div className={`${styles.modal} ${styles.modalEdit}`}>
+            <button
+              className={styles.closeButton}
+              type="button"
+              aria-label="Закрыть"
+              disabled={store.isUpdating}
+              onClick={() => store.closeEditModal()}
+            />
 
-              <button
-                className={styles.modalClose}
-                type="button"
-                disabled={store.isUpdating}
-                onClick={() => store.closeEditModal()}
-              >
-                Закрыть
-              </button>
-            </div>
+            <h2 className={styles.modalTitle}>Редактирование администратора</h2>
 
-            <label className={styles.field}>
-              <span className={styles.fieldLabel}>Email</span>
-              <input
-                className={styles.input}
-                type="email"
-                value={store.editingAdminEmail}
-                readOnly
-                disabled
-              />
-            </label>
+            <div className={styles.modalForm}>
+              <label className={`${styles.field} ${styles.fieldEmail}`}>
+                <span className={styles.fieldLabel}>Email</span>
+                <input
+                  className={`${styles.input} ${styles.inputDisabled}`}
+                  type="email"
+                  value={store.editingAdminEmail}
+                  readOnly
+                  disabled
+                />
+              </label>
 
-            <div className={styles.formGrid}>
-              <label className={styles.field}>
+              <label className={`${styles.field} ${styles.fieldFirstName}`}>
                 <span className={styles.fieldLabel}>Имя</span>
                 <input
                   className={styles.input}
@@ -530,19 +497,17 @@ export const SuperAdminAdminsManagementSection = observer((): ReactElement => {
                 />
               </label>
 
-              <label className={styles.field}>
+              <label className={`${styles.field} ${styles.fieldLastName}`}>
                 <span className={styles.fieldLabel}>Фамилия</span>
                 <input
                   className={styles.input}
                   value={store.editForm.lastName}
-                  onChange={(event) =>
-                    store.setEditFormField('lastName', event.target.value)
-                  }
+                  onChange={(event) => store.setEditFormField('lastName', event.target.value)}
                   required
                 />
               </label>
 
-              <label className={styles.field}>
+              <label className={`${styles.field} ${styles.fieldMiddleName}`}>
                 <span className={styles.fieldLabel}>Отчество</span>
                 <input
                   className={styles.input}
@@ -553,55 +518,19 @@ export const SuperAdminAdminsManagementSection = observer((): ReactElement => {
                 />
               </label>
 
-              <label className={styles.field}>
-                <span className={styles.fieldLabel}>Дата рождения</span>
-                <input
-                  className={styles.input}
-                  type="date"
-                  value={store.editForm.birthDate}
-                  onChange={(event) =>
-                    store.setEditFormField('birthDate', event.target.value)
-                  }
-                  required
-                />
-              </label>
-
-              <label className={styles.field}>
+              <label className={`${styles.field} ${styles.fieldPhone}`}>
                 <span className={styles.fieldLabel}>Телефон</span>
                 <input
                   className={styles.input}
                   value={store.editForm.phone}
-                  onChange={(event) =>
-                    store.setEditFormField('phone', event.target.value)
-                  }
+                  onChange={(event) => store.setEditFormField('phone', event.target.value)}
                 />
               </label>
 
-              <label className={styles.field}>
-                <span className={styles.fieldLabel}>Должность</span>
-                <select
-                  className={`${styles.input} ${styles.inputSelect}`}
-                  value={store.editForm.position}
-                  onChange={(event) =>
-                    store.setEditFormField('position', event.target.value)
-                  }
-                >
-                  <option value="">Не указано</option>
-                  {mergeWithCurrentOption(
-                    ADMIN_POSITION_OPTIONS,
-                    store.editForm.position,
-                  ).map((option) => (
-                    <option key={option} value={option}>
-                      {option}
-                    </option>
-                  ))}
-                </select>
-              </label>
-
-              <label className={styles.field}>
+              <label className={`${styles.field} ${styles.fieldDepartment}`}>
                 <span className={styles.fieldLabel}>Отдел</span>
                 <select
-                  className={`${styles.input} ${styles.inputSelect}`}
+                  className={`${styles.input} ${styles.select}`}
                   value={store.editForm.department}
                   onChange={(event) =>
                     store.setEditFormField('department', event.target.value)
@@ -618,15 +547,28 @@ export const SuperAdminAdminsManagementSection = observer((): ReactElement => {
                   ))}
                 </select>
               </label>
+
+              <label className={`${styles.field} ${styles.fieldBirthDate}`}>
+                <span className={styles.fieldLabel}>День рождения</span>
+                <input
+                  className={styles.input}
+                  type="date"
+                  value={store.editForm.birthDate}
+                  onChange={(event) =>
+                    store.setEditFormField('birthDate', event.target.value)
+                  }
+                  required
+                />
+              </label>
             </div>
 
             {store.updateError ? (
-              <div className={styles.errorBanner}>{store.updateError}</div>
+              <div className={styles.modalError}>{store.updateError}</div>
             ) : null}
 
             <div className={styles.modalActions}>
               <button
-                className={styles.secondaryButton}
+                className={styles.modalCancelButton}
                 type="button"
                 disabled={store.isUpdating}
                 onClick={() => store.closeEditModal()}
@@ -635,7 +577,7 @@ export const SuperAdminAdminsManagementSection = observer((): ReactElement => {
               </button>
 
               <button
-                className={styles.primaryButton}
+                className={styles.modalSubmitButton}
                 type="button"
                 disabled={!store.canSubmitEditForm}
                 onClick={() => {
@@ -651,29 +593,23 @@ export const SuperAdminAdminsManagementSection = observer((): ReactElement => {
 
       {store.isBlockModalOpen && store.selectedAdmin ? (
         <div className={styles.overlay}>
-          <div className={styles.modal}>
-            <div className={styles.modalHeader}>
-              <div>
-                <h2 className={styles.modalTitle}>Блокировка администратора</h2>
-                <p className={styles.modalSubtitle}>{store.selectedAdmin.email}</p>
-              </div>
+          <div className={`${styles.modal} ${styles.modalBlock}`}>
+            <button
+              className={styles.closeButton}
+              type="button"
+              aria-label="Закрыть"
+              disabled={Boolean(store.changingAdminId)}
+              onClick={() => store.closeBlockModal()}
+            />
 
-              <button
-                className={styles.modalClose}
-                type="button"
-                disabled={Boolean(store.changingAdminId)}
-                onClick={() => store.closeBlockModal()}
-              >
-                Закрыть
-              </button>
-            </div>
+            <h2 className={styles.modalTitle}>Блокировка администратора</h2>
 
             {store.changeError ? (
-              <div className={styles.errorBanner}>{store.changeError}</div>
+              <div className={styles.modalError}>{store.changeError}</div>
             ) : null}
 
-            <div className={styles.formGrid}>
-              <label className={styles.field}>
+            <div className={styles.blockForm}>
+              <label className={`${styles.field} ${styles.blockReasonField}`}>
                 <span className={styles.fieldLabel}>Причина блокировки</span>
                 <input
                   className={styles.input}
@@ -683,21 +619,16 @@ export const SuperAdminAdminsManagementSection = observer((): ReactElement => {
                 />
               </label>
 
-              <label className={styles.checkboxRow}>
-                <input
-                  type="checkbox"
-                  checked={store.isPermanentBlock}
-                  onChange={(event) => store.setPermanentBlock(event.target.checked)}
-                />
-                <span>Заблокировать навсегда</span>
-              </label>
-            </div>
+              <div className={styles.blockPeriod}>
+                <span className={styles.fieldLabel}>Срок блокировки</span>
 
-            {!store.isPermanentBlock ? (
-              <>
                 <div className={styles.quickActions}>
                   <button
-                    className={styles.quickButton}
+                    className={
+                      store.selectedQuickBlockDays === 1
+                        ? styles.quickButtonActive
+                        : styles.quickButton
+                    }
                     type="button"
                     onClick={() => store.applyQuickBlockPeriod(1)}
                   >
@@ -705,7 +636,11 @@ export const SuperAdminAdminsManagementSection = observer((): ReactElement => {
                   </button>
 
                   <button
-                    className={styles.quickButton}
+                    className={
+                      store.selectedQuickBlockDays === 7
+                        ? styles.quickButtonActive
+                        : styles.quickButton
+                    }
                     type="button"
                     onClick={() => store.applyQuickBlockPeriod(7)}
                   >
@@ -713,16 +648,32 @@ export const SuperAdminAdminsManagementSection = observer((): ReactElement => {
                   </button>
 
                   <button
-                    className={styles.quickButton}
+                    className={
+                      store.selectedQuickBlockDays === 30
+                        ? styles.quickButtonActive
+                        : styles.quickButton
+                    }
                     type="button"
                     onClick={() => store.applyQuickBlockPeriod(30)}
                   >
                     На месяц
                   </button>
-                </div>
 
-                <label className={styles.field}>
-                  <span className={styles.fieldLabel}>Дата и время окончания</span>
+                  <button
+                    className={
+                      store.isPermanentBlock ? styles.quickButtonActive : styles.quickButton
+                    }
+                    type="button"
+                    onClick={() => store.setPermanentBlock(true)}
+                  >
+                    Навсегда
+                  </button>
+                </div>
+              </div>
+
+              {!store.isPermanentBlock ? (
+                <label className={`${styles.field} ${styles.blockUntilField}`}>
+                  <span className={styles.fieldLabel}>Дата окончания блокировки</span>
                   <input
                     className={styles.input}
                     type="datetime-local"
@@ -730,12 +681,17 @@ export const SuperAdminAdminsManagementSection = observer((): ReactElement => {
                     onChange={(event) => store.setBlockedUntil(event.target.value)}
                   />
                 </label>
-              </>
-            ) : null}
+              ) : (
+                <label className={`${styles.field} ${styles.blockUntilField}`}>
+                  <span className={styles.fieldLabel}>Дата окончания блокировки</span>
+                  <div className={styles.blockForeverValue}>Навсегда</div>
+                </label>
+              )}
+            </div>
 
             <div className={styles.modalActions}>
               <button
-                className={styles.secondaryButton}
+                className={styles.modalCancelButton}
                 type="button"
                 disabled={Boolean(store.changingAdminId)}
                 onClick={() => store.closeBlockModal()}
@@ -744,12 +700,12 @@ export const SuperAdminAdminsManagementSection = observer((): ReactElement => {
               </button>
 
               <button
-                className={styles.dangerButton}
+                className={styles.modalDangerButton}
                 type="button"
+                disabled={!store.canSubmitBlock}
                 onClick={() => {
                   void store.confirmBlockAdmin();
                 }}
-                disabled={!store.canSubmitBlock}
               >
                 {store.changingAdminId ? 'Сохраняем...' : 'Подтвердить блокировку'}
               </button>

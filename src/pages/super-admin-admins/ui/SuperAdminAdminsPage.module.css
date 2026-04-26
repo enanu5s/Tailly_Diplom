@@ -8,20 +8,6 @@
 
 .container {
   width: 100%;
-  max-width: 1280px;
+  max-width: 1520px;
   margin: 0 auto;
-  display: grid;
-  gap: 20px;
-}
-
-.backButton {
-  width: fit-content;
-  min-height: 42px;
-  border: 1px solid #cbd5e1;
-  border-radius: 14px;
-  background: #ffffff;
-  color: #0f172a;
-  padding: 0 16px;
-  font-weight: 700;
-  cursor: pointer;
 }
