@@ -7,6 +7,10 @@ import { specialistProfileApi } from '../api/specialistProfileApi';
 import type {
   SpecialistCalendarUpdatePayload,
   SpecialistDetailsUpdatePayload,
+  SpecialistEmailChangeSendCodePayload,
+  SpecialistEmailChangeSendCodeResponse,
+  SpecialistEmailChangeVerifyCodePayload,
+  SpecialistProfileEditOptionsResponse,
   SpecialistMainInfoUpdatePayload,
   SpecialistProfile,
   SpecialistProfileResponse,
@@ -40,6 +44,10 @@ export const specialistProfileService = {
     return mapProfileResponseToProfile(response);
   },
 
+  async getEditOptions(slug: string): Promise<SpecialistProfileEditOptionsResponse> {
+    return specialistProfileApi.getEditOptions(slug);
+  },
+
   async updateMainInfo(
     slug: string,
     payload: SpecialistMainInfoUpdatePayload,
@@ -70,5 +78,27 @@ export const specialistProfileService = {
   ): Promise<SpecialistProfile> {
     const response = await specialistProfileApi.upsertReviewReply(slug, payload);
     return mapProfileResponseToProfile(response);
+  },
+
+  async sendEmailChangeCode(
+    slug: string,
+    payload: SpecialistEmailChangeSendCodePayload,
+  ): Promise<SpecialistEmailChangeSendCodeResponse> {
+    return specialistProfileApi.sendEmailChangeCode(slug, payload);
+  },
+
+  async verifyEmailChangeCode(
+    slug: string,
+    payload: SpecialistEmailChangeVerifyCodePayload,
+  ): Promise<{
+    profile: SpecialistProfile;
+    attemptsLeft: number;
+    lockUntil: string | null;
+  }> {
+    const response = await specialistProfileApi.verifyEmailChangeCode(slug, payload);
+    return {
+      ...response,
+      profile: mapProfileResponseToProfile(response.profile),
+    };
   },
 };

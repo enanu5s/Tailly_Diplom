@@ -3,16 +3,13 @@ import { observer } from 'mobx-react-lite';
 import { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
 
-import { PET_TYPES, PET_WEIGHT_SIZES } from '@/features/pets/model/constants';
+import { PET_WEIGHT_SIZES } from '@/features/pets/model/constants';
 import { LocalitySuggestInput } from '@/features/specialists-search/ui/LocalitySuggestInput/LocalitySuggestInput';
 
-import { ReviewsFiltersToolbar } from './ReviewsFiltersToolbar/ReviewsFiltersToolbar';
 import { SpecialistMiniCalendar } from './SpecialistMiniCalendar';
 import styles from './SpecialistProfileView.module.css';
-import { SpecialistServicePolicyEditor } from './SpecialistServicePolicyEditor';
 import {
   SPECIALIST_CHILDREN_POLICY_LABELS,
-  SPECIALIST_EXPERIENCE_UNIT_LABELS,
   SPECIALIST_HOUSING_TYPE_LABELS,
   SPECIALIST_PET_AGE_LABELS,
   SPECIALIST_PET_SIZE_LABELS,
@@ -28,13 +25,15 @@ import type {
   SpecialistPetAge,
   SpecialistPetSize,
   SpecialistPetType,
+  SpecialistPetTypeAliasOption,
   SpecialistProfile,
   SpecialistReview,
-  SpecialistReviewsRatingFilter,
-  SpecialistReviewsReplyFilter,
+  SpecialistServiceCatalogItem,
   SpecialistServicePriceUnit,
 } from '../model/types';
 import type { ReactNode } from 'react';
+
+type ReviewsSortOption = 'newest' | 'oldest' | 'rating_asc' | 'rating_desc';
 
 type MainForm = {
   avatarUrl: string;
@@ -44,6 +43,7 @@ type MainForm = {
   city: string;
   district: string;
   phone: string;
+  email: string;
 };
 
 type EditableGalleryItem = {
@@ -118,13 +118,6 @@ type Props = {
   canLoadMoreReviews: boolean;
   onRetry: () => void;
   onLoadMoreReviews: () => void;
-  reviewsSearchQuery: string;
-  reviewsRatingFilter: SpecialistReviewsRatingFilter;
-  reviewsReplyFilter: SpecialistReviewsReplyFilter;
-  reviewsFilteredCount: number;
-  onSetReviewsSearchQuery: (value: string) => void;
-  onSetReviewsRatingFilter: (value: SpecialistReviewsRatingFilter) => void;
-  onSetReviewsReplyFilter: (value: SpecialistReviewsReplyFilter) => void;
 
   isEditingMain: boolean;
   isSavingMain: boolean;
@@ -136,6 +129,17 @@ type Props = {
   onSetMainField: (field: keyof MainForm, value: string) => void;
   onSetMainAvatarFile: (file: File | null) => Promise<void> | void;
   onSaveMain: () => void;
+  isEmailChangeModalOpen: boolean;
+  pendingEmailChange: string | null;
+  emailChangeCodeInput: string;
+  emailChangeError: string | null;
+  emailChangeStep: 'verify' | 'success';
+  isRequestingEmailChangeCode: boolean;
+  isVerifyingEmailChangeCode: boolean;
+  onCloseEmailChangeModal: () => void;
+  onSetEmailChangeCodeInput: (value: string) => void;
+  onRequestEmailChangeCode: () => void;
+  onConfirmEmailChangeCode: () => void;
 
   isEditingDetails: boolean;
   isSavingDetails: boolean;
@@ -181,61 +185,12 @@ type Props = {
     value: string,
   ) => void;
 
-  onSetServiceBookingMode: (index: number, mode: SpecialistBookingMode) => void;
-
-  onSetServiceDurationField: (
-    index: number,
-    field:
-      | 'defaultDurationMinutes'
-      | 'minDurationMinutes'
-      | 'maxDurationMinutes'
-      | 'durationStepMinutes',
-    value: string,
-  ) => void;
-
-  onSetServiceBufferField: (
-    index: number,
-    field:
-      | 'hasBufferBefore'
-      | 'bufferBeforeMinutes'
-      | 'hasBufferAfter'
-      | 'bufferAfterMinutes',
-    value: string | boolean,
-  ) => void;
-
-  onSetServiceCompatibilityField: (
-    index: number,
-    field: 'canOverlapWithOtherServices' | 'compatibleServiceIds',
-    value: boolean | string[],
-  ) => void;
-
-  onSetServiceAdvanceField: (
-    index: number,
-    field: 'minAdvanceMinutes' | 'maxAdvanceDays',
-    value: string,
-  ) => void;
-
-  onSetServiceMultiDayField: (
-    index: number,
-    field:
-      | 'allowsMultiDayBooking'
-      | 'minStayDays'
-      | 'maxStayDays'
-      | 'checkInTime'
-      | 'checkOutTime',
-    value: string | boolean,
-  ) => void;
-
-  onSetServiceFlagField: (
-    index: number,
-    field: 'allowsClientComment' | 'requiresSpecialistConfirmation',
-    value: boolean,
-  ) => void;
-
   onSetSpecialistGalleryUrlInput: (value: string) => void;
   onAddSpecialistGalleryImageByUrl: () => void;
   onAddSpecialistGalleryFiles: (files: FileList | null) => Promise<void> | void;
   onRemoveSpecialistGalleryImage: (index: number) => void;
+  serviceCatalogOptions: SpecialistServiceCatalogItem[];
+  petTypeAliasOptions: SpecialistPetTypeAliasOption[];
   onSaveDetails: () => void;
   onContactSpecialist?: () => void;
   onBookService?: (serviceId: string) => void;
@@ -244,6 +199,8 @@ type Props = {
     reviewsPath: string;
     ordersPath: string;
     orderStatsPath: string;
+    shopOrdersPath: string;
+    pendingConfirmationCount: number;
   };
   /** Блок «Оформить заказ» для клиента — показывается вверху колонки с деталями. */
   bookingCta?: ReactNode;
@@ -251,14 +208,117 @@ type Props = {
 
 const PET_SIZE_OPTIONS: SpecialistPetSize[] = [...PET_WEIGHT_SIZES];
 const PET_AGE_OPTIONS: SpecialistPetAge[] = ['baby', 'young', 'adult', 'senior'];
-const PET_TYPE_OPTIONS: SpecialistPetType[] = [...PET_TYPES];
+const DEFAULT_PET_TYPE_ALIAS_OPTIONS: SpecialistPetTypeAliasOption[] = [
+  { id: 'cat', label: 'Кошка', type: 'cat' },
+  { id: 'dog', label: 'Собака', type: 'dog' },
+  { id: 'fish', label: 'Рыбка', type: 'fish' },
+  { id: 'hamster', label: 'Хомяк', type: 'rodent' },
+  { id: 'guinea-pig', label: 'Морская свинка', type: 'rodent' },
+  { id: 'rabbit', label: 'Кролик', type: 'rabbit' },
+  { id: 'turtle', label: 'Черепаха', type: 'reptile' },
+  { id: 'rat', label: 'Крыса', type: 'rodent' },
+  { id: 'mouse', label: 'Мышь', type: 'rodent' },
+  { id: 'bird', label: 'Птица', type: 'bird' },
+  { id: 'chinchilla', label: 'Шиншилла', type: 'rodent' },
+  { id: 'ferret', label: 'Хорек', type: 'rodent' },
+  { id: 'lizard', label: 'Ящерица', type: 'reptile' },
+  { id: 'snake', label: 'Змея', type: 'reptile' },
+  { id: 'snail', label: 'Улитка', type: 'reptile' },
+];
 const HOUSING_OPTIONS: SpecialistHousingType[] = [
   'apartment',
   'house',
   'townhouse',
   'other',
 ];
-const CHILDREN_OPTIONS: SpecialistChildrenPolicy[] = ['yes', 'no', 'sometimes'];
+
+function resolvePetSizeGroup(
+  value: SpecialistPetSize[],
+): 'any' | 'small' | 'medium' | 'large' {
+  if (value.length === PET_SIZE_OPTIONS.length) {
+    return 'any';
+  }
+
+  const small = PET_SIZE_OPTIONS.slice(0, 2);
+  const medium = PET_SIZE_OPTIONS.slice(2, 4);
+  const large = PET_SIZE_OPTIONS.slice(4);
+
+  if (value.every((item) => small.includes(item))) {
+    return 'small';
+  }
+
+  if (value.every((item) => medium.includes(item))) {
+    return 'medium';
+  }
+
+  if (value.every((item) => large.includes(item))) {
+    return 'large';
+  }
+
+  return 'any';
+}
+
+function mapPetSizeGroupToValue(
+  group: 'any' | 'small' | 'medium' | 'large',
+): SpecialistPetSize[] {
+  if (group === 'any') {
+    return [...PET_SIZE_OPTIONS];
+  }
+
+  if (group === 'small') {
+    return [...PET_SIZE_OPTIONS.slice(0, 2)];
+  }
+
+  if (group === 'medium') {
+    return [...PET_SIZE_OPTIONS.slice(2, 4)];
+  }
+
+  return [...PET_SIZE_OPTIONS.slice(4)];
+}
+
+function resolvePetAgeGroup(
+  value: SpecialistPetAge[],
+): 'any' | 'newborn' | 'baby' | 'teen' | 'adult' | 'senior' {
+  if (value.length === PET_AGE_OPTIONS.length) {
+    return 'any';
+  }
+
+  if (value.length === 1 && value[0] === 'baby') {
+    return 'baby';
+  }
+
+  if (value.length === 1 && value[0] === 'young') {
+    return 'teen';
+  }
+
+  if (value.length === 1 && value[0] === 'adult') {
+    return 'adult';
+  }
+
+  if (value.length === 1 && value[0] === 'senior') {
+    return 'senior';
+  }
+
+  return 'any';
+}
+
+function mapPetAgeGroupToValue(
+  group: 'any' | 'newborn' | 'baby' | 'teen' | 'adult' | 'senior',
+): SpecialistPetAge[] {
+  if (group === 'any') {
+    return [...PET_AGE_OPTIONS];
+  }
+  if (group === 'newborn' || group === 'baby') {
+    return ['baby'];
+  }
+  if (group === 'teen') {
+    return ['young'];
+  }
+  if (group === 'adult') {
+    return ['adult'];
+  }
+  return ['senior'];
+}
 
 function formatPhone(phone: string): string {
   return phone.trim();
@@ -303,7 +363,6 @@ function buildInitials(params: { firstName?: string; lastName?: string }): strin
     .charAt(0)}`.trim();
 }
 
-
 export const SpecialistProfileView = observer(
   ({
     profile,
@@ -313,13 +372,6 @@ export const SpecialistProfileView = observer(
     canLoadMoreReviews,
     onRetry,
     onLoadMoreReviews,
-    reviewsSearchQuery,
-    reviewsRatingFilter,
-    reviewsReplyFilter,
-    reviewsFilteredCount,
-    onSetReviewsSearchQuery,
-    onSetReviewsRatingFilter,
-    onSetReviewsReplyFilter,
 
     isEditingMain,
     isSavingMain,
@@ -331,6 +383,17 @@ export const SpecialistProfileView = observer(
     onSetMainField,
     onSetMainAvatarFile,
     onSaveMain,
+    isEmailChangeModalOpen,
+    pendingEmailChange,
+    emailChangeCodeInput,
+    emailChangeError,
+    emailChangeStep,
+    isRequestingEmailChangeCode,
+    isVerifyingEmailChangeCode,
+    onCloseEmailChangeModal,
+    onSetEmailChangeCodeInput,
+    onRequestEmailChangeCode,
+    onConfirmEmailChangeCode,
 
     isEditingDetails,
     isSavingDetails,
@@ -349,17 +412,12 @@ export const SpecialistProfileView = observer(
     onAddService,
     onRemoveService,
     onSetServiceField,
-    onSetServiceBookingMode,
-    onSetServiceDurationField,
-    onSetServiceBufferField,
-    onSetServiceCompatibilityField,
-    onSetServiceAdvanceField,
-    onSetServiceMultiDayField,
-    onSetServiceFlagField,
     onSetSpecialistGalleryUrlInput,
     onAddSpecialistGalleryImageByUrl,
     onAddSpecialistGalleryFiles,
     onRemoveSpecialistGalleryImage,
+    serviceCatalogOptions,
+    petTypeAliasOptions,
     onSaveDetails,
     onContactSpecialist,
     onBookService,
@@ -368,7 +426,21 @@ export const SpecialistProfileView = observer(
   }: Props) => {
     const [activeGalleryIndex, setActiveGalleryIndex] = useState<number | null>(null);
     const [isAllServicesVisible, setIsAllServicesVisible] = useState(false);
+    const [selectedPetTypeAliases, setSelectedPetTypeAliases] = useState<string[]>([]);
+    const [isCompactGalleryLayout, setIsCompactGalleryLayout] = useState(false);
+    const [reviewsSort, setReviewsSort] = useState<ReviewsSortOption>('newest');
+    const [activeReviewPhotoIndex, setActiveReviewPhotoIndex] = useState<number | null>(null);
+    const [activeReviewPhotos, setActiveReviewPhotos] = useState<string[]>([]);
     const isGalleryViewerOpen = activeGalleryIndex !== null;
+    const effectivePetTypeAliasOptions =
+      petTypeAliasOptions.length > 0
+        ? petTypeAliasOptions
+        : DEFAULT_PET_TYPE_ALIAS_OPTIONS;
+    const ownerTopPanelDateLabel = new Intl.DateTimeFormat('ru-RU', {
+      day: 'numeric',
+      month: 'long',
+      year: 'numeric',
+    }).format(new Date());
 
     useEffect(() => {
       if (!isGalleryViewerOpen) {
@@ -391,6 +463,38 @@ export const SpecialistProfileView = observer(
     useEffect(() => {
       setIsAllServicesVisible(false);
     }, [profile?.id]);
+
+    useEffect(() => {
+      if (!isEditingDetails || !detailsForm) {
+        setSelectedPetTypeAliases([]);
+        return;
+      }
+
+      const aliasByType = new Map<SpecialistPetType, string>();
+      for (const option of effectivePetTypeAliasOptions) {
+        if (!aliasByType.has(option.type)) {
+          aliasByType.set(option.type, option.id);
+        }
+      }
+
+      setSelectedPetTypeAliases(
+        detailsForm.petTypes.map((type) => aliasByType.get(type) ?? type),
+      );
+    }, [isEditingDetails, detailsForm, effectivePetTypeAliasOptions]);
+
+    useEffect(() => {
+      const mediaQuery = window.matchMedia('(max-width: 1500px)');
+      const syncLayout = (): void => {
+        setIsCompactGalleryLayout(mediaQuery.matches);
+      };
+
+      syncLayout();
+      mediaQuery.addEventListener('change', syncLayout);
+
+      return () => {
+        mediaQuery.removeEventListener('change', syncLayout);
+      };
+    }, []);
 
     if (isLoading) {
       return (
@@ -444,19 +548,6 @@ export const SpecialistProfileView = observer(
     const currentPhone = currentMain.phone.trim();
     const currentEmail = profile.main.email.trim();
 
-    const currentExperienceValue = currentDetails
-      ? currentDetails.experienceDurationValue
-      : String(profile.details.experienceDurationValue ?? '');
-
-    const currentExperienceUnit = currentDetails
-      ? currentDetails.experienceDurationUnit
-      : (profile.details.experienceDurationUnit ?? 'years');
-
-    const currentExperienceLabel =
-      currentExperienceValue.trim() !== ''
-        ? `${currentExperienceValue} ${SPECIALIST_EXPERIENCE_UNIT_LABELS[currentExperienceUnit]}`
-        : profile.details.experienceLabel;
-
     const currentHousingType = currentDetails
       ? currentDetails.housingType
       : profile.details.housingType;
@@ -473,10 +564,6 @@ export const SpecialistProfileView = observer(
     const currentPetTypes = currentDetails
       ? currentDetails.petTypes
       : profile.details.petTypes;
-    const currentAdvantages = currentDetails
-      ? currentDetails.selectedAdvantages
-      : profile.details.advantages.map((advantage) => advantage.title);
-
     const currentServices = currentDetails
       ? currentDetails.services.map((service) => ({
           id: service.id,
@@ -496,10 +583,11 @@ export const SpecialistProfileView = observer(
     const currentAbout = currentDetails ? currentDetails.about : profile.details.about;
     const galleryItems = currentSpecialistGallery;
     const hasFewGalleryPhotos = galleryItems.length > 0 && galleryItems.length <= 2;
-    const shouldCollapseGalleryTail = galleryItems.length > 5;
+    const maxVisibleGalleryItems = isCompactGalleryLayout ? 3 : 5;
+    const shouldCollapseGalleryTail = galleryItems.length > maxVisibleGalleryItems;
     const visibleGalleryItems = shouldCollapseGalleryTail
-      ? galleryItems.slice(0, 4)
-      : galleryItems.slice(0, 5);
+      ? galleryItems.slice(0, maxVisibleGalleryItems - 1)
+      : galleryItems.slice(0, maxVisibleGalleryItems);
     const hiddenGalleryCount = shouldCollapseGalleryTail
       ? Math.max(galleryItems.length - visibleGalleryItems.length, 0)
       : 0;
@@ -538,13 +626,101 @@ export const SpecialistProfileView = observer(
       setActiveGalleryIndex(activeGalleryIndex + 1);
     };
 
-    const isAllPetSizesSelected = currentDetails
-      ? currentDetails.petSizes.length === PET_SIZE_OPTIONS.length
-      : currentPetSizes.length === PET_SIZE_OPTIONS.length;
+    const handleRemoveGalleryImageFromViewer = (): void => {
+      if (!isEditingDetails || activeGalleryIndex === null) {
+        return;
+      }
 
-    const isAllPetAgesSelected = currentDetails
-      ? currentDetails.petAges.length === PET_AGE_OPTIONS.length
-      : currentPetAges.length === PET_AGE_OPTIONS.length;
+      const nextGalleryLength = galleryItems.length - 1;
+      onRemoveSpecialistGalleryImage(activeGalleryIndex);
+
+      if (nextGalleryLength <= 0) {
+        setActiveGalleryIndex(null);
+        return;
+      }
+
+      setActiveGalleryIndex((prev) => {
+        if (prev === null) {
+          return 0;
+        }
+        return Math.min(prev, nextGalleryLength - 1);
+      });
+    };
+
+    const selectedPetSizeGroup = resolvePetSizeGroup(currentPetSizes);
+    const selectedPetAgeGroup = resolvePetAgeGroup(currentPetAges);
+    const sortedVisibleReviews = [...visibleReviews].sort((left, right) => {
+      if (reviewsSort === 'newest') {
+        return new Date(right.createdAt).getTime() - new Date(left.createdAt).getTime();
+      }
+      if (reviewsSort === 'oldest') {
+        return new Date(left.createdAt).getTime() - new Date(right.createdAt).getTime();
+      }
+      if (reviewsSort === 'rating_asc') {
+        return left.rating - right.rating;
+      }
+      return right.rating - left.rating;
+    });
+    const isReviewViewerOpen =
+      activeReviewPhotoIndex !== null && activeReviewPhotos.length > 0;
+    const currentReviewPhoto =
+      activeReviewPhotoIndex !== null ? activeReviewPhotos[activeReviewPhotoIndex] : undefined;
+    const canPrevReviewPhoto = activeReviewPhotoIndex !== null && activeReviewPhotoIndex > 0;
+    const canNextReviewPhoto =
+      activeReviewPhotoIndex !== null &&
+      activeReviewPhotoIndex < activeReviewPhotos.length - 1;
+
+    const handleOpenReviewViewer = (photos: string[], index = 0): void => {
+      if (photos.length === 0) {
+        return;
+      }
+      setActiveReviewPhotos(photos);
+      setActiveReviewPhotoIndex(Math.max(0, Math.min(index, photos.length - 1)));
+    };
+
+    const handleCloseReviewViewer = (): void => {
+      setActiveReviewPhotoIndex(null);
+      setActiveReviewPhotos([]);
+    };
+
+    const handlePrevReviewPhoto = (): void => {
+      if (!canPrevReviewPhoto || activeReviewPhotoIndex === null) {
+        return;
+      }
+      setActiveReviewPhotoIndex(activeReviewPhotoIndex - 1);
+    };
+
+    const handleNextReviewPhoto = (): void => {
+      if (!canNextReviewPhoto || activeReviewPhotoIndex === null) {
+        return;
+      }
+      setActiveReviewPhotoIndex(activeReviewPhotoIndex + 1);
+    };
+
+    const togglePetTypeAlias = (aliasId: string): void => {
+      if (!detailsForm || !isEditingDetails) {
+        return;
+      }
+
+      const nextAliases = selectedPetTypeAliases.includes(aliasId)
+        ? selectedPetTypeAliases.filter((item) => item !== aliasId)
+        : [...selectedPetTypeAliases, aliasId];
+
+      setSelectedPetTypeAliases(nextAliases);
+
+      const nextTypes = Array.from(
+        new Set(
+          nextAliases
+            .map(
+              (id) =>
+                effectivePetTypeAliasOptions.find((option) => option.id === id)?.type,
+            )
+            .filter((value): value is SpecialistPetType => Boolean(value)),
+        ),
+      );
+
+      onSetDetailsField('petTypes', nextTypes);
+    };
 
     return (
       <div className={styles.pageContainer}>
@@ -554,35 +730,13 @@ export const SpecialistProfileView = observer(
               <div className={styles.mainCardHeader}>
                 <h2 className={styles.cardTitle}>Основные данные</h2>
 
-                {profile.isOwner ? (
-                  isEditingMain ? (
-                    <div className={styles.actionsRow}>
-                      <button
-                        type="button"
-                        className={styles.secondaryButton}
-                        onClick={onCancelMainEditing}
-                        disabled={isSavingMain}
-                      >
-                        Отмена
-                      </button>
-
-                      <button
-                        type="button"
-                        className={styles.primaryButton}
-                        onClick={onSaveMain}
-                        disabled={isSavingMain}
-                      >
-                        {isSavingMain ? 'Сохранение...' : 'Сохранить'}
-                      </button>
-                    </div>
-                  ) : (
-                    <button
-                      type="button"
-                      className={styles.editIconButton}
-                      aria-label="Редактировать основные данные"
-                      onClick={onStartMainEditing}
-                    />
-                  )
+                {profile.isOwner && !isEditingMain ? (
+                  <button
+                    type="button"
+                    className={styles.editIconButton}
+                    aria-label="Редактировать основные данные"
+                    onClick={onStartMainEditing}
+                  />
                 ) : null}
               </div>
 
@@ -671,7 +825,13 @@ export const SpecialistProfileView = observer(
                     </h1>
                   )}
 
-                  <ul className={styles.metaList}>
+                  <ul
+                    className={
+                      isEditingMain
+                        ? `${styles.metaList} ${styles.metaListEditing}`
+                        : styles.metaList
+                    }
+                  >
                     <li className={styles.metaItem}>
                       <span className={styles.metaLabel}>Город:</span>
 
@@ -732,15 +892,47 @@ export const SpecialistProfileView = observer(
 
                         <li className={styles.metaItem}>
                           <span className={styles.metaLabel}>Email:</span>
-                          <span className={styles.metaValueMuted}>
-                            {currentEmail || '—'}
-                          </span>
+                          {isEditingMain ? (
+                            <input
+                              className={styles.inlineValueInput}
+                              value={mainForm?.email ?? ''}
+                              onChange={(event) =>
+                                onSetMainField('email', event.target.value)
+                              }
+                              placeholder="Email"
+                            />
+                          ) : (
+                            <span className={styles.metaValueMuted}>
+                              {currentEmail || '—'}
+                            </span>
+                          )}
                         </li>
                       </>
                     ) : null}
                   </ul>
                 </div>
               </div>
+              {profile.isOwner && isEditingMain ? (
+                <div className={styles.bottomActions}>
+                  <button
+                    type="button"
+                    className={styles.secondaryButton}
+                    onClick={onCancelMainEditing}
+                    disabled={isSavingMain}
+                  >
+                    Отмена
+                  </button>
+
+                  <button
+                    type="button"
+                    className={styles.primaryButton}
+                    onClick={onSaveMain}
+                    disabled={isSavingMain}
+                  >
+                    {isSavingMain ? 'Сохранение...' : 'Сохранить'}
+                  </button>
+                </div>
+              ) : null}
             </section>
 
             <section className={styles.experienceCard}>
@@ -800,48 +992,55 @@ export const SpecialistProfileView = observer(
                   <span className={styles.statLabel}>повторных заказов</span>
                 </div>
               </div>
-
-              {profile.isOwner && ownerWorkspace ? (
-                <>
-                  <div className={styles.ownerWorkspaceLinks}>
-                    <Link
-                      className={styles.ownerWorkspaceLink}
-                      to={ownerWorkspace.ordersPath}
-                    >
-                      Заказы клиентов
-                    </Link>
-
-                    <Link
-                      className={styles.ownerWorkspaceLink}
-                      to={ownerWorkspace.orderStatsPath}
-                    >
-                      Статистика
-                    </Link>
-
-                    <Link
-                      className={styles.ownerWorkspaceLink}
-                      to={ownerWorkspace.reviewsPath}
-                    >
-                      Ответы
-                    </Link>
-                  </div>
-
-                  <div className={styles.ownerDangerZone}>
-                    <Link className={styles.ownerDangerLink} to="/account/delete">
-                      Удаление аккаунта
-                    </Link>
-                  </div>
-                </>
-              ) : null}
             </section>
           </div>
 
           <div className={styles.rightColumn}>
+            {profile.isOwner && ownerWorkspace ? (
+              <section className={styles.ownerTopPanel}>
+                <span className={styles.ownerTopPanelDate}>{ownerTopPanelDateLabel}</span>
+
+                <div className={styles.ownerTopPanelActions}>
+                  <Link
+                    className={styles.ownerStatsButton}
+                    to={ownerWorkspace.orderStatsPath}
+                  >
+                    Статистика заказов
+                  </Link>
+
+                  <Link
+                    className={styles.ownerShopOrdersButton}
+                    to={ownerWorkspace.shopOrdersPath}
+                  >
+                    Заказы из магазина
+                  </Link>
+
+                  <Link
+                    className={styles.ownerClientsOrdersButton}
+                    to={ownerWorkspace.ordersPath}
+                  >
+                    Заказы клиентов
+                    {ownerWorkspace.pendingConfirmationCount > 0 ? (
+                      <span className={styles.ownerClientsOrdersBadge}>
+                        {ownerWorkspace.pendingConfirmationCount}
+                      </span>
+                    ) : null}
+                  </Link>
+                </div>
+              </section>
+            ) : null}
+
             {bookingCta ? (
               <div className={styles.bookingCtaWrap}>{bookingCta}</div>
             ) : null}
 
-            <section className={styles.detailsCard}>
+            <section
+              className={
+                profile.isOwner && isEditingDetails
+                  ? `${styles.detailsCard} ${styles.detailsCardEditing}`
+                  : styles.detailsCard
+              }
+            >
               <div
                 className={`${styles.detailsTop} ${
                   hasFewGalleryPhotos ? styles.detailsTopFewPhotos : ''
@@ -869,7 +1068,10 @@ export const SpecialistProfileView = observer(
                               <button
                                 type="button"
                                 className={styles.galleryRemoveButton}
-                                onClick={() => onRemoveSpecialistGalleryImage(index)}
+                                onClick={(event) => {
+                                  event.stopPropagation();
+                                  onRemoveSpecialistGalleryImage(index);
+                                }}
                               >
                                 Удалить
                               </button>
@@ -879,7 +1081,9 @@ export const SpecialistProfileView = observer(
                           {hiddenGalleryCount > 0 ? (
                             <div
                               className={styles.galleryMore}
-                              onClick={() => handleOpenGalleryViewer(visibleGalleryItems.length)}
+                              onClick={() =>
+                                handleOpenGalleryViewer(visibleGalleryItems.length)
+                              }
                             >
                               +{hiddenGalleryCount}
                             </div>
@@ -890,8 +1094,14 @@ export const SpecialistProfileView = observer(
                       )}
 
                       <div className={styles.galleryActions}>
-                        <label className={styles.secondaryButton}>
-                          <span>Загрузить с компьютера</span>
+                        <label className={styles.addPhotosButton}>
+                          <img
+                            src="/images/specialist-profile/plus-icon.svg"
+                            alt=""
+                            aria-hidden="true"
+                            className={styles.addButtonIcon}
+                          />
+                          <span>Добавить фотографии</span>
                           <input
                             className={styles.hiddenFileInput}
                             type="file"
@@ -944,7 +1154,9 @@ export const SpecialistProfileView = observer(
                       {hiddenGalleryCount > 0 ? (
                         <div
                           className={styles.galleryMore}
-                          onClick={() => handleOpenGalleryViewer(visibleGalleryItems.length)}
+                          onClick={() =>
+                            handleOpenGalleryViewer(visibleGalleryItems.length)
+                          }
                         >
                           +{hiddenGalleryCount}
                         </div>
@@ -959,54 +1171,14 @@ export const SpecialistProfileView = observer(
                   <div className={styles.detailsHeader}>
                     <h2 className={styles.cardTitle}>Детали</h2>
 
-                    <div className={styles.actionsRow}>
-                      {onContactSpecialist && !profile.isOwner ? (
-                        <button
-                          type="button"
-                          className={styles.contactButton}
-                          onClick={onContactSpecialist}
-                        >
-                          <img
-                            src="/images/specialist-profile/tabler_message.svg"
-                            alt=""
-                            aria-hidden="true"
-                            className={styles.contactButtonIcon}
-                          />
-                          Связаться
-                        </button>
-                      ) : null}
-
-                      {profile.isOwner ? (
-                        isEditingDetails ? (
-                          <>
-                            <button
-                              type="button"
-                              className={styles.secondaryButton}
-                              onClick={onCancelDetailsEditing}
-                              disabled={isSavingDetails}
-                            >
-                              Отмена
-                            </button>
-
-                            <button
-                              type="button"
-                              className={styles.primaryButton}
-                              onClick={onSaveDetails}
-                              disabled={isSavingDetails}
-                            >
-                              {isSavingDetails ? 'Сохранение...' : 'Сохранить'}
-                            </button>
-                          </>
-                        ) : (
-                          <button
-                            type="button"
-                            className={styles.editIconButton}
-                            aria-label="Редактировать детали"
-                            onClick={onStartDetailsEditing}
-                          />
-                        )
-                      ) : null}
-                    </div>
+                    {profile.isOwner && !isEditingDetails ? (
+                      <button
+                        type="button"
+                        className={styles.editIconButton}
+                        aria-label="Редактировать детали"
+                        onClick={onStartDetailsEditing}
+                      />
+                    ) : null}
                   </div>
 
                   {detailsSaveError ? (
@@ -1043,31 +1215,99 @@ export const SpecialistProfileView = observer(
 
                     <div className={styles.detailsCompactRow}>
                       <span>Размер питомца:</span>
-                      <strong>
-                        {currentPetSizes.length === PET_SIZE_OPTIONS.length
-                          ? 'Любой'
-                          : currentPetSizes
-                              .map((size) => SPECIALIST_PET_SIZE_LABELS[size])
-                              .join(', ') || '—'}
-                      </strong>
+                      {isEditingDetails && detailsForm ? (
+                        <select
+                          className={styles.inlineSelect}
+                          value={selectedPetSizeGroup}
+                          onChange={(event) =>
+                            onSetDetailsField(
+                              'petSizes',
+                              mapPetSizeGroupToValue(
+                                event.target.value as
+                                  | 'any'
+                                  | 'small'
+                                  | 'medium'
+                                  | 'large',
+                              ),
+                            )
+                          }
+                        >
+                          <option value="any">Любой</option>
+                          <option value="small">Маленький</option>
+                          <option value="medium">Средний</option>
+                          <option value="large">Большой</option>
+                        </select>
+                      ) : (
+                        <strong>
+                          {currentPetSizes.length === PET_SIZE_OPTIONS.length
+                            ? 'Любой'
+                            : currentPetSizes
+                                .map((size) => SPECIALIST_PET_SIZE_LABELS[size])
+                                .join(', ') || '—'}
+                        </strong>
+                      )}
                     </div>
 
                     <div className={styles.detailsCompactRow}>
                       <span>Возраст питомца:</span>
-                      <strong>
-                        {currentPetAges.length === PET_AGE_OPTIONS.length
-                          ? 'Любой'
-                          : currentPetAges
-                              .map((age) => SPECIALIST_PET_AGE_LABELS[age])
-                              .join(', ') || '—'}
-                      </strong>
+                      {isEditingDetails && detailsForm ? (
+                        <select
+                          className={styles.inlineSelect}
+                          value={selectedPetAgeGroup}
+                          onChange={(event) =>
+                            onSetDetailsField(
+                              'petAges',
+                              mapPetAgeGroupToValue(
+                                event.target.value as
+                                  | 'any'
+                                  | 'newborn'
+                                  | 'baby'
+                                  | 'teen'
+                                  | 'adult'
+                                  | 'senior',
+                              ),
+                            )
+                          }
+                        >
+                          <option value="any">Любой</option>
+                          <option value="newborn">Новорожденный</option>
+                          <option value="baby">Малыш</option>
+                          <option value="teen">Подросток</option>
+                          <option value="adult">Взрослый</option>
+                          <option value="senior">Пожилой</option>
+                        </select>
+                      ) : (
+                        <strong>
+                          {currentPetAges.length === PET_AGE_OPTIONS.length
+                            ? 'Любой'
+                            : currentPetAges
+                                .map((age) => SPECIALIST_PET_AGE_LABELS[age])
+                                .join(', ') || '—'}
+                        </strong>
+                      )}
                     </div>
 
                     <div className={styles.detailsCompactRow}>
                       <span>Дети до 10 лет:</span>
-                      <strong>
-                        {SPECIALIST_CHILDREN_POLICY_LABELS[currentChildrenPolicy]}
-                      </strong>
+                      {isEditingDetails && detailsForm ? (
+                        <select
+                          className={styles.inlineSelect}
+                          value={currentChildrenPolicy === 'yes' ? 'yes' : 'no'}
+                          onChange={(event) =>
+                            onSetDetailsField(
+                              'hasChildrenUnderTen',
+                              event.target.value === 'yes' ? 'yes' : 'no',
+                            )
+                          }
+                        >
+                          <option value="no">Нет</option>
+                          <option value="yes">Да</option>
+                        </select>
+                      ) : (
+                        <strong>
+                          {SPECIALIST_CHILDREN_POLICY_LABELS[currentChildrenPolicy]}
+                        </strong>
+                      )}
                     </div>
                   </div>
 
@@ -1075,17 +1315,28 @@ export const SpecialistProfileView = observer(
                     <div className={styles.petTypesTitle}>Типы питомцев:</div>
 
                     {isEditingDetails && detailsForm ? (
-                      <div className={styles.inlineCheckboxGroup}>
-                        {PET_TYPE_OPTIONS.map((option) => (
-                          <label key={option} className={styles.checkboxItem}>
-                            <input
-                              type="checkbox"
-                              checked={detailsForm.petTypes.includes(option)}
-                              onChange={() => onTogglePetType(option)}
-                            />
-                            <span>{SPECIALIST_PET_TYPE_LABELS[option]}</span>
-                          </label>
-                        ))}
+                      <div className={styles.petTypeTagGrid}>
+                        {effectivePetTypeAliasOptions.map((option) => {
+                          const isSelected = selectedPetTypeAliases.includes(option.id);
+
+                          return (
+                            <button
+                              key={option.id}
+                              type="button"
+                              className={
+                                isSelected
+                                  ? `${styles.petTypeChip} ${styles.petTypeChipActive}`
+                                  : styles.petTypeChip
+                              }
+                              onClick={() => togglePetTypeAlias(option.id)}
+                            >
+                              <span>{option.label}</span>
+                              {isSelected ? (
+                                <span className={styles.petTypeChipClose}>✕</span>
+                              ) : null}
+                            </button>
+                          );
+                        })}
                       </div>
                     ) : (
                       <div className={styles.tags}>
@@ -1103,50 +1354,118 @@ export const SpecialistProfileView = observer(
               <section className={styles.servicesSection}>
                 <div className={styles.subsectionHeader}>
                   <h3 className={styles.subsectionTitle}>Услуги</h3>
-
-                  {isEditingDetails ? (
-                    <button
-                      type="button"
-                      className={styles.secondaryButton}
-                      onClick={onAddService}
-                    >
-                      Добавить услугу
-                    </button>
-                  ) : null}
                 </div>
 
                 <div className={styles.servicesList}>
                   {currentServices.length > 0 ? (
                     visibleServices.map((service, index) => {
                       const price = Number(service.price);
+                      const hasServiceActions =
+                        !profile.isOwner && Boolean(onBookService || onContactSpecialist);
 
                       return (
-                        <article key={service.id} className={styles.serviceCard}>
+                        <article
+                          key={service.id}
+                          className={
+                            hasServiceActions
+                              ? styles.serviceCard
+                              : `${styles.serviceCard} ${styles.serviceCardCompact}`
+                          }
+                        >
                           {isEditingDetails && detailsForm ? (
                             <>
-                              <SpecialistServicePolicyEditor
-                                service={detailsForm.services[index]}
-                                index={index}
-                                allServices={detailsForm.services}
-                                onSetServiceField={onSetServiceField}
-                                onSetServiceBookingMode={onSetServiceBookingMode}
-                                onSetServiceDurationField={onSetServiceDurationField}
-                                onSetServiceBufferField={onSetServiceBufferField}
-                                onSetServiceCompatibilityField={
-                                  onSetServiceCompatibilityField
+                              <div className={styles.serviceEditorTopRow}>
+                                <select
+                                  className={`${styles.inlineSelect} ${styles.serviceEditorNameSelect}`}
+                                  value={detailsForm.services[index]?.name ?? ''}
+                                  onChange={(event) =>
+                                    onSetServiceField(index, 'name', event.target.value)
+                                  }
+                                >
+                                  <option value="">Выберите услугу</option>
+                                  {(serviceCatalogOptions.length > 0
+                                    ? serviceCatalogOptions
+                                    : detailsForm.services.map((service) => ({
+                                        id: service.id,
+                                        name: service.name,
+                                      }))
+                                  ).map((option, optionIndex) => (
+                                    <option
+                                      key={`${option.id}-${optionIndex}`}
+                                      value={option.name}
+                                    >
+                                      {option.name || `Услуга ${optionIndex + 1}`}
+                                    </option>
+                                  ))}
+                                </select>
+
+                                <div className={styles.serviceEditorPriceWrap}>
+                                  <span className={styles.serviceEditorPricePrefix}>
+                                    от
+                                  </span>
+                                  <input
+                                    className={`${styles.inlineTitleInput} ${styles.serviceEditorPriceInput}`}
+                                    value={detailsForm.services[index]?.price ?? ''}
+                                    onChange={(event) =>
+                                      onSetServiceField(
+                                        index,
+                                        'price',
+                                        event.target.value,
+                                      )
+                                    }
+                                    placeholder="0"
+                                  />
+                                  <span className={styles.serviceEditorPriceCurrency}>
+                                    ₽
+                                  </span>
+                                </div>
+                              </div>
+
+                              <label className={styles.serviceEditorLabel}>
+                                Описание услуги (детали):
+                              </label>
+                              <input
+                                className={`${styles.input} ${styles.serviceEditorDescriptionInput}`}
+                                value={detailsForm.services[index]?.description ?? ''}
+                                onChange={(event) =>
+                                  onSetServiceField(
+                                    index,
+                                    'description',
+                                    event.target.value,
+                                  )
                                 }
-                                onSetServiceAdvanceField={onSetServiceAdvanceField}
-                                onSetServiceMultiDayField={onSetServiceMultiDayField}
-                                onSetServiceFlagField={onSetServiceFlagField}
+                                placeholder="Описание услуги"
                               />
 
-                              <button
-                                type="button"
-                                className={styles.removeButton}
-                                onClick={() => onRemoveService(index)}
-                              >
-                                Удалить услугу
-                              </button>
+                              <div className={styles.serviceEditorBottomRow}>
+                                <button
+                                  type="button"
+                                  className={styles.removeButton}
+                                  onClick={() => onRemoveService(index)}
+                                >
+                                  Удалить услугу
+                                </button>
+
+                                <select
+                                  className={`${styles.inlineSelect} ${styles.serviceEditorUnitSelect}`}
+                                  value={
+                                    detailsForm.services[index]?.priceUnit ?? 'service'
+                                  }
+                                  onChange={(event) =>
+                                    onSetServiceField(
+                                      index,
+                                      'priceUnit',
+                                      event.target.value,
+                                    )
+                                  }
+                                >
+                                  <option value="hour">за час</option>
+                                  <option value="day">за день</option>
+                                  <option value="service">за услугу</option>
+                                  <option value="walk">за прогулку</option>
+                                  <option value="visit">за визит</option>
+                                </select>
+                              </div>
                             </>
                           ) : (
                             <>
@@ -1180,8 +1499,7 @@ export const SpecialistProfileView = observer(
                                 </div>
                               </div>
 
-                              {!profile.isOwner &&
-                              (onBookService || onContactSpecialist) ? (
+                              {hasServiceActions ? (
                                 <div className={styles.serviceActions}>
                                   <button
                                     type="button"
@@ -1209,7 +1527,6 @@ export const SpecialistProfileView = observer(
                                   ) : null}
                                 </div>
                               ) : null}
-                              
                             </>
                           )}
                         </article>
@@ -1219,6 +1536,24 @@ export const SpecialistProfileView = observer(
                     <p className={styles.emptyText}>Пока услуги не добавлены.</p>
                   )}
                 </div>
+
+                {isEditingDetails ? (
+                  <div className={styles.addServiceBottomRow}>
+                    <button
+                      type="button"
+                      className={styles.addServiceButton}
+                      onClick={onAddService}
+                    >
+                      <img
+                        src="/images/specialist-profile/plus-icon.svg"
+                        alt=""
+                        aria-hidden="true"
+                        className={styles.addButtonIcon}
+                      />
+                      <span>Добавить услугу</span>
+                    </button>
+                  </div>
+                ) : null}
 
                 {hasHiddenServices ? (
                   <button
@@ -1269,106 +1604,157 @@ export const SpecialistProfileView = observer(
                 )}
               </section>
 
+              {profile.isOwner && isEditingDetails ? (
+                <div className={styles.detailsEditingBottomActions}>
+                  <button
+                    type="button"
+                    className={styles.secondaryButton}
+                    onClick={onCancelDetailsEditing}
+                    disabled={isSavingDetails}
+                  >
+                    Отмена
+                  </button>
+
+                  <button
+                    type="button"
+                    className={styles.primaryButton}
+                    onClick={onSaveDetails}
+                    disabled={isSavingDetails}
+                  >
+                    {isSavingDetails ? 'Сохранение...' : 'Сохранить'}
+                  </button>
+                </div>
+              ) : null}
+
               <section id="specialist-reviews" className={styles.reviewsSection}>
-                <h3 className={styles.subsectionTitle}>Отзывы о специалисте</h3>
-
-                {profile.isOwner && ownerWorkspace ? (
-                  <p className={styles.reviewsOwnerNote}>
-                    Ответы на отзывы оформляются на отдельной странице:{' '}
-                    <Link className={styles.inlineLink} to={ownerWorkspace.reviewsPath}>
-                      открыть раздел ответов
-                    </Link>
-                    .
-                  </p>
-                ) : null}
-
-                {profile.reviews.length > 0 ? (
-                  <ReviewsFiltersToolbar
-                    searchQuery={reviewsSearchQuery}
-                    ratingFilter={reviewsRatingFilter}
-                    replyFilter={reviewsReplyFilter}
-                    totalCount={profile.reviews.length}
-                    filteredCount={reviewsFilteredCount}
-                    onSearchChange={onSetReviewsSearchQuery}
-                    onRatingFilterChange={onSetReviewsRatingFilter}
-                    onReplyFilterChange={onSetReviewsReplyFilter}
-                  />
-                ) : null}
+                <div className={styles.reviewsHeaderRow}>
+                  <h3 className={styles.subsectionTitle}>Отзывы о специалисте</h3>
+                  <select
+                    className={styles.reviewsSortSelect}
+                    value={reviewsSort}
+                    onChange={(event) =>
+                      setReviewsSort(event.target.value as ReviewsSortOption)
+                    }
+                  >
+                    <option value="newest">Сначала новые</option>
+                    <option value="oldest">Сначала старые</option>
+                    <option value="rating_asc">Оценка по возрастанию</option>
+                    <option value="rating_desc">Оценка по убыванию</option>
+                  </select>
+                </div>
 
                 {profile.reviews.length === 0 ? (
                   <p className={styles.emptyText}>Пока отзывов нет.</p>
-                ) : reviewsFilteredCount === 0 ? (
-                  <p className={styles.emptyText}>
-                    Ничего не найдено. Измените поиск или фильтры.
-                  </p>
                 ) : (
                   <>
                     <div className={styles.reviewsList}>
-                      {visibleReviews.map((review) => (
-                        <article key={review.id} className={styles.reviewCard}>
-                          <div className={styles.reviewHeader}>
-                            <div>
-                              <div className={styles.reviewMeta}>
+                      {sortedVisibleReviews.map((review) => {
+                        const reviewPhotos = review.photos ?? [];
+                        const reviewImageUrl = reviewPhotos[0] ?? null;
+                        const hasReplySection = Boolean(
+                          review.specialistReply || profile.isOwner,
+                        );
+
+                        return (
+                          <article
+                            key={review.id}
+                            className={`${styles.reviewCard} ${
+                              reviewImageUrl
+                                ? styles.reviewCardWithImage
+                                : styles.reviewCardWithoutImage
+                            } ${
+                              hasReplySection ? '' : styles.reviewCardWithoutReplySection
+                            }`}
+                          >
+                            {reviewImageUrl ? (
+                              <div className={styles.reviewPhotoWrap}>
+                                <img
+                                  className={styles.reviewPhoto}
+                                  src={reviewImageUrl}
+                                  alt=""
+                                  aria-hidden="true"
+                                  onClick={() => handleOpenReviewViewer(reviewPhotos, 0)}
+                                />
+
+                                <span className={styles.reviewPhotoCount}>
+                                  +{reviewPhotos.length}
+                                </span>
+                              </div>
+                            ) : null}
+
+                            <div className={styles.reviewContent}>
+                              <div className={styles.reviewHeader}>
                                 <span className={styles.reviewDate}>
                                   {formatDate(review.createdAt)}
                                 </span>
+
+                                <div className={styles.reviewStars}>
+                                  {Array.from({ length: 5 }, (_, starIndex) => (
+                                    <img
+                                      key={`${review.id}-star-${starIndex}`}
+                                      src="/images/specialist-profile/Star.svg"
+                                      alt=""
+                                      aria-hidden="true"
+                                      className={
+                                        starIndex < getRoundedRating(review.rating)
+                                          ? styles.reviewStarIcon
+                                          : styles.reviewStarIconInactive
+                                      }
+                                    />
+                                  ))}
+                                </div>
                               </div>
 
-                              <h4 className={styles.reviewService}>Передержка</h4>
+                              <div className={styles.reviewMetaBlock}>
+                                <div>
+                                  <h4 className={styles.reviewService}>Передержка</h4>
 
-                              <div className={styles.reviewAuthorRow}>
-                                <span className={styles.reviewAuthor}>
-                                  {review.authorName}
+                                  <div className={styles.reviewAuthorRow}>
+                                    <span className={styles.reviewAuthor}>
+                                      {review.authorName}
+                                    </span>
+
+                                    {review.petName ? (
+                                      <span className={styles.reviewPetName}>
+                                        Питомец: {review.petName}
+                                      </span>
+                                    ) : null}
+                                  </div>
+                                </div>
+                              </div>
+
+                              <p className={styles.reviewText}>{review.text}</p>
+                            </div>
+
+                            {review.specialistReply ? (
+                              <div className={styles.replyCard}>
+                                <span className={styles.reviewDate}>
+                                  {formatDate(review.specialistReply.createdAt)}
                                 </span>
 
-                                {review.petName ? (
-                                  <span className={styles.reviewPetName}>
-                                    Питомец: {review.petName}
-                                  </span>
-                                ) : null}
+                                <div className={styles.replyTitle}>Ответ специалиста</div>
+
+                                <p className={styles.replyText}>
+                                  {review.specialistReply.text}
+                                </p>
                               </div>
-                            </div>
-
-                            <div className={styles.reviewStars}>
-                              {Array.from({ length: 5 }, (_, index) => (
-                                <img
-                                  key={`${review.id}-star-${index}`}
-                                  src="/images/specialist-profile/Star.svg"
-                                  alt=""
-                                  aria-hidden="true"
-                                  className={
-                                    index < getRoundedRating(review.rating)
-                                      ? styles.reviewStarIcon
-                                      : styles.reviewStarIconInactive
-                                  }
-                                />
-                              ))}
-                            </div>
-                          </div>
-
-                          <p className={styles.reviewText}>{review.text}</p>
-
-                          {review.specialistReply ? (
-                            <div className={styles.replyCard}>
-                              <div className={styles.reviewDate}>
-                                {formatDate(review.specialistReply.createdAt)}
-                              </div>
-
-                              <div className={styles.replyTitle}>Ответ специалиста</div>
-
-                              <p className={styles.replyText}>
-                                {review.specialistReply.text}
-                              </p>
-                            </div>
-                          ) : null}
-                        </article>
-                      ))}
+                            ) : profile.isOwner ? (
+                              <Link
+                                className={styles.reviewReplyButton}
+                                to={ownerWorkspace?.reviewsPath ?? '#'}
+                              >
+                                Ответить на отзыв
+                              </Link>
+                            ) : null}
+                          </article>
+                        );
+                      })}
                     </div>
 
                     {canLoadMoreReviews ? (
                       <button
                         type="button"
-                        className={styles.secondaryButton}
+                        className={`${styles.secondaryButton} ${styles.reviewsLoadMoreButton}`}
                         onClick={onLoadMoreReviews}
                       >
                         Загрузить еще
@@ -1402,36 +1788,228 @@ export const SpecialistProfileView = observer(
                 ✕
               </button>
 
-              <div className={styles.galleryViewerImageWrap}>
-                <img
-                  className={styles.galleryViewerImage}
-                  src={currentGalleryImage.imageUrl}
-                  alt={currentGalleryImage.alt || 'Фотография специалиста'}
-                />
-              </div>
+              <div className={styles.galleryViewerContent}>
+                <aside className={styles.galleryViewerThumbs}>
+                  {galleryItems.map((item, index) => (
+                    <button
+                      key={item.id}
+                      type="button"
+                      className={
+                        index === activeGalleryIndex
+                          ? `${styles.galleryViewerThumb} ${styles.galleryViewerThumbActive}`
+                          : styles.galleryViewerThumb
+                      }
+                      onClick={() => setActiveGalleryIndex(index)}
+                    >
+                      <img src={item.imageUrl} alt={item.alt || `Фото ${index + 1}`} />
+                    </button>
+                  ))}
+                </aside>
 
-              <div className={styles.galleryViewerControls}>
-                <button
-                  type="button"
-                  className={styles.galleryViewerArrow}
-                  disabled={!canPrevGalleryImage}
-                  onClick={handlePrevGalleryImage}
-                  aria-label="Предыдущее фото"
-                >
-                  ←
-                </button>
-                <span className={styles.galleryViewerCounter}>
-                  {(activeGalleryIndex ?? 0) + 1} / {galleryItems.length}
-                </span>
-                <button
-                  type="button"
-                  className={styles.galleryViewerArrow}
-                  disabled={!canNextGalleryImage}
-                  onClick={handleNextGalleryImage}
-                  aria-label="Следующее фото"
-                >
-                  →
-                </button>
+                <div className={styles.galleryViewerMain}>
+                  <div className={styles.galleryViewerImageWrap}>
+                    <img
+                      className={styles.galleryViewerImage}
+                      src={currentGalleryImage.imageUrl}
+                      alt={currentGalleryImage.alt || 'Фотография специалиста'}
+                    />
+                  </div>
+
+                  <div className={styles.galleryViewerControls}>
+                    <button
+                      type="button"
+                      className={styles.galleryViewerArrow}
+                      disabled={!canPrevGalleryImage}
+                      onClick={handlePrevGalleryImage}
+                      aria-label="Предыдущее фото"
+                    >
+                      ←
+                    </button>
+                    <span className={styles.galleryViewerCounter}>
+                      {(activeGalleryIndex ?? 0) + 1} / {galleryItems.length}
+                    </span>
+                    <button
+                      type="button"
+                      className={styles.galleryViewerArrow}
+                      disabled={!canNextGalleryImage}
+                      onClick={handleNextGalleryImage}
+                      aria-label="Следующее фото"
+                    >
+                      →
+                    </button>
+                    {isEditingDetails ? (
+                      <button
+                        type="button"
+                        className={styles.galleryViewerDelete}
+                        onClick={handleRemoveGalleryImageFromViewer}
+                      >
+                        Удалить
+                      </button>
+                    ) : null}
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        ) : null}
+
+        {isEmailChangeModalOpen ? (
+          <div
+            className={styles.emailChangeModalOverlay}
+            role="dialog"
+            aria-modal="true"
+            aria-labelledby="email-change-title"
+            onClick={onCloseEmailChangeModal}
+          >
+            <section
+              className={styles.emailChangeModal}
+              onClick={(event) => event.stopPropagation()}
+            >
+              <button
+                type="button"
+                className={styles.emailChangeModalClose}
+                onClick={onCloseEmailChangeModal}
+                aria-label="Закрыть окно подтверждения смены почты"
+              >
+                ✕
+              </button>
+
+              {emailChangeStep === 'success' ? (
+                <>
+                  <h3 id="email-change-title" className={styles.emailChangeModalTitle}>
+                    Подтверждение смены почты
+                  </h3>
+                  <p className={styles.emailChangeModalText}>Почта успешно изменена!</p>
+                  <div className={styles.emailChangeModalActions}>
+                    <button
+                      type="button"
+                      className={styles.primaryButton}
+                      onClick={onCloseEmailChangeModal}
+                    >
+                      Закрыть
+                    </button>
+                  </div>
+                </>
+              ) : (
+                <>
+                  <h3 id="email-change-title" className={styles.emailChangeModalTitle}>
+                    Подтверждение смены почты
+                  </h3>
+                  <p className={styles.emailChangeModalText}>
+                    Код для смены почты был отправлен вам на почту
+                    {pendingEmailChange ? ` ${pendingEmailChange}` : ''}.
+                  </p>
+
+                  <input
+                    type="text"
+                    className={styles.emailChangeCodeInput}
+                    placeholder="Введите код"
+                    value={emailChangeCodeInput}
+                    onChange={(event) => onSetEmailChangeCodeInput(event.target.value)}
+                  />
+
+                  {emailChangeError ? (
+                    <p className={styles.emailChangeModalError}>{emailChangeError}</p>
+                  ) : null}
+
+                  <div className={styles.emailChangeModalActions}>
+                    <button
+                      type="button"
+                      className={styles.secondaryButton}
+                      onClick={onRequestEmailChangeCode}
+                      disabled={isRequestingEmailChangeCode}
+                    >
+                      {isRequestingEmailChangeCode
+                        ? 'Отправляем...'
+                        : 'Отправить код повторно'}
+                    </button>
+                    <button
+                      type="button"
+                      className={styles.primaryButton}
+                      onClick={onConfirmEmailChangeCode}
+                      disabled={isVerifyingEmailChangeCode}
+                    >
+                      {isVerifyingEmailChangeCode ? 'Проверяем...' : 'Подтвердить'}
+                    </button>
+                  </div>
+                </>
+              )}
+            </section>
+          </div>
+        ) : null}
+
+        {isReviewViewerOpen && currentReviewPhoto ? (
+          <div
+            className={styles.galleryViewerOverlay}
+            onClick={handleCloseReviewViewer}
+            role="dialog"
+            aria-modal="true"
+            aria-label="Просмотр фото отзыва"
+          >
+            <div
+              className={styles.galleryViewerModal}
+              onClick={(event) => event.stopPropagation()}
+            >
+              <button
+                type="button"
+                className={styles.galleryViewerClose}
+                onClick={handleCloseReviewViewer}
+                aria-label="Закрыть"
+              >
+                ✕
+              </button>
+
+              <div className={styles.galleryViewerContent}>
+                <aside className={styles.galleryViewerThumbs}>
+                  {activeReviewPhotos.map((item, index) => (
+                    <button
+                      key={`${item}-${index}`}
+                      type="button"
+                      className={
+                        index === activeReviewPhotoIndex
+                          ? `${styles.galleryViewerThumb} ${styles.galleryViewerThumbActive}`
+                          : styles.galleryViewerThumb
+                      }
+                      onClick={() => setActiveReviewPhotoIndex(index)}
+                    >
+                      <img src={item} alt={`Фото отзыва ${index + 1}`} />
+                    </button>
+                  ))}
+                </aside>
+
+                <div className={styles.galleryViewerMain}>
+                  <div className={styles.galleryViewerImageWrap}>
+                    <img
+                      className={styles.galleryViewerImage}
+                      src={currentReviewPhoto}
+                      alt="Фото отзыва"
+                    />
+                  </div>
+
+                  <div className={styles.galleryViewerControls}>
+                    <button
+                      type="button"
+                      className={styles.galleryViewerArrow}
+                      disabled={!canPrevReviewPhoto}
+                      onClick={handlePrevReviewPhoto}
+                      aria-label="Предыдущее фото"
+                    >
+                      ←
+                    </button>
+                    <span className={styles.galleryViewerCounter}>
+                      {(activeReviewPhotoIndex ?? 0) + 1} / {activeReviewPhotos.length}
+                    </span>
+                    <button
+                      type="button"
+                      className={styles.galleryViewerArrow}
+                      disabled={!canNextReviewPhoto}
+                      onClick={handleNextReviewPhoto}
+                      aria-label="Следующее фото"
+                    >
+                      →
+                    </button>
+                  </div>
+                </div>
               </div>
             </div>
           </div>

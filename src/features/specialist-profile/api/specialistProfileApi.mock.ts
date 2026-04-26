@@ -17,15 +17,63 @@ import {
   MOCK_SPECIALIST_PROFILES,
 } from '../data/mockSpecialistProfiles';
 import { computeSpecialistStats } from '../lib/computeSpecialistStats';
+import { SpecialistEmailChangeError } from '../model/types';
 
 import type {
   SpecialistCalendarUpdatePayload,
   SpecialistDetailsUpdatePayload,
+  SpecialistProfileEditOptionsResponse,
+  SpecialistEmailChangeSendCodePayload,
+  SpecialistEmailChangeSendCodeResponse,
+  SpecialistEmailChangeVerifyCodePayload,
+  SpecialistEmailChangeVerifyCodeResponse,
   SpecialistMainInfoUpdatePayload,
   SpecialistProfileResponse,
   SpecialistReviewReplyUpsertPayload,
   SpecialistService,
 } from '../model/types';
+
+const MOCK_PET_TYPE_ALIAS_OPTIONS: SpecialistProfileEditOptionsResponse['petTypeAliasOptions'] = [
+  { id: 'cat', label: 'Кошка', type: 'cat' },
+  { id: 'dog', label: 'Собака', type: 'dog' },
+  { id: 'fish', label: 'Рыбка', type: 'fish' },
+  { id: 'hamster', label: 'Хомяк', type: 'rodent' },
+  { id: 'guinea-pig', label: 'Морская свинка', type: 'rodent' },
+  { id: 'rabbit', label: 'Кролик', type: 'rabbit' },
+  { id: 'turtle', label: 'Черепаха', type: 'reptile' },
+  { id: 'rat', label: 'Крыса', type: 'rodent' },
+  { id: 'mouse', label: 'Мышь', type: 'rodent' },
+  { id: 'bird', label: 'Птица', type: 'bird' },
+  { id: 'chinchilla', label: 'Шиншилла', type: 'rodent' },
+  { id: 'ferret', label: 'Хорек', type: 'rodent' },
+  { id: 'lizard', label: 'Ящерица', type: 'reptile' },
+  { id: 'snake', label: 'Змея', type: 'reptile' },
+  { id: 'snail', label: 'Улитка', type: 'reptile' },
+];
+
+const EMAIL_CHANGE_MAX_ATTEMPTS = 3;
+const EMAIL_CHANGE_LOCK_MS = 60 * 60 * 1000;
+
+type EmailChangeSession = {
+  code: string;
+  nextEmail: string;
+  attemptsUsed: number;
+  lockUntilMs: number | null;
+};
+
+const emailChangeSessionsBySpecialistSlug = new Map<string, EmailChangeSession>();
+
+function getAttemptsLeft(session: EmailChangeSession): number {
+  return Math.max(0, EMAIL_CHANGE_MAX_ATTEMPTS - session.attemptsUsed);
+}
+
+function toIsoOrNull(timestampMs: number | null): string | null {
+  return timestampMs ? new Date(timestampMs).toISOString() : null;
+}
+
+function createCode(): string {
+  return String(Math.floor(100000 + Math.random() * 900000));
+}
 
 function normalizeTime(value: string, fallback: string): string {
   const trimmed = value.trim();
@@ -91,6 +139,28 @@ export async function mockGetSpecialistProfileById(
   return withComputedStats(cloneProfile(profile));
 }
 
+export async function mockGetSpecialistProfileEditOptions(
+  slug: string,
+): Promise<SpecialistProfileEditOptionsResponse> {
+  await delay(250);
+
+  const profileIndex = findProfileIndexBySlug(slug);
+
+  if (profileIndex === -1) {
+    throw new Error('Профиль специалиста не найден.');
+  }
+
+  const profile = MOCK_SPECIALIST_PROFILES[profileIndex];
+
+  return {
+    serviceCatalog: profile.services.map((service) => ({
+      id: service.id,
+      name: service.name,
+    })),
+    petTypeAliasOptions: [...MOCK_PET_TYPE_ALIAS_OPTIONS],
+  };
+}
+
 export async function mockUpdateMainInfo(
   slug: string,
   payload: SpecialistMainInfoUpdatePayload,
@@ -120,6 +190,118 @@ export async function mockUpdateMainInfo(
   });
 
   return withComputedStats(cloneProfile(currentProfile));
+}
+
+export async function mockSendEmailChangeCode(
+  slug: string,
+  payload: SpecialistEmailChangeSendCodePayload,
+): Promise<SpecialistEmailChangeSendCodeResponse> {
+  await delay(350);
+
+  const profileIndex = findProfileIndexBySlug(slug);
+
+  if (profileIndex === -1) {
+    throw new Error('Профиль специалиста не найден.');
+  }
+
+  const nextEmail = payload.nextEmail.trim().toLowerCase();
+
+  if (!nextEmail || !nextEmail.includes('@')) {
+    throw new SpecialistEmailChangeError({
+      message: 'Укажи корректный email.',
+    });
+  }
+
+  const existingSession = emailChangeSessionsBySpecialistSlug.get(slug);
+  const now = Date.now();
+
+  if (existingSession?.lockUntilMs && existingSession.lockUntilMs > now) {
+    throw new SpecialistEmailChangeError({
+      message: 'Лимит попыток исчерпан. Повторный запрос будет доступен позже.',
+      attemptsLeft: 0,
+      lockUntil: toIsoOrNull(existingSession.lockUntilMs),
+    });
+  }
+
+  const session: EmailChangeSession = {
+    code: createCode(),
+    nextEmail,
+    attemptsUsed: existingSession?.attemptsUsed ?? 0,
+    lockUntilMs: null,
+  };
+
+  emailChangeSessionsBySpecialistSlug.set(slug, session);
+
+  return {
+    attemptsLeft: getAttemptsLeft(session),
+    lockUntil: toIsoOrNull(session.lockUntilMs),
+  };
+}
+
+export async function mockVerifyEmailChangeCode(
+  slug: string,
+  payload: SpecialistEmailChangeVerifyCodePayload,
+): Promise<SpecialistEmailChangeVerifyCodeResponse> {
+  await delay(350);
+
+  const profileIndex = findProfileIndexBySlug(slug);
+
+  if (profileIndex === -1) {
+    throw new Error('Профиль специалиста не найден.');
+  }
+
+  const session = emailChangeSessionsBySpecialistSlug.get(slug);
+
+  if (!session) {
+    throw new SpecialistEmailChangeError({
+      message: 'Сессия подтверждения не найдена. Запроси код повторно.',
+      attemptsLeft: EMAIL_CHANGE_MAX_ATTEMPTS,
+      lockUntil: null,
+    });
+  }
+
+  const now = Date.now();
+  if (session.lockUntilMs && session.lockUntilMs > now) {
+    throw new SpecialistEmailChangeError({
+      message: 'Лимит попыток исчерпан. Повторный запрос будет доступен позже.',
+      attemptsLeft: 0,
+      lockUntil: toIsoOrNull(session.lockUntilMs),
+    });
+  }
+
+  const submittedCode = payload.code.trim();
+  const submittedEmail = payload.nextEmail.trim().toLowerCase();
+
+  if (submittedEmail !== session.nextEmail || submittedCode !== session.code) {
+    session.attemptsUsed += 1;
+
+    if (session.attemptsUsed >= EMAIL_CHANGE_MAX_ATTEMPTS) {
+      session.lockUntilMs = now + EMAIL_CHANGE_LOCK_MS;
+      emailChangeSessionsBySpecialistSlug.set(slug, session);
+      throw new SpecialistEmailChangeError({
+        message: 'Код введен неверно. Достигнут лимит попыток.',
+        attemptsLeft: 0,
+        lockUntil: toIsoOrNull(session.lockUntilMs),
+      });
+    }
+
+    emailChangeSessionsBySpecialistSlug.set(slug, session);
+    throw new SpecialistEmailChangeError({
+      message: 'Код введен неверно.',
+      attemptsLeft: getAttemptsLeft(session),
+      lockUntil: toIsoOrNull(session.lockUntilMs),
+    });
+  }
+
+  const profile = MOCK_SPECIALIST_PROFILES[profileIndex];
+  profile.main.email = session.nextEmail;
+  emailChangeSessionsBySpecialistSlug.delete(slug);
+
+  return {
+    profile: withComputedStats(cloneProfile(profile)),
+    attemptsLeft: EMAIL_CHANGE_MAX_ATTEMPTS,
+    lockUntil: null,
+  };
 }
 
 export async function mockUpdateDetails(

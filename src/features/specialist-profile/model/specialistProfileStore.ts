@@ -5,6 +5,7 @@ import { makeAutoObservable, runInAction } from 'mobx';
 import { PET_WEIGHT_SIZES } from '@/features/pets/model/constants';
 
 import { SPECIALIST_ADVANTAGE_OPTIONS } from './constants';
+import { SpecialistEmailChangeError } from './types';
 import { specialistProfileService } from '../service/specialistProfileService';
 
 import type {
@@ -12,6 +13,8 @@ import type {
   SpecialistChildrenPolicy,
   SpecialistDetails,
   SpecialistDetailsUpdatePayload,
+  SpecialistPetTypeAliasOption,
+  SpecialistServiceCatalogItem,
   SpecialistExperienceUnit,
   SpecialistGalleryItem,
   SpecialistHousingType,
@@ -29,8 +32,8 @@ import type {
   SpecialistServicePriceUnit,
 } from './types';
 
-const INITIAL_VISIBLE_REVIEWS_COUNT = 3;
-const REVIEWS_LOAD_STEP = 3;
+const INITIAL_VISIBLE_REVIEWS_COUNT = 10;
+const REVIEWS_LOAD_STEP = 10;
 
 function reviewMatchesSearch(review: SpecialistReview, query: string): boolean {
   const normalized = query.trim().toLowerCase();
@@ -90,6 +93,7 @@ type MainForm = {
   city: string;
   district: string;
   phone: string;
+  email: string;
 };
 
 type EditableGalleryItem = {
@@ -182,6 +186,7 @@ function createMainForm(main: SpecialistMainInfo): MainForm {
     city: main.city,
     district: main.district,
     phone: main.phone,
+    email: main.email,
   };
 }
 
@@ -368,6 +373,11 @@ function isValidPhone(value: string): boolean {
   return normalized.length >= 11;
 }
 
+function isValidEmail(value: string): boolean {
+  const normalized = value.trim();
+  return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(normalized);
+}
+
 function createLocalId(prefix: string): string {
   return `${prefix}-${Date.now()}-${Math.random().toString(36).slice(2, 10)}`;
 }
@@ -482,12 +492,23 @@ export class SpecialistProfileStore {
   mainSaveError: string | null = null;
   mainForm: MainForm | null = null;
   mainFormErrors: MainFormErrors = {};
+  isEmailChangeModalOpen = false;
+  pendingEmailChange: string | null = null;
+  emailChangeCodeInput = '';
+  emailChangeError: string | null = null;
+  emailChangeStep: 'verify' | 'success' = 'verify';
+  emailChangeAttemptsUsed = 0;
+  emailChangeLockedUntilMs: number | null = null;
+  isRequestingEmailChangeCode = false;
+  isVerifyingEmailChangeCode = false;
 
   isEditingDetails = false;
   isSavingDetails = false;
   detailsSaveError: string | null = null;
   detailsForm: DetailsForm | null = null;
   detailsFormErrors: DetailsFormErrors = {};
+  serviceCatalogOptions: SpecialistServiceCatalogItem[] = [];
+  petTypeAliasOptions: SpecialistPetTypeAliasOption[] = [];
 
   constructor() {
     makeAutoObservable(this, {}, { autoBind: true });
@@ -543,7 +564,10 @@ export class SpecialistProfileStore {
     this.error = null;
 
     try {
-      const profile = await specialistProfileService.getBySlug(slug);
+      const [profile, editOptions] = await Promise.all([
+        specialistProfileService.getBySlug(slug),
+        specialistProfileService.getEditOptions(slug),
+      ]);
 
       runInAction(() => {
         this.profile = profile;
@@ -558,12 +582,23 @@ export class SpecialistProfileStore {
         this.mainSaveError = null;
         this.mainForm = null;
         this.mainFormErrors = {};
+        this.isEmailChangeModalOpen = false;
+        this.pendingEmailChange = null;
+        this.emailChangeCodeInput = '';
+        this.emailChangeError = null;
+        this.emailChangeStep = 'verify';
+        this.emailChangeAttemptsUsed = 0;
+        this.emailChangeLockedUntilMs = null;
+        this.isRequestingEmailChangeCode = false;
+        this.isVerifyingEmailChangeCode = false;
 
         this.isEditingDetails = false;
         this.isSavingDetails = false;
         this.detailsSaveError = null;
         this.detailsForm = null;
         this.detailsFormErrors = {};
+        this.serviceCatalogOptions = editOptions.serviceCatalog;
+        this.petTypeAliasOptions = editOptions.petTypeAliasOptions;
       });
     } catch (error) {
       runInAction(() => {
@@ -687,6 +722,10 @@ export class SpecialistProfileStore {
       errors.phone = 'Укажи корректный телефон.';
     }
 
+    if (!isValidEmail(this.mainForm.email)) {
+      errors.email = 'Укажи корректный email.';
+    }
+
     this.mainFormErrors = errors;
 
     return Object.keys(errors).length === 0;
@@ -703,6 +742,9 @@ export class SpecialistProfileStore {
 
     this.isSavingMain = true;
     this.mainSaveError = null;
+    const nextEmail = this.mainForm.email.trim();
+    const hasEmailChanged =
+      nextEmail.toLowerCase() !== this.profile.main.email.trim().toLowerCase();
 
     const payload: SpecialistMainInfoUpdatePayload = {
       avatarUrl: this.mainForm.avatarUrl.trim() || undefined,
@@ -726,6 +768,10 @@ export class SpecialistProfileStore {
         this.mainForm = null;
         this.mainFormErrors = {};
       });
+
+      if (hasEmailChanged) {
+        await this.startEmailChangeFlow(nextEmail);
+      }
     } catch (error) {
       runInAction(() => {
         this.mainSaveError =
@@ -736,6 +782,160 @@ export class SpecialistProfileStore {
     } finally {
       runInAction(() => {
         this.isSavingMain = false;
+      });
+    }
+  }
+
+  get emailChangeLockRemainingMinutes(): number {
+    if (!this.emailChangeLockedUntilMs) {
+      return 0;
+    }
+
+    return Math.max(
+      0,
+      Math.ceil((this.emailChangeLockedUntilMs - Date.now()) / (60 * 1000)),
+    );
+  }
+
+  private isEmailChangeLockedNow(): boolean {
+    if (!this.emailChangeLockedUntilMs) {
+      return false;
+    }
+
+    if (Date.now() >= this.emailChangeLockedUntilMs) {
+      this.emailChangeLockedUntilMs = null;
+      this.emailChangeAttemptsUsed = 0;
+      return false;
+    }
+
+    return true;
+  }
+
+  private async startEmailChangeFlow(nextEmail: string): Promise<void> {
+    this.pendingEmailChange = nextEmail;
+    this.emailChangeCodeInput = '';
+    this.emailChangeError = null;
+    this.emailChangeStep = 'verify';
+    this.isEmailChangeModalOpen = true;
+
+    await this.requestEmailChangeCode();
+  }
+
+  closeEmailChangeModal(): void {
+    this.isEmailChangeModalOpen = false;
+    this.pendingEmailChange = null;
+    this.emailChangeCodeInput = '';
+    this.emailChangeError = null;
+    this.emailChangeStep = 'verify';
+    this.isRequestingEmailChangeCode = false;
+    this.isVerifyingEmailChangeCode = false;
+  }
+
+  setEmailChangeCodeInput(value: string): void {
+    this.emailChangeCodeInput = value.replace(/[^\d]/g, '').slice(0, 6);
+    this.emailChangeError = null;
+  }
+
+  async requestEmailChangeCode(): Promise<void> {
+    if (!this.profile || !this.pendingEmailChange) {
+      return;
+    }
+
+    if (this.isEmailChangeLockedNow()) {
+      this.emailChangeError = `Лимит попыток исчерпан. Повторный запрос будет доступен через ${this.emailChangeLockRemainingMinutes} мин.`;
+      return;
+    }
+
+    this.isRequestingEmailChangeCode = true;
+    this.emailChangeError = null;
+
+    try {
+      const response = await specialistProfileService.sendEmailChangeCode(this.profile.slug, {
+        nextEmail: this.pendingEmailChange,
+      });
+
+      runInAction(() => {
+        this.emailChangeAttemptsUsed = response.attemptsLeft;
+        this.emailChangeLockedUntilMs = response.lockUntil
+          ? new Date(response.lockUntil).getTime()
+          : null;
+      });
+    } catch (error) {
+      runInAction(() => {
+        if (error instanceof SpecialistEmailChangeError) {
+          this.emailChangeAttemptsUsed = error.attemptsLeft ?? this.emailChangeAttemptsUsed;
+          this.emailChangeLockedUntilMs = error.lockUntil
+            ? new Date(error.lockUntil).getTime()
+            : null;
+        }
+
+        this.emailChangeError =
+          error instanceof Error ? error.message : 'Не удалось отправить код подтверждения.';
+      });
+    } finally {
+      runInAction(() => {
+        this.isRequestingEmailChangeCode = false;
+      });
+    }
+  }
+
+  async confirmEmailChangeCode(): Promise<void> {
+    if (!this.profile || !this.pendingEmailChange) {
+      return;
+    }
+
+    if (this.isEmailChangeLockedNow()) {
+      this.emailChangeError = `Лимит попыток исчерпан. Повторный запрос будет доступен через ${this.emailChangeLockRemainingMinutes} мин.`;
+      return;
+    }
+
+    if (!this.emailChangeCodeInput.trim()) {
+      this.emailChangeError = 'Введи код подтверждения.';
+      return;
+    }
+
+    this.isVerifyingEmailChangeCode = true;
+    this.emailChangeError = null;
+
+    try {
+      const response = await specialistProfileService.verifyEmailChangeCode(
+        this.profile.slug,
+        {
+          nextEmail: this.pendingEmailChange,
+          code: this.emailChangeCodeInput,
+        },
+      );
+
+      runInAction(() => {
+        this.profile = response.profile;
+        this.emailChangeAttemptsUsed = response.attemptsLeft;
+        this.emailChangeLockedUntilMs = response.lockUntil
+          ? new Date(response.lockUntil).getTime()
+          : null;
+        this.emailChangeStep = 'success';
+        this.emailChangeError = null;
+      });
+    } catch (error) {
+      runInAction(() => {
+        if (error instanceof SpecialistEmailChangeError) {
+          this.emailChangeAttemptsUsed = error.attemptsLeft ?? this.emailChangeAttemptsUsed;
+          this.emailChangeLockedUntilMs = error.lockUntil
+            ? new Date(error.lockUntil).getTime()
+            : null;
+          const lockMessage =
+            this.emailChangeLockedUntilMs && this.emailChangeLockedUntilMs > Date.now()
+              ? ` Повторный запрос будет доступен через ${this.emailChangeLockRemainingMinutes} мин.`
+              : '';
+          this.emailChangeError = `${error.message}${lockMessage}`;
+          return;
+        }
+
+        this.emailChangeError =
+          error instanceof Error ? error.message : 'Не удалось подтвердить смену почты.';
+      });
+    } finally {
+      runInAction(() => {
+        this.isVerifyingEmailChangeCode = false;
       });
     }
   }
@@ -1342,12 +1542,23 @@ export class SpecialistProfileStore {
     this.mainSaveError = null;
     this.mainForm = null;
     this.mainFormErrors = {};
+    this.isEmailChangeModalOpen = false;
+    this.pendingEmailChange = null;
+    this.emailChangeCodeInput = '';
+    this.emailChangeError = null;
+    this.emailChangeStep = 'verify';
+    this.emailChangeAttemptsUsed = 0;
+    this.emailChangeLockedUntilMs = null;
+    this.isRequestingEmailChangeCode = false;
+    this.isVerifyingEmailChangeCode = false;
 
     this.isEditingDetails = false;
     this.isSavingDetails = false;
     this.detailsSaveError = null;
     this.detailsForm = null;
     this.detailsFormErrors = {};
+    this.serviceCatalogOptions = [];
+    this.petTypeAliasOptions = [];
   }
 }
 

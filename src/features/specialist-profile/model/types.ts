@@ -211,6 +211,7 @@ export type SpecialistReview = {
   rating: 1 | 2 | 3 | 4 | 5;
   createdAt: string;
   text: string;
+  photos?: string[];
   specialistReply?: SpecialistReviewReply;
 };
 
@@ -249,6 +250,22 @@ export type SpecialistProfile = {
 
 export type SpecialistProfileResponse = Omit<SpecialistProfile, 'isOwner'>;
 
+export type SpecialistServiceCatalogItem = {
+  id: string;
+  name: string;
+};
+
+export type SpecialistPetTypeAliasOption = {
+  id: string;
+  label: string;
+  type: SpecialistPetType;
+};
+
+export type SpecialistProfileEditOptionsResponse = {
+  serviceCatalog: SpecialistServiceCatalogItem[];
+  petTypeAliasOptions: SpecialistPetTypeAliasOption[];
+};
+
 export type SpecialistMainInfoUpdatePayload = {
   avatarUrl?: string;
   firstName: string;
@@ -258,6 +275,42 @@ export type SpecialistMainInfoUpdatePayload = {
   district: string;
   phone: string;
 };
+
+export type SpecialistEmailChangeSendCodePayload = {
+  nextEmail: string;
+};
+
+export type SpecialistEmailChangeVerifyCodePayload = {
+  nextEmail: string;
+  code: string;
+};
+
+export type SpecialistEmailChangeSendCodeResponse = {
+  attemptsLeft: number;
+  lockUntil: string | null;
+};
+
+export type SpecialistEmailChangeVerifyCodeResponse = {
+  profile: SpecialistProfileResponse;
+  attemptsLeft: number;
+  lockUntil: string | null;
+};
+
+export class SpecialistEmailChangeError extends Error {
+  readonly attemptsLeft?: number;
+  readonly lockUntil?: string | null;
+
+  constructor(params: {
+    message: string;
+    attemptsLeft?: number;
+    lockUntil?: string | null;
+  }) {
+    super(params.message);
+    this.name = 'SpecialistEmailChangeError';
+    this.attemptsLeft = params.attemptsLeft;
+    this.lockUntil = params.lockUntil ?? null;
+  }
+}
 
 export type SpecialistServiceUpdateItem = {
   id: string;

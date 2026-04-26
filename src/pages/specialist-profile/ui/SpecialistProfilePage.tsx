@@ -6,10 +6,12 @@ import { useParams } from 'react-router-dom';
 
 import { useAuth } from '@/features/auth/model/useAuth';
 import { messagesStore } from '@/features/messages';
+import { ordersStore } from '@/features/orders/model/ordersStore';
 import { specialistProfileStore } from '@/features/specialist-profile/model/specialistProfileStore';
 import { SpecialistProfileView } from '@/features/specialist-profile/ui/SpecialistProfileView';
 import {
   canClientBookSpecialist,
+  isAuthenticatedRole,
   isClientViewingOwnSpecialistProfile,
 } from '@/shared/lib/auth/roleAccess';
 import { useAppNavigate } from '@/shared/lib/navigation/useAppNavigate';
@@ -162,10 +164,12 @@ export const SpecialistProfilePage = observer((): ReactElement => {
     user?.role === 'specialist' &&
     (isSameSlug || isSameSpecialistId),
   );
+  const canUseSpecialistActions = Boolean(
+    isAuth && user?.id && isAuthenticatedRole(user?.role),
+  );
 
   const canContactSpecialist = Boolean(
-    isAuth &&
-      user?.id &&
+    canUseSpecialistActions &&
       store.profile &&
       !canManageOwnProfile &&
       !isClientViewingOwnSpecialistProfile(user, {
@@ -175,8 +179,7 @@ export const SpecialistProfilePage = observer((): ReactElement => {
   );
 
   const canBookSpecialist = Boolean(
-    isAuth &&
-    user?.id &&
+    canUseSpecialistActions &&
     store.profile &&
     canClientBookSpecialist(user, {
       slug: store.profile.slug,
@@ -184,6 +187,24 @@ export const SpecialistProfilePage = observer((): ReactElement => {
     }) &&
     !canManageOwnProfile,
   );
+
+  useEffect(() => {
+    if (!canManageOwnProfile || !store.profile) {
+      return;
+    }
+
+    void ordersStore.loadServices();
+  }, [canManageOwnProfile, store.profile?.slug]);
+
+  const ownerProfileSlug = store.profile?.slug ?? '';
+  const pendingClientOrdersCount =
+    canManageOwnProfile && ownerProfileSlug
+      ? ordersStore.serviceOrders.filter(
+          (order) =>
+            order.specialistSlug === ownerProfileSlug &&
+            order.status === 'pending_confirmation',
+        ).length
+      : 0;
 
   return (
     <div className={styles.page}>
@@ -203,13 +224,6 @@ export const SpecialistProfilePage = observer((): ReactElement => {
           canLoadMoreReviews={store.canLoadMoreReviews}
           onRetry={handleRetry}
           onLoadMoreReviews={store.loadMoreReviews}
-          reviewsSearchQuery={store.reviewsSearchQuery}
-          reviewsRatingFilter={store.reviewsRatingFilter}
-          reviewsReplyFilter={store.reviewsReplyFilter}
-          reviewsFilteredCount={store.filteredReviews.length}
-          onSetReviewsSearchQuery={store.setReviewsSearchQuery}
-          onSetReviewsRatingFilter={store.setReviewsRatingFilter}
-          onSetReviewsReplyFilter={store.setReviewsReplyFilter}
           isEditingMain={store.isEditingMain}
           isSavingMain={store.isSavingMain}
           mainSaveError={store.mainSaveError}
@@ -221,6 +235,21 @@ export const SpecialistProfilePage = observer((): ReactElement => {
           onSetMainAvatarFile={store.setMainAvatarFile}
           onSaveMain={() => {
             void store.saveMain();
+          }}
+          isEmailChangeModalOpen={store.isEmailChangeModalOpen}
+          pendingEmailChange={store.pendingEmailChange}
+          emailChangeCodeInput={store.emailChangeCodeInput}
+          emailChangeError={store.emailChangeError}
+          emailChangeStep={store.emailChangeStep}
+          isRequestingEmailChangeCode={store.isRequestingEmailChangeCode}
+          isVerifyingEmailChangeCode={store.isVerifyingEmailChangeCode}
+          onCloseEmailChangeModal={store.closeEmailChangeModal}
+          onSetEmailChangeCodeInput={store.setEmailChangeCodeInput}
+          onRequestEmailChangeCode={() => {
+            void store.requestEmailChangeCode();
+          }}
+          onConfirmEmailChangeCode={() => {
+            void store.confirmEmailChangeCode();
           }}
           isEditingDetails={store.isEditingDetails}
           isSavingDetails={store.isSavingDetails}
@@ -239,17 +268,12 @@ export const SpecialistProfilePage = observer((): ReactElement => {
           onAddService={store.addService}
           onRemoveService={store.removeService}
           onSetServiceField={store.setServiceField}
-          onSetServiceBookingMode={store.setServiceBookingMode}
-          onSetServiceDurationField={store.setServiceDurationField}
-          onSetServiceBufferField={store.setServiceBufferField}
-          onSetServiceCompatibilityField={store.setServiceCompatibilityField}
-          onSetServiceAdvanceField={store.setServiceAdvanceField}
-          onSetServiceMultiDayField={store.setServiceMultiDayField}
-          onSetServiceFlagField={store.setServiceFlagField}
           onSetSpecialistGalleryUrlInput={store.setSpecialistGalleryUrlInput}
           onAddSpecialistGalleryImageByUrl={store.addSpecialistGalleryImageByUrl}
           onAddSpecialistGalleryFiles={store.addSpecialistGalleryFiles}
           onRemoveSpecialistGalleryImage={store.removeSpecialistGalleryImage}
+          serviceCatalogOptions={store.serviceCatalogOptions}
+          petTypeAliasOptions={store.petTypeAliasOptions}
           onSaveDetails={() => {
             void store.saveDetails();
           }}
@@ -267,6 +291,8 @@ export const SpecialistProfilePage = observer((): ReactElement => {
                   reviewsPath: `/specialists/${store.profile.slug.trim()}/reviews`,
                   ordersPath: `/specialists/${store.profile.slug.trim()}/orders`,
                   orderStatsPath: `/specialists/${store.profile.slug.trim()}/orders/stats`,
+                  shopOrdersPath: '/shop/orders',
+                  pendingConfirmationCount: pendingClientOrdersCount,
                 }
               : undefined
           }
