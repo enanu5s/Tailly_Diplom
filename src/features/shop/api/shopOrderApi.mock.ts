@@ -17,6 +17,7 @@ import {
 } from '../data/mockShopStock';
 
 import type { CreateOrderPayload } from './shopOrderApi';
+import type { ProductOrderRepeatCheckoutDraft } from '@/features/orders/model/productOrderRepeatCheckout';
 import type { CartDetailedItem, Order, PickupPoint, Product } from '../model/types';
 
 const MOCK_UNSCOPED_SHOP_ORDER_FALLBACK_USER_ID = 'client-1';
@@ -249,39 +250,27 @@ export async function mockCancelOrder(orderId: string): Promise<Order> {
   return updated;
 }
 
-export async function mockRepeatOrder(orderId: string): Promise<Order> {
+export async function mockRepeatOrder(
+  orderId: string,
+): Promise<ProductOrderRepeatCheckoutDraft> {
   const sourceOrder = await mockGetOrderById(orderId);
 
   if (!sourceOrder) {
     throw new Error('Заказ не найден.');
   }
 
-  const form = {
-    recipient: {
-      firstName: 'Имя',
-      lastName: 'Фамилия',
-      phone: '',
-      email: sourceOrder.recipientEmail ?? '',
-    },
-    deliveryMethod: sourceOrder.deliveryMethod,
-    address: {
-      city: '',
-      street: '',
-      house: '',
-      apartment: '',
-      comment: '',
-    },
-    pickupPointId: null,
-    paymentMethod: sourceOrder.paymentMethod,
-  } as const;
-
-  return mockCreateOrder({
-    form,
+  return {
+    source: 'repeat_product_order',
+    orderId: sourceOrder.id,
+    createdAt: new Date().toISOString(),
     items: sourceOrder.items.map((item) => ({
       productId: item.product.id,
+      title: item.product.title,
       quantity: item.quantity,
+      price: item.product.price,
+      imageUrl: item.product.images[0]?.url,
     })),
-  });
+  };
 }
 
 export async function mockConfirmOrder(orderId: string): Promise<void> {

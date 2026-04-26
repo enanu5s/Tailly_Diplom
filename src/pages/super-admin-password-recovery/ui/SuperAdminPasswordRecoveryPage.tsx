@@ -12,14 +12,6 @@ export function SuperAdminPasswordRecoveryPage(): ReactElement {
   return (
     <section className={styles.page}>
       <div className={styles.container}>
-        <button
-          className={styles.backButton}
-          type="button"
-          onClick={() => navigate('/admin')}
-        >
-          Назад в админ-панель
-        </button>
-
         <AdminPasswordRecoveryManagementSection />
       </div>
     </section>

@@ -4,6 +4,7 @@ export type AdminPasswordRecoveryRequestStatus = 'pending' | 'processed';
 export type AdminPasswordRecoveryRequestItem = {
   id: string;
   email: string;
+  fullName?: string;
   requestedAt: string;
   status: AdminPasswordRecoveryRequestStatus;
   processedAt?: string;
@@ -12,6 +13,11 @@ export type AdminPasswordRecoveryRequestItem = {
 
 export type ProcessAdminPasswordRecoveryPayload = {
   requestId: string;
+};
+
+export type GetAdminPasswordRecoveryRequestsPayload = {
+  processedFrom?: string;
+  processedTo?: string;
 };
 
 export type ProcessAdminPasswordRecoveryResponse = {

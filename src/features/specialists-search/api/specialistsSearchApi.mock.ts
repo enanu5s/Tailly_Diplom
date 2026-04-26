@@ -2,8 +2,90 @@
 
 import { cloneSpecialists } from '../data/mockSpecialists';
 
-import type { Specialist } from '../model/types';
+import type { SearchFilters, Specialist } from '../model/types';
 
-export async function mockGetSpecialists(): Promise<Specialist[]> {
-  return cloneSpecialists();
+function includesQuery(source: string, query?: string): boolean {
+  const normalizedQuery = (query ?? '').trim().toLowerCase();
+  if (!normalizedQuery) {
+    return true;
+  }
+
+  return source.toLowerCase().includes(normalizedQuery);
+}
+
+function matchesService(
+  specialist: Specialist,
+  serviceId: SearchFilters['serviceId'] | undefined,
+): boolean {
+  if (!serviceId || serviceId === 'any') {
+    return true;
+  }
+
+  return specialist.services.some((service) => service.serviceId === serviceId);
+}
+
+function matchesPrice(
+  specialist: Specialist,
+  minPrice: number | null | undefined,
+  maxPrice: number | null | undefined,
+): boolean {
+  const relevantServices = specialist.services;
+  if (relevantServices.length === 0) {
+    return false;
+  }
+
+  const min = typeof minPrice === 'number' ? minPrice : null;
+  const max = typeof maxPrice === 'number' ? maxPrice : null;
+
+  return relevantServices.some((service) => {
+    const serviceMin = service.priceFrom;
+    const serviceMax = service.priceTo ?? service.priceFrom;
+
+    if (min !== null && serviceMax < min) {
+      return false;
+    }
+
+    if (max !== null && serviceMin > max) {
+      return false;
+    }
+
+    return true;
+  });
+}
+
+export async function mockGetSpecialists(
+  filters?: Partial<SearchFilters>,
+): Promise<Specialist[]> {
+  const specialists = cloneSpecialists();
+
+  return specialists.filter((specialist) => {
+    if (!includesQuery(specialist.city, filters?.cityQuery)) {
+      return false;
+    }
+
+    if (!includesQuery(specialist.district, filters?.districtQuery)) {
+      return false;
+    }
+
+    if (!matchesService(specialist, filters?.serviceId)) {
+      return false;
+    }
+
+    if (!matchesPrice(specialist, filters?.priceMin, filters?.priceMax)) {
+      return false;
+    }
+
+    if (
+      typeof filters?.experienceMinYears === 'number' &&
+      specialist.experienceYears < filters.experienceMinYears
+    ) {
+      return false;
+    }
+
+    if (filters?.hasReviewsOnly && specialist.reviewsCount <= 0) {
+      return false;
+    }
+
+    return true;
+  });
 }

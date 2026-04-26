@@ -35,14 +35,14 @@ async function realCreateAdmin(
 }
 
 async function realDeleteAdmin(payload: DeleteAdminPayload): Promise<void> {
-  await request<void>(`/super-admin/admins/${payload.adminId}`, {
+  await request<void>(`/super-admin/admins/${encodeURIComponent(payload.adminId)}`, {
     method: 'DELETE',
   });
 }
 
 async function realUpdateAdmin(payload: UpdateAdminPayload): Promise<ManagedAdmin> {
   const { adminId, ...body } = payload;
-  return request<ManagedAdmin>(`/super-admin/admins/${adminId}`, {
+  return request<ManagedAdmin>(`/super-admin/admins/${encodeURIComponent(adminId)}`, {
     method: 'PATCH',
     body,
   });
@@ -52,7 +52,7 @@ async function realSetAdminBlockStatus(
   payload: UpdateAdminBlockStatusPayload,
 ): Promise<ManagedAdmin> {
   const { adminId, ...body } = payload;
-  return request<ManagedAdmin>(`/super-admin/admins/${adminId}/block`, {
+  return request<ManagedAdmin>(`/super-admin/admins/${encodeURIComponent(adminId)}/block`, {
     method: 'PATCH',
     body,
   });
@@ -62,7 +62,7 @@ async function realClearAdminPasswordLock(
   payload: ClearAdminPasswordLockPayload,
 ): Promise<ManagedAdmin> {
   return request<ManagedAdmin>(
-    `/super-admin/admins/${payload.adminId}/password-attempts-lock`,
+    `/super-admin/admins/${encodeURIComponent(payload.adminId)}/password-attempts-lock`,
     {
       method: 'DELETE',
     },

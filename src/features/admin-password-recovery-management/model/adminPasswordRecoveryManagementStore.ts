@@ -5,6 +5,32 @@ import { adminPasswordRecoveryManagementService } from '../service/adminPassword
 
 import type { AdminPasswordRecoveryRequestItem } from './types';
 
+type PendingProcessedPromotion = {
+  request: AdminPasswordRecoveryRequestItem;
+  timeoutId: number;
+};
+
+function getLastWorkWeekRange(): { processedFrom: string; processedTo: string } {
+  const now = new Date();
+  const day = now.getDay(); // 0..6, 1 - Monday
+  const diffToMonday = day === 0 ? 6 : day - 1;
+  const thisMonday = new Date(now);
+  thisMonday.setDate(now.getDate() - diffToMonday);
+  thisMonday.setHours(0, 0, 0, 0);
+
+  const lastMonday = new Date(thisMonday);
+  lastMonday.setDate(thisMonday.getDate() - 7);
+
+  const lastFriday = new Date(lastMonday);
+  lastFriday.setDate(lastMonday.getDate() + 4);
+  lastFriday.setHours(23, 59, 59, 999);
+
+  return {
+    processedFrom: lastMonday.toISOString(),
+    processedTo: lastFriday.toISOString(),
+  };
+}
+
 class AdminPasswordRecoveryManagementStore {
   requests: AdminPasswordRecoveryRequestItem[] = [];
 
@@ -16,6 +42,7 @@ class AdminPasswordRecoveryManagementStore {
 
   lastProcessedRequestEmail = '';
   lastGeneratedPassword = '';
+  pendingProcessedPromotion: PendingProcessedPromotion | null = null;
 
   constructor() {
     makeAutoObservable(this, {}, { autoBind: true });
@@ -26,7 +53,13 @@ class AdminPasswordRecoveryManagementStore {
   }
 
   get processedRequests(): AdminPasswordRecoveryRequestItem[] {
-    return this.requests.filter((item) => item.status === 'processed');
+    return this.requests.filter((item) => {
+      if (item.status !== 'processed') {
+        return false;
+      }
+
+      return item.id !== this.pendingProcessedPromotion?.request.id;
+    });
   }
 
   async load(): Promise<void> {
@@ -36,7 +69,9 @@ class AdminPasswordRecoveryManagementStore {
     });
 
     try {
-      const requests = await adminPasswordRecoveryManagementService.getRequests();
+      const requests = await adminPasswordRecoveryManagementService.getRequests(
+        getLastWorkWeekRange(),
+      );
 
       runInAction(() => {
         this.requests = requests;
@@ -69,9 +104,18 @@ class AdminPasswordRecoveryManagementStore {
       });
 
       runInAction(() => {
-        this.requests = this.requests.map((item) =>
-          item.id === result.request.id ? result.request : item,
-        );
+        if (this.pendingProcessedPromotion) {
+          window.clearTimeout(this.pendingProcessedPromotion.timeoutId);
+        }
+
+        const timeoutId = window.setTimeout(() => {
+          this.commitProcessedPromotion();
+        }, 7000);
+
+        this.pendingProcessedPromotion = {
+          request: result.request,
+          timeoutId,
+        };
         this.lastProcessedRequestEmail = result.request.email;
         this.lastGeneratedPassword = result.temporaryPassword;
       });
@@ -89,6 +133,24 @@ class AdminPasswordRecoveryManagementStore {
 
   resetFeedback(): void {
     this.processError = '';
+    this.commitProcessedPromotion();
+  }
+
+  clearSuccessMessage(): void {
+    this.commitProcessedPromotion();
+  }
+
+  private commitProcessedPromotion(): void {
+    if (this.pendingProcessedPromotion) {
+      window.clearTimeout(this.pendingProcessedPromotion.timeoutId);
+      this.requests = this.requests.map((item) =>
+        item.id === this.pendingProcessedPromotion?.request.id
+          ? this.pendingProcessedPromotion.request
+          : item,
+      );
+      this.pendingProcessedPromotion = null;
+    }
+
     this.lastProcessedRequestEmail = '';
     this.lastGeneratedPassword = '';
   }

@@ -8,6 +8,7 @@ import {
   type PayShopOrderPayload,
 } from '../api/shopOrderApi';
 import { shopCartStore } from '../model/shopCartStore';
+import type { ProductOrderRepeatCheckoutDraft } from '@/features/orders/model/productOrderRepeatCheckout';
 
 import type { Order, PickupPoint } from '../model/types';
 
@@ -44,7 +45,7 @@ export const shopOrderService = {
     return shopOrderApi.getMyOrders();
   },
 
-  async repeatOrder(orderId: string): Promise<Order> {
+  async repeatOrder(orderId: string): Promise<ProductOrderRepeatCheckoutDraft> {
     const user = authStore.getState().user;
 
     if (!canOrderShopProducts(user)) {

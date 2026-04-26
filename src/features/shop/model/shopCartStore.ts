@@ -291,9 +291,11 @@ export class ShopCartStore {
     this.writeItemsByStorageKey(userStorageKey, mergedItems);
     this.clearStorageKey(GUEST_STORAGE_KEY);
     this.pendingCartMergePrompt = null;
-    void shopCartApi.mergeAfterLogin({ merge: true }).catch((error) => {
-      console.warn('[CART] mergeAfterLogin(true) failed', { error });
-    });
+    if (!isMockApiMode) {
+      void shopCartApi.mergeAfterLogin({ merge: true }).catch((error) => {
+        console.warn('[CART] mergeAfterLogin(true) failed', { error });
+      });
+    }
   }
 
   discardGuestCartAfterLogin(): void {
@@ -316,9 +318,11 @@ export class ShopCartStore {
     });
     this.clearStorageKey(GUEST_STORAGE_KEY);
     this.pendingCartMergePrompt = null;
-    void shopCartApi.mergeAfterLogin({ merge: false }).catch((error) => {
-      console.warn('[CART] mergeAfterLogin(false) failed', { error });
-    });
+    if (!isMockApiMode) {
+      void shopCartApi.mergeAfterLogin({ merge: false }).catch((error) => {
+        console.warn('[CART] mergeAfterLogin(false) failed', { error });
+      });
+    }
   }
 
   private switchToGuestCart(): void {

@@ -13,6 +13,7 @@ import {
   mockPayShopOrder,
   mockRepeatOrder,
 } from './shopOrderApi.mock';
+import type { ProductOrderRepeatCheckoutDraft } from '@/features/orders/model/productOrderRepeatCheckout';
 
 import type { CheckoutForm, Order, PickupPoint } from '../model/types';
 
@@ -55,10 +56,13 @@ async function getMyOrdersReal(): Promise<Order[]> {
   return request<Order[]>('/me/orders/products');
 }
 
-async function repeatOrderReal(orderId: string): Promise<Order> {
-  return request<Order>(`/me/orders/products/${encodeURIComponent(orderId)}/repeat`, {
+async function repeatOrderReal(orderId: string): Promise<ProductOrderRepeatCheckoutDraft> {
+  return request<ProductOrderRepeatCheckoutDraft>(
+    `/me/orders/products/${encodeURIComponent(orderId)}/repeat`,
+    {
     method: 'POST',
-  });
+    },
+  );
 }
 
 async function confirmOrderReal(orderId: string): Promise<void> {
@@ -122,7 +126,7 @@ export const shopOrderApi = {
     return getMyOrdersReal();
   },
 
-  async repeatOrder(orderId: string): Promise<Order> {
+  async repeatOrder(orderId: string): Promise<ProductOrderRepeatCheckoutDraft> {
     if (isMockApiMode) {
       return mockRepeatOrder(orderId);
     }

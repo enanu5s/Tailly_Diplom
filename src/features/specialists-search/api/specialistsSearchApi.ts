@@ -32,7 +32,7 @@ export const specialistsSearchApi = {
   async getSpecialists(filters?: Partial<SearchFilters>): Promise<Specialist[]> {
     if (isMockApiMode) {
       mockDataSourceStore.setSource('specialists/list', true);
-      return mockGetSpecialists();
+      return mockGetSpecialists(filters);
     }
 
     try {
@@ -42,7 +42,7 @@ export const specialistsSearchApi = {
     } catch (error) {
       if (shouldFallbackToMock(error)) {
         mockDataSourceStore.setSource('specialists/list', true);
-        return mockGetSpecialists();
+        return mockGetSpecialists(filters);
       }
 
       throw error;

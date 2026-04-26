@@ -176,10 +176,22 @@ export const messagesApi = {
     payload: EnsureClientThreadPayload,
   ): Promise<MessagesSnapshot> {
     if (isMockApiMode) {
+      mockDataSourceStore.setSource('messages/chats', true);
       return Promise.resolve(ensureClientThreadInStorage(payload));
     }
 
-    return realEnsureClientThread(payload);
+    try {
+      const data = await realEnsureClientThread(payload);
+      mockDataSourceStore.setSource('messages/chats', false);
+      return data;
+    } catch (error) {
+      if (isEndpointMissing(error)) {
+        mockDataSourceStore.setSource('messages/chats', true);
+        return Promise.resolve(ensureClientThreadInStorage(payload));
+      }
+
+      throw error;
+    }
   },
 
   async markMessagesAsRead(

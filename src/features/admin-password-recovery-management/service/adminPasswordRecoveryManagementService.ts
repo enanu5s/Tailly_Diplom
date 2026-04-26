@@ -3,13 +3,16 @@ import { adminPasswordRecoveryManagementApi } from '../api/adminPasswordRecovery
 
 import type {
   AdminPasswordRecoveryRequestItem,
+  GetAdminPasswordRecoveryRequestsPayload,
   ProcessAdminPasswordRecoveryPayload,
   ProcessAdminPasswordRecoveryResponse,
 } from '../model/types';
 
 export const adminPasswordRecoveryManagementService = {
-  getRequests(): Promise<AdminPasswordRecoveryRequestItem[]> {
-    return adminPasswordRecoveryManagementApi.getRequests();
+  getRequests(
+    payload?: GetAdminPasswordRecoveryRequestsPayload,
+  ): Promise<AdminPasswordRecoveryRequestItem[]> {
+    return adminPasswordRecoveryManagementApi.getRequests(payload);
   },
 
   processRequest(
