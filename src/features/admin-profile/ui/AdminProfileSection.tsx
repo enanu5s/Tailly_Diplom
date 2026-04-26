@@ -4,21 +4,17 @@ import { useEffect } from 'react';
 
 import { useAppNavigate } from '@/shared/lib/navigation/useAppNavigate';
 
-import styles from './AdminProfileSection.module.css';
 import { adminProfileStore } from '../model/adminProfileStore';
+import styles from './AdminProfileSection.module.css';
 
 import type { ReactElement } from 'react';
 
 function formatBirthDate(value?: string): string {
-  if (!value) {
-    return '—';
-  }
+  if (!value) return '—';
 
   const date = new Date(value);
 
-  if (Number.isNaN(date.getTime())) {
-    return value;
-  }
+  if (Number.isNaN(date.getTime())) return value;
 
   return new Intl.DateTimeFormat('ru-RU', {
     day: '2-digit',
@@ -28,15 +24,11 @@ function formatBirthDate(value?: string): string {
 }
 
 function formatDateTime(value?: string | null): string {
-  if (!value) {
-    return '—';
-  }
+  if (!value) return '—';
 
   const date = new Date(value);
 
-  if (Number.isNaN(date.getTime())) {
-    return value;
-  }
+  if (Number.isNaN(date.getTime())) return value;
 
   return new Intl.DateTimeFormat('ru-RU', {
     day: '2-digit',
@@ -74,62 +66,173 @@ export const AdminProfileSection = observer((): ReactElement => {
   const profile = store.profile;
   const isSuperAdmin = store.isSuperAdmin;
 
+  const fullName = [profile.lastName, profile.firstName, profile.middleName]
+    .filter(Boolean)
+    .join(' ');
+
   return (
     <div className={styles.root}>
-      <div className={styles.hero}>
-        <div className={styles.heroContent}>
-          <span className={styles.badge}>
-            {isSuperAdmin ? 'Главный администратор' : 'Администратор'}
-          </span>
+      <button className={styles.backButton} type="button" onClick={() => navigate(-1)}>
+        <span className={styles.backIcon}>←</span>
+        Назад
+      </button>
 
-          <h1 className={styles.title}>Профиль администратора</h1>
+      <h1 className={styles.title}>Профиль администратора</h1>
 
-          {isSuperAdmin ? (
-            <p className={styles.subtitle}>
-              Вы можете редактировать ФИО, телефон и дату рождения. Смена email
-              выполняется отдельно: сначала укажите новый адрес и пароль от аккаунта — на
-              текущую почту придёт код; после ввода кода почта обновится. Роль, должность
-              и отдел здесь не меняются.
-            </p>
-          ) : (
-            <p className={styles.subtitle}>
-              Здесь можно просматривать и редактировать часть персональных данных. Email,
-              дата рождения, роль, должность и отдел заполняются системой и в этом разделе
-              не меняются. Должность и отдел назначает главный администратор в разделе
-              «Управление администраторами».
-            </p>
-          )}
-        </div>
+      <div className={styles.profileLayout}>
+        <img
+          className={styles.leftImage}
+          src="/images/admin-profile/admin-profile-left.png"
+          alt=""
+          aria-hidden="true"
+        />
 
-        <div className={styles.heroActions}>
-          {!store.isEditing ? (
-            <button
-              className={styles.primaryButton}
-              type="button"
-              onClick={() => store.startEdit()}
-            >
-              Редактировать профиль
-            </button>
-          ) : null}
+        {!store.isEditing ? (
+          <div className={styles.profileColumn}>
+            <section className={styles.profileCard}>
+              <div className={styles.cardTop}>
+                <span className={styles.department}>
+                  Отдел: {profile.department || 'Администрация'}
+                </span>
+                <span className={styles.email}>{profile.email}</span>
+              </div>
 
-          {isSuperAdmin ? (
-            <button
-              className={styles.secondaryButton}
-              type="button"
-              onClick={() => store.openEmailChangeModal()}
-            >
-              Сменить email
-            </button>
-          ) : null}
+              <h2 className={styles.name}>{fullName}</h2>
 
-          <button
-            className={styles.secondaryButton}
-            type="button"
-            onClick={() => navigate('/admin/profile/security/password')}
-          >
-            Сменить пароль
-          </button>
-        </div>
+              <div className={styles.meta}>
+                <p>
+                  <span>Телефон:</span> <strong>{profile.phone || '—'}</strong>
+                </p>
+                <p>
+                  <span>Дата рождения:</span>{' '}
+                  <strong>{formatBirthDate(profile.birthDate)}</strong>
+                </p>
+              </div>
+
+              {!store.isEditing ? (
+                <button
+                  className={styles.primaryButton}
+                  type="button"
+                  onClick={() => store.startEdit()}
+                >
+                  Редактировать профиль
+                </button>
+              ) : null}
+            </section>
+
+            <div className={styles.securityActions}>
+              {isSuperAdmin ? (
+                <button
+                  className={styles.secondaryButton}
+                  type="button"
+                  onClick={() => store.openEmailChangeModal()}
+                >
+                  Сменить email
+                </button>
+              ) : null}
+
+              <button
+                className={styles.secondaryButton}
+                type="button"
+                onClick={() => navigate('/admin/profile/security/password')}
+              >
+                Сменить пароль
+              </button>
+            </div>
+          </div>
+        ) : (
+          <section className={styles.editCard}>
+            <div className={styles.editCardTop}>
+              <span className={styles.department}>
+                Отдел: {profile.department || 'Администрация'}
+              </span>
+              <span className={styles.email}>{profile.email}</span>
+            </div>
+
+            <div className={styles.editNameGrid}>
+              <input
+                className={`${styles.input} ${styles.nameInput} ${styles.lastNameInput}`}
+                value={store.form.lastName}
+                onChange={(event) => store.setFormField('lastName', event.target.value)}
+                placeholder="Фамилия"
+                required
+              />
+
+              <input
+                className={`${styles.input} ${styles.nameInput} ${styles.firstNameInput}`}
+                value={store.form.firstName}
+                onChange={(event) => store.setFormField('firstName', event.target.value)}
+                placeholder="Имя"
+                required
+              />
+
+              <input
+                className={`${styles.input} ${styles.nameInput} ${styles.middleNameInput}`}
+                value={store.form.middleName}
+                onChange={(event) => store.setFormField('middleName', event.target.value)}
+                placeholder="Отчество"
+              />
+            </div>
+
+            <div className={styles.editRow}>
+              <span className={styles.editLabel}>Телефон:</span>
+              <input
+                className={`${styles.input} ${styles.smallInput}`}
+                value={store.form.phone}
+                onChange={(event) => store.setFormField('phone', event.target.value)}
+                placeholder="+7 (900) 000-00-00"
+              />
+            </div>
+
+            {isSuperAdmin ? (
+              <div className={styles.editRow}>
+                <span className={styles.editLabel}>Дата рождения:</span>
+                <input
+                  className={`${styles.input} ${styles.smallInput}`}
+                  type="date"
+                  value={store.form.birthDate}
+                  onChange={(event) =>
+                    store.setFormField('birthDate', event.target.value)
+                  }
+                  required
+                />
+              </div>
+            ) : null}
+
+            {store.saveError ? (
+              <div className={styles.errorBanner}>{store.saveError}</div>
+            ) : null}
+
+            <div className={styles.editActions}>
+              <button
+                className={styles.saveButton}
+                type="button"
+                onClick={() => {
+                  void store.save();
+                }}
+                disabled={!store.canSubmit}
+              >
+                {store.isSaving ? 'Сохранение...' : 'Сохранить'}
+              </button>
+
+              <button
+                className={styles.cancelEditButton}
+                type="button"
+                onClick={() => store.cancelEdit()}
+                disabled={store.isSaving}
+              >
+                Отмена
+              </button>
+            </div>
+          </section>
+        )}
+
+        <img
+          className={styles.rightImage}
+          src="/images/admin-profile/admin-profile-right.png"
+          alt=""
+          aria-hidden="true"
+        />
       </div>
 
       {isSuperAdmin && profile.loginSecurity ? (
@@ -154,193 +257,43 @@ export const AdminProfileSection = observer((): ReactElement => {
               <p className={styles.warningBannerText}>
                 Вход временно заблокирован из-за превышения лимита неверных попыток ввода
                 пароля. Доступ будет восстановлен после{' '}
-                <strong>{formatDateTime(profile.loginSecurity.passwordAttemptsLockUntil)}</strong>
+                <strong>
+                  {formatDateTime(profile.loginSecurity.passwordAttemptsLockUntil)}
+                </strong>
                 . Неудачных попыток подряд:{' '}
                 <strong>{profile.loginSecurity.failedPasswordAttempts}</strong>.
               </p>
 
-              {isSuperAdmin ? (
-                <div className={styles.passwordLockActions}>
-                  <button
-                    className={styles.secondaryButton}
-                    type="button"
-                    disabled={store.isClearingPasswordLock}
-                    onClick={() => {
-                      void store.clearPasswordAttemptsLock();
-                    }}
-                  >
-                    {store.isClearingPasswordLock
-                      ? 'Снимаем...'
-                      : 'Снять временный лок входа'}
-                  </button>
-                </div>
-              ) : null}
+              <div className={styles.passwordLockActions}>
+                <button
+                  className={styles.secondaryButton}
+                  type="button"
+                  disabled={store.isClearingPasswordLock}
+                  onClick={() => {
+                    void store.clearPasswordAttemptsLock();
+                  }}
+                >
+                  {store.isClearingPasswordLock
+                    ? 'Снимаем...'
+                    : 'Снять временный лок входа'}
+                </button>
+              </div>
 
               {store.passwordLockClearError ? (
-                <div className={styles.passwordLockError}>{store.passwordLockClearError}</div>
+                <div className={styles.passwordLockError}>
+                  {store.passwordLockClearError}
+                </div>
               ) : null}
             </div>
           ) : null}
         </div>
       ) : null}
 
-      {!store.isEditing ? (
-        <div className={styles.card}>
-          <div className={styles.grid}>
-            <div className={styles.infoItem}>
-              <span className={styles.label}>Фамилия</span>
-              <span className={styles.value}>{profile.lastName}</span>
-            </div>
-
-            <div className={styles.infoItem}>
-              <span className={styles.label}>Имя</span>
-              <span className={styles.value}>{profile.firstName}</span>
-            </div>
-
-            <div className={styles.infoItem}>
-              <span className={styles.label}>Отчество</span>
-              <span className={styles.value}>{profile.middleName || '—'}</span>
-            </div>
-
-            <div className={styles.infoItem}>
-              <span className={styles.label}>Email</span>
-              <span className={styles.value}>{profile.email}</span>
-            </div>
-
-            <div className={styles.infoItem}>
-              <span className={styles.label}>Телефон</span>
-              <span className={styles.value}>{profile.phone || '—'}</span>
-            </div>
-
-            <div className={styles.infoItem}>
-              <span className={styles.label}>Дата рождения</span>
-              <span className={styles.value}>{formatBirthDate(profile.birthDate)}</span>
-            </div>
-
-            <div className={styles.infoItem}>
-              <span className={styles.label}>Должность</span>
-              <span className={styles.value}>{profile.position || '—'}</span>
-            </div>
-
-            <div className={styles.infoItem}>
-              <span className={styles.label}>Отдел</span>
-              <span className={styles.value}>{profile.department || '—'}</span>
-            </div>
-
-            <div className={styles.infoItem}>
-              <span className={styles.label}>Роль</span>
-              <span className={styles.value}>
-                {isSuperAdmin ? 'Главный администратор' : 'Администратор'}
-              </span>
-            </div>
-
-            <div className={styles.infoItem}>
-              <span className={styles.label}>ID администратора</span>
-              <span className={styles.value}>{profile.adminId}</span>
-            </div>
-          </div>
-        </div>
-      ) : (
-        <div className={styles.card}>
-          <div className={styles.formGrid}>
-            <label className={styles.field}>
-              <span className={styles.fieldLabel}>Фамилия</span>
-              <input
-                className={styles.input}
-                value={store.form.lastName}
-                onChange={(event) => store.setFormField('lastName', event.target.value)}
-                placeholder="Фамилия"
-                required
-              />
-            </label>
-
-            <label className={styles.field}>
-              <span className={styles.fieldLabel}>Имя</span>
-              <input
-                className={styles.input}
-                value={store.form.firstName}
-                onChange={(event) => store.setFormField('firstName', event.target.value)}
-                placeholder="Имя"
-                required
-              />
-            </label>
-
-            <label className={styles.field}>
-              <span className={styles.fieldLabel}>Отчество</span>
-              <input
-                className={styles.input}
-                value={store.form.middleName}
-                onChange={(event) => store.setFormField('middleName', event.target.value)}
-                placeholder="Отчество"
-              />
-            </label>
-
-            <label className={styles.field}>
-              <span className={styles.fieldLabel}>Телефон</span>
-              <input
-                className={styles.input}
-                value={store.form.phone}
-                onChange={(event) => store.setFormField('phone', event.target.value)}
-                placeholder="+7 (900) 000-00-00"
-              />
-            </label>
-
-            {isSuperAdmin ? (
-              <label className={styles.field}>
-                <span className={styles.fieldLabel}>Дата рождения</span>
-                <input
-                  className={styles.input}
-                  type="date"
-                  value={store.form.birthDate}
-                  onChange={(event) =>
-                    store.setFormField('birthDate', event.target.value)
-                  }
-                  required
-                />
-              </label>
-            ) : null}
-          </div>
-
-          {store.saveError ? (
-            <div className={styles.errorBanner}>{store.saveError}</div>
-          ) : null}
-
-          <div className={styles.actions}>
-            <button
-              className={styles.secondaryButton}
-              type="button"
-              onClick={() => store.cancelEdit()}
-              disabled={store.isSaving}
-            >
-              Отмена
-            </button>
-
-            <button
-              className={styles.primaryButton}
-              type="button"
-              onClick={() => {
-                void store.save();
-              }}
-              disabled={!store.canSubmit}
-            >
-              {store.isSaving ? 'Сохранение...' : 'Сохранить изменения'}
-            </button>
-          </div>
-        </div>
-      )}
-
       {store.isEmailChangeModalOpen ? (
         <div className={styles.overlay}>
-          <div
-            className={styles.modal}
-            role="dialog"
-            aria-modal="true"
-            aria-labelledby="email-change-title"
-          >
+          <div className={styles.modal} role="dialog" aria-modal="true">
             <div className={styles.modalHeader}>
-              <h2 className={styles.modalTitle} id="email-change-title">
-                Смена email
-              </h2>
+              <h2 className={styles.modalTitle}>Смена email</h2>
               <button
                 className={styles.modalClose}
                 type="button"
@@ -353,10 +306,7 @@ export const AdminProfileSection = observer((): ReactElement => {
             {store.emailChangePhase === 'credentials' ? (
               <>
                 <p className={styles.modalLead}>
-                  Текущий адрес:{' '}
-                  <strong className={styles.modalEmphasis}>{profile.email}</strong>. После
-                  проверки пароля на эту почту будет отправлен код. Новый адрес вступит в
-                  силу только после ввода кода.
+                  Текущий адрес: <strong>{profile.email}</strong>.
                 </p>
 
                 <label className={styles.field}>
@@ -364,7 +314,6 @@ export const AdminProfileSection = observer((): ReactElement => {
                   <input
                     className={styles.input}
                     type="email"
-                    autoComplete="off"
                     value={store.emailChangeNewEmail}
                     onChange={(event) =>
                       store.setEmailChangeField('newEmail', event.target.value)
@@ -378,7 +327,6 @@ export const AdminProfileSection = observer((): ReactElement => {
                   <input
                     className={styles.input}
                     type="password"
-                    autoComplete="current-password"
                     value={store.emailChangePassword}
                     onChange={(event) =>
                       store.setEmailChangeField('password', event.target.value)
@@ -389,8 +337,8 @@ export const AdminProfileSection = observer((): ReactElement => {
             ) : (
               <>
                 <p className={styles.modalLead}>
-                  Введите код из письма, отправленного на{' '}
-                  <strong className={styles.modalEmphasis}>{profile.email}</strong>.
+                  Введите код из письма, отправленного на <strong>{profile.email}</strong>
+                  .
                 </p>
 
                 <label className={styles.field}>
@@ -399,7 +347,6 @@ export const AdminProfileSection = observer((): ReactElement => {
                     className={styles.input}
                     type="text"
                     inputMode="numeric"
-                    autoComplete="one-time-code"
                     value={store.emailChangeCode}
                     onChange={(event) =>
                       store.setEmailChangeField('code', event.target.value)
@@ -407,17 +354,6 @@ export const AdminProfileSection = observer((): ReactElement => {
                     placeholder="000000"
                   />
                 </label>
-
-                <button
-                  className={styles.linkButton}
-                  type="button"
-                  disabled={
-                    store.isRequestingEmailChange || store.isConfirmingEmailChange
-                  }
-                  onClick={() => store.backEmailChangeToCredentials()}
-                >
-                  Указать другой email и запросить код заново
-                </button>
               </>
             )}
 
@@ -427,7 +363,7 @@ export const AdminProfileSection = observer((): ReactElement => {
 
             {store.emailChangeMockHint ? (
               <div className={styles.mockHintBanner}>
-                Демо-режим: код из «письма» —{' '}
+                Демо-режим: код —{' '}
                 <span className={styles.mockHintCode}>{store.emailChangeMockHint}</span>
               </div>
             ) : null}
@@ -437,51 +373,35 @@ export const AdminProfileSection = observer((): ReactElement => {
             ) : null}
 
             <div className={styles.modalActions}>
-              {store.emailChangePhase === 'credentials' ? (
-                <>
-                  <button
-                    className={styles.secondaryButton}
-                    type="button"
-                    disabled={store.isRequestingEmailChange}
-                    onClick={() => store.closeEmailChangeModal()}
-                  >
-                    Отмена
-                  </button>
-                  <button
-                    className={styles.primaryButton}
-                    type="button"
-                    disabled={!store.canSubmitEmailChangeRequest}
-                    onClick={() => {
-                      void store.requestSuperAdminEmailChange();
-                    }}
-                  >
-                    {store.isRequestingEmailChange ? 'Отправка...' : 'Отправить код'}
-                  </button>
-                </>
-              ) : (
-                <>
-                  <button
-                    className={styles.secondaryButton}
-                    type="button"
-                    disabled={store.isConfirmingEmailChange}
-                    onClick={() => store.closeEmailChangeModal()}
-                  >
-                    Отмена
-                  </button>
-                  <button
-                    className={styles.primaryButton}
-                    type="button"
-                    disabled={!store.canSubmitEmailChangeConfirm}
-                    onClick={() => {
-                      void store.confirmSuperAdminEmailChange();
-                    }}
-                  >
-                    {store.isConfirmingEmailChange
-                      ? 'Проверка...'
-                      : 'Подтвердить смену email'}
-                  </button>
-                </>
-              )}
+              <button
+                className={styles.secondaryButton}
+                type="button"
+                onClick={() => store.closeEmailChangeModal()}
+              >
+                Отмена
+              </button>
+
+              <button
+                className={styles.primaryButton}
+                type="button"
+                disabled={
+                  store.emailChangePhase === 'credentials'
+                    ? !store.canSubmitEmailChangeRequest
+                    : !store.canSubmitEmailChangeConfirm
+                }
+                onClick={() => {
+                  if (store.emailChangePhase === 'credentials') {
+                    void store.requestSuperAdminEmailChange();
+                    return;
+                  }
+
+                  void store.confirmSuperAdminEmailChange();
+                }}
+              >
+                {store.emailChangePhase === 'credentials'
+                  ? 'Отправить код'
+                  : 'Подтвердить'}
+              </button>
             </div>
           </div>
         </div>
