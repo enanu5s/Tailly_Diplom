@@ -1,27 +1,64 @@
 /* src/pages/admin-specialist-applications/ui/AdminSpecialistApplicationsPage.module.css */
 
 .page {
-  min-height: calc(100vh - 160px);
-  padding: 40px 20px 80px;
-  background: #f8fafc;
+  min-height: calc(100vh - 100px);
+  padding: 30px 20px 110px;
+  background: #f8f8f8;
 }
 
 .container {
   width: 100%;
-  max-width: 1280px;
+  max-width: 1520px;
   margin: 0 auto;
   display: grid;
-  gap: 20px;
+  gap: 30px;
 }
 
 .backButton {
-  width: fit-content;
-  min-height: 42px;
-  border: 1px solid #cbd5e1;
-  border-radius: 14px;
-  background: #ffffff;
-  color: #0f172a;
-  padding: 0 16px;
-  font-weight: 700;
+  box-sizing: border-box;
+  width: 134px;
+  height: 45px;
+  border: 1px solid #c7c2ba;
+  border-radius: 23px;
+  background: transparent;
+  color: #6f685d;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+  padding: 0;
+  font-family: 'Raleway', sans-serif;
+  font-size: 16px;
+  font-weight: 600;
+  line-height: 19px;
+  font-feature-settings: 'pnum' on, 'lnum' on;
   cursor: pointer;
+}
+
+.backIcon {
+  width: 20px;
+  height: 20px;
+  transform: rotate(0deg);
+}
+
+@media (max-width: 900px) {
+  .page {
+    padding: 28px 16px 80px;
+  }
+
+  .container {
+    gap: 24px;
+  }
+}
+
+@media (max-width: 560px) {
+  .page {
+    padding: 24px 12px 64px;
+  }
+
+  .backButton {
+    width: 124px;
+    height: 42px;
+    font-size: 15px;
+  }
 }

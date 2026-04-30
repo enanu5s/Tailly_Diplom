@@ -122,6 +122,19 @@ class SpecialistApplicationsModerationStore {
     );
   }
 
+  get hasDraftChanges(): boolean {
+    const selected = this.selectedApplication;
+
+    if (!selected) {
+      return false;
+    }
+
+    return (
+      this.draft.interviewDate !== (selected.interviewDate ?? '') ||
+      this.draft.reviewComment !== (selected.reviewComment ?? '')
+    );
+  }
+
   setSearchQuery(value: string): void {
     this.searchQuery = value;
     this.ensureSelectedInFilteredList();
@@ -160,6 +173,17 @@ class SpecialistApplicationsModerationStore {
       interviewDate: selected?.interviewDate ?? '',
       reviewComment: selected?.reviewComment ?? '',
     };
+  }
+
+  toggleApplication(applicationId: string): void {
+    if (this.selectedApplicationId === applicationId && !this.hasDraftChanges) {
+      this.selectedApplicationId = null;
+      this.actionError = '';
+      this.draft = createDraft();
+      return;
+    }
+
+    this.selectApplication(applicationId);
   }
 
   setDraftField<K extends keyof ModerationDraft>(

@@ -1,158 +1,168 @@
-/* src/features/specialist-applications/ui/AdminInterviewsCalendar.module.css */
-
 .root {
-  padding: 20px 22px;
-  border-radius: 18px;
+  box-sizing: border-box;
+  position: relative;
+  width: 100%;
+  min-height: 564px;
+  padding: 30px;
+  border-radius: 20px;
   background: #ffffff;
-  box-shadow: 0 18px 50px rgba(15, 23, 42, 0.08);
-  display: grid;
-  gap: 16px;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+}
+
+.rootEmptyWeek {
+  min-height: 390px;
 }
 
 .head {
-  display: grid;
-  gap: 8px;
+  display: block;
 }
 
 .title {
   margin: 0;
-  font-size: 20px;
-  font-weight: 800;
-  color: #0f172a;
+  font-family: 'Igra Sans', sans-serif;
+  font-size: 24px;
+  font-weight: 400;
+  line-height: 1.2;
+  color: #211500;
 }
 
 .lead {
-  margin: 0;
-  font-size: 14px;
-  line-height: 1.55;
-  color: #64748b;
+  display: none;
 }
 
 .toolbar {
+  position: absolute;
+  left: 50%;
+  top: 89px;
+  transform: translateX(-50%);
+  width: 497px;
+  height: 44px;
   display: flex;
   align-items: center;
-  justify-content: center;
-  gap: 16px;
+  justify-content: space-between;
 }
 
 .navButton {
-  min-width: 40px;
-  min-height: 40px;
-  border-radius: 12px;
-  border: 1px solid #cbd5e1;
-  background: #f8fafc;
-  font-size: 18px;
-  font-weight: 700;
-  color: #0f172a;
+  box-sizing: border-box;
+  width: 47px;
+  height: 44px;
+  border: 1px solid #c7c2ba;
+  border-radius: 10px;
+  background: #ffffff;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
   cursor: pointer;
 }
 
-.navButton:hover {
-  background: #e2e8f0;
+.navButtonPrev {
+  transform: rotate(180deg);
 }
 
 .toolbarCenter {
   display: flex;
-  flex-direction: column;
   align-items: center;
-  gap: 8px;
-  min-width: min(280px, 100%);
+  justify-content: center;
 }
 
 .weekLabel {
-  text-align: center;
-  font-weight: 700;
-  font-size: 16px;
-  color: #334155;
-  text-transform: capitalize;
-  line-height: 1.35;
+  font-family: 'Igra Sans', sans-serif;
+  font-size: 24px;
+  font-weight: 400;
+  line-height: 1.2;
+  color: #211500;
+  text-transform: none;
 }
 
 .todayButton {
-  padding: 6px 14px;
-  border-radius: 999px;
-  border: 1px solid #cbd5e1;
-  background: #ffffff;
-  font-size: 13px;
-  font-weight: 600;
-  color: #4f46e5;
-  cursor: pointer;
-}
-
-.todayButton:hover {
-  background: rgba(99, 102, 241, 0.08);
+  display: none;
 }
 
 .weekRow {
+  position: absolute;
+  left: 123px;
+  right: 115px;
+  top: 153px;
   display: grid;
   grid-template-columns: repeat(7, minmax(0, 1fr));
-  gap: 4px;
 }
 
 .weekday {
   text-align: center;
-  font-size: 12px;
+  font-family: 'Raleway', sans-serif;
+  font-size: 16px;
   font-weight: 700;
-  color: #64748b;
-  text-transform: uppercase;
-  letter-spacing: 0.04em;
+  line-height: 19px;
+  color: #211500;
+  font-feature-settings: 'pnum' on, 'lnum' on;
 }
 
 .grid {
+  position: absolute;
+  left: 30px;
+  right: 30px;
+  top: 184px;
   display: grid;
   grid-template-columns: repeat(7, minmax(0, 1fr));
-  gap: 6px;
+  gap: 15px;
 }
 
 .cell,
 .cellBusy {
-  min-height: 44px;
-  border-radius: 12px;
+  box-sizing: border-box;
+  height: 60px;
+  border: 1px solid #c7c2ba;
+  border-radius: 10px;
+  background: #ffffff;
   display: flex;
   flex-direction: column;
   align-items: center;
-  justify-content: center;
-  gap: 4px;
-  font-size: 14px;
-  font-weight: 600;
-  border: 1px solid #e2e8f0;
-  background: #fafafa;
-  color: #475569;
+  justify-content: flex-start;
+  padding-top: 12px;
+  gap: 8px;
 }
 
 .cellBusy {
-  background: rgba(99, 102, 241, 0.12);
-  border-color: rgba(99, 102, 241, 0.35);
-  color: #3730a3;
+  border-color: #211500;
 }
 
 .cellToday {
-  box-shadow: 0 0 0 2px #6366f1;
+  border: 2px solid #ffa232;
+  background: #fff3cd;
 }
 
 .dayNum {
-  line-height: 1;
+  font-family: 'Rubik', sans-serif;
+  font-size: 15px;
+  font-weight: 400;
+  line-height: 18px;
+  color: #211500;
 }
 
 .dot {
-  width: 6px;
-  height: 6px;
-  border-radius: 999px;
-  background: #6366f1;
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: #ffa232;
 }
 
 .listBlock {
-  display: grid;
-  gap: 10px;
-  padding-top: 8px;
-  border-top: 1px solid #e2e8f0;
+  position: absolute;
+  left: 30px;
+  right: 30px;
+  top: 304px;
+  border-top: 1px solid #c7c2ba;
+  padding-top: 30px;
 }
 
 .listTitle {
-  margin: 0;
-  font-size: 15px;
+  margin: 0 0 15px;
+  font-family: 'Raleway', sans-serif;
+  font-size: 16px;
   font-weight: 700;
-  color: #334155;
+  line-height: 19px;
+  color: #211500;
+  font-feature-settings: 'pnum' on, 'lnum' on;
 }
 
 .list {
@@ -160,59 +170,166 @@
   padding: 0;
   list-style: none;
   display: grid;
-  gap: 10px;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 20px;
 }
 
 .listItem {
+  box-sizing: border-box;
+  min-height: 88px;
+  border-radius: 10px;
+  background: #f8f8f8;
+  padding: 20px;
   display: grid;
-  gap: 4px;
-  padding: 10px 12px;
-  border-radius: 12px;
-  background: #f8fafc;
+  grid-template-columns: minmax(0, 1fr) auto;
+  gap: 10px 20px;
+  align-content: start;
 }
 
 .listTime {
-  font-size: 14px;
-  font-weight: 800;
-  color: #4f46e5;
+  grid-column: 2;
+  grid-row: 1;
+  font-family: 'Raleway', sans-serif;
+  font-size: 16px;
+  font-weight: 700;
+  line-height: 19px;
+  color: #6f685d;
+  font-feature-settings: 'pnum' on, 'lnum' on;
 }
 
 .listName {
-  font-size: 15px;
+  grid-column: 1;
+  grid-row: 1;
+  font-family: 'Raleway', sans-serif;
+  font-size: 16px;
   font-weight: 700;
-  color: #0f172a;
+  line-height: 19px;
+  color: #211500;
+  font-feature-settings: 'pnum' on, 'lnum' on;
 }
 
 .listMeta {
-  font-size: 13px;
-  color: #64748b;
-  word-break: break-word;
+  grid-column: 1;
+  grid-row: 2;
+  font-family: 'Raleway', sans-serif;
+  font-size: 16px;
+  font-weight: 700;
+  line-height: 19px;
+  color: #6f685d;
+  overflow-wrap: anywhere;
+  font-feature-settings: 'pnum' on, 'lnum' on;
 }
 
 .emptyWeek {
+  position: absolute;
+  left: 30px;
+  top: 334px;
   margin: 0;
-  font-size: 14px;
-  color: #94a3b8;
+  font-family: 'Rubik', sans-serif;
+  font-size: 15px;
+  line-height: 18px;
+  color: #6f685d;
 }
 
-@media (max-width: 700px) {
-  .toolbar {
-    flex-wrap: wrap;
+@media (max-width: 900px) {
+  .root {
+    min-height: auto;
+    padding: 24px;
   }
 
-  .toolbarCenter {
-    order: 3;
-    width: 100%;
-    min-width: 0;
+  .toolbar,
+  .weekRow,
+  .grid,
+  .listBlock,
+  .emptyWeek {
+    position: static;
+    transform: none;
+    width: auto;
+    margin-top: 20px;
+  }
+
+  .toolbar {
+    max-width: 100%;
+    gap: 16px;
+  }
+
+  .weekLabel {
+    text-align: center;
+  }
+
+  .weekRow {
+    gap: 8px;
   }
 
   .grid {
-    gap: 4px;
+    gap: 8px;
+  }
+
+  .list {
+    grid-template-columns: 1fr;
+  }
+}
+
+@media (max-width: 640px) {
+  .root {
+    padding: 20px;
+    border-radius: 16px;
+  }
+
+  .title,
+  .weekLabel {
+    font-size: 22px;
+  }
+
+  .toolbar {
+    display: grid;
+    grid-template-columns: 44px minmax(0, 1fr) 44px;
+  }
+
+  .navButton {
+    width: 44px;
+    height: 42px;
+  }
+
+  .weekRow {
+    display: none;
+  }
+
+  .grid {
+    grid-template-columns: repeat(7, minmax(34px, 1fr));
+    overflow-x: auto;
+    padding-bottom: 4px;
   }
 
   .cell,
   .cellBusy {
-    min-height: 38px;
-    font-size: 12px;
+    min-width: 34px;
+    height: 48px;
+    padding-top: 8px;
+    border-radius: 8px;
+  }
+
+  .weekday,
+  .dayNum {
+    font-size: 13px;
+  }
+
+  .listBlock {
+    padding-top: 20px;
+  }
+
+  .listItem {
+    grid-template-columns: 1fr;
+    gap: 8px;
+    padding: 16px;
+  }
+
+  .listTime,
+  .listName,
+  .listMeta {
+    grid-column: auto;
+    grid-row: auto;
+    font-size: 15px;
+    line-height: 18px;
   }
 }

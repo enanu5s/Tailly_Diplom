@@ -186,17 +186,24 @@ export function AdminInterviewsCalendar({ interviews }: Props): ReactElement | n
   }
 
   return (
-    <section className={styles.root} aria-label="Календарь собеседований на неделю">
+    <section
+      className={`${styles.root} ${
+        interviewsThisWeek.length === 0 ? styles.rootEmptyWeek : ''
+      }`}
+      aria-label="Календарь собеседований на неделю"
+    >
       <div className={styles.head}>
-        <h2 className={styles.title}>Мои собеседования</h2>
-        <p className={styles.lead}>
-          Неделя с понедельника; текущий день подсвечен. Слот — 1 час, пересечения недопустимы.
-        </p>
+        <h2 className={styles.title}>Календарь собеседований</h2>
       </div>
 
       <div className={styles.toolbar}>
-        <button className={styles.navButton} type="button" onClick={goPrevWeek} aria-label="Предыдущая неделя">
-          ←
+        <button
+          className={`${styles.navButton} ${styles.navButtonPrev}`}
+          type="button"
+          onClick={goPrevWeek}
+          aria-label="Предыдущая неделя"
+        >
+          <ArrowIcon />
         </button>
         <div className={styles.toolbarCenter}>
           <span className={styles.weekLabel}>{rangeLabel}</span>
@@ -204,8 +211,13 @@ export function AdminInterviewsCalendar({ interviews }: Props): ReactElement | n
             Текущая неделя
           </button>
         </div>
-        <button className={styles.navButton} type="button" onClick={goNextWeek} aria-label="Следующая неделя">
-          →
+        <button
+          className={styles.navButton}
+          type="button"
+          onClick={goNextWeek}
+          aria-label="Следующая неделя"
+        >
+          <ArrowIcon />
         </button>
       </div>
 
@@ -267,5 +279,27 @@ export function AdminInterviewsCalendar({ interviews }: Props): ReactElement | n
         <p className={styles.emptyWeek}>На выбранной неделе собеседований нет.</p>
       )}
     </section>
+  );
+}
+
+function ArrowIcon(): ReactElement {
+  return (
+    <svg
+      width="24"
+      height="15"
+      viewBox="0 0 24 15"
+      fill="none"
+      xmlns="http://www.w3.org/2000/svg"
+      aria-hidden="true"
+    >
+      <path
+        d="M7.44922 0.949637L0.949612 7.44924M0.949612 7.44924L7.44922 13.9492M0.949612 7.44924L22.9492 7.44918"
+        stroke="#211500"
+        strokeWidth="1.9"
+        strokeMiterlimit="10"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+      />
+    </svg>
   );
 }
