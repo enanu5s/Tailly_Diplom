@@ -68,7 +68,7 @@ const SEED_CLIENT_PETS: Pet[] = [
     staysHomeAlone: 'ok',
     vaccinated: 'yes',
     notes: 'Нужен спокойный темп знакомства.',
-    photoUrl: undefined,
+    photoUrl: '',
   },
   {
     id: 'pet-3',
@@ -84,7 +84,7 @@ const SEED_CLIENT_PETS: Pet[] = [
     staysHomeAlone: 'ok',
     vaccinated: 'yes',
     notes: 'Передержка: отдельная зона и привычный корм.',
-    photoUrl: undefined,
+    photoUrl: '',
   },
 ];
 

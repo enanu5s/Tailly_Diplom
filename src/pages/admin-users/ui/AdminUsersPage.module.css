@@ -1,60 +1,69 @@
 /* src/pages/admin-users/ui/AdminUsersPage.module.css */
 
 .page {
-  padding: 32px 16px 56px;
+  padding: 32px 0 56px;
+  background: #f8f8f8;
 }
 
 .container {
-  width: 100%;
-  max-width: 1280px;
+  width: min(1520px, calc(100vw - 40px));
   margin: 0 auto;
   display: grid;
   gap: 24px;
 }
 
 .backButton {
-  width: fit-content;
-  min-height: 44px;
-  padding: 0 18px;
-  border: 1px solid #cbd5e1;
-  border-radius: 14px;
+  box-sizing: border-box;
+  width: 134px;
+  height: 45px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: flex-start;
+  gap: 12px;
+  padding: 0 0 0 24px;
+  border: 1px solid #c7c2ba;
+  border-radius: 23px;
   background: #ffffff;
-  color: #0f172a;
-  font-weight: 700;
+  color: #6f685d;
+  font-family: 'Raleway', sans-serif;
+  font-style: normal;
+  font-weight: 600;
+  font-size: 16px;
+  line-height: 19px;
+  text-align: center;
+  font-feature-settings: 'pnum' on, 'lnum' on;
   cursor: pointer;
-  transition:
-    transform 0.2s ease,
-    box-shadow 0.2s ease,
-    border-color 0.2s ease;
+  transition: border-color 0.2s ease;
 }
 
 .backButton:hover {
-  border-color: #6366f1;
-  box-shadow: 0 12px 24px rgba(15, 23, 42, 0.08);
-  transform: translateY(-1px);
+  border-color: #b7b0a5;
 }
 
-.backButton:active {
-  transform: translateY(0);
-}
+.backIcon {
+  width: 20px;
+  height: 20px;
+  }
 
-.backButton:focus-visible {
-  outline: none;
-  border-color: #6366f1;
-  box-shadow: 0 0 0 4px rgba(99, 102, 241, 0.12);
+.backLabel {
+  display: inline-flex;
+  align-items: center;
+  color: #6f685d;
 }
 
 @media (max-width: 768px) {
   .page {
-    padding: 24px 12px 40px;
+    padding: 24px 0 40px;
   }
 
   .container {
+    width: calc(100vw - 24px);
     gap: 20px;
   }
 
   .backButton {
     width: 100%;
     justify-content: center;
+    padding-left: 0;
   }
 }

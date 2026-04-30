@@ -7,7 +7,6 @@ import { Link, useLocation } from 'react-router-dom';
 import { useAuth } from '@/features/auth/model/useAuth';
 import { shopCartStore } from '@/features/shop/model/shopCartStore';
 import { shopCatalogStore } from '@/features/shop/model/shopCatalogStore';
-import { shopFavoritesStore } from '@/features/shop/model/shopFavoritesStore';
 import { CatalogFilters, CatalogPagination, ProductCard } from '@/features/shop/ui';
 import { shouldShowShopConsumerControls } from '@/shared/lib/auth/roleAccess';
 import { useAppNavigate } from '@/shared/lib/navigation/useAppNavigate';

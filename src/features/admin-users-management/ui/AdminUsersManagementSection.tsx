@@ -42,13 +42,12 @@ function formatDateTime(value?: string): string {
     day: '2-digit',
     month: '2-digit',
     year: 'numeric',
-    hour: '2-digit',
-    minute: '2-digit',
   }).format(date);
 }
 
 export const AdminUsersManagementSection = observer((): ReactElement => {
   const store = adminUsersManagementStore;
+  const displayedCurrentPage = Math.min(store.currentPage, store.totalPages);
 
   useEffect(() => {
     void store.load();
@@ -64,54 +63,51 @@ export const AdminUsersManagementSection = observer((): ReactElement => {
 
           <p className={styles.subtitle}>
             Здесь можно просматривать клиентов и специалистов, искать пользователей по
-            данным аккаунта, править ФИО и (для специалистов) публичный slug профиля,
-            управлять блокировкой с указанием причины и срока, а также восстанавливать
-            аккаунты в период отложенного удаления (30 дней). Email и роль меняются только
-            через отдельные процедуры.
+            данным аккаунта, править ФИО и slug профиля специалиста, управлять блокировкой
+            и восстанавливать аккаунты.
           </p>
         </div>
 
         <div className={styles.stats}>
           <div className={styles.statCard}>
-            <span className={styles.statValue}>{store.clientsCount}</span>
             <span className={styles.statLabel}>Клиенты</span>
+            <span className={styles.statValue}>{store.clientsCount}</span>
           </div>
 
           <div className={styles.statCard}>
-            <span className={styles.statValue}>{store.specialistsCount}</span>
             <span className={styles.statLabel}>Специалисты</span>
+            <span className={styles.statValue}>{store.specialistsCount}</span>
           </div>
         </div>
-      </div>
+        <div className={styles.filtersCard}>
+          <div className={styles.filtersGrid}>
+            <label className={styles.field}>
+              <span className={styles.fieldLabel}>Поиск</span>
 
-      <div className={styles.filtersCard}>
-        <div className={styles.filtersGrid}>
-          <label className={styles.field}>
-            <span className={styles.fieldLabel}>Поиск</span>
+              <input
+                className={styles.input}
+                value={store.search}
+                onChange={(event) => store.setSearch(event.target.value)}
+                placeholder="Поиск по имени, email или slug специалиста"
+              />
+            </label>
 
-            <input
-              className={styles.input}
-              value={store.search}
-              onChange={(event) => store.setSearch(event.target.value)}
-              placeholder="Имя, email или slug специалиста"
-            />
-          </label>
+            <label className={styles.field}>
+              <span className={styles.fieldLabel}>Роль</span>
 
-          <label className={styles.field}>
-            <span className={styles.fieldLabel}>Роль</span>
-
-            <select
-              className={styles.select}
-              value={store.roleFilter}
-              onChange={(event) =>
-                store.setRoleFilter(event.target.value as 'all' | 'client' | 'specialist')
-              }
-            >
-              <option value="all">Все</option>
-              <option value="client">Клиенты</option>
-              <option value="specialist">Специалисты</option>
-            </select>
-          </label>
+              <select
+                className={styles.select}
+                value={store.roleFilter}
+                onChange={(event) =>
+                  store.setRoleFilter(event.target.value as 'all' | 'client' | 'specialist')
+                }
+              >
+                <option value="all">Все роли</option>
+                <option value="client">Клиенты</option>
+                <option value="specialist">Специалисты</option>
+              </select>
+            </label>
+          </div>
         </div>
       </div>
 
@@ -138,159 +134,232 @@ export const AdminUsersManagementSection = observer((): ReactElement => {
               Пользователи по текущим фильтрам не найдены.
             </div>
           ) : (
-            <div className={styles.grid}>
-              {store.filteredUsers.map((user) => (
-                <article key={userRowKey(user)} className={styles.card}>
-                  <div className={styles.cardTop}>
-                    <div>
-                      <div className={styles.cardTitle}>
-                        {getFullName(
-                          user.lastName,
-                          user.firstName,
-                          user.middleName,
-                          user.name,
+            <>
+              <div className={styles.grid}>
+                {store.paginatedUsers.map((user) => {
+                  const rowKey = userRowKey(user);
+
+                  return (
+                    <article key={rowKey} className={styles.card}>
+                    <div className={styles.cardTop}>
+                      <div>
+                        <div className={styles.cardEmail}>{user.email}</div>
+
+                        <div className={styles.cardTitle}>
+                          {getFullName(
+                            user.lastName,
+                            user.firstName,
+                            user.middleName,
+                            user.name,
+                          )}
+                        </div>
+                      </div>
+
+                      <div className={styles.badges}>
+                        <span
+                          className={
+                            user.role === 'specialist'
+                              ? styles.roleSpecialist
+                              : styles.roleClient
+                          }
+                        >
+                          {getRoleLabel(user.role)}
+                        </span>
+
+                        <span
+                          className={
+                            user.isScheduledForDeletion
+                              ? styles.statusDeletionPending
+                              : user.isBlocked
+                                ? styles.statusBlocked
+                                : styles.statusActive
+                          }
+                        >
+                          {user.isScheduledForDeletion
+                            ? 'К удалению'
+                            : user.isBlocked
+                              ? 'Заблокирован'
+                              : 'Активен'}
+                        </span>
+                      </div>
+                    </div>
+
+                    <div className={styles.metaGrid}>
+                      <div className={styles.metaItem}>
+                        <span className={styles.metaLabel}>ID пользователя:</span>
+                        <span className={styles.metaValue}>{user.id}</span>
+                      </div>
+
+                      {user.role === 'specialist' ? (
+                        <div className={styles.metaItem}>
+                          <span className={styles.metaLabel}>ID специалиста:</span>
+                          <span className={styles.metaValue}>
+                            {user.specialistId || '—'}
+                          </span>
+                        </div>
+                      ) : (
+                        <div className={styles.metaItem}>
+                          <span className={styles.metaLabel}>
+                            Окончательное удаление:
+                          </span>
+                          <span className={styles.metaValue}>
+                            {user.isScheduledForDeletion
+                              ? formatDateTime(user.scheduledDeletionDeadline)
+                              : '—'}
+                          </span>
+                        </div>
+                      )}
+
+                      <div className={styles.metaItem}>
+                        <span className={styles.metaLabel}>Телефон:</span>
+                        <span className={styles.metaValue}>{user.phone || '—'}</span>
+                      </div>
+
+                      {user.role === 'specialist' ? (
+                        <div className={styles.metaItem}>
+                          <span className={styles.metaLabel}>Slug специалиста:</span>
+                          <span className={styles.metaValue}>
+                            {user.specialistSlug || '—'}
+                          </span>
+                        </div>
+                      ) : (
+                        <div className={styles.metaItem}>
+                          <span className={styles.metaLabel}>Причина блокировки:</span>
+                          <span className={styles.metaValue}>
+                            {user.blockReason || '—'}
+                          </span>
+                        </div>
+                      )}
+
+                      <div className={styles.metaItem}>
+                        <span className={styles.metaLabel}>Создан:</span>
+                        <span className={styles.metaValue}>
+                          {formatDateTime(user.createdAt)}
+                        </span>
+                      </div>
+
+                      <div className={styles.metaItem}>
+                        <span className={styles.metaLabel}>Блокировка до:</span>
+                        <span className={styles.metaValue}>
+                          {user.isPermanentBlock
+                            ? 'Навсегда'
+                            : formatDateTime(user.blockedUntil)}
+                        </span>
+                      </div>
+
+                      <div className={styles.metaItem}>
+                        <span className={styles.metaLabel}>Последний вход:</span>
+                        <span className={styles.metaValue}>
+                          {formatDateTime(user.lastLoginAt)}
+                        </span>
+                      </div>
+
+                      {user.role === 'specialist' ? (
+                        <div className={styles.metaItem}>
+                          <span className={styles.metaLabel}>Причина блокировки:</span>
+                          <span className={styles.metaValue}>
+                            {user.blockReason || '—'}
+                          </span>
+                        </div>
+                      ) : null}
+
+                      {user.role === 'specialist' ? (
+                        <div className={styles.metaItem}>
+                          <span className={styles.metaLabel}>
+                            Окончательное удаление:
+                          </span>
+                          <span className={styles.metaValue}>
+                            {user.isScheduledForDeletion
+                              ? formatDateTime(user.scheduledDeletionDeadline)
+                              : '—'}
+                          </span>
+                        </div>
+                      ) : null}
+                    </div>
+
+                    <div className={styles.cardActions}>
+                      <div className={styles.cardActionsRisk}>
+                        {user.isScheduledForDeletion ? (
+                          <button
+                            className={styles.secondaryButton}
+                            type="button"
+                            disabled={store.changingUserKey === rowKey}
+                            onClick={() => {
+                              void store.restoreUserFromScheduledDeletion(user);
+                            }}
+                          >
+                            {store.changingUserKey === rowKey
+                              ? 'Сохраняем...'
+                              : 'Восстановить'}
+                          </button>
+                        ) : null}
+
+                        {user.isBlocked ? (
+                          <button
+                            className={styles.secondaryButton}
+                            type="button"
+                            disabled={store.changingUserKey === rowKey}
+                            onClick={() => {
+                              void store.unblockUser(user);
+                            }}
+                          >
+                            {store.changingUserKey === rowKey
+                              ? 'Сохраняем...'
+                              : 'Разблокировать'}
+                          </button>
+                        ) : (
+                          <button
+                            className={styles.dangerButton}
+                            type="button"
+                            disabled={
+                              store.changingUserKey === rowKey ||
+                              user.isScheduledForDeletion
+                            }
+                            onClick={() => store.openBlockModal(user)}
+                          >
+                            Заблокировать
+                          </button>
                         )}
                       </div>
 
-                      <div className={styles.cardEmail}>{user.email}</div>
-                    </div>
-
-                    <div className={styles.badges}>
-                      <span
-                        className={
-                          user.role === 'specialist'
-                            ? styles.roleSpecialist
-                            : styles.roleClient
+                      <button
+                        className={styles.editButton}
+                        type="button"
+                        disabled={
+                          store.changingUserKey === rowKey ||
+                          store.editingUserKey === rowKey
                         }
+                        onClick={() => store.openEditModal(user)}
                       >
-                        {getRoleLabel(user.role)}
-                      </span>
-
-                      <span
-                        className={
-                          user.isScheduledForDeletion
-                            ? styles.statusDeletionPending
-                            : user.isBlocked
-                              ? styles.statusBlocked
-                              : styles.statusActive
-                        }
-                      >
-                        {user.isScheduledForDeletion
-                          ? 'К удалению'
-                          : user.isBlocked
-                            ? 'Заблокирован'
-                            : 'Активен'}
-                      </span>
+                        Редактировать
+                      </button>
                     </div>
-                  </div>
-
-                  <div className={styles.metaGrid}>
-                    <div className={styles.metaItem}>
-                      <span className={styles.metaLabel}>ID пользователя</span>
-                      <span className={styles.metaValue}>{user.id}</span>
-                    </div>
-
-                    <div className={styles.metaItem}>
-                      <span className={styles.metaLabel}>Роль</span>
-                      <span className={styles.metaValue}>{getRoleLabel(user.role)}</span>
-                    </div>
-
-                    <div className={styles.metaItem}>
-                      <span className={styles.metaLabel}>ID специалиста</span>
-                      <span className={styles.metaValue}>{user.specialistId || '—'}</span>
-                    </div>
-
-                    <div className={styles.metaItem}>
-                      <span className={styles.metaLabel}>Slug специалиста</span>
-                      <span className={styles.metaValue}>
-                        {user.specialistSlug || '—'}
-                      </span>
-                    </div>
-
-                    <div className={styles.metaItem}>
-                      <span className={styles.metaLabel}>Причина блокировки</span>
-                      <span className={styles.metaValue}>{user.blockReason || '—'}</span>
-                    </div>
-
-                    <div className={styles.metaItem}>
-                      <span className={styles.metaLabel}>Блокировка до</span>
-                      <span className={styles.metaValue}>
-                        {user.isPermanentBlock
-                          ? 'Навсегда'
-                          : formatDateTime(user.blockedUntil)}
-                      </span>
-                    </div>
-
-                    <div className={styles.metaItem}>
-                      <span className={styles.metaLabel}>Окончательное удаление</span>
-                      <span className={styles.metaValue}>
-                        {user.isScheduledForDeletion
-                          ? formatDateTime(user.scheduledDeletionDeadline)
-                          : '—'}
-                      </span>
-                    </div>
-                  </div>
-
-                  <div className={styles.cardActions}>
-                    <button
-                      className={styles.editButton}
-                      type="button"
-                      disabled={
-                        store.changingUserKey === userRowKey(user) ||
-                        store.editingUserKey === userRowKey(user)
-                      }
-                      onClick={() => store.openEditModal(user)}
-                    >
-                      Редактировать
-                    </button>
-
-                    <div className={styles.cardActionsRisk}>
-                      {user.isScheduledForDeletion ? (
-                        <button
-                          className={styles.secondaryButton}
-                          type="button"
-                          disabled={store.changingUserKey === userRowKey(user)}
-                          onClick={() => {
-                            void store.restoreUserFromScheduledDeletion(user);
-                          }}
-                        >
-                          {store.changingUserKey === userRowKey(user)
-                            ? 'Сохраняем...'
-                            : 'Восстановить аккаунт'}
-                        </button>
-                      ) : null}
-
-                      {user.isBlocked ? (
-                        <button
-                          className={styles.secondaryButton}
-                          type="button"
-                          disabled={store.changingUserKey === userRowKey(user)}
-                          onClick={() => {
-                            void store.unblockUser(user);
-                          }}
-                        >
-                          {store.changingUserKey === userRowKey(user)
-                            ? 'Сохраняем...'
-                            : 'Разблокировать'}
-                        </button>
-                      ) : (
-                        <button
-                          className={styles.dangerButton}
-                          type="button"
-                          disabled={
-                            store.changingUserKey === userRowKey(user) ||
-                            user.isScheduledForDeletion
-                          }
-                          onClick={() => store.openBlockModal(user)}
-                        >
-                          Заблокировать
-                        </button>
-                      )}
-                    </div>
-                  </div>
-                </article>
-              ))}
-            </div>
+                    </article>
+                  );
+                })}
+              </div>
+              <div className={styles.pagination}>
+                <button
+                  type="button"
+                  aria-label="Предыдущая страница"
+                  disabled={!store.canGoPrevPage}
+                  onClick={() => store.goToPrevPage()}
+                >
+                  ←
+                </button>
+                <span>
+                  Страница {displayedCurrentPage} из {store.totalPages}
+                </span>
+                <button
+                  type="button"
+                  aria-label="Следующая страница"
+                  disabled={!store.canGoNextPage}
+                  onClick={() => store.goToNextPage()}
+                >
+                  →
+                </button>
+              </div>
+            </>
           )}
         </>
       ) : null}
@@ -410,6 +479,7 @@ export const AdminUsersManagementSection = observer((): ReactElement => {
                 <h2 className={styles.modalTitle}>Блокировка пользователя</h2>
 
                 <p className={styles.modalSubtitle}>{store.selectedUser.email}</p>
+
                 <p className={styles.modalHint}>
                   Блокируется роль: {getRoleLabel(store.selectedUser.role)}.
                 </p>
@@ -423,6 +493,10 @@ export const AdminUsersManagementSection = observer((): ReactElement => {
                 Закрыть
               </button>
             </div>
+
+            {store.changeError ? (
+              <div className={styles.errorBanner}>{store.changeError}</div>
+            ) : null}
 
             <div className={styles.formGrid}>
               <label className={styles.field}>
@@ -442,6 +516,7 @@ export const AdminUsersManagementSection = observer((): ReactElement => {
                   checked={store.isPermanentBlock}
                   onChange={(event) => store.setPermanentBlock(event.target.checked)}
                 />
+
                 <span>Заблокировать навсегда</span>
               </label>
             </div>

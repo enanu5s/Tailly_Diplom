@@ -21,7 +21,9 @@ function buildBlockedUntilValue(days: number): string {
 }
 
 class AdminUsersManagementStore {
+  readonly pageSize = 10;
   users: ManagedUser[] = [];
+  currentPage = 1;
 
   isLoading = false;
   loadError = '';
@@ -53,10 +55,28 @@ class AdminUsersManagementStore {
 
   setSearch(value: string): void {
     this.search = value;
+    this.currentPage = 1;
   }
 
   setRoleFilter(value: RoleFilter): void {
     this.roleFilter = value;
+    this.currentPage = 1;
+  }
+
+  goToPrevPage(): void {
+    if (!this.canGoPrevPage) {
+      return;
+    }
+
+    this.currentPage -= 1;
+  }
+
+  goToNextPage(): void {
+    if (!this.canGoNextPage) {
+      return;
+    }
+
+    this.currentPage += 1;
   }
 
   setBlockReason(value: string): void {
@@ -187,6 +207,25 @@ class AdminUsersManagementStore {
 
       return haystack.includes(normalizedSearch);
     });
+  }
+
+  get totalPages(): number {
+    return Math.max(1, Math.ceil(this.filteredUsers.length / this.pageSize));
+  }
+
+  get canGoPrevPage(): boolean {
+    return this.currentPage > 1;
+  }
+
+  get canGoNextPage(): boolean {
+    return this.currentPage < this.totalPages;
+  }
+
+  get paginatedUsers(): ManagedUser[] {
+    const safePage = Math.min(this.currentPage, this.totalPages);
+    const startIndex = (safePage - 1) * this.pageSize;
+
+    return this.filteredUsers.slice(startIndex, startIndex + this.pageSize);
   }
 
   get clientsCount(): number {

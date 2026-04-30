@@ -145,12 +145,21 @@ export async function mockCompleteProfile(
   });
 
   const login = mapAccountToLoginSuccess(newAccount, 'client');
+  const loginUser = login.user ?? {
+    id: newUserId,
+    email,
+    role: 'client' as const,
+    name: fullName || undefined,
+  };
 
   return {
     accessToken: login.accessToken,
+    refreshToken: login.refreshToken,
+    accessTokenExpires: login.accessTokenExpires,
+    refreshTokenExpires: login.refreshTokenExpires,
     user: {
-      ...login.user,
-      name: fullName || login.user.name,
+      ...loginUser,
+      name: fullName || loginUser.name,
       cityId: dto.cityId,
     },
   };

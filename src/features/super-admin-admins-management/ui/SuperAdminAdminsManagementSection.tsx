@@ -214,21 +214,6 @@ export const SuperAdminAdminsManagementSection = observer((): ReactElement => {
                       </div>
 
                       <div className={styles.cardActions}>
-                        <button
-                          className={styles.dangerButton}
-                          type="button"
-                          disabled={
-                            admin.role === 'super_admin' ||
-                            store.deletingAdminId === admin.adminId ||
-                            store.changingAdminId === admin.adminId
-                          }
-                          onClick={() => {
-                            void store.deleteAdmin(admin);
-                          }}
-                        >
-                          {store.deletingAdminId === admin.adminId ? 'Удаление...' : 'Удалить'}
-                        </button>
-
                         {admin.role === 'admin' ? (
                           admin.isBlocked ? (
                             <button
@@ -248,8 +233,7 @@ export const SuperAdminAdminsManagementSection = observer((): ReactElement => {
                               className={styles.dangerOutlineButton}
                               type="button"
                               disabled={
-                                store.changingAdminId === admin.adminId ||
-                                store.deletingAdminId === admin.adminId
+                                store.changingAdminId === admin.adminId
                               }
                               onClick={() => store.openBlockModal(admin)}
                             >
@@ -279,8 +263,7 @@ export const SuperAdminAdminsManagementSection = observer((): ReactElement => {
                             type="button"
                             disabled={
                               store.isUpdating ||
-                              store.changingAdminId === admin.adminId ||
-                              store.deletingAdminId === admin.adminId
+                              store.changingAdminId === admin.adminId
                             }
                             onClick={() => store.openEditModal(admin)}
                           >

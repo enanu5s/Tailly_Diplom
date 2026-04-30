@@ -67,17 +67,19 @@ function mapHttpErrorToLoginError(error: HttpError): LoginError | null {
 
 export const authService = {
   async login(dto: LoginPayload) {
-    const roleAttempts = isLikelyAdminEmail(dto.email)
-      ? [
+    const roleAttempts: Array<NonNullable<LoginPayload['requestedRole']>> = isLikelyAdminEmail(
+      dto.email,
+    )
+      ? ([
           'super_admin',
           'admin',
           ...LOGIN_ROLE_ATTEMPTS.filter((role) => role !== 'super_admin' && role !== 'admin'),
-        ]
+        ] as Array<NonNullable<LoginPayload['requestedRole']>>)
       : dto.requestedRole
-        ? [
+        ? ([
             dto.requestedRole,
             ...LOGIN_ROLE_ATTEMPTS.filter((role) => role !== dto.requestedRole),
-          ]
+          ] as Array<NonNullable<LoginPayload['requestedRole']>>)
         : LOGIN_ROLE_ATTEMPTS;
     let res: Awaited<ReturnType<typeof authApi.login>> | null = null;
     let resolvedRole: NonNullable<LoginPayload['requestedRole']> = roleAttempts[0]!;

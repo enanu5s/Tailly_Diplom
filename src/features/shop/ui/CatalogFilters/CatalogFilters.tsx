@@ -20,8 +20,6 @@ export const CatalogFilters = observer(() => {
     filters,
     categories,
     availableSorts,
-    minCatalogPrice,
-    maxCatalogPrice,
     isMetaLoading,
     isMetaInitialized,
   } = shopCatalogStore;

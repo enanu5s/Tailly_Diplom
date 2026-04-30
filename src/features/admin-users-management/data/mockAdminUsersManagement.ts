@@ -31,6 +31,8 @@ type ExtendedMockAuthAccount = MockAuthAccount & {
   blockReason?: string;
   blockedUntil?: string;
   isPermanentBlock?: boolean;
+  createdAt?: string;
+  lastLoginAt?: string;
 };
 
 const SPECIALIST_SLUG_PATTERN = /^[a-z0-9]+(?:-[a-z0-9]+)*$/;
@@ -85,6 +87,9 @@ function mapAccountToManagedUserForRole(
       lastName: account.lastName,
       middleName: account.middleName,
       name: buildDisplayName(account),
+      phone: account.phone,
+      createdAt: account.createdAt,
+      lastLoginAt: account.lastLoginAt,
       specialistId: role === 'specialist' ? account.specialistId : undefined,
       specialistSlug: role === 'specialist' ? account.specialistSlug : undefined,
       isBlocked: block.isBlocked,

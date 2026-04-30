@@ -68,15 +68,6 @@ export const RegisterClientStep1Page = (): ReactElement => {
     }
   };
 
-  const handleClear = (): void => {
-    registerService.resetFlow();
-    setEmail('');
-    setPassword('');
-    setPassword2('');
-    setConsent(false);
-    setError(null);
-  };
-
   return (
     <section className={styles.page}>
       <div className={styles.background} aria-hidden="true" />

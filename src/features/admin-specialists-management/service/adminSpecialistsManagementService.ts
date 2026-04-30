@@ -18,31 +18,23 @@ export const adminSpecialistsManagementService = {
       return adminSpecialistsManagementApi.createSpecialistAccount(payload);
     }
 
+    const created = await adminSpecialistsManagementApi.createSpecialistAccount(payload);
+
     const attached = await specialistApplicationsService.attachCreatedSpecialistAccount({
       applicationId: payload.applicationId,
+      specialistId: created.account.specialistId,
+      specialistSlug: created.account.specialistSlug,
       reviewedBy: payload.reviewedBy,
     });
 
-    const specialistId = attached.createdSpecialistId ?? '';
-
     return {
       account: {
-        id: specialistId,
-        email: payload.email,
-        role: 'specialist',
-        firstName: payload.firstName,
-        lastName: payload.lastName,
-        middleName: payload.middleName,
-        phone: payload.phone,
-        city: payload.city,
-        about: payload.about,
-        specialistId,
+        ...created.account,
+        id: attached.createdSpecialistId ?? created.account.id,
+        specialistId: attached.createdSpecialistId ?? created.account.specialistId,
         specialistSlug: attached.createdSpecialistSlug ?? undefined,
-        applicationId: payload.applicationId,
-        createdAt: new Date().toISOString(),
-        createdBy: payload.reviewedBy,
-        isBlocked: false,
       },
+      temporaryPassword: created.temporaryPassword,
     };
   },
 };

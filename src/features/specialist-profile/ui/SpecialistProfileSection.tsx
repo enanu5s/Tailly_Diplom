@@ -65,30 +65,12 @@ export const SpecialistProfileSection = observer((): ReactElement => {
     });
   };
 
-  const handleStartBooking = (): void => {
-    if (!profile) {
-      return;
-    }
-
-    navigate('/service-booking', {
-      state: {
-        specialistSlug: profile.slug,
-      },
-    });
-  };
-
   const isOwnSpecialistAsClient = Boolean(
     profile &&
       isClientViewingOwnSpecialistProfile(user ?? null, {
         slug: profile.slug,
         id: profile.id,
       }),
-  );
-
-  const canShowBookingCta = Boolean(
-    profile &&
-      !profile.isOwner &&
-      canClientBookSpecialist(user ?? null, { slug: profile.slug, id: profile.id }),
   );
 
   return (
@@ -100,13 +82,6 @@ export const SpecialistProfileSection = observer((): ReactElement => {
       canLoadMoreReviews={specialistProfileStore.canLoadMoreReviews}
       onRetry={handleRetry}
       onLoadMoreReviews={specialistProfileStore.loadMoreReviews}
-      reviewsSearchQuery={specialistProfileStore.reviewsSearchQuery}
-      reviewsRatingFilter={specialistProfileStore.reviewsRatingFilter}
-      reviewsReplyFilter={specialistProfileStore.reviewsReplyFilter}
-      reviewsFilteredCount={specialistProfileStore.filteredReviews.length}
-      onSetReviewsSearchQuery={specialistProfileStore.setReviewsSearchQuery}
-      onSetReviewsRatingFilter={specialistProfileStore.setReviewsRatingFilter}
-      onSetReviewsReplyFilter={specialistProfileStore.setReviewsReplyFilter}
       isEditingMain={specialistProfileStore.isEditingMain}
       isSavingMain={specialistProfileStore.isSavingMain}
       mainSaveError={specialistProfileStore.mainSaveError}
@@ -117,6 +92,17 @@ export const SpecialistProfileSection = observer((): ReactElement => {
       onSetMainField={specialistProfileStore.setMainField}
       onSetMainAvatarFile={specialistProfileStore.setMainAvatarFile}
       onSaveMain={specialistProfileStore.saveMain}
+      isEmailChangeModalOpen={specialistProfileStore.isEmailChangeModalOpen}
+      pendingEmailChange={specialistProfileStore.pendingEmailChange}
+      emailChangeCodeInput={specialistProfileStore.emailChangeCodeInput}
+      emailChangeError={specialistProfileStore.emailChangeError}
+      emailChangeStep={specialistProfileStore.emailChangeStep}
+      isRequestingEmailChangeCode={specialistProfileStore.isRequestingEmailChangeCode}
+      isVerifyingEmailChangeCode={specialistProfileStore.isVerifyingEmailChangeCode}
+      onCloseEmailChangeModal={specialistProfileStore.closeEmailChangeModal}
+      onSetEmailChangeCodeInput={specialistProfileStore.setEmailChangeCodeInput}
+      onRequestEmailChangeCode={specialistProfileStore.requestEmailChangeCode}
+      onConfirmEmailChangeCode={specialistProfileStore.confirmEmailChangeCode}
       isEditingDetails={specialistProfileStore.isEditingDetails}
       isSavingDetails={specialistProfileStore.isSavingDetails}
       detailsSaveError={specialistProfileStore.detailsSaveError}
@@ -134,19 +120,14 @@ export const SpecialistProfileSection = observer((): ReactElement => {
       onAddService={specialistProfileStore.addService}
       onRemoveService={specialistProfileStore.removeService}
       onSetServiceField={specialistProfileStore.setServiceField}
-      onSetServiceBookingMode={specialistProfileStore.setServiceBookingMode}
-      onSetServiceDurationField={specialistProfileStore.setServiceDurationField}
-      onSetServiceBufferField={specialistProfileStore.setServiceBufferField}
-      onSetServiceCompatibilityField={specialistProfileStore.setServiceCompatibilityField}
-      onSetServiceAdvanceField={specialistProfileStore.setServiceAdvanceField}
-      onSetServiceMultiDayField={specialistProfileStore.setServiceMultiDayField}
-      onSetServiceFlagField={specialistProfileStore.setServiceFlagField}
       onSetSpecialistGalleryUrlInput={specialistProfileStore.setSpecialistGalleryUrlInput}
       onAddSpecialistGalleryImageByUrl={
         specialistProfileStore.addSpecialistGalleryImageByUrl
       }
       onAddSpecialistGalleryFiles={specialistProfileStore.addSpecialistGalleryFiles}
       onRemoveSpecialistGalleryImage={specialistProfileStore.removeSpecialistGalleryImage}
+      serviceCatalogOptions={specialistProfileStore.serviceCatalogOptions}
+      petTypeAliasOptions={specialistProfileStore.petTypeAliasOptions}
       onSaveDetails={specialistProfileStore.saveDetails}
       onContactSpecialist={
         profile && !profile.isOwner && !isOwnSpecialistAsClient

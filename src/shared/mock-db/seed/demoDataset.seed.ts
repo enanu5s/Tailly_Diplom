@@ -252,7 +252,7 @@ export function buildExtraClientProfilesAndPets(): {
       staysHomeAlone: 'ok',
       vaccinated: 'yes',
       notes: 'Спокойный кот, демо-данные.',
-      photoUrl: undefined,
+      photoUrl: '',
     };
 
     petsByUserId[id] = i % 2 === 0 ? [dogPet, catPet] : [dogPet];

@@ -382,9 +382,15 @@ export function mapAccountToLoginSuccess(
 ): LoginSuccessResponse {
   syncBlockedState(account);
   syncRoleBlockStates(account);
+  const now = Date.now();
+  const accessTokenExpires = new Date(now + 15 * 60_000).toISOString();
+  const refreshTokenExpires = new Date(now + 7 * 24 * 60 * 60_000).toISOString();
 
   return {
     accessToken: `mock-token-${account.id}-${activeRole}`,
+    refreshToken: `mock-refresh-token-${account.id}-${activeRole}`,
+    accessTokenExpires,
+    refreshTokenExpires,
     user: {
       id: account.id,
       email: account.email,

@@ -97,8 +97,15 @@ export function buildLockedUntilIso(): string {
 export function mapAccountToLoginSuccess(
   account: MockAdminAccount,
 ): AdminLoginSuccessResponse {
+  const now = Date.now();
+  const accessTokenExpires = new Date(now + 15 * 60_000).toISOString();
+  const refreshTokenExpires = new Date(now + 7 * 24 * 60 * 60_000).toISOString();
+
   return {
     accessToken: `mock-admin-token-${account.id}`,
+    refreshToken: `mock-admin-refresh-token-${account.id}`,
+    accessTokenExpires,
+    refreshTokenExpires,
     user: {
       id: account.id,
       adminId: account.adminId,

@@ -46,6 +46,7 @@ export async function mockLogin(payload: LoginPayload): Promise<LoginSuccessResp
   const email = normalizeEmail(payload.email);
   const password = payload.password;
   const requestedRole = payload.requestedRole;
+  const roleForNonAdmin: UserRole = requestedRole ?? 'client';
 
   const account =
     getMockAuthAccounts().find((item) => item.email.toLowerCase() === email) ?? null;
@@ -123,7 +124,7 @@ export async function mockLogin(payload: LoginPayload): Promise<LoginSuccessResp
     });
   }
 
-  if (isRoleLoginBlocked(account, requestedRole)) {
+  if (isRoleLoginBlocked(account, roleForNonAdmin)) {
     throw new LoginError({
       code: 'ACCOUNT_BLOCKED',
       message: 'Аккаунт заблокирован.',
@@ -139,20 +140,20 @@ export async function mockLogin(payload: LoginPayload): Promise<LoginSuccessResp
     return mapAccountToLoginSuccess(account, resolveAdminSessionRole(account.roles));
   }
 
-  if (!account.roles.includes(requestedRole)) {
+  if (!account.roles.includes(roleForNonAdmin)) {
     throw new LoginError({
       code: 'INVALID_ROLE',
       message:
-        requestedRole === 'specialist'
+        roleForNonAdmin === 'specialist'
           ? 'Этот аккаунт не зарегистрирован как специалист.'
           : 'Этот аккаунт не зарегистрирован как клиент.',
     });
   }
 
   const at = new Date().toISOString();
-  if (requestedRole === 'specialist' && account.specialistId?.trim()) {
+  if (roleForNonAdmin === 'specialist' && account.specialistId?.trim()) {
     recordMockSpecialistLastLoginAt(account.specialistId.trim(), at);
   }
 
-  return mapAccountToLoginSuccess(account, requestedRole);
+  return mapAccountToLoginSuccess(account, roleForNonAdmin);
 }

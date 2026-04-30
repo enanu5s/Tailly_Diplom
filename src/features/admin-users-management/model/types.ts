@@ -10,6 +10,9 @@ export type ManagedUser = {
   lastName?: string;
   middleName?: string;
   name?: string;
+  phone?: string;
+  createdAt?: string;
+  lastLoginAt?: string;
   specialistId?: string;
   specialistSlug?: string;
   isBlocked: boolean;

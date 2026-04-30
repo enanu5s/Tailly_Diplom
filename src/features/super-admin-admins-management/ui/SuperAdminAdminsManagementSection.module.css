@@ -209,7 +209,7 @@
   right: 30px;
   bottom: 29px;
   display: grid;
-  grid-template-columns: 154px 238px 1fr;
+  grid-template-columns: 238px 1fr;
   gap: 10px;
 }
 

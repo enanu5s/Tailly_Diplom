@@ -5,7 +5,6 @@ import { RouterProvider, createBrowserRouter } from 'react-router-dom';
 
 import { routes } from '@/app/router/routes';
 import '@/app/global.css';
-import { authService } from '@/features/auth/service/authService';
 import { authStore } from '@/features/auth/model/authStore';
 import { migrateAdminPostsFromIndexedDbOnce } from '@/features/admin-posts-banners-management/data/adminPostsBannersStorage';
 import { seedDemoMessagesIfEmpty } from '@/features/messages/data/messagesStorage';
