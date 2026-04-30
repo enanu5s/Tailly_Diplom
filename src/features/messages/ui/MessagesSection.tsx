@@ -53,6 +53,30 @@ function formatTime(value: string): string {
   }).format(date);
 }
 
+function formatThreadTime(value: string): string {
+  const date = new Date(value);
+
+  if (Number.isNaN(date.getTime())) {
+    return '';
+  }
+
+  const now = new Date();
+  const isToday =
+    date.getFullYear() === now.getFullYear() &&
+    date.getMonth() === now.getMonth() &&
+    date.getDate() === now.getDate();
+
+  if (isToday) {
+    return formatTime(value);
+  }
+
+  return new Intl.DateTimeFormat('ru-RU', {
+    day: '2-digit',
+    month: '2-digit',
+    year: 'numeric',
+  }).format(date);
+}
+
 function isAdminViewerRole(role: string): boolean {
   return role === 'admin' || role === 'super_admin';
 }
@@ -853,7 +877,7 @@ export const MessagesSection = observer(() => {
                     <div className={styles.threadTopRow}>
                       <span className={styles.threadTitle}>{thread.title}</span>
                       <span className={styles.threadTime}>
-                        {formatTime(thread.updatedAt)}
+                        {formatThreadTime(thread.updatedAt)}
                       </span>
                     </div>
 
@@ -1056,7 +1080,7 @@ export const MessagesSection = observer(() => {
                       onClick={handleReplyPreviewClick}
                     >
                       <span className={styles.replyComposerAuthor}>
-                        Ответ на: {replyTo.authorName}
+                        В ответ {replyTo.authorName}
                       </span>
                       <span className={styles.replyComposerText}>
                         {formatReplyPreviewText(replyTo)}
@@ -1098,24 +1122,6 @@ export const MessagesSection = observer(() => {
                   </div>
                 ) : null}
 
-                <textarea
-                  className={styles.textarea}
-                  placeholder="Введите сообщение"
-                  value={draftMessage}
-                  onChange={(event) => messagesStore.setDraftMessage(event.target.value)}
-                  onKeyDown={(event: ReactKeyboardEvent<HTMLTextAreaElement>) => {
-                    if (
-                      event.key === 'Enter' &&
-                      !event.shiftKey &&
-                      !event.nativeEvent.isComposing
-                    ) {
-                      event.preventDefault();
-                      handleSend();
-                    }
-                  }}
-                  rows={4}
-                />
-
                 <input
                   ref={fileInputRef}
                   className={styles.hiddenInput}
@@ -1147,7 +1153,25 @@ export const MessagesSection = observer(() => {
                     ) : null}
                   </div>
 
-                  {error ? <span className={styles.error}>{error}</span> : <span />}
+                  <textarea
+                    className={styles.textarea}
+                    placeholder="Введите сообщение"
+                    value={draftMessage}
+                    onChange={(event) => messagesStore.setDraftMessage(event.target.value)}
+                    onKeyDown={(event: ReactKeyboardEvent<HTMLTextAreaElement>) => {
+                      if (
+                        event.key === 'Enter' &&
+                        !event.shiftKey &&
+                        !event.nativeEvent.isComposing
+                      ) {
+                        event.preventDefault();
+                        handleSend();
+                      }
+                    }}
+                    rows={4}
+                  />
+
+                  {error ? <span className={styles.error}>{error}</span> : null}
 
                   <button
                     type="submit"

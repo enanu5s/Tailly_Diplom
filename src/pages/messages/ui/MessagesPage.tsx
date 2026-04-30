@@ -9,6 +9,7 @@ export const MessagesPage = (): ReactElement => {
   return (
     <div className={styles.page}>
       <div className={styles.container}>
+        <h1 className={styles.title}>Сообщения</h1>
         <MessagesSection />
       </div>
     </div>

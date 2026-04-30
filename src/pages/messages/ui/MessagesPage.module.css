@@ -1,11 +1,33 @@
 /* src/pages/messages/ui/MessagesPage.module.css */
 .page {
   width: 100%;
-  padding: 32px 20px 48px;
+  min-height: calc(100vh - 100px);
+  padding: 60px 20px 110px;
+  background: #f8f8f8;
 }
 
 .container {
   width: 100%;
-  max-width: 1280px;
+  max-width: 1520px;
   margin: 0 auto;
+}
+
+.title {
+  margin: 0 0 26px;
+  font-family: 'Igra Sans', sans-serif;
+  font-size: 40px;
+  font-weight: 400;
+  line-height: 1.2;
+  color: #211500;
+}
+
+@media (max-width: 760px) {
+  .page {
+    padding: 32px 16px 72px;
+  }
+
+  .title {
+    margin-bottom: 20px;
+    font-size: 32px;
+  }
 }

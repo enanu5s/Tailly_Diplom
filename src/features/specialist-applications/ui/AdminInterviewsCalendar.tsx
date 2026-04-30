@@ -198,7 +198,7 @@ export function AdminInterviewsCalendar({ interviews }: Props): ReactElement | n
 
       <div className={styles.toolbar}>
         <button
-          className={`${styles.navButton} ${styles.navButtonPrev}`}
+          className={`${styles.navButtonPrev} ${styles.navButton}`}
           type="button"
           onClick={goPrevWeek}
           aria-label="Предыдущая неделя"
