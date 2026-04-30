@@ -81,6 +81,7 @@ export class PetsStore {
 
     this.editingId = id;
     this.draft = JSON.parse(JSON.stringify(p)) as Pet;
+    this.expanded.add(id);
     this.saveError = null;
     this.saveSuccessId = null;
   }

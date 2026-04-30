@@ -19,19 +19,8 @@ function formatPrice(value: number): string {
   return new Intl.NumberFormat('ru-RU').format(value);
 }
 
-function formatItemsLabel(quantity: number): string {
-  const mod10 = quantity % 10;
-  const mod100 = quantity % 100;
-
-  if (mod10 === 1 && mod100 !== 11) {
-    return `${quantity} товар`;
-  }
-
-  if (mod10 >= 2 && mod10 <= 4 && (mod100 < 12 || mod100 > 14)) {
-    return `${quantity} товара`;
-  }
-
-  return `${quantity} товаров`;
+function formatItemsQuantity(quantity: number): string {
+  return `${quantity} шт.`;
 }
 
 export const OrdersProductsSection = observer(() => {
@@ -98,22 +87,19 @@ export const OrdersProductsSection = observer(() => {
                 className={styles.item}
                 onClick={() => handleOpenOrder(order.id)}
               >
-                <div className={styles.topRow}>
-                  <div className={styles.numberBlock}>
-                    <div className={styles.number}>{order.number}</div>
-                    <div className={styles.meta}>
-                      <span>{formatItemsLabel(order.itemsCount)}</span>
-                      <span className={styles.metaDivider}>•</span>
-                      <span>{formatPrice(order.price)} ₽</span>
-                    </div>
-                  </div>
+                <span
+                  className={styles.status}
+                  data-tone={getProductOrderStatusTone(order.status)}
+                >
+                  {getProductOrderStatusLabel(order.status)}
+                </span>
 
-                  <span
-                    className={styles.status}
-                    data-tone={getProductOrderStatusTone(order.status)}
-                  >
-                    {getProductOrderStatusLabel(order.status)}
-                  </span>
+                <div className={styles.price}>{formatPrice(order.price)} ₽</div>
+
+                <div className={styles.number}>Заказ № {order.number}</div>
+
+                <div className={styles.meta}>
+                  Количество товаров: {formatItemsQuantity(order.itemsCount)}
                 </div>
 
                 <div className={styles.actions}>
