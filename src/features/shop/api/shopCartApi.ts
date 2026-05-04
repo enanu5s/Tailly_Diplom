@@ -5,12 +5,8 @@ type SyncCartItem = {
   quantity: number;
 };
 
-type MergeCartPayload = {
-  merge: boolean;
-};
-
 function getCartBasePath(): string {
-  return '/shop/cart';
+  return '/cart';
 }
 
 async function clearCart(): Promise<void> {
@@ -30,13 +26,6 @@ async function addCartItem(item: SyncCartItem): Promise<void> {
 }
 
 export const shopCartApi = {
-  mergeAfterLogin(payload: MergeCartPayload): Promise<void> {
-    return request<void>(`${getCartBasePath()}/merge`, {
-      method: 'POST',
-      body: payload,
-    });
-  },
-
   async syncSnapshot(items: SyncCartItem[]): Promise<void> {
     await clearCart();
 

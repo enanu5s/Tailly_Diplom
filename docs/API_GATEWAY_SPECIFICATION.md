@@ -1911,9 +1911,12 @@ type Specialist = {
 | GET | `/shop/products` | Фильтры: search, categoryIds, minPrice, maxPrice, onlyAvailable, sort, page, limit |
 | GET | `/shop/products/by-ids` | Query `ids` — список через запятую |
 | GET | `/shop/products/:slug` | Карточка товара |
-| DELETE | `/shop/cart` | Очистить серверную корзину текущего клиента |
-| POST | `/shop/cart` | Добавить/заменить позицию серверной корзины: `{ productId: string; quantity: number }` |
-| POST | `/shop/cart/merge` | После логина объединить/отклонить гостевую корзину: `{ merge: boolean }` |
+| GET | `/cart` | Серверная корзина текущего клиента |
+| POST | `/cart` | Добавить позицию серверной корзины: `{ productId: string; quantity: number }` |
+| PUT | `/cart` | Обновить серверную корзину |
+| DELETE | `/cart` | Очистить серверную корзину текущего клиента |
+| PUT | `/cart/:productId` | Обновить количество товара в корзине |
+| DELETE | `/cart/:productId` | Удалить товар из корзины |
 | GET | `/shop/pickup-points` | Query `city` |
 | POST | `/shop/orders` | Тело `{ form: CheckoutForm; items: { productId, quantity }[] }` |
 | GET | `/shop/orders/:orderId` | Заказ |

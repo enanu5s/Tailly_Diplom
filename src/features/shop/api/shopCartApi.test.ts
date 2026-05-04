@@ -16,7 +16,7 @@ describe('shopCartApi', () => {
     vi.restoreAllMocks();
   });
 
-  it('syncs cart snapshot through shop cart endpoints', async () => {
+  it('syncs cart snapshot through gateway cart endpoints', async () => {
     const fetchMock = vi.fn().mockResolvedValue({
       ok: true,
       status: 200,
@@ -33,12 +33,12 @@ describe('shopCartApi', () => {
 
     expect(fetchMock).toHaveBeenNthCalledWith(
       1,
-      'http://api.test/shop/cart',
+      'http://api.test/cart',
       expect.objectContaining({ method: 'DELETE' }),
     );
     expect(fetchMock).toHaveBeenNthCalledWith(
       2,
-      'http://api.test/shop/cart',
+      'http://api.test/cart',
       expect.objectContaining({
         body: JSON.stringify({ productId: 'product-1', quantity: 2 }),
         method: 'POST',
@@ -46,30 +46,9 @@ describe('shopCartApi', () => {
     );
     expect(fetchMock).toHaveBeenNthCalledWith(
       3,
-      'http://api.test/shop/cart',
+      'http://api.test/cart',
       expect.objectContaining({
         body: JSON.stringify({ productId: 'product-2', quantity: 1 }),
-        method: 'POST',
-      }),
-    );
-  });
-
-  it('merges guest cart through the shop cart endpoint', async () => {
-    const fetchMock = vi.fn().mockResolvedValue({
-      ok: true,
-      status: 200,
-      headers: new Headers({ 'content-type': 'application/json' }),
-      json: async () => ({}),
-    });
-
-    vi.stubGlobal('fetch', fetchMock);
-
-    await shopCartApi.mergeAfterLogin({ merge: true });
-
-    expect(fetchMock).toHaveBeenCalledWith(
-      'http://api.test/shop/cart/merge',
-      expect.objectContaining({
-        body: JSON.stringify({ merge: true }),
         method: 'POST',
       }),
     );
