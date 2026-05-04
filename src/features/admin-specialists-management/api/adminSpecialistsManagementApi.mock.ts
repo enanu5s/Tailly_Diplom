@@ -76,6 +76,7 @@ export async function mockCreateSpecialistAccount(
     specialistId,
     specialistSlug,
     applicationId: payload.applicationId,
+    profileSeed: payload.profileSeed,
     createdAt: new Date().toISOString(),
     createdBy: payload.reviewedBy,
     isBlocked: false,

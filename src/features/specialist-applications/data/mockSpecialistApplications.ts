@@ -64,7 +64,7 @@ function buildBulkSpecialistApplications(): SpecialistApplication[] {
       city,
       about: `Демо-заявка №${i}: опыт ухода за животными, готов(а) к заказам в городе ${city}.`,
       questionnaire: {
-        experienceYears: i % 2 === 0 ? '3–5 лет' : '1–3 года',
+        experienceYears: i % 2 === 0 ? 5 : 2,
         animalTypes: i % 3 === 0 ? ['Собаки'] : ['Собаки', 'Кошки'],
         serviceFormats: ['Выгул', 'Передержка у клиента'],
         canGiveMedication: i % 2 === 0,
@@ -110,7 +110,7 @@ export const INITIAL_APPLICATIONS: SpecialistApplication[] = [
     about:
       'Уже 4 года ухаживаю за собаками и кошками друзей и знакомых, умею работать с тревожными питомцами.',
     questionnaire: {
-      experienceYears: '3–5 лет',
+      experienceYears: 5,
       animalTypes: ['Собаки', 'Кошки'],
       serviceFormats: ['Выгул', 'Дневной присмотр', 'Передержка у клиента'],
       canGiveMedication: true,
@@ -147,7 +147,7 @@ export const INITIAL_APPLICATIONS: SpecialistApplication[] = [
     about:
       'Работала волонтёром в приюте, умею давать лекарства по расписанию, готова брать заказы на передержку.',
     questionnaire: {
-      experienceYears: '1–3 года',
+      experienceYears: 2,
       animalTypes: ['Собаки', 'Кошки', 'Грызуны'],
       serviceFormats: ['Передержка у себя', 'Передержка у клиента', 'Ночной присмотр'],
       canGiveMedication: true,

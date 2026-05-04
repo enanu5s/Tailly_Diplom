@@ -96,6 +96,14 @@ function formatList(values: string[]): string {
   return values.length > 0 ? values.join(', ') : '—';
 }
 
+function formatExperienceYears(value: number): string {
+  if (!Number.isFinite(value) || value <= 0) {
+    return '—';
+  }
+
+  return `${value} ${value === 1 ? 'год' : value < 5 ? 'года' : 'лет'}`;
+}
+
 type ApplicationDetailsCardProps = {
   selected: SpecialistApplication;
   questionnaire: SpecialistApplicationQuestionnaire;
@@ -163,7 +171,9 @@ function ApplicationDetailsCard({
         </div>
         <div className={styles.infoItem}>
           <span className={styles.infoLabel}>Опыт</span>
-          <span className={styles.infoValue}>{questionnaire.experienceYears || '—'}</span>
+          <span className={styles.infoValue}>
+            {formatExperienceYears(questionnaire.experienceYears)}
+          </span>
         </div>
         <div className={styles.infoItem}>
           <span className={styles.infoLabel}>Животные</span>
@@ -562,7 +572,7 @@ export const SpecialistApplicationsModerationSection = observer((): ReactElement
                 <div className={styles.infoItem}>
                   <span className={styles.infoLabel}>Опыт</span>
                   <span className={styles.infoValue}>
-                    {questionnaire.experienceYears || '—'}
+                    {formatExperienceYears(questionnaire.experienceYears)}
                   </span>
                 </div>
 

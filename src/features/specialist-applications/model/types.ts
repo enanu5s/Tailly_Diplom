@@ -7,7 +7,7 @@ export type SpecialistApplicationStatus =
   | 'rejected';
 
 export type SpecialistApplicationQuestionnaire = {
-  experienceYears: string;
+  experienceYears: number;
   animalTypes: string[];
   serviceFormats: string[];
   canGiveMedication: boolean;
@@ -25,7 +25,7 @@ export type SpecialistApplicationQuestionnaire = {
 
 export function createEmptySpecialistApplicationQuestionnaire(): SpecialistApplicationQuestionnaire {
   return {
-    experienceYears: '',
+    experienceYears: 0,
     animalTypes: [],
     serviceFormats: [],
     canGiveMedication: false,

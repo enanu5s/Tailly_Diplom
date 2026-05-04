@@ -34,7 +34,7 @@ const SERVICE_FORMAT_OPTIONS = [
 
 function createInitialQuestionnaire(): SpecialistApplicationQuestionnaire {
   return {
-    experienceYears: '',
+    experienceYears: 0,
     animalTypes: [],
     serviceFormats: [],
     canGiveMedication: false,
@@ -108,8 +108,11 @@ export const BecomeSpecialistFormPage = (): ReactElement => {
       return 'Заполни поле «Кратко о себе».';
     }
 
-    if (!questionnaire.experienceYears.trim()) {
-      return 'Укажи опыт работы с животными.';
+    if (
+      !Number.isFinite(questionnaire.experienceYears) ||
+      questionnaire.experienceYears <= 0
+    ) {
+      return 'Укажи опыт работы с животными числом лет.';
     }
 
     if (questionnaire.animalTypes.length === 0) {
@@ -161,7 +164,6 @@ export const BecomeSpecialistFormPage = (): ReactElement => {
         about: about.trim(),
         questionnaire: {
           ...questionnaire,
-          experienceYears: questionnaire.experienceYears.trim(),
           housingType: questionnaire.housingType.trim(),
           districtPreferences: questionnaire.districtPreferences.trim(),
           schedulePreferences: questionnaire.schedulePreferences.trim(),
@@ -280,14 +282,21 @@ export const BecomeSpecialistFormPage = (): ReactElement => {
 
               <div className={styles.grid}>
                 <label className={styles.field}>
-                  <span className={styles.label}>Опыт работы с животными</span>
+                  <span className={styles.label}>Опыт работы с животными, лет</span>
                   <input
                     className={styles.input}
-                    value={questionnaire.experienceYears}
-                    onChange={(event) =>
-                      setQuestionnaireField('experienceYears', event.target.value)
-                    }
-                    placeholder="Например: 2 года, 5+ лет, с 2021 года"
+                    type="number"
+                    min={1}
+                    max={60}
+                    step={1}
+                    inputMode="numeric"
+                    value={questionnaire.experienceYears || ''}
+                    onChange={(event) => {
+                      const digits = event.target.value.replace(/\D/g, '').slice(0, 2);
+                      const years = Math.min(60, Math.max(0, Number(digits) || 0));
+                      setQuestionnaireField('experienceYears', years);
+                    }}
+                    placeholder="Например: 5"
                     required
                   />
                 </label>

@@ -2,7 +2,11 @@
 
 import { makeAutoObservable, runInAction } from 'mobx';
 
-import type { SpecialistApplication } from '@/features/specialist-applications/model/types';
+import {
+  createEmptySpecialistApplicationQuestionnaire,
+  type SpecialistApplication,
+  type SpecialistApplicationQuestionnaire,
+} from '@/features/specialist-applications/model/types';
 
 import { adminSpecialistsManagementService } from '../service/adminSpecialistsManagementService';
 
@@ -15,6 +19,7 @@ type CreateSpecialistForm = {
   phone: string;
   city: string;
   about: string;
+  questionnaire: SpecialistApplicationQuestionnaire;
   consent: boolean;
 };
 
@@ -28,6 +33,7 @@ function createInitialForm(): CreateSpecialistForm {
     phone: '',
     city: '',
     about: '',
+    questionnaire: createEmptySpecialistApplicationQuestionnaire(),
     consent: false,
   };
 }
@@ -76,6 +82,8 @@ class AdminSpecialistsManagementStore {
       phone: application.phone,
       city: application.city,
       about: application.about,
+      questionnaire:
+        application.questionnaire ?? createEmptySpecialistApplicationQuestionnaire(),
       consent: false,
     };
 
@@ -142,6 +150,7 @@ class AdminSpecialistsManagementStore {
         phone: this.form.phone.trim() || undefined,
         city: this.form.city.trim(),
         about: this.form.about.trim(),
+        profileSeed: this.form.questionnaire,
         reviewedBy,
       });
 
