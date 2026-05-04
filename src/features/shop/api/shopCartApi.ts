@@ -25,12 +25,29 @@ async function addCartItem(item: SyncCartItem): Promise<void> {
   });
 }
 
+async function syncCartBySnapshotPut(items: SyncCartItem[]): Promise<void> {
+  // Support both camelCase and PascalCase DTO naming conventions on backend side.
+  await request<void>(getCartBasePath(), {
+    method: 'PUT',
+    body: {
+      items,
+      Items: items,
+    },
+  });
+}
+
 export const shopCartApi = {
   async syncSnapshot(items: SyncCartItem[]): Promise<void> {
-    await clearCart();
+    try {
+      await syncCartBySnapshotPut(items);
+      return;
+    } catch {
+      // Fallback for backends that don't support bulk PUT snapshot.
+      await clearCart();
 
-    for (const item of items) {
-      await addCartItem(item);
+      for (const item of items) {
+        await addCartItem(item);
+      }
     }
   },
 };

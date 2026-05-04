@@ -16,7 +16,7 @@ describe('shopCartApi', () => {
     vi.restoreAllMocks();
   });
 
-  it('syncs cart snapshot through gateway cart endpoints', async () => {
+  it('syncs cart snapshot through PUT /cart with snapshot body', async () => {
     const fetchMock = vi.fn().mockResolvedValue({
       ok: true,
       status: 200,
@@ -34,22 +34,18 @@ describe('shopCartApi', () => {
     expect(fetchMock).toHaveBeenNthCalledWith(
       1,
       'http://api.test/cart',
-      expect.objectContaining({ method: 'DELETE' }),
-    );
-    expect(fetchMock).toHaveBeenNthCalledWith(
-      2,
-      'http://api.test/cart',
       expect.objectContaining({
-        body: JSON.stringify({ productId: 'product-1', quantity: 2 }),
-        method: 'POST',
-      }),
-    );
-    expect(fetchMock).toHaveBeenNthCalledWith(
-      3,
-      'http://api.test/cart',
-      expect.objectContaining({
-        body: JSON.stringify({ productId: 'product-2', quantity: 1 }),
-        method: 'POST',
+        body: JSON.stringify({
+          items: [
+            { productId: 'product-1', quantity: 2 },
+            { productId: 'product-2', quantity: 1 },
+          ],
+          Items: [
+            { productId: 'product-1', quantity: 2 },
+            { productId: 'product-2', quantity: 1 },
+          ],
+        }),
+        method: 'PUT',
       }),
     );
   });

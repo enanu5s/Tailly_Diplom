@@ -3,6 +3,7 @@ import { makeAutoObservable } from 'mobx';
 
 import { authStore } from '@/features/auth';
 import type { AuthUser } from '@/features/auth/model/authStore';
+import { HttpError } from '@/shared/api/http';
 import { isMockApiMode } from '@/shared/config/env';
 import { hasUsableAccessToken } from '@/shared/lib/auth/hasUsableAccessToken';
 import { canOrderShopProducts } from '@/shared/lib/auth/roleAccess';
@@ -172,6 +173,8 @@ export class ShopCartStore {
   private hasPendingSync = false;
 
   private lastSyncedSnapshot = '';
+
+  private serverSyncDisabledBy404 = false;
 
   constructor() {
     makeAutoObservable(this, {}, { autoBind: true });
@@ -384,6 +387,10 @@ export class ShopCartStore {
   }
 
   private canSyncWithServer(): boolean {
+    if (this.serverSyncDisabledBy404) {
+      return false;
+    }
+
     if (isMockApiMode) {
       return false;
     }
@@ -438,6 +445,14 @@ export class ShopCartStore {
       this.lastSyncedSnapshot = signature;
     } catch (error) {
       console.warn('[CART] server sync failed', { error });
+      if (error instanceof HttpError && error.status === 404) {
+        this.serverSyncDisabledBy404 = true;
+        this.hasPendingSync = false;
+        console.warn(
+          '[CART] disabling server sync after 404 on /cart endpoint; local cart remains active',
+        );
+        return;
+      }
       this.hasPendingSync = false;
     } finally {
       this.isSyncInFlight = false;
