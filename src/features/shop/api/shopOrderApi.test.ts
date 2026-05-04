@@ -24,7 +24,7 @@ describe('shopOrderApi.createOrder', () => {
     vi.restoreAllMocks();
   });
 
-  it('sends a flat backend payload instead of nested checkout form', async () => {
+  it('sends nested form/items payload for backend validation', async () => {
     const fetchMock = vi.fn().mockResolvedValue({
       ok: true,
       status: 200,
@@ -63,25 +63,50 @@ describe('shopOrderApi.createOrder', () => {
       'http://api.test/shop/orders',
       expect.objectContaining({
         body: JSON.stringify({
+          form: {
+            recipient: {
+              firstName: 'Иван',
+              lastName: 'Петров',
+              phone: '+7 900 000-00-00',
+              email: 'ivan@example.com',
+            },
+            deliveryMethod: 'courier',
+            address: {
+              city: 'Москва',
+              street: 'Ленина',
+              house: '1',
+              apartment: '2',
+              comment: 'Домофон 12',
+            },
+            pickupPointId: null,
+            paymentMethod: 'card',
+          },
           items: [
             { productId: 'product-1', quantity: 2 },
             { productId: 'product-2', quantity: 1 },
           ],
-          recipient: {
-            firstName: 'Иван',
-            lastName: 'Петров',
-            phone: '+7 900 000-00-00',
-            email: 'ivan@example.com',
+          Form: {
+            recipient: {
+              firstName: 'Иван',
+              lastName: 'Петров',
+              phone: '+7 900 000-00-00',
+              email: 'ivan@example.com',
+            },
+            deliveryMethod: 'courier',
+            address: {
+              city: 'Москва',
+              street: 'Ленина',
+              house: '1',
+              apartment: '2',
+              comment: 'Домофон 12',
+            },
+            pickupPointId: null,
+            paymentMethod: 'card',
           },
-          deliveryMethod: 'courier',
-          paymentMethod: 'card',
-          address: {
-            city: 'Москва',
-            street: 'Ленина',
-            house: '1',
-            apartment: '2',
-            comment: 'Домофон 12',
-          },
+          Items: [
+            { productId: 'product-1', quantity: 2 },
+            { productId: 'product-2', quantity: 1 },
+          ],
         }),
         method: 'POST',
       }),

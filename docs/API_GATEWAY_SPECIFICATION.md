@@ -1918,7 +1918,7 @@ type Specialist = {
 | PUT | `/cart/:productId` | Обновить количество товара в корзине |
 | DELETE | `/cart/:productId` | Удалить товар из корзины |
 | GET | `/shop/pickup-points` | Query `city` |
-| POST | `/shop/orders` | Тело `{ items: { productId, quantity }[]; recipient; deliveryMethod; paymentMethod; address?; pickupPointId? }` |
+| POST | `/shop/orders` | Тело `{ form: CheckoutForm; items: { productId, quantity }[] }` (допустим PascalCase вариант `Form/Items`) |
 | GET | `/shop/orders/:orderId` | Заказ |
 | POST | `/shop/orders/:orderId/cancel` | Отмена |
 | POST | `/shop/orders/:orderId/pay` | Тело `{ paymentMethod: 'card' \| 'sbp' }` |
