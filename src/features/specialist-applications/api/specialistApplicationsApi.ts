@@ -32,6 +32,13 @@ type SpecialistApplicationsListResponse = {
   limit: number;
 };
 
+type AttachCreatedSpecialistAccountResponse = {
+  success: boolean;
+  application?: SpecialistApplication;
+  specialistId?: string;
+  specialistSlug?: string;
+};
+
 const SPECIALIST_APPLICATION_STATUSES = [
   'pending_review',
   'interview_assigned',
@@ -157,21 +164,28 @@ async function realApproveApplication(
 async function realAttachCreatedSpecialistAccount(
   payload: AttachCreatedSpecialistAccountPayload,
 ): Promise<SpecialistApplication> {
-  const response = await request<{ success: boolean; specialistId?: string }>(
+  const response = await request<AttachCreatedSpecialistAccountResponse>(
     `/admin/specialist-applications/${payload.applicationId}/attach-specialist-account`,
     {
       method: 'POST',
       body: {
+        specialistId: payload.specialistId,
+        specialistSlug: payload.specialistSlug,
         reviewedBy: payload.reviewedBy,
       },
     },
   );
 
-  const updated = await realGetApplicationById(payload.applicationId);
+  const updated = response.application ?? (await realGetApplicationById(payload.applicationId));
+  const createdSpecialistId =
+    response.specialistId ?? updated.createdSpecialistId ?? payload.specialistId;
+  const createdSpecialistSlug =
+    response.specialistSlug ?? updated.createdSpecialistSlug ?? payload.specialistSlug ?? null;
 
   return {
     ...updated,
-    createdSpecialistId: response.specialistId ?? updated.createdSpecialistId,
+    createdSpecialistId,
+    createdSpecialistSlug,
   };
 }
 

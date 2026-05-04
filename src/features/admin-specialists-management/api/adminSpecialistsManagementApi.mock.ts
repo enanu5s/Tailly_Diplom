@@ -1,5 +1,9 @@
 //src/features/admin-specialists-management/api/adminSpecialistsManagementApi.mock.ts
 import {
+  readMockApplications,
+  writeMockApplications,
+} from '@/features/specialist-applications/data/mockSpecialistApplications';
+import {
   readManagedSpecialistAccounts,
   upsertManagedSpecialistAccount,
   type ManagedSpecialistMockAccount,
@@ -24,7 +28,27 @@ export async function mockCreateSpecialistAccount(
   await wait();
 
   const existingAccounts = readManagedSpecialistAccounts();
+  const applications = readMockApplications();
+  const applicationIndex = applications.findIndex((item) => item.id === payload.applicationId);
   const normalizedEmail = payload.email.trim().toLowerCase();
+
+  if (applicationIndex === -1) {
+    throw new AdminSpecialistsManagementError('Заявка не найдена.');
+  }
+
+  const application = applications[applicationIndex]!;
+
+  if (application.status !== 'approved') {
+    throw new AdminSpecialistsManagementError(
+      'Кабинет специалиста можно создать только для одобренной заявки.',
+    );
+  }
+
+  if (application.specialistAccountCreatedAt || application.createdSpecialistId) {
+    throw new AdminSpecialistsManagementError(
+      'Для этой заявки уже создан кабинет специалиста.',
+    );
+  }
 
   const emailTaken = existingAccounts.some(
     (item) => item.email.toLowerCase() === normalizedEmail,
@@ -57,7 +81,17 @@ export async function mockCreateSpecialistAccount(
     isBlocked: false,
   };
 
+  applications[applicationIndex] = {
+    ...application,
+    reviewedBy: payload.reviewedBy,
+    createdSpecialistId: specialistId,
+    createdSpecialistSlug: specialistSlug,
+    specialistAccountCreatedAt: createdAccount.createdAt,
+    updatedAt: createdAccount.createdAt,
+  };
+
   upsertManagedSpecialistAccount(createdAccount);
+  writeMockApplications(applications);
 
   return mapCreatedAccountToResponse(createdAccount, temporaryPassword);
 }

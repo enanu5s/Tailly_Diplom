@@ -62,9 +62,14 @@ type AuthUser = {
 
 type LoginSuccessResponse = {
   accessToken: string;
-  user: AuthUser;
+  refreshToken: string;
+  accessTokenExpires: string;
+  refreshTokenExpires: string;
+  user?: AuthUser;
 };
 ```
+
+Для входа с `requestedRole: 'specialist'` поле `user` обязательно должно содержать `role: 'specialist'`, `specialistId` и `specialistSlug`. `specialistSlug` используется для перехода в кабинет и проверки владельца профиля.
 
 **Логин клиента/специалиста** — `POST /auth/login` (фронт: `LoginPayload`):
 
@@ -141,6 +146,9 @@ type CompleteProfileRequest = {
 
 type CompleteProfileResponse = {
   accessToken: string;
+  refreshToken: string;
+  accessTokenExpires: string;
+  refreshTokenExpires: string;
   user: AuthUser & { cityId: string };
 };
 ```
@@ -1342,6 +1350,10 @@ export type CreateSpecialistApplicationPayload = {
   questionnaire: SpecialistApplicationQuestionnaire;
 };
 
+export type CreateSpecialistApplicationResult = {
+  id: string;
+};
+
 export type AssignInterviewPayload = {
   applicationId: string;
   interviewDate: string;
@@ -1812,7 +1824,7 @@ type Breed = { id: string; type: PetType; title: string };
 
 ## 5. Поиск специалистов и карта
 
-Фронт сейчас: **`GET /specialists`** без query — вся фильтрация в моке на клиенте. Для продакшена рекомендуется расширить контракт query-параметрами (город, район, услуга, цена, даты, геобокс и т.д.) по модели `SearchFilters` / `Specialist` в `src/features/specialists-search/model/types.ts`.
+Фронт вызывает **`GET /specialists`** и передаёт query-фильтры из `SearchFilters`: `cityQuery`, `districtQuery`, `serviceId`, `priceMin`, `priceMax`, `experienceMinYears`, `hasReviewsOnly`. Backend должен применять эти фильтры на сервере и возвращать `Specialist[]`.
 
 **Модель элемента списка (укороченно):**
 
@@ -1845,10 +1857,14 @@ type Specialist = {
 | Метод | Путь | Описание |
 |-------|------|----------|
 | GET | `/specialists/:slug` | `SpecialistProfileResponse` (без `isOwner`; владельца фронт вычисляет по сессии) |
+| GET | `/specialists/by-id/:id` | `SpecialistProfileResponse` по `specialistId`, без двусмысленности со slug |
+| GET | `/specialists/:slug/edit-options` | Справочники для редактирования профиля (`SpecialistProfileEditOptionsResponse`) |
 | PATCH | `/specialists/:slug/main` | Основные контакты |
 | PATCH | `/specialists/:slug/details` | Опыт, жильё, услуги, галерея, текст |
 | PATCH | `/specialists/:slug/calendar` | Календарь, слоты, правила |
 | PUT | `/specialists/:slug/reviews/:reviewId/reply` | Тело `{ text: string }` — ответ на отзыв |
+| POST | `/specialists/:slug/email-change/send-code` | Отправить код смены email специалиста |
+| POST | `/specialists/:slug/email-change/verify-code` | Подтвердить код смены email и вернуть обновлённый профиль |
 
 ---
 
@@ -1869,6 +1885,8 @@ type Specialist = {
 | POST | `/me/orders/services/:orderId/cancel` | Отмена |
 | POST | `/me/orders/services/:orderId/repeat` | Повтор → `{ ok: true, draftPayload? }` |
 | POST | `/me/orders/services/:orderId/review` | Тело `LeaveServiceReviewPayload` (рейтинг, текст, фото) |
+
+Все `/me/orders/services*` должны быть role-aware по JWT: клиент получает свои заказы как заказчик, специалист получает заказы, где он исполнитель (`specialistId`/`specialistSlug` из сессии), админские роли не должны получать клиентский/специалистский список через этот endpoint.
 
 ### 7.2. Товары (история заказов магазина)
 
@@ -1992,14 +2010,17 @@ type AccountDeletionRestorePreview = {
 
 | Метод | Путь | Описание |
 |-------|------|----------|
-| POST | `/specialist-applications` | Публичная заявка (`CreateSpecialistApplicationPayload`) → `{ ok: true, application }` |
+| POST | `/specialist-applications` | Публичная заявка (`CreateSpecialistApplicationPayload`) → `{ id: string }` |
 | GET | `/admin/specialist-applications` | Список (админ) |
 | POST | `/admin/specialist-applications/:id/assign-interview` | Назначить собеседование |
 | POST | `/admin/specialist-applications/:id/reject` | Отклонить |
 | POST | `/admin/specialist-applications/:id/approve` | Одобрить |
 | POST | `/admin/specialist-applications/:id/attach-specialist-account` | Привязать созданный аккаунт специалиста |
+| POST | `/admin/specialist-applications/:id/create-specialist-account` | Атомарно создать аккаунт специалиста из одобренной заявки и привязать его |
 
 Модель `SpecialistApplication` и анкета — `src/features/specialist-applications/model/types.ts`.
+
+`POST /admin/specialist-applications/:id/create-specialist-account` — основной контракт для создания кабинета специалиста из админки. Gateway должен выполнить создание auth/account записи специалиста и обновление заявки в одной транзакции. Если заявка не одобрена, уже привязана, email занят или нет прав, операция должна завершиться ошибкой без частично созданного аккаунта.
 
 ---
 
@@ -2008,10 +2029,10 @@ type AccountDeletionRestorePreview = {
 | Метод | Путь | Описание |
 |-------|------|----------|
 | GET | `/admin/users` | `ManagedUser[]` |
-| PATCH | `/admin/users/:userId/block-status` | Блокировка |
+| PATCH | `/admin/users/:userId/roles/:role/block-status` | Role-aware блокировка (`role`: `client` или `specialist`) |
 | PATCH | `/admin/users/:userId/profile` | ФИО, `specialistSlug` для специалиста |
-| POST | `/admin/users/:userId/restore-from-deletion` | Восстановление из soft-delete |
-| POST | `/admin/specialists` | Создать аккаунт специалиста (`CreateSpecialistAccountPayload`) |
+| POST | `/admin/users/:userId/roles/:role/restore-from-deletion` | Role-aware восстановление из soft-delete |
+| POST | `/admin/specialists` | Legacy: создать аккаунт специалиста без привязки заявки. Для сценария заявки использовать атомарный `/admin/specialist-applications/:id/create-specialist-account` |
 
 ---
 

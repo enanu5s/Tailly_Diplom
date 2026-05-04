@@ -11,10 +11,13 @@ import {
 async function realCreateSpecialistAccount(
   payload: CreateSpecialistAccountPayload,
 ): Promise<CreateSpecialistAccountResponse> {
-  return request<CreateSpecialistAccountResponse>('/admin/specialists', {
-    method: 'POST',
-    body: payload,
-  });
+  return request<CreateSpecialistAccountResponse>(
+    `/admin/specialist-applications/${payload.applicationId}/create-specialist-account`,
+    {
+      method: 'POST',
+      body: payload,
+    },
+  );
 }
 
 export const adminSpecialistsManagementApi = {

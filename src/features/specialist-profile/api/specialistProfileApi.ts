@@ -15,21 +15,21 @@ import {
   mockUpsertReviewReply,
   mockVerifyEmailChangeCode,
 } from './specialistProfileApi.mock';
+import { SpecialistEmailChangeError } from '../model/types';
 
 import type {
   SpecialistCalendarUpdatePayload,
   SpecialistDetailsUpdatePayload,
-  SpecialistProfileEditOptionsResponse,
   SpecialistEmailChangeSendCodePayload,
   SpecialistEmailChangeSendCodeResponse,
   SpecialistEmailChangeVerifyCodePayload,
   SpecialistEmailChangeVerifyCodeResponse,
   SpecialistMainInfoUpdatePayload,
+  SpecialistProfileEditOptionsResponse,
   SpecialistProfileResponse,
-  SpecialistService,
   SpecialistReviewReplyUpsertPayload,
+  SpecialistService,
 } from '../model/types';
-import { SpecialistEmailChangeError } from '../model/types';
 
 function buildServiceDescription(service: SpecialistService): string {
   const provided = service.description?.trim();
@@ -87,7 +87,9 @@ async function realGetSpecialistProfileBySlug(
 async function realGetSpecialistProfileById(
   id: string,
 ): Promise<SpecialistProfileResponse> {
-  return request<SpecialistProfileResponse>(`/specialists/${encodeURIComponent(id)}`);
+  return request<SpecialistProfileResponse>(
+    `/specialists/by-id/${encodeURIComponent(id)}`,
+  );
 }
 
 async function realGetSpecialistProfileEditOptions(

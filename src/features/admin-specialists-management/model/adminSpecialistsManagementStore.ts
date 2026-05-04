@@ -46,6 +46,10 @@ function parseFullName(fullName: string): {
   };
 }
 
+function isValidEmail(email: string): boolean {
+  return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email.trim());
+}
+
 class AdminSpecialistsManagementStore {
   isModalOpen = false;
   isCreating = false;
@@ -103,7 +107,7 @@ class AdminSpecialistsManagementStore {
     return (
       !this.isCreating &&
       this.form.applicationId.trim().length > 0 &&
-      this.form.email.trim().length > 0 &&
+      isValidEmail(this.form.email) &&
       this.form.firstName.trim().length > 0 &&
       this.form.lastName.trim().length > 0 &&
       this.form.city.trim().length > 0 &&
