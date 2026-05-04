@@ -836,7 +836,7 @@ export type CreateServiceOrderPayload = {
   dateTo?: string;
   schedule: ServiceOrderSchedule;
   petId: string;
-  sitterId: string;
+  specialistId: string;
   specialistSlug: string;
   serviceId: string;
   locationLabel: string;
@@ -846,6 +846,8 @@ export type CreateServiceOrderPayload = {
 Backend заполняет `clientId`, `clientName`, `clientSlug`, `petName`, `sitterName`,
 `serviceTitle`, `servicePriceUnit`, `bookingMode`, `price`, `currency` и
 `serviceSnapshot` самостоятельно из JWT, питомца, специалиста и услуги.
+В payload создания заказа `specialistId` — это идентификатор специалиста;
+отдельный `sitterId` на backend не отправляется.
 
 export type RepeatServiceOrderDraftPayload = {
   petId: string;

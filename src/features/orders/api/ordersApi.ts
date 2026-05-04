@@ -60,7 +60,7 @@ async function realCreateServiceOrder(
     dateTo: payload.dateTo,
     schedule: payload.schedule,
     petId: payload.petId,
-    sitterId: payload.sitterId,
+    specialistId: payload.sitterId,
     specialistSlug: payload.specialistSlug,
     serviceId: payload.serviceId,
     locationLabel: payload.locationLabel,

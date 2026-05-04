@@ -78,7 +78,7 @@ describe('ordersApi.createServiceOrder', () => {
             endAt: '2026-05-05T11:00:00.000Z',
           },
           petId: 'pet-1',
-          sitterId: 'specialist-1',
+          specialistId: 'specialist-1',
           specialistSlug: 'specialist-one',
           serviceId: 'walking',
           locationLabel: 'У клиента',
