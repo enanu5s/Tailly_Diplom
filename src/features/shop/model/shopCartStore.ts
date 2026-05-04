@@ -3,7 +3,6 @@ import { makeAutoObservable } from 'mobx';
 
 import { authStore } from '@/features/auth';
 import type { AuthUser } from '@/features/auth/model/authStore';
-import { HttpError } from '@/shared/api/http';
 import { isMockApiMode } from '@/shared/config/env';
 import { hasUsableAccessToken } from '@/shared/lib/auth/hasUsableAccessToken';
 import { canOrderShopProducts } from '@/shared/lib/auth/roleAccess';
@@ -386,8 +385,8 @@ export class ShopCartStore {
     );
   }
 
-  private canSyncWithServer(): boolean {
-    if (this.serverSyncDisabledBy404) {
+  private canSyncWithServer(force = false): boolean {
+    if (!force && this.serverSyncDisabledBy404) {
       return false;
     }
 
@@ -418,8 +417,8 @@ export class ShopCartStore {
     }, SERVER_SYNC_DEBOUNCE_MS);
   }
 
-  private async flushServerSync(): Promise<void> {
-    if (!this.canSyncWithServer()) {
+  private async flushServerSync(force = false): Promise<void> {
+    if (!this.canSyncWithServer(force)) {
       this.hasPendingSync = false;
       return;
     }
@@ -443,9 +442,10 @@ export class ShopCartStore {
     try {
       await shopCartApi.syncSnapshot(snapshot);
       this.lastSyncedSnapshot = signature;
+      this.serverSyncDisabledBy404 = false;
     } catch (error) {
       console.warn('[CART] server sync failed', { error });
-      if (error instanceof HttpError && error.status === 404) {
+      if (!force) {
         this.serverSyncDisabledBy404 = true;
         this.hasPendingSync = false;
         console.warn(
@@ -453,7 +453,7 @@ export class ShopCartStore {
         );
         return;
       }
-      this.hasPendingSync = false;
+      throw error;
     } finally {
       this.isSyncInFlight = false;
 
@@ -464,8 +464,8 @@ export class ShopCartStore {
   }
 
   async ensureServerSynced(): Promise<void> {
-    if (!this.canSyncWithServer()) {
-      return;
+    if (!this.canSyncWithServer(true)) {
+      throw new Error('Серверная синхронизация корзины недоступна.');
     }
 
     if (this.syncTimerId !== null) {
@@ -474,10 +474,10 @@ export class ShopCartStore {
     }
 
     this.hasPendingSync = true;
-    await this.flushServerSync();
+    await this.flushServerSync(true);
 
     if (this.hasPendingSync) {
-      await this.flushServerSync();
+      await this.flushServerSync(true);
     }
   }
 
