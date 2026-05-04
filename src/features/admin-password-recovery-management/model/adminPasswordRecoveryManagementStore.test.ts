@@ -26,18 +26,11 @@ function createPendingRequest(): AdminPasswordRecoveryRequestItem {
 
 describe('adminPasswordRecoveryManagementStore', () => {
   afterEach(() => {
-    if (adminPasswordRecoveryManagementStore.pendingProcessedPromotion) {
-      window.clearTimeout(
-        adminPasswordRecoveryManagementStore.pendingProcessedPromotion.timeoutId,
-      );
-    }
-
     adminPasswordRecoveryManagementStore.requests = [];
     adminPasswordRecoveryManagementStore.processingRequestId = null;
     adminPasswordRecoveryManagementStore.processError = '';
     adminPasswordRecoveryManagementStore.lastProcessedRequestEmail = '';
     adminPasswordRecoveryManagementStore.lastGeneratedPassword = '';
-    adminPasswordRecoveryManagementStore.pendingProcessedPromotion = null;
     vi.clearAllMocks();
   });
 
@@ -53,9 +46,7 @@ describe('adminPasswordRecoveryManagementStore', () => {
 
     expect(adminPasswordRecoveryManagementStore.processError).toBe('');
     expect(adminPasswordRecoveryManagementStore.lastGeneratedPassword).toBe('Temp-1234');
-    expect(
-      adminPasswordRecoveryManagementStore.pendingProcessedPromotion?.request,
-    ).toMatchObject({
+    expect(adminPasswordRecoveryManagementStore.processedRequests[0]).toMatchObject({
       id: pendingRequest.id,
       email: pendingRequest.email,
       status: 'processed',
@@ -77,9 +68,7 @@ describe('adminPasswordRecoveryManagementStore', () => {
 
     expect(adminPasswordRecoveryManagementStore.processError).toBe('');
     expect(adminPasswordRecoveryManagementStore.lastGeneratedPassword).toBe('Temp-5678');
-    expect(
-      adminPasswordRecoveryManagementStore.pendingProcessedPromotion?.request,
-    ).toMatchObject({
+    expect(adminPasswordRecoveryManagementStore.processedRequests[0]).toMatchObject({
       id: pendingRequest.id,
       email: 'admin@example.com',
       status: 'processed',

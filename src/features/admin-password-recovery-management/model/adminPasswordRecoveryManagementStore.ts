@@ -5,11 +5,6 @@ import { adminPasswordRecoveryManagementService } from '../service/adminPassword
 
 import type { AdminPasswordRecoveryRequestItem } from './types';
 
-type PendingProcessedPromotion = {
-  request: AdminPasswordRecoveryRequestItem;
-  timeoutId: number;
-};
-
 type ProcessRequestRuntimeResponse = {
   request?: AdminPasswordRecoveryRequestItem;
   Request?: AdminPasswordRecoveryRequestItem;
@@ -17,6 +12,10 @@ type ProcessRequestRuntimeResponse = {
   Email?: string;
   temporaryPassword?: string;
   TemporaryPassword?: string;
+  tempPassword?: string;
+  TempPassword?: string;
+  password?: string;
+  Password?: string;
 };
 
 function getLastWorkWeekRange(): { processedFrom: string; processedTo: string } {
@@ -51,7 +50,6 @@ class AdminPasswordRecoveryManagementStore {
 
   lastProcessedRequestEmail = '';
   lastGeneratedPassword = '';
-  pendingProcessedPromotion: PendingProcessedPromotion | null = null;
 
   constructor() {
     makeAutoObservable(this, {}, { autoBind: true });
@@ -62,13 +60,7 @@ class AdminPasswordRecoveryManagementStore {
   }
 
   get processedRequests(): AdminPasswordRecoveryRequestItem[] {
-    return this.requests.filter((item) => {
-      if (item.status !== 'processed') {
-        return false;
-      }
-
-      return item.id !== this.pendingProcessedPromotion?.request.id;
-    });
+    return this.requests.filter((item) => item.status === 'processed');
   }
 
   async load(): Promise<void> {
@@ -113,11 +105,18 @@ class AdminPasswordRecoveryManagementStore {
       const result = await adminPasswordRecoveryManagementService.processRequest({
         requestId,
       });
-      const runtimeResult = result as ProcessRequestRuntimeResponse;
+      const runtimeResult =
+        typeof result === 'string'
+          ? ({ temporaryPassword: result } satisfies ProcessRequestRuntimeResponse)
+          : (result as ProcessRequestRuntimeResponse);
       const returnedRequest = runtimeResult.request ?? runtimeResult.Request;
       const temporaryPassword =
         runtimeResult.temporaryPassword ??
         runtimeResult.TemporaryPassword ??
+        runtimeResult.tempPassword ??
+        runtimeResult.TempPassword ??
+        runtimeResult.password ??
+        runtimeResult.Password ??
         returnedRequest?.temporaryPassword ??
         '';
       const processedRequest =
@@ -137,18 +136,9 @@ class AdminPasswordRecoveryManagementStore {
       }
 
       runInAction(() => {
-        if (this.pendingProcessedPromotion) {
-          window.clearTimeout(this.pendingProcessedPromotion.timeoutId);
-        }
-
-        const timeoutId = window.setTimeout(() => {
-          this.commitProcessedPromotion();
-        }, 7000);
-
-        this.pendingProcessedPromotion = {
-          request: processedRequest,
-          timeoutId,
-        };
+        this.requests = this.requests.map((item) =>
+          item.id === processedRequest.id ? processedRequest : item,
+        );
         this.lastProcessedRequestEmail = processedRequest.email;
         this.lastGeneratedPassword = temporaryPassword;
       });
@@ -166,24 +156,10 @@ class AdminPasswordRecoveryManagementStore {
 
   resetFeedback(): void {
     this.processError = '';
-    this.commitProcessedPromotion();
+    this.clearSuccessMessage();
   }
 
   clearSuccessMessage(): void {
-    this.commitProcessedPromotion();
-  }
-
-  private commitProcessedPromotion(): void {
-    if (this.pendingProcessedPromotion) {
-      window.clearTimeout(this.pendingProcessedPromotion.timeoutId);
-      this.requests = this.requests.map((item) =>
-        item.id === this.pendingProcessedPromotion?.request.id
-          ? this.pendingProcessedPromotion.request
-          : item,
-      );
-      this.pendingProcessedPromotion = null;
-    }
-
     this.lastProcessedRequestEmail = '';
     this.lastGeneratedPassword = '';
   }
