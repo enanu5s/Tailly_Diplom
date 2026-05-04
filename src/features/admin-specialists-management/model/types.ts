@@ -1,7 +1,5 @@
 // src/features/admin-specialists-management/model/types.ts
 
-import type { SpecialistApplicationQuestionnaire } from '@/features/specialist-applications/model/types';
-
 export type ManagedSpecialistAccount = {
   id: string;
   email: string;
@@ -20,8 +18,6 @@ export type ManagedSpecialistAccount = {
   isBlocked: boolean;
 };
 
-export type CreateSpecialistAccountProfileSeed = SpecialistApplicationQuestionnaire;
-
 export type CreateSpecialistAccountPayload = {
   applicationId: string;
   email: string;
@@ -31,7 +27,6 @@ export type CreateSpecialistAccountPayload = {
   phone?: string;
   city: string;
   about: string;
-  profileSeed?: CreateSpecialistAccountProfileSeed;
   reviewedBy: string;
 };
 

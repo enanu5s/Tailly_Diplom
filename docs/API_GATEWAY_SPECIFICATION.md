@@ -258,7 +258,6 @@ export type ManagedSpecialistMockAccount = {
   specialistId: string;
   specialistSlug?: string;
   applicationId?: string;
-  profileSeed?: SpecialistApplicationQuestionnaire;
   createdAt: string;
   createdBy: string;
   isBlocked: boolean;
@@ -1483,11 +1482,6 @@ export type CreateSpecialistAccountPayload = {
   phone?: string;
   city: string;
   about: string;
-  /**
-   * Данные анкеты кандидата для первичного заполнения публичного профиля
-   * специалиста: опыт, детали, типы животных, условия работы и т.д.
-   */
-  profileSeed?: SpecialistApplicationQuestionnaire;
   reviewedBy: string;
 };
 

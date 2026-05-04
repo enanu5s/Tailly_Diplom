@@ -1,6 +1,5 @@
 // src/shared/lib/mock/specialistAccountsStorage.ts
 
-import type { SpecialistApplicationQuestionnaire } from '@/features/specialist-applications/model/types';
 import { cloneDeep } from '@/shared/mock-db/cloneDeep';
 import { SEED_MANAGED_SPECIALISTS } from '@/shared/mock-db/seed/managedSpecialists.seed';
 import {
@@ -24,7 +23,6 @@ export type ManagedSpecialistMockAccount = {
   specialistId: string;
   specialistSlug?: string;
   applicationId?: string;
-  profileSeed?: SpecialistApplicationQuestionnaire;
   createdAt: string;
   createdBy: string;
   isBlocked: boolean;
