@@ -44,6 +44,9 @@ async function realProcessAdminPasswordRecoveryRequest(
     `/super-admin/password-recovery-requests/${encodeURIComponent(payload.requestId)}/process`,
     {
       method: 'POST',
+      body: {
+        requestId: payload.requestId,
+      },
     },
   );
 }

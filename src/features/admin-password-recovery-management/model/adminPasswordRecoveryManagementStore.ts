@@ -10,6 +10,11 @@ type PendingProcessedPromotion = {
   timeoutId: number;
 };
 
+type ProcessRequestRuntimeResponse = {
+  request?: AdminPasswordRecoveryRequestItem;
+  temporaryPassword?: string;
+};
+
 function getLastWorkWeekRange(): { processedFrom: string; processedTo: string } {
   const now = new Date();
   const day = now.getDay(); // 0..6, 1 - Monday
@@ -91,6 +96,8 @@ class AdminPasswordRecoveryManagementStore {
   }
 
   async processRequest(requestId: string): Promise<void> {
+    const currentRequest = this.requests.find((item) => item.id === requestId);
+
     runInAction(() => {
       this.processingRequestId = requestId;
       this.processError = '';
@@ -102,6 +109,23 @@ class AdminPasswordRecoveryManagementStore {
       const result = await adminPasswordRecoveryManagementService.processRequest({
         requestId,
       });
+      const runtimeResult = result as ProcessRequestRuntimeResponse;
+      const temporaryPassword =
+        runtimeResult.temporaryPassword ?? runtimeResult.request?.temporaryPassword ?? '';
+      const processedRequest =
+        runtimeResult.request ??
+        (currentRequest
+          ? {
+              ...currentRequest,
+              status: 'processed' as const,
+              processedAt: new Date().toISOString(),
+              temporaryPassword,
+            }
+          : null);
+
+      if (!processedRequest) {
+        throw new Error('Бэк обработал заявку, но не вернул данные заявки.');
+      }
 
       runInAction(() => {
         if (this.pendingProcessedPromotion) {
@@ -113,11 +137,11 @@ class AdminPasswordRecoveryManagementStore {
         }, 7000);
 
         this.pendingProcessedPromotion = {
-          request: result.request,
+          request: processedRequest,
           timeoutId,
         };
-        this.lastProcessedRequestEmail = result.request.email;
-        this.lastGeneratedPassword = result.temporaryPassword;
+        this.lastProcessedRequestEmail = processedRequest.email;
+        this.lastGeneratedPassword = temporaryPassword;
       });
     } catch (error) {
       runInAction(() => {
