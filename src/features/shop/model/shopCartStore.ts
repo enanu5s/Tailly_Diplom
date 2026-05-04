@@ -224,6 +224,10 @@ export class ShopCartStore {
       return;
     }
 
+    if (this.previousUserKey === nextUserKey) {
+      return;
+    }
+
     this.previousUserKey = nextUserKey;
     this.activeStorageKey = buildUserStorageKey(nextUser);
     this.items = this.readItemsByStorageKey(this.activeStorageKey);
