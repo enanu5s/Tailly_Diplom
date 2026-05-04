@@ -27,6 +27,15 @@ export type CreateOrderPayload = {
   items: OrderLineInput[];
 };
 
+type CreateOrderRequestPayload = {
+  items: OrderLineInput[];
+  recipient: CheckoutForm['recipient'];
+  deliveryMethod: CheckoutForm['deliveryMethod'];
+  paymentMethod: CheckoutForm['paymentMethod'];
+  address?: CheckoutForm['address'];
+  pickupPointId?: string;
+};
+
 async function getPickupPointsReal(city?: string): Promise<PickupPoint[]> {
   return request<PickupPoint[]>('/shop/pickup-points', {
     query: {
@@ -36,9 +45,22 @@ async function getPickupPointsReal(city?: string): Promise<PickupPoint[]> {
 }
 
 async function createOrderReal(payload: CreateOrderPayload): Promise<Order> {
+  const requestPayload: CreateOrderRequestPayload = {
+    items: payload.items,
+    recipient: payload.form.recipient,
+    deliveryMethod: payload.form.deliveryMethod,
+    paymentMethod: payload.form.paymentMethod,
+    address:
+      payload.form.deliveryMethod === 'courier' ? payload.form.address : undefined,
+    pickupPointId:
+      payload.form.deliveryMethod === 'pickup-point'
+        ? payload.form.pickupPointId ?? undefined
+        : undefined,
+  };
+
   return request<Order>('/shop/orders', {
     method: 'POST',
-    body: payload,
+    body: requestPayload,
   });
 }
 

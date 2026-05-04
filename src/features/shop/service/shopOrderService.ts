@@ -7,7 +7,6 @@ import {
   type CreateOrderPayload,
   type PayShopOrderPayload,
 } from '../api/shopOrderApi';
-import { shopCartStore } from '../model/shopCartStore';
 import type { ProductOrderRepeatCheckoutDraft } from '@/features/orders/model/productOrderRepeatCheckout';
 
 import type { Order, PickupPoint } from '../model/types';
@@ -25,8 +24,6 @@ export const shopOrderService = {
         'Оформление заказов в магазине доступно только клиентам и специалистам.',
       );
     }
-
-    await shopCartStore.ensureServerSynced();
 
     return shopOrderApi.createOrder(payload);
   },

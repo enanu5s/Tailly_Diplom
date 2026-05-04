@@ -534,7 +534,7 @@ export class ShopCheckoutStore {
 
       runInAction(() => {
         if (!this.repeatOrder) {
-          shopCartStore.clear();
+          shopCartStore.clearLocal();
         }
       });
 

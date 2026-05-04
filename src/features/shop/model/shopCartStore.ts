@@ -546,6 +546,11 @@ export class ShopCartStore {
     this.persist();
   }
 
+  clearLocal(): void {
+    this.items = [];
+    this.writeItemsByStorageKey(this.activeStorageKey, this.items);
+  }
+
   get totalItems(): number {
     return this.items.reduce((sum, item) => sum + item.quantity, 0);
   }
