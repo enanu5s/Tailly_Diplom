@@ -62,4 +62,28 @@ describe('adminPasswordRecoveryManagementStore', () => {
       temporaryPassword: 'Temp-1234',
     });
   });
+
+  it('supports ASP.NET PascalCase process response', async () => {
+    const pendingRequest = createPendingRequest();
+    adminPasswordRecoveryManagementStore.requests = [pendingRequest];
+    serviceMock.processRequest.mockResolvedValue({
+      Email: 'admin@example.com',
+      TemporaryPassword: 'Temp-5678',
+    } as unknown as Awaited<
+      ReturnType<typeof adminPasswordRecoveryManagementService.processRequest>
+    >);
+
+    await adminPasswordRecoveryManagementStore.processRequest(pendingRequest.id);
+
+    expect(adminPasswordRecoveryManagementStore.processError).toBe('');
+    expect(adminPasswordRecoveryManagementStore.lastGeneratedPassword).toBe('Temp-5678');
+    expect(
+      adminPasswordRecoveryManagementStore.pendingProcessedPromotion?.request,
+    ).toMatchObject({
+      id: pendingRequest.id,
+      email: 'admin@example.com',
+      status: 'processed',
+      temporaryPassword: 'Temp-5678',
+    });
+  });
 });

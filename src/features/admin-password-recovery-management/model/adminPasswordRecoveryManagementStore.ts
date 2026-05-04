@@ -12,7 +12,11 @@ type PendingProcessedPromotion = {
 
 type ProcessRequestRuntimeResponse = {
   request?: AdminPasswordRecoveryRequestItem;
+  Request?: AdminPasswordRecoveryRequestItem;
+  email?: string;
+  Email?: string;
   temporaryPassword?: string;
+  TemporaryPassword?: string;
 };
 
 function getLastWorkWeekRange(): { processedFrom: string; processedTo: string } {
@@ -110,13 +114,18 @@ class AdminPasswordRecoveryManagementStore {
         requestId,
       });
       const runtimeResult = result as ProcessRequestRuntimeResponse;
+      const returnedRequest = runtimeResult.request ?? runtimeResult.Request;
       const temporaryPassword =
-        runtimeResult.temporaryPassword ?? runtimeResult.request?.temporaryPassword ?? '';
+        runtimeResult.temporaryPassword ??
+        runtimeResult.TemporaryPassword ??
+        returnedRequest?.temporaryPassword ??
+        '';
       const processedRequest =
-        runtimeResult.request ??
+        returnedRequest ??
         (currentRequest
           ? {
               ...currentRequest,
+              email: runtimeResult.email ?? runtimeResult.Email ?? currentRequest.email,
               status: 'processed' as const,
               processedAt: new Date().toISOString(),
               temporaryPassword,
