@@ -232,94 +232,6 @@ const HOUSING_OPTIONS: SpecialistHousingType[] = [
   'other',
 ];
 
-function resolvePetSizeGroup(
-  value: SpecialistPetSize[],
-): 'any' | 'small' | 'medium' | 'large' {
-  if (value.length === PET_SIZE_OPTIONS.length) {
-    return 'any';
-  }
-
-  const small = PET_SIZE_OPTIONS.slice(0, 2);
-  const medium = PET_SIZE_OPTIONS.slice(2, 4);
-  const large = PET_SIZE_OPTIONS.slice(4);
-
-  if (value.every((item) => small.includes(item))) {
-    return 'small';
-  }
-
-  if (value.every((item) => medium.includes(item))) {
-    return 'medium';
-  }
-
-  if (value.every((item) => large.includes(item))) {
-    return 'large';
-  }
-
-  return 'any';
-}
-
-function mapPetSizeGroupToValue(
-  group: 'any' | 'small' | 'medium' | 'large',
-): SpecialistPetSize[] {
-  if (group === 'any') {
-    return [...PET_SIZE_OPTIONS];
-  }
-
-  if (group === 'small') {
-    return [...PET_SIZE_OPTIONS.slice(0, 2)];
-  }
-
-  if (group === 'medium') {
-    return [...PET_SIZE_OPTIONS.slice(2, 4)];
-  }
-
-  return [...PET_SIZE_OPTIONS.slice(4)];
-}
-
-function resolvePetAgeGroup(
-  value: SpecialistPetAge[],
-): 'any' | 'newborn' | 'baby' | 'teen' | 'adult' | 'senior' {
-  if (value.length === PET_AGE_OPTIONS.length) {
-    return 'any';
-  }
-
-  if (value.length === 1 && value[0] === 'baby') {
-    return 'baby';
-  }
-
-  if (value.length === 1 && value[0] === 'young') {
-    return 'teen';
-  }
-
-  if (value.length === 1 && value[0] === 'adult') {
-    return 'adult';
-  }
-
-  if (value.length === 1 && value[0] === 'senior') {
-    return 'senior';
-  }
-
-  return 'any';
-}
-
-function mapPetAgeGroupToValue(
-  group: 'any' | 'newborn' | 'baby' | 'teen' | 'adult' | 'senior',
-): SpecialistPetAge[] {
-  if (group === 'any') {
-    return [...PET_AGE_OPTIONS];
-  }
-  if (group === 'newborn' || group === 'baby') {
-    return ['baby'];
-  }
-  if (group === 'teen') {
-    return ['young'];
-  }
-  if (group === 'adult') {
-    return ['adult'];
-  }
-  return ['senior'];
-}
-
 function formatPhone(phone: string): string {
   return phone.trim();
 }
@@ -403,10 +315,10 @@ export const SpecialistProfileView = observer(
     onStartDetailsEditing,
     onCancelDetailsEditing,
     onSetDetailsField,
-    onTogglePetSize: _onTogglePetSize,
-    onToggleAllPetSizes: _onToggleAllPetSizes,
-    onTogglePetAge: _onTogglePetAge,
-    onToggleAllPetAges: _onToggleAllPetAges,
+    onTogglePetSize,
+    onToggleAllPetSizes,
+    onTogglePetAge,
+    onToggleAllPetAges,
     onTogglePetType: _onTogglePetType,
     onToggleAdvantage: _onToggleAdvantage,
     onAddService,
@@ -647,8 +559,6 @@ export const SpecialistProfileView = observer(
       });
     };
 
-    const selectedPetSizeGroup = resolvePetSizeGroup(currentPetSizes);
-    const selectedPetAgeGroup = resolvePetAgeGroup(currentPetAges);
     const sortedVisibleReviews = [...visibleReviews].sort((left, right) => {
       if (reviewsSort === 'newest') {
         return new Date(right.createdAt).getTime() - new Date(left.createdAt).getTime();
@@ -1216,27 +1126,26 @@ export const SpecialistProfileView = observer(
                     <div className={styles.detailsCompactRow}>
                       <span>Размер питомца:</span>
                       {isEditingDetails && detailsForm ? (
-                        <select
-                          className={styles.inlineSelect}
-                          value={selectedPetSizeGroup}
-                          onChange={(event) =>
-                            onSetDetailsField(
-                              'petSizes',
-                              mapPetSizeGroupToValue(
-                                event.target.value as
-                                  | 'any'
-                                  | 'small'
-                                  | 'medium'
-                                  | 'large',
-                              ),
-                            )
-                          }
-                        >
-                          <option value="any">Любой</option>
-                          <option value="small">Маленький</option>
-                          <option value="medium">Средний</option>
-                          <option value="large">Большой</option>
-                        </select>
+                        <div className={styles.inlineCheckboxGroup}>
+                          <label className={styles.checkboxItem}>
+                            <input
+                              type="checkbox"
+                              checked={detailsForm.petSizes.length === PET_SIZE_OPTIONS.length}
+                              onChange={onToggleAllPetSizes}
+                            />
+                            <span>Любой</span>
+                          </label>
+                          {PET_SIZE_OPTIONS.map((size) => (
+                            <label key={size} className={styles.checkboxItem}>
+                              <input
+                                type="checkbox"
+                                checked={detailsForm.petSizes.includes(size)}
+                                onChange={() => onTogglePetSize(size)}
+                              />
+                              <span>{SPECIALIST_PET_SIZE_LABELS[size]}</span>
+                            </label>
+                          ))}
+                        </div>
                       ) : (
                         <strong>
                           {currentPetSizes.length === PET_SIZE_OPTIONS.length
@@ -1251,31 +1160,26 @@ export const SpecialistProfileView = observer(
                     <div className={styles.detailsCompactRow}>
                       <span>Возраст питомца:</span>
                       {isEditingDetails && detailsForm ? (
-                        <select
-                          className={styles.inlineSelect}
-                          value={selectedPetAgeGroup}
-                          onChange={(event) =>
-                            onSetDetailsField(
-                              'petAges',
-                              mapPetAgeGroupToValue(
-                                event.target.value as
-                                  | 'any'
-                                  | 'newborn'
-                                  | 'baby'
-                                  | 'teen'
-                                  | 'adult'
-                                  | 'senior',
-                              ),
-                            )
-                          }
-                        >
-                          <option value="any">Любой</option>
-                          <option value="newborn">Новорожденный</option>
-                          <option value="baby">Малыш</option>
-                          <option value="teen">Подросток</option>
-                          <option value="adult">Взрослый</option>
-                          <option value="senior">Пожилой</option>
-                        </select>
+                        <div className={styles.inlineCheckboxGroup}>
+                          <label className={styles.checkboxItem}>
+                            <input
+                              type="checkbox"
+                              checked={detailsForm.petAges.length === PET_AGE_OPTIONS.length}
+                              onChange={onToggleAllPetAges}
+                            />
+                            <span>Любой</span>
+                          </label>
+                          {PET_AGE_OPTIONS.map((age) => (
+                            <label key={age} className={styles.checkboxItem}>
+                              <input
+                                type="checkbox"
+                                checked={detailsForm.petAges.includes(age)}
+                                onChange={() => onTogglePetAge(age)}
+                              />
+                              <span>{SPECIALIST_PET_AGE_LABELS[age]}</span>
+                            </label>
+                          ))}
+                        </div>
                       ) : (
                         <strong>
                           {currentPetAges.length === PET_AGE_OPTIONS.length

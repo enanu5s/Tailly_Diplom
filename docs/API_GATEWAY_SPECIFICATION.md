@@ -2020,7 +2020,7 @@ type AccountDeletionRestorePreview = {
 | GET | `/admin/specialist-applications` | Список (админ) |
 | POST | `/admin/specialist-applications/:id/assign-interview` | Назначить собеседование |
 | POST | `/admin/specialist-applications/:id/reject` | Отклонить |
-| POST | `/admin/specialist-applications/:id/approve` | Одобрить |
+| POST | `/admin/specialist-applications/:id/approve` | Одобрить; тело `{ note?: string, reviewedBy: string }` |
 | POST | `/admin/specialist-applications/:id/attach-specialist-account` | Привязать созданный аккаунт специалиста |
 | POST | `/admin/specialist-applications/:id/create-specialist-account` | Атомарно создать аккаунт специалиста из одобренной заявки и привязать его |
 

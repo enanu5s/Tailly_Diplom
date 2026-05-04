@@ -1254,7 +1254,9 @@
 }
 
 .detailsCardEditing .checkboxItem input {
-  display: none;
+  width: 16px;
+  height: 16px;
+  accent-color: #ffb45c;
 }
 
 .detailsCardEditing .galleryActions {

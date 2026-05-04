@@ -76,3 +76,75 @@ describe('specialistApplicationsApi.attachCreatedSpecialistAccount', () => {
     );
   });
 });
+
+describe('specialistApplicationsApi.approveApplication', () => {
+  afterEach(() => {
+    vi.unstubAllGlobals();
+    vi.restoreAllMocks();
+  });
+
+  it('sends JSON body when approving an application', async () => {
+    const application = createApplicationFixture();
+    const listResponse = (items: SpecialistApplication[]) => ({
+      items,
+      total: items.length,
+      page: 1,
+      limit: 100,
+    });
+    const fetchMock = vi
+      .fn()
+      .mockResolvedValueOnce({
+        ok: true,
+        status: 200,
+        headers: new Headers({ 'content-type': 'application/json' }),
+        json: async () => ({ success: true }),
+      })
+      .mockResolvedValueOnce({
+        ok: true,
+        status: 200,
+        headers: new Headers({ 'content-type': 'application/json' }),
+        json: async () => listResponse([]),
+      })
+      .mockResolvedValueOnce({
+        ok: true,
+        status: 200,
+        headers: new Headers({ 'content-type': 'application/json' }),
+        json: async () => listResponse([]),
+      })
+      .mockResolvedValueOnce({
+        ok: true,
+        status: 200,
+        headers: new Headers({ 'content-type': 'application/json' }),
+        json: async () => listResponse([application]),
+      })
+      .mockResolvedValueOnce({
+        ok: true,
+        status: 200,
+        headers: new Headers({ 'content-type': 'application/json' }),
+        json: async () => listResponse([]),
+      });
+
+    vi.stubGlobal('fetch', fetchMock);
+
+    await specialistApplicationsApi.approveApplication({
+      applicationId: 'application-1',
+      reviewComment: 'Одобрено после собеседования.',
+      reviewedBy: 'admin-1',
+    });
+
+    expect(fetchMock).toHaveBeenNthCalledWith(
+      1,
+      'http://api.test/admin/specialist-applications/application-1/approve',
+      expect.objectContaining({
+        body: JSON.stringify({
+          note: 'Одобрено после собеседования.',
+          reviewedBy: 'admin-1',
+        }),
+        headers: expect.objectContaining({
+          'Content-Type': 'application/json',
+        }),
+        method: 'POST',
+      }),
+    );
+  });
+});

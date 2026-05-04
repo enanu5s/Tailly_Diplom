@@ -155,6 +155,10 @@ async function realApproveApplication(
     `/admin/specialist-applications/${payload.applicationId}/approve`,
     {
       method: 'POST',
+      body: {
+        note: payload.reviewComment,
+        reviewedBy: payload.reviewedBy,
+      },
     },
   );
 
