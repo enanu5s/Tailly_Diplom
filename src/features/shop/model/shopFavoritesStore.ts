@@ -150,7 +150,7 @@ export class ShopFavoritesStore {
       this.lastSyncedSnapshot = signature;
     } catch (error) {
       console.warn('[favorites] server sync failed', { error });
-      this.hasPendingSync = true;
+      this.hasPendingSync = false;
     } finally {
       this.isSyncInFlight = false;
 

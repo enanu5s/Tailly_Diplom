@@ -442,7 +442,7 @@ export class ShopCartStore {
       this.lastSyncedSnapshot = signature;
     } catch (error) {
       console.warn('[CART] server sync failed', { error });
-      this.hasPendingSync = true;
+      this.hasPendingSync = false;
     } finally {
       this.isSyncInFlight = false;
 

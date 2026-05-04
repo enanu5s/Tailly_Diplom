@@ -197,6 +197,10 @@ export const authStore = {
       return;
     }
 
+    if (JSON.stringify(nextUser) === JSON.stringify(state.user)) {
+      return;
+    }
+
     state = {
       ...state,
       user: nextUser,
