@@ -8,6 +8,14 @@ vi.mock('@/shared/config/env', () => ({
   resolveApiBaseUrl: () => 'http://api.test',
 }));
 
+vi.mock('@/features/auth/model/authStore', () => ({
+  authStore: {
+    getState: () => ({ user: null }),
+    getToken: () => null,
+    subscribe: vi.fn(() => vi.fn()),
+  },
+}));
+
 import { ordersApi } from './ordersApi';
 
 import type { CreateServiceOrderPayload } from '../model/types';
