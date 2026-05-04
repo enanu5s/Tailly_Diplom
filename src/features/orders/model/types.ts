@@ -164,6 +164,19 @@ export type CreateServiceOrderPayload = {
   currency: 'RUB';
 };
 
+export type CreateServiceOrderRequestPayload = Pick<
+  CreateServiceOrderPayload,
+  | 'dateFrom'
+  | 'dateTo'
+  | 'schedule'
+  | 'petId'
+  | 'sitterId'
+  | 'specialistSlug'
+  | 'serviceId'
+  | 'locationLabel'
+  | 'comment'
+>;
+
 export type RepeatServiceOrderDraftPayload = {
   petId: string;
   petName: string;

@@ -836,22 +836,16 @@ export type CreateServiceOrderPayload = {
   dateTo?: string;
   schedule: ServiceOrderSchedule;
   petId: string;
-  petName: string;
-  clientId: string;
-  clientName: string;
-  clientSlug: string;
   sitterId: string;
-  sitterName: string;
   specialistSlug: string;
   serviceId: string;
-  serviceTitle: string;
-  servicePriceUnit: ServicePriceUnit;
-  bookingMode: ServiceBookingMode;
   locationLabel: string;
   comment?: string;
-  price: number;
-  currency: 'RUB';
 };
+
+Backend заполняет `clientId`, `clientName`, `clientSlug`, `petName`, `sitterName`,
+`serviceTitle`, `servicePriceUnit`, `bookingMode`, `price`, `currency` и
+`serviceSnapshot` самостоятельно из JWT, питомца, специалиста и услуги.
 
 export type RepeatServiceOrderDraftPayload = {
   petId: string;

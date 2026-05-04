@@ -30,6 +30,7 @@ import type {
   CompleteOrderResult,
   ConfirmOrderResult,
   CreateServiceOrderPayload,
+  CreateServiceOrderRequestPayload,
   LeaveServiceReviewPayload,
   ProductOrder,
   RepeatResult,
@@ -54,9 +55,21 @@ async function realGetServiceOrderById(orderId: string): Promise<ServiceOrder> {
 async function realCreateServiceOrder(
   payload: CreateServiceOrderPayload,
 ): Promise<ServiceOrder> {
+  const requestPayload: CreateServiceOrderRequestPayload = {
+    dateFrom: payload.dateFrom,
+    dateTo: payload.dateTo,
+    schedule: payload.schedule,
+    petId: payload.petId,
+    sitterId: payload.sitterId,
+    specialistSlug: payload.specialistSlug,
+    serviceId: payload.serviceId,
+    locationLabel: payload.locationLabel,
+    comment: payload.comment,
+  };
+
   return request<ServiceOrder>('/me/orders/services', {
     method: 'POST',
-    body: payload,
+    body: requestPayload,
   });
 }
 
