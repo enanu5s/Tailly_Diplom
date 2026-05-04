@@ -15,6 +15,8 @@ import type {
   SpecialistProfile,
   SpecialistProfileResponse,
   SpecialistReviewReplyUpsertPayload,
+  SpecialistServiceCreatePayload,
+  SpecialistServiceEditPayload,
 } from '../model/types';
 
 function mapProfileResponseToProfile(
@@ -61,6 +63,28 @@ export const specialistProfileService = {
     payload: SpecialistDetailsUpdatePayload,
   ): Promise<SpecialistProfile> {
     const response = await specialistProfileApi.updateDetails(slug, payload);
+    return mapProfileResponseToProfile(response);
+  },
+
+  async createService(
+    slug: string,
+    payload: SpecialistServiceCreatePayload,
+  ): Promise<SpecialistProfile> {
+    const response = await specialistProfileApi.createService(slug, payload);
+    return mapProfileResponseToProfile(response);
+  },
+
+  async updateService(
+    slug: string,
+    serviceId: string,
+    payload: SpecialistServiceEditPayload,
+  ): Promise<SpecialistProfile> {
+    const response = await specialistProfileApi.updateService(slug, serviceId, payload);
+    return mapProfileResponseToProfile(response);
+  },
+
+  async deleteService(slug: string, serviceId: string): Promise<SpecialistProfile> {
+    const response = await specialistProfileApi.deleteService(slug, serviceId);
     return mapProfileResponseToProfile(response);
   },
 

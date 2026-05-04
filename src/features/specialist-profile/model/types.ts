@@ -333,9 +333,12 @@ export type SpecialistDetailsUpdatePayload = {
   petTypes: SpecialistPetType[];
   advantages: string[];
   about: string;
-  services: SpecialistServiceUpdateItem[];
   specialistGallery?: SpecialistGalleryItem[];
 };
+
+export type SpecialistServiceCreatePayload = Omit<SpecialistServiceUpdateItem, 'id'>;
+
+export type SpecialistServiceEditPayload = Omit<SpecialistServiceUpdateItem, 'id'>;
 
 export type SpecialistCalendarUpdatePayload = {
   timezone: string;

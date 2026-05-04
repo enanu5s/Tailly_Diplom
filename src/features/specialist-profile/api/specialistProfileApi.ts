@@ -8,7 +8,10 @@ import {
   mockGetSpecialistProfileById,
   mockGetSpecialistProfileEditOptions,
   mockGetSpecialistProfileBySlug,
+  mockCreateService,
+  mockDeleteService,
   mockSendEmailChangeCode,
+  mockUpdateService,
   mockUpdateCalendar,
   mockUpdateDetails,
   mockUpdateMainInfo,
@@ -28,6 +31,8 @@ import type {
   SpecialistProfileEditOptionsResponse,
   SpecialistProfileResponse,
   SpecialistReviewReplyUpsertPayload,
+  SpecialistServiceCreatePayload,
+  SpecialistServiceEditPayload,
   SpecialistService,
 } from '../model/types';
 
@@ -124,6 +129,51 @@ async function realUpdateDetails(
     {
       method: 'PATCH',
       body: payload,
+    },
+  );
+
+  return realGetSpecialistProfileBySlug(slug);
+}
+
+async function realCreateService(
+  slug: string,
+  payload: SpecialistServiceCreatePayload,
+): Promise<SpecialistProfileResponse> {
+  await request<{ success: boolean }>(
+    `/specialists/${encodeURIComponent(slug)}/services`,
+    {
+      method: 'POST',
+      body: payload,
+    },
+  );
+
+  return realGetSpecialistProfileBySlug(slug);
+}
+
+async function realUpdateService(
+  slug: string,
+  serviceId: string,
+  payload: SpecialistServiceEditPayload,
+): Promise<SpecialistProfileResponse> {
+  await request<{ success: boolean }>(
+    `/specialists/${encodeURIComponent(slug)}/services/${encodeURIComponent(serviceId)}`,
+    {
+      method: 'PATCH',
+      body: payload,
+    },
+  );
+
+  return realGetSpecialistProfileBySlug(slug);
+}
+
+async function realDeleteService(
+  slug: string,
+  serviceId: string,
+): Promise<SpecialistProfileResponse> {
+  await request<{ success: boolean }>(
+    `/specialists/${encodeURIComponent(slug)}/services/${encodeURIComponent(serviceId)}`,
+    {
+      method: 'DELETE',
     },
   );
 
@@ -303,6 +353,61 @@ export const specialistProfileApi = {
       .catch((error) => {
         if (shouldFallbackToMock(error)) {
           return mockUpdateDetails(slug, payload).then(normalizeProfileResponse);
+        }
+
+        throw error;
+      });
+  },
+
+  createService(
+    slug: string,
+    payload: SpecialistServiceCreatePayload,
+  ): Promise<SpecialistProfileResponse> {
+    if (isMockApiMode) {
+      return mockCreateService(slug, payload).then(normalizeProfileResponse);
+    }
+
+    return realCreateService(slug, payload)
+      .then(normalizeProfileResponse)
+      .catch((error) => {
+        if (shouldFallbackToMock(error)) {
+          return mockCreateService(slug, payload).then(normalizeProfileResponse);
+        }
+
+        throw error;
+      });
+  },
+
+  updateService(
+    slug: string,
+    serviceId: string,
+    payload: SpecialistServiceEditPayload,
+  ): Promise<SpecialistProfileResponse> {
+    if (isMockApiMode) {
+      return mockUpdateService(slug, serviceId, payload).then(normalizeProfileResponse);
+    }
+
+    return realUpdateService(slug, serviceId, payload)
+      .then(normalizeProfileResponse)
+      .catch((error) => {
+        if (shouldFallbackToMock(error)) {
+          return mockUpdateService(slug, serviceId, payload).then(normalizeProfileResponse);
+        }
+
+        throw error;
+      });
+  },
+
+  deleteService(slug: string, serviceId: string): Promise<SpecialistProfileResponse> {
+    if (isMockApiMode) {
+      return mockDeleteService(slug, serviceId).then(normalizeProfileResponse);
+    }
+
+    return realDeleteService(slug, serviceId)
+      .then(normalizeProfileResponse)
+      .catch((error) => {
+        if (shouldFallbackToMock(error)) {
+          return mockDeleteService(slug, serviceId).then(normalizeProfileResponse);
         }
 
         throw error;

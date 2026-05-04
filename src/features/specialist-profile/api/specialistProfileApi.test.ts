@@ -76,4 +76,87 @@ describe('specialistProfileApi', () => {
       expect.objectContaining({ method: 'GET' }),
     );
   });
+
+  it('updates profile details without sending services', async () => {
+    const fetchMock = vi
+      .fn()
+      .mockResolvedValueOnce({
+        ok: true,
+        status: 200,
+        headers: new Headers({ 'content-type': 'application/json' }),
+        json: async () => ({ success: true }),
+      })
+      .mockResolvedValueOnce({
+        ok: true,
+        status: 200,
+        headers: new Headers({ 'content-type': 'application/json' }),
+        json: async () => createProfileFixture(),
+      });
+
+    vi.stubGlobal('fetch', fetchMock);
+
+    await specialistProfileApi.updateDetails('ivan-petrov', {
+      experienceLabel: '3 года',
+      experienceDurationValue: 3,
+      experienceDurationUnit: 'years',
+      housingType: 'apartment',
+      petSizes: [],
+      petAges: [],
+      hasChildrenUnderTen: 'no',
+      petTypes: [],
+      advantages: [],
+      about: 'Опытный специалист',
+      specialistGallery: [],
+    });
+
+    expect(fetchMock).toHaveBeenNthCalledWith(
+      1,
+      'http://api.test/specialists/ivan-petrov/details',
+      expect.objectContaining({
+        body: expect.not.stringContaining('services'),
+        method: 'PATCH',
+      }),
+    );
+  });
+
+  it('creates and updates services through dedicated endpoints', async () => {
+    const fetchMock = vi
+      .fn()
+      .mockResolvedValue({
+        ok: true,
+        status: 200,
+        headers: new Headers({ 'content-type': 'application/json' }),
+        json: async () => createProfileFixture(),
+      });
+
+    vi.stubGlobal('fetch', fetchMock);
+
+    const servicePayload = {
+      name: 'Выгул',
+      locationLabel: 'У клиента',
+      description: 'Прогулка',
+      price: 700,
+      priceUnit: 'hour' as const,
+    };
+
+    await specialistProfileApi.createService('ivan-petrov', servicePayload);
+    await specialistProfileApi.updateService('ivan-petrov', 'walking', servicePayload);
+
+    expect(fetchMock).toHaveBeenNthCalledWith(
+      1,
+      'http://api.test/specialists/ivan-petrov/services',
+      expect.objectContaining({
+        body: JSON.stringify(servicePayload),
+        method: 'POST',
+      }),
+    );
+    expect(fetchMock).toHaveBeenNthCalledWith(
+      3,
+      'http://api.test/specialists/ivan-petrov/services/walking',
+      expect.objectContaining({
+        body: JSON.stringify(servicePayload),
+        method: 'PATCH',
+      }),
+    );
+  });
 });

@@ -684,10 +684,14 @@ export type SpecialistServiceUpdateItem = {
   id: string;
   name: string;
   locationLabel: string;
+  description?: string;
   price: number;
   priceUnit: SpecialistServicePriceUnit;
   bookingPolicy?: SpecialistServiceBookingPolicy;
 };
+
+export type SpecialistServiceCreatePayload = Omit<SpecialistServiceUpdateItem, 'id'>;
+export type SpecialistServiceEditPayload = Omit<SpecialistServiceUpdateItem, 'id'>;
 
 export type SpecialistDetailsUpdatePayload = {
   experienceLabel: string;
@@ -700,7 +704,6 @@ export type SpecialistDetailsUpdatePayload = {
   petTypes: SpecialistPetType[];
   advantages: string[];
   about: string;
-  services: SpecialistServiceUpdateItem[];
   specialistGallery?: SpecialistGalleryItem[];
 };
 
@@ -1856,7 +1859,10 @@ type Specialist = {
 | GET | `/specialists/by-id/:id` | `SpecialistProfileResponse` по `specialistId`, без двусмысленности со slug |
 | GET | `/specialists/:slug/edit-options` | Справочники для редактирования профиля (`SpecialistProfileEditOptionsResponse`) |
 | PATCH | `/specialists/:slug/main` | Основные контакты |
-| PATCH | `/specialists/:slug/details` | Опыт, жильё, услуги, галерея, текст |
+| PATCH | `/specialists/:slug/details` | Опыт, жильё, галерея, текст. Услуги не принимает |
+| POST | `/specialists/:slug/services` | Создать услугу (`SpecialistServiceCreatePayload`) |
+| PATCH | `/specialists/:slug/services/:serviceId` | Обновить существующую услугу (`SpecialistServiceEditPayload`) |
+| DELETE | `/specialists/:slug/services/:serviceId` | Удалить услугу |
 | PATCH | `/specialists/:slug/calendar` | Календарь, слоты, правила |
 | PUT | `/specialists/:slug/reviews/:reviewId/reply` | Тело `{ text: string }` — ответ на отзыв |
 | POST | `/specialists/:slug/email-change/send-code` | Отправить код смены email специалиста |

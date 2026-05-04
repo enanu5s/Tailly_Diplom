@@ -31,6 +31,8 @@ import type {
   SpecialistProfileResponse,
   SpecialistReviewReplyUpsertPayload,
   SpecialistService,
+  SpecialistServiceCreatePayload,
+  SpecialistServiceEditPayload,
 } from '../model/types';
 
 const MOCK_PET_TYPE_ALIAS_OPTIONS: SpecialistProfileEditOptionsResponse['petTypeAliasOptions'] = [
@@ -83,6 +85,27 @@ function normalizeTime(value: string, fallback: string): string {
   }
 
   return fallback;
+}
+
+function notifyServicesChanged(
+  currentProfile: SpecialistProfileResponse,
+  lines: string[],
+): void {
+  if (lines.length === 0) {
+    return;
+  }
+
+  const email = currentProfile.main.email?.trim().toLowerCase();
+  if (!email?.includes('@')) {
+    return;
+  }
+
+  notifySpecialistServicesChanged({
+    specialistEmail: email,
+    specialistName:
+      `${currentProfile.main.firstName} ${currentProfile.main.lastName}`.trim(),
+    lines,
+  });
 }
 
 function normalizePositiveMinutes(value: number, fallback: number): number {
@@ -318,16 +341,6 @@ export async function mockUpdateDetails(
 
   const currentProfile = MOCK_SPECIALIST_PROFILES[profileIndex];
 
-  const snapshotService = (service: SpecialistService) => ({
-    id: service.id,
-    name: service.name,
-    locationLabel: service.locationLabel,
-    description: service.description?.trim() || '',
-    price: service.price,
-    priceUnit: service.priceUnit,
-  });
-  const previousServices = currentProfile.services.map(snapshotService);
-
   Object.assign(currentProfile, {
     ...currentProfile,
     specialistGallery: (payload.specialistGallery ?? []).map((item, index) => ({
@@ -352,57 +365,105 @@ export async function mockUpdateDetails(
         .filter((item) => item.title.length > 0),
       about: payload.about.trim(),
     },
-    services: payload.services.map((service, index) => ({
-      id: service.id || `service-${Date.now()}-${index}`,
-      name: service.name.trim(),
-      locationLabel: service.locationLabel.trim(),
-      description: service.description?.trim() || undefined,
-      price: service.price,
-      priceUnit: service.priceUnit,
-    })),
   });
 
-  const nextServices = currentProfile.services.map(snapshotService);
-  const prevById = new Map(previousServices.map((s) => [s.id, s]));
-  const nextById = new Map(nextServices.map((s) => [s.id, s]));
-  const lines: string[] = [];
+  return withComputedStats(cloneProfile(currentProfile));
+}
 
-  for (const [id, prev] of prevById) {
-    if (!nextById.has(id)) {
-      lines.push(`Услуга «${prev.name}» удалена из профиля.`);
-    }
+export async function mockCreateService(
+  slug: string,
+  payload: SpecialistServiceCreatePayload,
+): Promise<SpecialistProfileResponse> {
+  await delay(300);
+
+  const profileIndex = findProfileIndexBySlug(slug);
+
+  if (profileIndex === -1) {
+    throw new Error('Профиль специалиста не найден.');
   }
 
-  for (const [svcId, next] of nextById) {
-    const prev = prevById.get(svcId);
-    if (!prev) {
-      lines.push(
-        `Добавлена услуга «${next.name}» — ${next.price} ₽ (${next.locationLabel}).`,
-      );
-    } else if (
-      prev.name !== next.name ||
-      prev.price !== next.price ||
-      prev.locationLabel !== next.locationLabel ||
-      prev.description !== next.description ||
-      prev.priceUnit !== next.priceUnit
-    ) {
-      lines.push(
-        `Обновлена услуга «${next.name}» (изменились название, цена, локация или единица расчёта).`,
-      );
-    }
+  const currentProfile = MOCK_SPECIALIST_PROFILES[profileIndex];
+  const service: SpecialistService = {
+    id: `service-${Date.now()}-${Math.random().toString(36).slice(2, 8)}`,
+    name: payload.name.trim(),
+    locationLabel: payload.locationLabel.trim(),
+    description: payload.description?.trim() || undefined,
+    price: payload.price,
+    priceUnit: payload.priceUnit,
+    bookingPolicy: payload.bookingPolicy,
+  };
+
+  currentProfile.services = [...currentProfile.services, service];
+  notifyServicesChanged(currentProfile, [
+    `Добавлена услуга «${service.name}» — ${service.price} ₽ (${service.locationLabel}).`,
+  ]);
+
+  return withComputedStats(cloneProfile(currentProfile));
+}
+
+export async function mockUpdateService(
+  slug: string,
+  serviceId: string,
+  payload: SpecialistServiceEditPayload,
+): Promise<SpecialistProfileResponse> {
+  await delay(300);
+
+  const profileIndex = findProfileIndexBySlug(slug);
+
+  if (profileIndex === -1) {
+    throw new Error('Профиль специалиста не найден.');
   }
 
-  if (lines.length > 0) {
-    const email = currentProfile.main.email?.trim().toLowerCase();
-    if (email?.includes('@')) {
-      notifySpecialistServicesChanged({
-        specialistEmail: email,
-        specialistName:
-          `${currentProfile.main.firstName} ${currentProfile.main.lastName}`.trim(),
-        lines,
-      });
-    }
+  const currentProfile = MOCK_SPECIALIST_PROFILES[profileIndex];
+  const serviceIndex = currentProfile.services.findIndex(
+    (service) => service.id === serviceId,
+  );
+
+  if (serviceIndex === -1) {
+    throw new Error('Услуга не найдена.');
   }
+
+  const service: SpecialistService = {
+    id: serviceId,
+    name: payload.name.trim(),
+    locationLabel: payload.locationLabel.trim(),
+    description: payload.description?.trim() || undefined,
+    price: payload.price,
+    priceUnit: payload.priceUnit,
+    bookingPolicy: payload.bookingPolicy,
+  };
+
+  currentProfile.services[serviceIndex] = service;
+  notifyServicesChanged(currentProfile, [
+    `Обновлена услуга «${service.name}» (изменились название, цена, локация или правила бронирования).`,
+  ]);
+
+  return withComputedStats(cloneProfile(currentProfile));
+}
+
+export async function mockDeleteService(
+  slug: string,
+  serviceId: string,
+): Promise<SpecialistProfileResponse> {
+  await delay(300);
+
+  const profileIndex = findProfileIndexBySlug(slug);
+
+  if (profileIndex === -1) {
+    throw new Error('Профиль специалиста не найден.');
+  }
+
+  const currentProfile = MOCK_SPECIALIST_PROFILES[profileIndex];
+  const service = currentProfile.services.find((item) => item.id === serviceId);
+
+  if (!service) {
+    throw new Error('Услуга не найдена.');
+  }
+
+  currentProfile.services = currentProfile.services.filter((item) => item.id !== serviceId);
+  notifyServicesChanged(currentProfile, [
+    `Услуга «${service.name}» удалена из профиля.`,
+  ]);
 
   return withComputedStats(cloneProfile(currentProfile));
 }

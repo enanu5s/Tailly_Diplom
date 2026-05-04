@@ -30,6 +30,7 @@ import type {
   SpecialistService,
   SpecialistServiceBookingPolicy,
   SpecialistServicePriceUnit,
+  SpecialistServiceUpdateItem,
 } from './types';
 
 const INITIAL_VISIBLE_REVIEWS_COUNT = 10;
@@ -474,6 +475,45 @@ function normalizeBookingPolicyForSave(
     allowsClientComment: bookingPolicy.allowsClientComment,
     requiresSpecialistConfirmation: bookingPolicy.requiresSpecialistConfirmation,
   };
+}
+
+function buildDetailsPayload(form: DetailsForm): SpecialistDetailsUpdatePayload {
+  return {
+    experienceLabel: createExperienceLabel(
+      form.experienceDurationValue,
+      form.experienceDurationUnit,
+    ),
+    experienceDurationValue: Number(form.experienceDurationValue),
+    experienceDurationUnit: form.experienceDurationUnit,
+    housingType: form.housingType,
+    petSizes: [...form.petSizes],
+    petAges: [...form.petAges],
+    hasChildrenUnderTen: form.hasChildrenUnderTen,
+    petTypes: [...form.petTypes],
+    advantages: [...form.selectedAdvantages],
+    about: form.about.trim(),
+    specialistGallery: form.specialistGallery.map((item, index) => ({
+      id: item.id,
+      imageUrl: item.imageUrl.trim(),
+      alt: item.alt.trim() || createGalleryAlt(index + 1),
+    })),
+  };
+}
+
+function buildServicePayload(service: EditableServiceFormItem): SpecialistServiceUpdateItem {
+  return {
+    id: service.id,
+    name: service.name.trim(),
+    locationLabel: service.locationLabel.trim(),
+    description: service.description.trim() || undefined,
+    price: Number(service.price || 0),
+    priceUnit: service.priceUnit,
+    bookingPolicy: normalizeBookingPolicyForSave(service.bookingPolicy),
+  };
+}
+
+function arePayloadsEqual(left: unknown, right: unknown): boolean {
+  return JSON.stringify(left) === JSON.stringify(right);
 }
 
 export class SpecialistProfileStore {
@@ -1473,41 +1513,50 @@ export class SpecialistProfileStore {
     this.isSavingDetails = true;
     this.detailsSaveError = null;
 
-    const payload: SpecialistDetailsUpdatePayload = {
-      experienceLabel: createExperienceLabel(
-        this.detailsForm.experienceDurationValue,
-        this.detailsForm.experienceDurationUnit,
-      ),
-      experienceDurationValue: Number(this.detailsForm.experienceDurationValue),
-      experienceDurationUnit: this.detailsForm.experienceDurationUnit,
-      housingType: this.detailsForm.housingType,
-      petSizes: [...this.detailsForm.petSizes],
-      petAges: [...this.detailsForm.petAges],
-      hasChildrenUnderTen: this.detailsForm.hasChildrenUnderTen,
-      petTypes: [...this.detailsForm.petTypes],
-      advantages: [...this.detailsForm.selectedAdvantages],
-      about: this.detailsForm.about.trim(),
-      services: this.detailsForm.services.map((service) => ({
-        id: service.id,
-        name: service.name.trim(),
-        locationLabel: service.locationLabel.trim(),
-        description: service.description.trim() || undefined,
-        price: Number(service.price || 0),
-        priceUnit: service.priceUnit,
-        bookingPolicy: normalizeBookingPolicyForSave(service.bookingPolicy),
-      })),
-      specialistGallery: this.detailsForm.specialistGallery.map((item, index) => ({
-        id: item.id,
-        imageUrl: item.imageUrl.trim(),
-        alt: item.alt.trim() || createGalleryAlt(index + 1),
-      })),
-    };
+    const slug = this.profile.slug;
+    const originalDetailsForm = createDetailsForm(
+      this.profile.details,
+      this.profile.services,
+      this.profile.specialistGallery ?? [],
+    );
+    const originalDetailsPayload = buildDetailsPayload(originalDetailsForm);
+    const detailsPayload = buildDetailsPayload(this.detailsForm);
+    const originalServicesById = new Map(
+      this.profile.services.map((service) => [
+        service.id,
+        buildServicePayload(mapServiceToForm(service)),
+      ]),
+    );
+    const nextServices = this.detailsForm.services.map(buildServicePayload);
+    const nextServiceIds = new Set(nextServices.map((service) => service.id));
 
     try {
-      const updatedProfile = await specialistProfileService.updateDetails(
-        this.profile.slug,
-        payload,
-      );
+      let updatedProfile = this.profile;
+
+      if (!arePayloadsEqual(detailsPayload, originalDetailsPayload)) {
+        updatedProfile = await specialistProfileService.updateDetails(slug, detailsPayload);
+      }
+
+      for (const [serviceId] of originalServicesById) {
+        if (!nextServiceIds.has(serviceId)) {
+          updatedProfile = await specialistProfileService.deleteService(slug, serviceId);
+        }
+      }
+
+      for (const service of nextServices) {
+        const originalService = originalServicesById.get(service.id);
+        const { id, ...servicePayload } = service;
+
+        if (!originalService) {
+          updatedProfile = await specialistProfileService.createService(slug, servicePayload);
+        } else if (!arePayloadsEqual(service, originalService)) {
+          updatedProfile = await specialistProfileService.updateService(
+            slug,
+            id,
+            servicePayload,
+          );
+        }
+      }
 
       runInAction(() => {
         this.profile = updatedProfile;
