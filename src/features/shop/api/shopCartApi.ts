@@ -10,7 +10,7 @@ type MergeCartPayload = {
 };
 
 function getCartBasePath(): string {
-  return '/cart';
+  return '/shop/cart';
 }
 
 async function clearCart(): Promise<void> {
