@@ -75,4 +75,23 @@ describe('adminPasswordRecoveryManagementStore', () => {
       temporaryPassword: 'Temp-5678',
     });
   });
+
+  it('supports backend responses with NewPassword field', async () => {
+    const pendingRequest = createPendingRequest();
+    adminPasswordRecoveryManagementStore.requests = [pendingRequest];
+    serviceMock.processRequest.mockResolvedValue({
+      Email: 'admin@example.com',
+      NewPassword: 'Temp-9012',
+    } as unknown as Awaited<
+      ReturnType<typeof adminPasswordRecoveryManagementService.processRequest>
+    >);
+
+    await adminPasswordRecoveryManagementStore.processRequest(pendingRequest.id);
+
+    expect(adminPasswordRecoveryManagementStore.lastGeneratedPassword).toBe('Temp-9012');
+    expect(adminPasswordRecoveryManagementStore.processedRequests[0]).toMatchObject({
+      id: pendingRequest.id,
+      temporaryPassword: 'Temp-9012',
+    });
+  });
 });
