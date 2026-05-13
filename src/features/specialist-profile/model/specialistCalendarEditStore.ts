@@ -13,6 +13,7 @@ import { specialistProfileService } from '../service/specialistProfileService';
 import type {
   SpecialistCalendar,
   SpecialistCalendarAvailabilityWindow,
+  SpecialistCalendarBookedSlot,
   SpecialistCalendarBookingSettings,
   SpecialistCalendarDayStatus,
   SpecialistProfile,
@@ -170,6 +171,20 @@ function sortWindows(
   });
 }
 
+function sortBookedSlots(slots: SpecialistCalendarBookedSlot[]): SpecialistCalendarBookedSlot[] {
+  return [...slots].sort((a, b) => {
+    if (a.date !== b.date) {
+      return a.date.localeCompare(b.date);
+    }
+
+    if (a.startTime !== b.startTime) {
+      return a.startTime.localeCompare(b.startTime);
+    }
+
+    return a.endTime.localeCompare(b.endTime);
+  });
+}
+
 function buildWindowId(date: string): string {
   return `window-${date}-${Date.now()}-${Math.floor(Math.random() * 10000)}`;
 }
@@ -274,6 +289,16 @@ export class SpecialistCalendarEditStore {
     );
   }
 
+  get selectedDateBookedSlots(): SpecialistCalendarBookedSlot[] {
+    if (!this.editableCalendar) {
+      return [];
+    }
+
+    return sortBookedSlots(
+      this.editableCalendar.bookedSlots.filter((item) => item.date === this.selectedDate),
+    );
+  }
+
   get selectedDatesAvailabilityWindows(): SpecialistCalendarAvailabilityWindow[] {
     if (!this.editableCalendar) {
       return [];
@@ -283,16 +308,6 @@ export class SpecialistCalendarEditStore {
 
     return sortWindows(
       this.editableCalendar.availabilityWindows.filter((item) => selected.has(item.date)),
-    );
-  }
-
-  get selectedDateBookedSlots() {
-    if (!this.editableCalendar) {
-      return [];
-    }
-
-    return this.editableCalendar.bookedSlots.filter(
-      (item) => item.date === this.selectedDate,
     );
   }
 

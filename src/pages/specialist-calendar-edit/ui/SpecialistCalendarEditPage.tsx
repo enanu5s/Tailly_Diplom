@@ -1,7 +1,7 @@
 // src/pages/specialist-calendar-edit/ui/SpecialistCalendarEditPage.tsx
 
 import { observer } from 'mobx-react-lite';
-import { useEffect, useMemo, useState, type ReactElement } from 'react';
+import { useEffect, useMemo } from 'react';
 import { Link, Navigate, useBlocker, useParams } from 'react-router-dom';
 
 import { useAuth } from '@/features/auth/model/useAuth';
@@ -10,13 +10,9 @@ import {
   CALENDAR_STATUS_LABELS,
   CALENDAR_WEEKDAY_LABELS,
   formatMonthLabel,
-  getDateBookingSummary,
   toIsoDate,
 } from '@/features/specialist-profile/model/calendarUtils';
-import {
-  SpecialistCalendarEditStore,
-  type WeeklyWeekday,
-} from '@/features/specialist-profile/model/specialistCalendarEditStore';
+import { SpecialistCalendarEditStore } from '@/features/specialist-profile/model/specialistCalendarEditStore';
 import type { SpecialistCalendar } from '@/features/specialist-profile/model/types';
 
 import {
@@ -24,29 +20,17 @@ import {
   type CalendarDayMenuItem,
 } from './CalendarDayContextMenu';
 import {
-  confirmBulkReplaceWindows,
   confirmClearAvailabilityWindows,
-  confirmClearWeekdayPreset,
   confirmDayStatusOverride,
   confirmLeaveUnsavedPage,
   confirmRemoveAvailabilityWindow,
-  confirmWeeklyReplaceExistingWindows,
 } from './calendarEditGuards';
+import modeSingleDateIconUrl from '@/shared/assets/icons/ic_baseline-today.svg';
+import modeMultiDateIconUrl from '@/shared/assets/icons/ic_baseline-today-more.svg';
+import deleteWindowIconUrl from '@/shared/assets/icons/fluent-delete-28-regular.svg';
+
 import styles from './SpecialistCalendarEditPage.module.css';
 import { useCalendarDayPointerMenu } from './useCalendarDayPointerMenu';
-
-
-const WEEKDAY_CHIPS: { label: string; value: WeeklyWeekday }[] = [
-  { label: 'Пн', value: 1 },
-  { label: 'Вт', value: 2 },
-  { label: 'Ср', value: 3 },
-  { label: 'Чт', value: 4 },
-  { label: 'Пт', value: 5 },
-  { label: 'Сб', value: 6 },
-  { label: 'Вс', value: 7 },
-];
-
-type EditTab = 'schedule' | 'booking' | 'calendar';
 
 function formatIsoDateRu(isoDate: string): string {
   const [year, month, day] = isoDate.split('-').map(Number);
@@ -62,277 +46,19 @@ function formatIsoDateRu(isoDate: string): string {
   }).format(new Date(year, month - 1, day));
 }
 
-const WeeklyScheduleSection = observer(function WeeklyScheduleSection({
-  store,
-}: {
-  store: SpecialistCalendarEditStore;
-}): ReactElement {
-  return (
-    <div className={`${styles.panel} ${styles.panelHighlight}`}>
-      <h2 className={styles.panelTitle}>Недельный шаблон</h2>
-      <p className={styles.lead}>
-        Окна создаются на выбранные дни недели, начиная с сегодня. Дни с выходным в
-        календаре пропускаются.
-      </p>
+function formatAsideDateHeadline(selectedDate: string, todayIso: string, multiCount: number): string {
+  if (multiCount > 1) {
+    return `Выбрано дней: ${multiCount}`;
+  }
 
-      <div className={styles.weekdayPresets}>
-        <span className={styles.presetLabel}>Часто:</span>
-        <button
-          type="button"
-          className={styles.presetButton}
-          onClick={() => store.setWeeklyWeekdaysPreset('weekdays')}
-        >
-          Пн–Пт
-        </button>
-        <button
-          type="button"
-          className={styles.presetButton}
-          onClick={() => store.setWeeklyWeekdaysPreset('weekend')}
-        >
-          Сб–Вс
-        </button>
-        <button
-          type="button"
-          className={styles.presetButton}
-          onClick={() => store.setWeeklyWeekdaysPreset('all')}
-        >
-          Каждый день
-        </button>
-        <button
-          type="button"
-          className={styles.presetLink}
-          onClick={() => {
-            if (!confirmClearWeekdayPreset()) {
-              return;
-            }
+  const formatted = formatIsoDateRu(selectedDate);
 
-            store.setWeeklyWeekdaysPreset('clear');
-          }}
-        >
-          Сбросить
-        </button>
-      </div>
+  if (selectedDate === todayIso) {
+    return `Сегодня: ${formatted}`;
+  }
 
-      <div className={styles.weekdayRow} role="group" aria-label="Дни недели">
-        {WEEKDAY_CHIPS.map(({ label, value }) => {
-          const active = store.weeklyScheduleForm.weekDays.includes(value);
-
-          return (
-            <button
-              key={value}
-              type="button"
-              className={`${styles.weekdayChip} ${active ? styles.weekdayChipActive : ''}`}
-              onClick={() => store.toggleWeeklyWeekday(value)}
-            >
-              {label}
-            </button>
-          );
-        })}
-      </div>
-
-      <div className={styles.fieldRow}>
-        <label className={styles.field}>
-          <span className={styles.fieldLabel}>С</span>
-          <input
-            className={styles.input}
-            type="time"
-            value={store.weeklyScheduleForm.startTime}
-            onChange={(event) =>
-              store.setWeeklyScheduleField('startTime', event.target.value)
-            }
-          />
-        </label>
-
-        <label className={styles.field}>
-          <span className={styles.fieldLabel}>До</span>
-          <input
-            className={styles.input}
-            type="time"
-            value={store.weeklyScheduleForm.endTime}
-            onChange={(event) =>
-              store.setWeeklyScheduleField('endTime', event.target.value)
-            }
-          />
-        </label>
-
-        <label className={styles.field}>
-          <span className={styles.fieldLabel}>На сколько недель вперёд</span>
-          <input
-            className={styles.input}
-            type="number"
-            min={1}
-            max={52}
-            value={store.weeklyScheduleForm.weeksAhead}
-            onChange={(event) =>
-              store.setWeeklyScheduleField(
-                'weeksAhead',
-                Math.min(52, Math.max(1, Number(event.target.value) || 8)),
-              )
-            }
-          />
-        </label>
-      </div>
-
-      <label className={styles.checkboxRow}>
-        <input
-          type="checkbox"
-          checked={store.weeklyScheduleForm.replaceExisting}
-          onChange={(event) =>
-            store.setWeeklyScheduleField('replaceExisting', event.target.checked)
-          }
-        />
-        <span>Заменить ранее созданные окна на те же даты</span>
-      </label>
-
-      <div className={styles.field}>
-        <span className={styles.fieldLabel}>Услуги</span>
-        <div className={styles.servicesList}>
-          {store.services.map((service) => {
-            const isChecked = store.weeklyScheduleForm.serviceIds.includes(service.id);
-
-            return (
-              <label key={service.id} className={styles.checkboxCard}>
-                <input
-                  type="checkbox"
-                  checked={isChecked}
-                  onChange={() => store.toggleWeeklyScheduleService(service.id)}
-                />
-                <span>{service.name}</span>
-              </label>
-            );
-          })}
-        </div>
-      </div>
-
-      <details className={styles.inlineDetails}>
-        <summary className={styles.inlineDetailsSummary}>Необязательно</summary>
-        <label className={styles.field}>
-          <span className={styles.fieldLabel}>Комментарий к окнам</span>
-          <input
-            className={styles.input}
-            type="text"
-            value={store.weeklyScheduleForm.comment}
-            onChange={(event) =>
-              store.setWeeklyScheduleField('comment', event.target.value)
-            }
-            placeholder="Например: основной приём"
-          />
-        </label>
-        <button
-          type="button"
-          className={styles.secondaryButton}
-          onClick={store.resetWeeklyScheduleFromBookingSettings}
-        >
-          Взять время из параметров слотов
-        </button>
-      </details>
-
-      {store.weeklyScheduleError ? (
-        <div className={styles.fieldError}>{store.weeklyScheduleError}</div>
-      ) : null}
-
-      <button
-        type="button"
-        className={`${styles.primaryButton} ${styles.primaryButtonBlock}`}
-        onClick={() => {
-          if (store.weeklyScheduleForm.replaceExisting) {
-            if (!confirmWeeklyReplaceExistingWindows()) {
-              return;
-            }
-          }
-
-          store.applyWeeklyRecurringSchedule();
-        }}
-      >
-        Создать окна по шаблону
-      </button>
-    </div>
-  );
-});
-
-const BookingSettingsSection = observer(function BookingSettingsSection({
-  store,
-}: {
-  store: SpecialistCalendarEditStore;
-}): ReactElement {
-  return (
-    <div className={styles.panel}>
-      <h2 className={styles.panelTitle}>Параметры записи для клиента</h2>
-      <p className={styles.panelDescription}>
-        Рабочий день и шаг сетки. Интервалы в шаблоне недели и в календаре должны попадать в
-        этот диапазон.
-      </p>
-
-      <div className={styles.fieldRow}>
-        <label className={styles.field}>
-          <span className={styles.fieldLabel}>Начало рабочего дня</span>
-          <input
-            className={styles.input}
-            type="time"
-            value={store.bookingSettings.dayStartTime}
-            onChange={(event) =>
-              store.setBookingSettingsField('dayStartTime', event.target.value)
-            }
-          />
-        </label>
-
-        <label className={styles.field}>
-          <span className={styles.fieldLabel}>Конец рабочего дня</span>
-          <input
-            className={styles.input}
-            type="time"
-            value={store.bookingSettings.dayEndTime}
-            onChange={(event) =>
-              store.setBookingSettingsField('dayEndTime', event.target.value)
-            }
-          />
-        </label>
-      </div>
-
-      <div className={styles.fieldRow}>
-        <label className={styles.field}>
-          <span className={styles.fieldLabel}>Шаг слотов, минут</span>
-          <input
-            className={styles.input}
-            type="number"
-            min={15}
-            step={15}
-            value={store.bookingSettings.slotStepMinutes}
-            onChange={(event) =>
-              store.setBookingSettingsField('slotStepMinutes', Number(event.target.value))
-            }
-          />
-        </label>
-
-        <label className={styles.field}>
-          <span className={styles.fieldLabel}>Длительность одного слота, минут</span>
-          <input
-            className={styles.input}
-            type="number"
-            min={15}
-            step={15}
-            value={store.bookingSettings.defaultDurationMinutes}
-            onChange={(event) =>
-              store.setBookingSettingsField(
-                'defaultDurationMinutes',
-                Number(event.target.value),
-              )
-            }
-          />
-        </label>
-      </div>
-
-      {store.bookingSettingsError ? (
-        <div className={styles.fieldError}>{store.bookingSettingsError}</div>
-      ) : null}
-
-      <div className={styles.note}>
-        Например, если рабочий день 10:00–19:00, шаг 30 минут, а длительность слота 60
-        минут, клиент увидит слоты вроде 10:00–11:00, 10:30–11:30 и так далее.
-      </div>
-    </div>
-  );
-});
+  return `Дата: ${formatted}`;
+}
 
 function buildDayContextMenuItems(
   store: SpecialistCalendarEditStore,
@@ -355,7 +81,7 @@ function buildDayContextMenuItems(
     {
       id: 'toggle-multi',
       label: inMultiSelection ? 'Убрать из выбора' : 'Добавить к выбору',
-      hint: 'Нужно для пакетных действий справа',
+      hint: 'Несколько дат для массовых правок в календаре',
       onSelect: () => {
         store.setMultiSelectMode(true);
         store.selectDate(isoDate);
@@ -423,7 +149,6 @@ function buildDayContextMenuItems(
 export const SpecialistCalendarEditPage = observer(() => {
   const { specialistSlug } = useParams<{ specialistSlug: string }>();
   const { isAuth, user } = useAuth();
-  const [tab, setTab] = useState<EditTab>('calendar');
 
   const store = useMemo(() => new SpecialistCalendarEditStore(), []);
 
@@ -560,11 +285,6 @@ export const SpecialistCalendarEditPage = observer(() => {
 
   const todayIso = toIsoDate(new Date());
 
-  const selectedDateSummary = getDateBookingSummary(
-    store.editableCalendar,
-    store.selectedDate,
-  );
-
   const contextMenuItems =
     menuAnchor && store.editableCalendar
       ? buildDayContextMenuItems(store, menuAnchor.isoDate, store.editableCalendar)
@@ -573,34 +293,28 @@ export const SpecialistCalendarEditPage = observer(() => {
   return (
     <section className={styles.page}>
       <div className={styles.container}>
-        <div className={styles.topNavRow}>
-          <Link
-            to={`/specialists/${store.profile.slug}`}
-            className={styles.backPill}
-            title="Вернуться в профиль специалиста"
-          >
-            <span className={styles.backPillIcon} aria-hidden>
-              ←
-            </span>
-            Назад
-          </Link>
-        </div>
-
-        <header className={styles.pageIntro}>
-          <div className={styles.pageIntroText}>
-            <span className={styles.eyebrow}>Календарь</span>
-            <h1 className={styles.title}>Когда вас можно записать</h1>
-            <p className={styles.description}>
-              Настройте недельный шаблон, правила слотов и точечные дни на вкладках ниже.
-              На календаре: обычный выбор — клик или касание; дополнительные действия —
-              правый клик на ПК или долгое нажатие на телефоне и планшете.
-            </p>
+        <div className={styles.figmaPageTop}>
+          <div className={styles.topNavRow}>
+            <Link
+              to={`/specialists/${store.profile.slug}`}
+              className={styles.backPill}
+              title="Вернуться в профиль специалиста"
+            >
+              <span className={styles.backPillIcon} aria-hidden>
+                ←
+              </span>
+              Назад
+            </Link>
           </div>
 
-          <div className={styles.headerActions}>
+          <header className={styles.figmaTitleSaveRow}>
+            <div className={styles.pageIntroText}>
+              <h1 className={styles.title}>Редактирование календаря занятости</h1>              
+            </div>
+
             <button
               type="button"
-              className={styles.primaryButton}
+              className={`${styles.primaryButton} ${styles.saveCalendarButton}`}
               onClick={() => {
                 void store.save();
               }}
@@ -608,46 +322,8 @@ export const SpecialistCalendarEditPage = observer(() => {
             >
               {store.isSaving ? 'Сохранение...' : 'Сохранить календарь'}
             </button>
-          </div>
-        </header>
-
-        <div className={styles.tabsBar}>
-          <nav className={styles.tabs} role="tablist" aria-label="Разделы редактирования">
-            <button
-              type="button"
-              role="tab"
-              aria-selected={tab === 'schedule'}
-              className={`${styles.tab} ${tab === 'schedule' ? styles.tabActive : ''}`}
-              onClick={() => setTab('schedule')}
-            >
-              Недельный шаблон
-            </button>
-            <button
-              type="button"
-              role="tab"
-              aria-selected={tab === 'booking'}
-              className={`${styles.tab} ${tab === 'booking' ? styles.tabActive : ''}`}
-              onClick={() => setTab('booking')}
-            >
-              Параметры записи
-            </button>
-            <button
-              type="button"
-              role="tab"
-              aria-selected={tab === 'calendar'}
-              className={`${styles.tab} ${tab === 'calendar' ? styles.tabActive : ''}`}
-              onClick={() => setTab('calendar')}
-            >
-              Календарь
-            </button>
-          </nav>
+          </header>
         </div>
-
-        {store.hasUnsavedChanges ? (
-          <div className={styles.warningBanner}>
-            Изменения ещё не сохранены — нажмите «Сохранить календарь» вверху справа.
-          </div>
-        ) : null}
 
         {store.saveError ? (
           <div className={styles.errorBanner}>{store.saveError}</div>
@@ -657,246 +333,190 @@ export const SpecialistCalendarEditPage = observer(() => {
           <div className={styles.successBanner}>Календарь успешно сохранён.</div>
         ) : null}
 
-        {tab === 'schedule' ? (
-          <div className={styles.tabPanel} role="tabpanel">
-            <WeeklyScheduleSection store={store} />
-          </div>
-        ) : null}
+        <div className={styles.tabPanel} role="region" aria-label="Календарь доступности">
+            <div className={styles.calendarToolsRow}>
+              {store.hasUnsavedChanges ? (
+                <div className={styles.unsavedSidebarBanner} role="status">
+                  Изменения ещё не сохранены — нажмите «Сохранить календарь»
+                </div>
+              ) : (
+                <div className={styles.unsavedSidebarBannerPlaceholder} aria-hidden />
+              )}
 
-        {tab === 'booking' ? (
-          <div className={styles.tabPanel} role="tabpanel">
-            <BookingSettingsSection store={store} />
-          </div>
-        ) : null}
+              <div className={styles.modePillPair} role="group" aria-label="Режим выбора дат">
+                <button
+                  type="button"
+                  className={`${styles.modePill} ${
+                    !store.isMultiSelectMode ? styles.modePillActiveGreen : styles.modePillIdle
+                  }`}
+                  onClick={() => store.setMultiSelectMode(false)}
+                >
+                  <img
+                    src={modeSingleDateIconUrl}
+                    alt=""
+                    className={styles.modePillIcon}
+                    aria-hidden
+                  />
+                  Одиночный выбор даты
+                </button>
+                <button
+                  type="button"
+                  className={`${styles.modePill} ${
+                    store.isMultiSelectMode ? styles.modePillActiveGreen : styles.modePillIdle
+                  }`}
+                  onClick={() => store.setMultiSelectMode(true)}
+                >
+                  <img
+                    src={modeMultiDateIconUrl}
+                    alt=""
+                    className={styles.modePillIcon}
+                    aria-hidden
+                  />
+                  Множественный выбор дат
+                </button>
+              </div>
+            </div>
 
-        {tab === 'calendar' ? (
-          <div className={styles.tabPanel} role="tabpanel">
-            <div className={styles.calendarLayout}>
-              <div className={styles.calendarColumn}>
-                <div className={styles.panel}>
-                  <h2 className={styles.panelTitle}>Месяц</h2>
-                  <p className={styles.panelDescription}>
-                    Клик — выбрать день. Правый клик (ПК) или долгое нажатие — меню
-                    действий. Включите множественный выбор, чтобы задать одно и то же
-                    сразу на несколько дат.
-                  </p>
+            <div className={styles.calendarFigmaGrid}>
+              <div className={styles.calendarMainCard}>
+                <div className={styles.monthHeader}>
+                  <button
+                    type="button"
+                    className={styles.iconButton}
+                    onClick={store.goToPreviousMonth}
+                    aria-label="Предыдущий месяц"
+                  >
+                    ←
+                  </button>
 
-                  <div className={styles.monthHeader}>
-                    <button
-                      type="button"
-                      className={styles.iconButton}
-                      onClick={store.goToPreviousMonth}
-                    >
-                      ←
-                    </button>
+                  <div className={styles.monthTitle}>{formatMonthLabel(store.currentMonth)}</div>
 
-                    <div className={styles.monthTitle}>
-                      {formatMonthLabel(store.currentMonth)}
-                    </div>
+                  <button
+                    type="button"
+                    className={styles.iconButton}
+                    onClick={store.goToNextMonth}
+                    aria-label="Следующий месяц"
+                  >
+                    →
+                  </button>
+                </div>
 
-                    <button
-                      type="button"
-                      className={styles.iconButton}
-                      onClick={store.goToNextMonth}
-                    >
-                      →
-                    </button>
-                  </div>
+                <div className={styles.weekdays}>
+                  {CALENDAR_WEEKDAY_LABELS.map((weekday) => (
+                    <span key={weekday} className={styles.weekday}>
+                      {weekday}
+                    </span>
+                  ))}
+                </div>
 
-                  <div className={styles.selectionToolbar}>
-                    <label className={styles.multiSelectToggle}>
-                      <input
-                        type="checkbox"
-                        checked={store.isMultiSelectMode}
-                        onChange={(event) => store.setMultiSelectMode(event.target.checked)}
-                      />
-                      <span>Множественный выбор дат</span>
-                    </label>
+                <div className={`${styles.daysGrid} ${styles.daysGridFigma}`}>
+                  {calendarMonth.days.map((day, index) => {
+                    const isPast = day.isoDate !== null && day.isoDate < todayIso;
+                    const isToday = day.isoDate !== null && day.isoDate === todayIso;
+                    const isSelected = day.isoDate ? store.isDateSelected(day.isoDate) : false;
 
-                    {store.isMultiSelectMode ? (
+                    return (
                       <button
+                        key={day.isoDate ?? `empty-${index}`}
                         type="button"
-                        className={styles.secondaryButton}
-                        onClick={store.clearSelectedDates}
-                      >
-                        Очистить выбор
-                      </button>
-                    ) : null}
-                  </div>
+                        aria-current={isToday ? 'date' : undefined}
+                        className={`${styles.dayButton} ${
+                          day.isoDate ? styles.dayButtonActive : styles.dayButtonEmpty
+                        } ${isToday ? styles.dayButtonToday : ''} ${
+                          isPast ? styles.dayButtonPast : ''
+                        } ${isSelected ? styles.dayButtonSelected : ''} ${
+                          day.status === 'day_off'
+                            ? styles.dayOff
+                            : day.status === 'fully_booked'
+                              ? styles.fullyBooked
+                              : day.status === 'partially_booked'
+                                ? styles.partiallyBooked
+                                : ''
+                        }`}
+                        disabled={!day.isoDate || isPast}
+                        title={
+                          isPast
+                            ? 'Прошедшие дни нельзя выбрать для правок'
+                            : 'Клик — выбрать. ПКМ / долгое нажатие — меню'
+                        }
+                        {...(day.isoDate && !isPast
+                          ? getDayCellPointerProps(day.isoDate, { disabled: false })
+                          : {})}
+                        onClick={() => {
+                          if (suppressNextClickRef.current) {
+                            suppressNextClickRef.current = false;
 
-                  <div className={styles.weekdays}>
-                    {CALENDAR_WEEKDAY_LABELS.map((weekday) => (
-                      <span key={weekday} className={styles.weekday}>
-                        {weekday}
-                      </span>
-                    ))}
-                  </div>
-
-                  <div className={styles.daysGrid}>
-                    {calendarMonth.days.map((day, index) => {
-                      const isPast = day.isoDate !== null && day.isoDate < todayIso;
-                      const isToday = day.isoDate !== null && day.isoDate === todayIso;
-                      const isSelected = day.isoDate
-                        ? store.isDateSelected(day.isoDate)
-                        : false;
-
-                      return (
-                        <button
-                          key={day.isoDate ?? `empty-${index}`}
-                          type="button"
-                          aria-current={isToday ? 'date' : undefined}
-                          className={`${styles.dayButton} ${
-                            day.isoDate ? styles.dayButtonActive : styles.dayButtonEmpty
-                          } ${isToday ? styles.dayButtonToday : ''} ${
-                            isPast ? styles.dayButtonPast : ''
-                          } ${isSelected ? styles.dayButtonSelected : ''} ${
-                            day.status === 'day_off'
-                              ? styles.dayOff
-                              : day.status === 'fully_booked'
-                                ? styles.fullyBooked
-                                : day.status === 'partially_booked'
-                                  ? styles.partiallyBooked
-                                  : ''
-                          }`}
-                          disabled={!day.isoDate || isPast}
-                          title={
-                            isPast
-                              ? 'Прошедшие дни нельзя выбрать для правок'
-                              : 'Клик — выбрать. ПКМ / долгое нажатие — меню'
+                            return;
                           }
-                          {...(day.isoDate && !isPast
-                            ? getDayCellPointerProps(day.isoDate, { disabled: false })
-                            : {})}
-                          onClick={() => {
-                            if (suppressNextClickRef.current) {
-                              suppressNextClickRef.current = false;
 
-                              return;
-                            }
+                          if (day.isoDate && !isPast) {
+                            store.selectDate(day.isoDate);
+                          }
+                        }}
+                      >
+                        {day.dayNumber ? (
+                          <>
+                            <span className={styles.dayNumber}>{day.dayNumber}</span>
+                            <span className={styles.dayMenuHint} aria-hidden="true">
+                              ···
+                            </span>
+                            {day.status === 'fully_booked' ? (
+                              <span
+                                className={styles.dayDot}
+                                title={CALENDAR_STATUS_LABELS.fully_booked}
+                              />
+                            ) : day.status === 'partially_booked' ? (
+                              <span
+                                className={`${styles.dayDot} ${styles.dayDotOpenSlots}`}
+                                title={CALENDAR_STATUS_LABELS.partially_booked}
+                              />
+                            ) : day.status === 'available' && day.hasAvailabilityWindows ? (
+                              <span
+                                className={`${styles.dayDot} ${styles.dayDotOpenSlots}`}
+                                title="На этот день назначены окна доступности"
+                              />
+                            ) : null}
+                          </>
+                        ) : null}
+                      </button>
+                    );
+                  })}
+                </div>
 
-                            if (day.isoDate && !isPast) {
-                              store.selectDate(day.isoDate);
-                            }
-                          }}
-                        >
-                          {day.dayNumber ? (
-                            <>
-                              <span className={styles.dayNumber}>{day.dayNumber}</span>
-                              <span className={styles.dayMenuHint} aria-hidden="true">
-                                ···
-                              </span>
-                              {day.status === 'partially_booked' ? (
-                                <span
-                                  className={styles.dayDot}
-                                  title={CALENDAR_STATUS_LABELS.partially_booked}
-                                />
-                              ) : day.status === 'available' &&
-                                day.hasAvailabilityWindows ? (
-                                <span
-                                  className={`${styles.dayDot} ${styles.dayDotOpenSlots}`}
-                                  title="На этот день назначены окна доступности"
-                                />
-                              ) : null}
-                            </>
-                          ) : null}
-                        </button>
-                      );
-                    })}
+                <div className={styles.legendFigma}>
+                  <div className={styles.legendItem}>
+                    <span className={`${styles.legendMark} ${styles.legendMarkOrange}`} />
+                    <span className={styles.legendLabelFigma}>Занят</span>
                   </div>
-
-                  <div className={styles.legend}>
-                    <div className={styles.legendItem}>
-                      <span className={`${styles.legendMark} ${styles.legendFree}`} />
-                      <span>{CALENDAR_STATUS_LABELS.available}</span>
-                    </div>
-                    <div className={styles.legendItem}>
-                      <span className={`${styles.legendMark} ${styles.legendPartial}`} />
-                      <span>{CALENDAR_STATUS_LABELS.partially_booked}</span>
-                    </div>
-                    <div className={styles.legendItem}>
-                      <span className={`${styles.legendMark} ${styles.legendFull}`} />
-                      <span>{CALENDAR_STATUS_LABELS.fully_booked}</span>
-                    </div>
-                    <div className={styles.legendItem}>
-                      <span className={`${styles.legendMark} ${styles.legendDayOff}`} />
-                      <span>{CALENDAR_STATUS_LABELS.day_off}</span>
-                    </div>
+                  <div className={styles.legendItem}>
+                    <span className={`${styles.legendMark} ${styles.legendMarkYellow}`} />
+                    <span className={styles.legendLabelFigma}>Частично занят</span>
                   </div>
-                  <p className={styles.calendarGridHint}>
-                    Жёлтая точка — окна доступности без записей. Оранжевая точка — частичная
-                    занятость. Оранжевая обводка — сегодня. «···» напоминает, что у дня есть
-                    контекстное меню.
-                  </p>
                 </div>
               </div>
 
-              <aside className={styles.calendarAside}>
-                <div className={styles.selectedDateCard}>
-                  <span className={styles.selectedDateCaption}>
-                    {store.selectedDatesCount > 1 ? 'Выбранные даты' : 'Выбранная дата'}
-                  </span>
-                  <div className={styles.selectedDateValue}>{store.selectedDatesLabel}</div>
-                  <div className={styles.selectedDateMeta}>
-                    <span className={styles.metaChip}>
-                      Статус в сетке: {CALENDAR_STATUS_LABELS[store.selectedDateActualStatus]}
-                    </span>
-                    <span className={styles.metaChip}>
-                      Активная дата: {store.selectedDate}
-                    </span>
-                  </div>
-
-                  <div className={styles.summaryGrid}>
-                    <div className={styles.summaryCard}>
-                      <span className={styles.summaryLabel}>Окон доступности</span>
-                      <strong className={styles.summaryValue}>
-                        {selectedDateSummary.availabilityWindowsCount}
-                      </strong>
-                    </div>
-
-                    <div className={styles.summaryCard}>
-                      <span className={styles.summaryLabel}>Занятых интервалов</span>
-                      <strong className={styles.summaryValue}>
-                        {selectedDateSummary.bookedSlotsCount}
-                      </strong>
-                    </div>
-
-                    <div className={styles.summaryCard}>
-                      <span className={styles.summaryLabel}>Доступно минут</span>
-                      <strong className={styles.summaryValue}>
-                        {selectedDateSummary.totalAvailabilityMinutes}
-                      </strong>
-                    </div>
-
-                    <div className={styles.summaryCard}>
-                      <span className={styles.summaryLabel}>Занято минут</span>
-                      <strong className={styles.summaryValue}>
-                        {selectedDateSummary.bookedMinutes}
-                      </strong>
-                    </div>
-                  </div>
+              <aside className={styles.calendarAsideFigma}>
+                <div className={styles.asideCard}>
+                  <h2 className={styles.asideCardTitle}>
+                    {formatAsideDateHeadline(
+                      store.selectedDate,
+                      todayIso,
+                      store.selectedDatesCount,
+                    )}
+                  </h2>
                 </div>
 
-                <div className={styles.panel}>
-                  <h2 className={styles.panelTitle}>Статус выбранных дней</h2>
-                  <p className={styles.panelDescription}>
-                    {store.selectedDatesCount > 1
-                      ? 'Действия применяются ко всем выбранным датам.'
-                      : 'Ручной статус перекрывает отображение для клиента, пока вы его не сбросите.'}
-                  </p>
+                <div className={styles.asideCard}>
+                  <h2 className={styles.asideCardTitle}>Статус выбранных дней</h2>
 
-                  <div className={styles.statusButtonRow}>
+                  <div className={styles.statusPillGrid}>
                     <button
                       type="button"
-                      className={styles.statusAction}
-                      onClick={() => {
-                        store.clearSelectedDayStatus();
-                      }}
-                    >
-                      Как по окнам
-                    </button>
-                    <button
-                      type="button"
-                      className={styles.statusAction}
+                      className={`${styles.statusPill} ${
+                        store.selectedDateOverrideStatus === 'day_off'
+                          ? styles.statusPillActiveNeutral
+                          : ''
+                      }`}
                       onClick={() => {
                         if (
                           !confirmDayStatusOverride(
@@ -912,11 +532,20 @@ export const SpecialistCalendarEditPage = observer(() => {
                         store.applySelectedDayStatus();
                       }}
                     >
+                      <span
+                        className={`${styles.statusPillDot} ${styles.statusPillDotGrey}`}
+                        aria-hidden
+                      />
                       Выходной
                     </button>
+
                     <button
                       type="button"
-                      className={styles.statusAction}
+                      className={`${styles.statusPill} ${
+                        store.selectedDateOverrideStatus === 'fully_booked'
+                          ? styles.statusPillActiveOrange
+                          : ''
+                      }`}
                       onClick={() => {
                         if (
                           !confirmDayStatusOverride(
@@ -932,7 +561,44 @@ export const SpecialistCalendarEditPage = observer(() => {
                         store.applySelectedDayStatus();
                       }}
                     >
-                      Без записей
+                      <span
+                        className={`${styles.statusPillDot} ${styles.statusPillDotOrange}`}
+                        aria-hidden
+                      />
+                      Весь день занят
+                    </button>
+
+                    <button
+                      type="button"
+                      className={`${styles.statusPill} ${
+                        !store.selectedDateOverrideStatus &&
+                        store.selectedDateActualStatus === 'partially_booked'
+                          ? styles.statusPillActiveYellow
+                          : ''
+                      }`}
+                      onClick={() => {
+                        store.clearSelectedDayStatus();
+                      }}
+                    >
+                      <span
+                        className={`${styles.statusPillDot} ${styles.statusPillDotYellow}`}
+                        aria-hidden
+                      />
+                      День частично занят
+                    </button>
+
+                    <button
+                      type="button"
+                      className={`${styles.statusPill} ${styles.statusPillGhost}`}
+                      onClick={() => {
+                        if (store.isMultiSelectMode && store.selectedDatesCount > 1) {
+                          store.clearSelectedDates();
+                        } else {
+                          store.clearSelectedDayStatus();
+                        }
+                      }}
+                    >
+                      Очистить
                     </button>
                   </div>
 
@@ -944,246 +610,67 @@ export const SpecialistCalendarEditPage = observer(() => {
                       </strong>
                     </p>
                   ) : (
-                    <p className={styles.overrideNote}>Ручной статус не задан.</p>
+                    <p className={styles.overrideNote}>
+                      По окнам: {CALENDAR_STATUS_LABELS[store.selectedDateActualStatus]}
+                    </p>
                   )}
                 </div>
 
-                <div className={styles.panel}>
-                  <h2 className={styles.panelTitle}>Пакетно для выбранных дат</h2>
-                  <p className={styles.panelDescription}>
-                    Разовые окна не по шаблону недели — выберите даты слева и задайте
-                    интервал.
-                  </p>
-
-                  <div className={styles.selectedDateInline}>
-                    Выбрано дат: <strong>{store.selectedDatesCount}</strong>
-                  </div>
+                <div className={styles.asideCard}>
+                  <h2 className={styles.asideCardTitle}>Добавление услуги</h2>
 
                   <div className={styles.fieldRow}>
                     <label className={styles.field}>
                       <span className={styles.fieldLabel}>С</span>
-                      <input
-                        className={styles.input}
-                        type="time"
-                        value={store.bulkTemplateForm.startTime}
-                        onChange={(event) =>
-                          store.setBulkTemplateField('startTime', event.target.value)
-                        }
-                      />
+                      <div className={styles.timeFieldWrap}>
+                        <input
+                          className={styles.input}
+                          type="time"
+                          value={store.windowForm.startTime}
+                          onChange={(event) =>
+                            store.setWindowField('startTime', event.target.value)
+                          }
+                        />
+                      </div>
                     </label>
 
                     <label className={styles.field}>
                       <span className={styles.fieldLabel}>До</span>
-                      <input
-                        className={styles.input}
-                        type="time"
-                        value={store.bulkTemplateForm.endTime}
-                        onChange={(event) =>
-                          store.setBulkTemplateField('endTime', event.target.value)
-                        }
-                      />
+                      <div className={styles.timeFieldWrap}>
+                        <input
+                          className={styles.input}
+                          type="time"
+                          value={store.windowForm.endTime}
+                          onChange={(event) =>
+                            store.setWindowField('endTime', event.target.value)
+                          }
+                        />
+                      </div>
                     </label>
                   </div>
-
-                  <label className={styles.checkboxRow}>
-                    <input
-                      type="checkbox"
-                      checked={store.bulkTemplateForm.replaceExistingWindows}
-                      onChange={(event) =>
-                        store.setBulkTemplateField(
-                          'replaceExistingWindows',
-                          event.target.checked,
-                        )
-                      }
-                    />
-                    <span>Сначала очистить существующие окна у выбранных дат</span>
-                  </label>
 
                   <label className={styles.field}>
-                    <span className={styles.fieldLabel}>Комментарий</span>
-                    <input
+                    <span className={styles.fieldLabel}>Услуга</span>
+                    <select
                       className={styles.input}
-                      type="text"
-                      value={store.bulkTemplateForm.comment}
-                      onChange={(event) =>
-                        store.setBulkTemplateField('comment', event.target.value)
-                      }
-                      placeholder="Например: вечерние окна на будние дни"
-                    />
+                      value={store.windowForm.serviceIds[0] ?? ''}
+                      onChange={(event) => {
+                        const value = event.target.value;
+
+                        store.setWindowField(
+                          'serviceIds',
+                          value ? [value] : [],
+                        );
+                      }}
+                    >
+                      <option value="">Выберите услугу</option>
+                      {store.services.map((service) => (
+                        <option key={service.id} value={service.id}>
+                          {service.name}
+                        </option>
+                      ))}
+                    </select>
                   </label>
-
-                  <div className={styles.field}>
-                    <span className={styles.fieldLabel}>Какие услуги доступны</span>
-                    <div className={styles.servicesList}>
-                      {store.services.map((service) => {
-                        const isChecked = store.bulkTemplateForm.serviceIds.includes(
-                          service.id,
-                        );
-
-                        return (
-                          <label key={service.id} className={styles.checkboxCard}>
-                            <input
-                              type="checkbox"
-                              checked={isChecked}
-                              onChange={() => store.toggleBulkTemplateService(service.id)}
-                            />
-                            <span>{service.name}</span>
-                          </label>
-                        );
-                      })}
-                    </div>
-                  </div>
-
-                  <div className={styles.inlineActions}>
-                    <button
-                      type="button"
-                      className={styles.secondaryButton}
-                      onClick={store.resetBulkTemplateFromBookingSettings}
-                    >
-                      Подставить время из правил бронирования
-                    </button>
-                  </div>
-
-                  {store.bulkTemplateError ? (
-                    <div className={styles.fieldError}>{store.bulkTemplateError}</div>
-                  ) : null}
-
-                  <div className={styles.inlineActions}>
-                    <button
-                      type="button"
-                      className={styles.primaryButton}
-                      onClick={() => {
-                        if (store.bulkTemplateForm.replaceExistingWindows) {
-                          if (!confirmBulkReplaceWindows()) {
-                            return;
-                          }
-                        }
-
-                        store.applyBulkAvailabilityTemplate();
-                      }}
-                    >
-                      Создать одинаковые окна
-                    </button>
-
-                    <button
-                      type="button"
-                      className={styles.secondaryButton}
-                      onClick={() => {
-                        if (
-                          !confirmClearAvailabilityWindows(store.selectedDatesCount)
-                        ) {
-                          return;
-                        }
-
-                        store.clearAvailabilityWindowsForSelectedDates();
-                      }}
-                    >
-                      Очистить окна
-                    </button>
-                  </div>
-
-                  <div className={styles.note}>
-                    При пакетном создании ручные статусы у выбранных дат снимаются, чтобы эти
-                    дни можно было бронировать по созданным окнам.
-                  </div>
-
-                  <div className={styles.windowsList}>
-                    {store.selectedDatesAvailabilityWindows.length > 0 ? (
-                      store.selectedDatesAvailabilityWindows.map((item) => {
-                        const serviceLabels = store.services
-                          .filter((service) => item.serviceIds.includes(service.id))
-                          .map((service) => service.name);
-
-                        return (
-                          <div key={item.id} className={styles.windowCard}>
-                            <div className={styles.windowHeader}>
-                              <strong>
-                                {item.date} · {item.startTime} — {item.endTime}
-                              </strong>
-
-                              <button
-                                type="button"
-                                className={styles.removeButton}
-                                onClick={() => {
-                                  if (!confirmRemoveAvailabilityWindow()) {
-                                    return;
-                                  }
-
-                                  store.removeAvailabilityWindow(item.id);
-                                }}
-                              >
-                                Удалить
-                              </button>
-                            </div>
-
-                            <div className={styles.windowServices}>
-                              {serviceLabels.join(', ')}
-                            </div>
-
-                            {item.comment ? (
-                              <div className={styles.windowComment}>{item.comment}</div>
-                            ) : null}
-                          </div>
-                        );
-                      })
-                    ) : (
-                      <div className={styles.emptyState}>
-                        У выбранных дат пока нет окон доступности.
-                      </div>
-                    )}
-                  </div>
-                </div>
-
-                <div className={styles.panel}>
-                  <h2 className={styles.panelTitle}>Ещё одно окно на активную дату</h2>
-                  <p className={styles.panelDescription}>
-                    Только для <strong>{store.selectedDateLabel}</strong> — добавить отдельный
-                    интервал.
-                  </p>
-
-                  <div className={styles.selectedDateInline}>
-                    Настраиваемая дата: <strong>{store.selectedDate}</strong>
-                  </div>
-
-                  <div className={styles.note}>
-                    Окна должны попадать в рабочее время из вкладки «Параметры записи».
-                  </div>
-
-                  <div className={styles.fieldRow}>
-                    <label className={styles.field}>
-                      <span className={styles.fieldLabel}>С</span>
-                      <input
-                        className={styles.input}
-                        type="time"
-                        value={store.windowForm.startTime}
-                        onChange={(event) =>
-                          store.setWindowField('startTime', event.target.value)
-                        }
-                      />
-                    </label>
-
-                    <label className={styles.field}>
-                      <span className={styles.fieldLabel}>До</span>
-                      <input
-                        className={styles.input}
-                        type="time"
-                        value={store.windowForm.endTime}
-                        onChange={(event) =>
-                          store.setWindowField('endTime', event.target.value)
-                        }
-                      />
-                    </label>
-                  </div>
-
-                  <div className={styles.inlineActions}>
-                    <button
-                      type="button"
-                      className={styles.secondaryButton}
-                      onClick={store.resetWindowFormFromBookingSettings}
-                    >
-                      Подставить время из правил бронирования
-                    </button>
-                  </div>
 
                   <label className={styles.field}>
                     <span className={styles.fieldLabel}>Комментарий</span>
@@ -1191,32 +678,10 @@ export const SpecialistCalendarEditPage = observer(() => {
                       className={styles.input}
                       type="text"
                       value={store.windowForm.comment}
-                      onChange={(event) =>
-                        store.setWindowField('comment', event.target.value)
-                      }
+                      onChange={(event) => store.setWindowField('comment', event.target.value)}
                       placeholder="Например: только вечерние выгулы"
                     />
                   </label>
-
-                  <div className={styles.field}>
-                    <span className={styles.fieldLabel}>Какие услуги доступны</span>
-                    <div className={styles.servicesList}>
-                      {store.services.map((service) => {
-                        const isChecked = store.windowForm.serviceIds.includes(service.id);
-
-                        return (
-                          <label key={service.id} className={styles.checkboxCard}>
-                            <input
-                              type="checkbox"
-                              checked={isChecked}
-                              onChange={() => store.toggleWindowService(service.id)}
-                            />
-                            <span>{service.name}</span>
-                          </label>
-                        );
-                      })}
-                    </div>
-                  </div>
 
                   {store.windowFormError ? (
                     <div className={styles.fieldError}>{store.windowFormError}</div>
@@ -1224,29 +689,72 @@ export const SpecialistCalendarEditPage = observer(() => {
 
                   <button
                     type="button"
-                    className={styles.primaryButton}
+                    className={`${styles.primaryButton} ${styles.addServiceButton}`}
                     onClick={store.addAvailabilityWindow}
                   >
-                    Добавить окно для {store.selectedDateLabel}
+                    Добавить услугу
                   </button>
 
-                  <div className={styles.windowsList}>
-                    {store.selectedDateAvailabilityWindows.length > 0 ? (
-                      store.selectedDateAvailabilityWindows.map((item) => {
+                  {store.selectedDateBookedSlots.length > 0 ? (
+                    <>
+                      <p className={styles.asideSectionHeading}>Записи клиентов</p>
+                      <div className={styles.windowsList}>
+                        {store.selectedDateBookedSlots.map((item) => {
+                          const bookedServiceLabels = store.services
+                            .filter((service) => item.serviceIds.includes(service.id))
+                            .map((service) => service.name);
+
+                          const bookedServiceTitle =
+                            bookedServiceLabels.length > 0
+                              ? bookedServiceLabels.join(', ')
+                              : 'Услуга';
+
+                          const bufferParts: string[] = [];
+
+                          if (item.bufferBeforeMinutes) {
+                            bufferParts.push(`буфер до: ${item.bufferBeforeMinutes} мин`);
+                          }
+
+                          if (item.bufferAfterMinutes) {
+                            bufferParts.push(`буфер после: ${item.bufferAfterMinutes} мин`);
+                          }
+
+                          return (
+                            <div key={item.id} className={styles.windowCard}>
+                              <div className={styles.windowCardMainRow}>
+                                <div className={styles.bookedRowSpacer} aria-hidden />
+                                <p className={styles.windowServiceTitle}>{bookedServiceTitle}</p>
+                                <span className={styles.windowTime}>
+                                  {item.startTime} - {item.endTime}
+                                </span>
+                              </div>
+                              {bufferParts.length > 0 ? (
+                                <div className={styles.bookedMeta}>{bufferParts.join(' · ')}</div>
+                              ) : null}
+                            </div>
+                          );
+                        })}
+                      </div>
+                    </>
+                  ) : null}
+
+                  {store.selectedDateAvailabilityWindows.length > 0 ? (
+                    <div className={styles.windowsList}>
+                      {store.selectedDateAvailabilityWindows.map((item) => {
                         const serviceLabels = store.services
                           .filter((service) => item.serviceIds.includes(service.id))
                           .map((service) => service.name);
 
+                        const serviceTitle =
+                          serviceLabels.length > 0 ? serviceLabels.join(', ') : 'Услуга';
+
                         return (
                           <div key={item.id} className={styles.windowCard}>
-                            <div className={styles.windowHeader}>
-                              <strong>
-                                {item.startTime} — {item.endTime}
-                              </strong>
-
+                            <div className={styles.windowCardMainRow}>
                               <button
                                 type="button"
-                                className={styles.removeButton}
+                                className={styles.windowDeleteButton}
+                                aria-label="Удалить"
                                 onClick={() => {
                                   if (!confirmRemoveAvailabilityWindow()) {
                                     return;
@@ -1255,12 +763,20 @@ export const SpecialistCalendarEditPage = observer(() => {
                                   store.removeAvailabilityWindow(item.id);
                                 }}
                               >
-                                Удалить
+                                <img
+                                  src={deleteWindowIconUrl}
+                                  alt=""
+                                  width={32}
+                                  height={32}
+                                  className={styles.windowDeleteIcon}
+                                />
                               </button>
-                            </div>
 
-                            <div className={styles.windowServices}>
-                              {serviceLabels.join(', ')}
+                              <p className={styles.windowServiceTitle}>{serviceTitle}</p>
+
+                              <span className={styles.windowTime}>
+                                {item.startTime} - {item.endTime}
+                              </span>
                             </div>
 
                             {item.comment ? (
@@ -1268,51 +784,13 @@ export const SpecialistCalendarEditPage = observer(() => {
                             ) : null}
                           </div>
                         );
-                      })
-                    ) : (
-                      <div className={styles.emptyState}>
-                        Для даты {store.selectedDateLabel} частичная доступность пока не
-                        настроена.
-                      </div>
-                    )}
-                  </div>
-                </div>
-
-                <div className={styles.panel}>
-                  <h2 className={styles.panelTitle}>Занято записями</h2>
-                  <p className={styles.panelDescription}>
-                    Только просмотр — чтобы не пересечься с уже существующими записями.
-                  </p>
-
-                  <div className={styles.bookedList}>
-                    {store.selectedDateBookedSlots.length > 0 ? (
-                      store.selectedDateBookedSlots.map((item) => {
-                        const serviceLabels = store.services
-                          .filter((service) => item.serviceIds.includes(service.id))
-                          .map((service) => service.name);
-
-                        return (
-                          <div key={item.id} className={styles.bookedCard}>
-                            <strong>
-                              {item.startTime} — {item.endTime}
-                            </strong>
-                            <div className={styles.bookedMeta}>
-                              {serviceLabels.join(', ')}
-                            </div>
-                          </div>
-                        );
-                      })
-                    ) : (
-                      <div className={styles.emptyState}>
-                        На выбранную дату занятых слотов пока нет.
-                      </div>
-                    )}
-                  </div>
+                      })}
+                    </div>
+                  ) : null}
                 </div>
               </aside>
             </div>
-          </div>
-        ) : null}
+        </div>
 
         <CalendarDayContextMenu
           anchor={

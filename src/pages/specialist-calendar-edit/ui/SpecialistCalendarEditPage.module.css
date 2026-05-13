@@ -3,8 +3,378 @@
 .page {
   box-sizing: border-box;
   min-height: 100%;
-  padding: 24px clamp(20px, 8vw, 200px) 48px;
+  padding: 30px clamp(20px, 8vw, 200px) 48px;
   background: #f8f8f8;
+}
+
+.figmaPageTop {
+  margin-bottom: 8px;
+}
+
+.figmaTitleSaveRow {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 24px;
+  flex-wrap: wrap;
+  margin-top: 10px;
+}
+
+.figmaTitleSaveRow .pageIntroText {
+  flex: 1 1 420px;
+  min-width: 0;
+}
+
+.saveCalendarButton {
+  flex: 0 0 auto;
+  min-width: 200px;
+  padding-left: 28px;
+  padding-right: 28px;
+}
+
+.calendarToolsRow {
+  display: flex;
+  flex-direction: row-reverse;
+  flex-wrap: nowrap;
+  justify-content: space-between;
+  align-items: center;
+  gap: 16px 24px;
+  margin-bottom: 20px;
+  min-width: 0;
+}
+
+@media (max-width: 680px) {
+  .calendarToolsRow {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .unsavedSidebarBannerPlaceholder {
+    display: none;
+  }
+}
+
+.modePillPair {
+  display: flex;
+  flex-wrap: nowrap;
+  gap: 20px;
+  align-items: center;
+  flex: 1 1 auto;
+  min-width: 0;
+  width: 100%;
+}
+
+@media (min-width: 681px) {
+  .modePillPair {
+    width: auto;
+  }
+}
+
+.modePill {
+  box-sizing: border-box;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  min-height: 45px;
+  padding: 10px 20px;
+  flex: 1 1 0;
+  min-width: 0;
+  max-width: 442px;
+  border-radius: 44px;
+  border: 1px solid #6f685d;
+  background: #f8f8f8;
+  font-family: 'Raleway', system-ui, sans-serif;
+  font-size: 16px;
+  font-weight: 600;
+  line-height: 19px;
+  font-feature-settings: 'pnum' on, 'lnum' on;
+  color: #211500;
+  cursor: pointer;
+  transition:
+    background-color 0.15s ease,
+    border-color 0.15s ease;
+}
+
+.modePill:hover {
+  border-color: #211500;
+}
+
+.modePillActiveGreen {
+  background: #ccd308;
+  border-color: #ccd308;
+}
+
+.modePillIdle {
+  background: #f8f8f8;
+}
+
+.modePillIcon {
+  display: inline-flex;
+  width: 21px;
+  height: 21px;
+  flex-shrink: 0;
+  object-fit: contain;
+  opacity: 0.92;
+}
+
+@media (max-width: 520px) {
+  .modePillPair {
+    flex-wrap: wrap;
+  }
+
+  .modePill {
+    flex: 1 1 100%;
+    max-width: none;
+  }
+}
+
+.unsavedSidebarBanner {
+  box-sizing: border-box;
+  width: min(596px, 100%);
+  max-width: 100%;
+  min-height: 48px;
+  padding: 14px 20px;
+  border-radius: 10px;
+  background: #ffe4c3;
+  font-family: 'Rubik', system-ui, sans-serif;
+  font-size: 15px;
+  line-height: 18px;
+  color: #211500;
+  flex: 0 0 auto;
+  flex-shrink: 0;
+}
+
+.unsavedSidebarBannerPlaceholder {
+  width: min(596px, 100%);
+  max-width: 100%;
+  min-height: 48px;
+  flex-shrink: 0;
+  flex: 0 0 auto;
+}
+
+.calendarFigmaGrid {
+  display: grid;
+  grid-template-columns: minmax(0, 904px) minmax(280px, 596px);
+  gap: 20px;
+  align-items: start;
+}
+
+.calendarMainCard {
+  box-sizing: border-box;
+  border-radius: 20px;
+  background: #ffffff;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+  padding: 30px;
+  max-width: 904px;
+}
+
+.calendarMainCard .dayMenuHint {
+  display: none;
+}
+
+.calendarMainCard .dayNumber {
+  font-family: 'Raleway', system-ui, sans-serif;
+  font-weight: 600;
+  font-size: 16px;
+  line-height: 19px;
+  font-feature-settings: 'pnum' on, 'lnum' on;
+}
+
+.daysGridFigma {
+  gap: 14px 15px;
+}
+
+.legendFigma {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 20px 32px;
+  margin-top: 22px;
+}
+
+.legendLabelFigma {
+  font-family: 'Raleway', system-ui, sans-serif;
+  font-weight: 600;
+  font-size: 16px;
+  line-height: 19px;
+  font-feature-settings: 'pnum' on, 'lnum' on;
+  color: #211500;
+}
+
+.legendMarkOrange {
+  background: #ffa232;
+}
+
+.legendMarkYellow {
+  background: #ffc721;
+}
+
+.calendarAsideFigma {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+  min-width: 0;
+}
+
+.asideCard {
+  box-sizing: border-box;
+  border-radius: 20px;
+  background: #ffffff;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+  padding: 30px;
+}
+
+.asideCardTitle {
+  margin: 0 0 16px;
+  font-family: 'Igra Sans', system-ui, sans-serif;
+  font-size: 24px;
+  font-weight: 400;
+  line-height: 1.2;
+  color: #211500;
+}
+
+.asideCard > .asideCardTitle:first-child {
+  margin-bottom: 0;
+}
+
+.asideCardHint {
+  margin: 0 0 16px;
+  font-family: 'Rubik', system-ui, sans-serif;
+  font-size: 14px;
+  line-height: 1.45;
+  color: #6f685d;
+}
+
+.asideSectionHeading {
+  margin: 20px 0 0;
+  font-family: 'Rubik', system-ui, sans-serif;
+  font-size: 15px;
+  font-weight: 600;
+  line-height: 1.35;
+  color: #211500;
+}
+
+.bookedRowSpacer {
+  flex: 0 0 32px;
+  width: 32px;
+  height: 32px;
+  flex-shrink: 0;
+}
+
+.statusPillGrid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 14px 20px;
+  margin-top: 4px;
+}
+
+.statusPill {
+  box-sizing: border-box;
+  display: flex;
+  align-items: center;
+  justify-content: flex-start;
+  gap: 12px;
+  min-height: 45px;
+  padding: 10px 16px 10px 14px;
+  border-radius: 44px;
+  border: 1px solid #6f685d;
+  background: #ffffff;
+  font-family: 'Raleway', system-ui, sans-serif;
+  font-size: 16px;
+  font-weight: 600;
+  line-height: 19px;
+  font-feature-settings: 'pnum' on, 'lnum' on;
+  color: #211500;
+  cursor: pointer;
+  text-align: left;
+  transition:
+    border-color 0.15s ease,
+    background-color 0.15s ease;
+}
+
+.statusPill:hover {
+  border-color: #211500;
+}
+
+.statusPillDot {
+  width: 8px;
+  height: 8px;
+  border-radius: 999px;
+  flex-shrink: 0;
+}
+
+.statusPillDotGrey {
+  background: #c7c2ba;
+}
+
+.statusPillDotOrange {
+  background: #ffa232;
+}
+
+.statusPillDotYellow {
+  background: #ffc721;
+}
+
+.statusPillActiveNeutral {
+  border-color: #6f685d;
+  background: #ffffff;
+}
+
+.statusPillActiveOrange {
+  border: 1px solid #ffa232;
+  background: #ffe4c3;
+}
+
+.statusPillActiveYellow {
+  border: 1px solid #ffc721;
+  background: #fff3cd;
+}
+
+.statusPillGhost {
+  border-color: #c7c2ba;
+  color: #6f685d;
+}
+
+.statusPillGhost:hover {
+  border-color: #6f685d;
+  color: #211500;
+}
+
+.addServiceButton {
+  width: 100%;
+  margin-top: 8px;
+}
+
+.advancedBulkDetails {
+  border-radius: 20px;
+  background: #ffffff;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+  overflow: hidden;
+}
+
+.advancedBulkSummary {
+  list-style: none;
+  cursor: pointer;
+  padding: 18px 22px;
+  font-family: 'Igra Sans', system-ui, sans-serif;
+  font-size: 20px;
+  font-weight: 400;
+  line-height: 1.2;
+  color: #211500;
+}
+
+.advancedBulkSummary::-webkit-details-marker {
+  display: none;
+}
+
+.bulkDetailsBody {
+  padding: 0 22px 22px;
+}
+
+.timeFieldWrap {
+  position: relative;
 }
 
 .container {
@@ -22,6 +392,7 @@
   align-items: center;
   justify-content: center;
   gap: 8px;
+  min-width: 134px;
   min-height: 45px;
   padding: 10px 22px 10px 18px;
   border-radius: 23px;
@@ -451,12 +822,12 @@
 
 .dayButtonSelected {
   outline: none;
-  border: 2px solid #ffa232;
+  border: 3px solid #ffa232;
   background: #ffe4c3;
 }
 
 .dayButtonToday {
-  border: 2px solid #ffa232;
+  border: 3px solid #ffa232;
   box-shadow: none;
   z-index: 1;
 }
@@ -523,11 +894,19 @@
 }
 
 .fullyBooked {
-  background: rgba(239, 68, 68, 0.06);
+  background: #ffffff;
+  border-color: #211500;
 }
 
 .partiallyBooked {
-  border: 2px solid #ffa232;
+  border: 1px solid #211500;
+}
+
+.dayButtonSelected.partiallyBooked,
+.dayButtonSelected.fullyBooked,
+.dayButtonSelected.dayOff {
+  border: 3px solid #ffa232;
+  background: #ffe4c3;
 }
 
 .dayButtonToday.dayOff .dayNumber,
@@ -736,6 +1115,15 @@
   line-height: 18px;
 }
 
+select.input {
+  cursor: pointer;
+  appearance: none;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8' fill='none'%3E%3Cpath d='M1 1.5L6 6.5L11 1.5' stroke='%236f685d' stroke-width='1.5' stroke-linecap='round'/%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right 14px center;
+  padding-right: 40px;
+}
+
 .servicesList {
   display: grid;
   gap: 10px;
@@ -760,7 +1148,13 @@
   margin-top: 14px;
 }
 
-.windowsList,
+.windowsList {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  margin-top: 16px;
+}
+
 .bookedList {
   display: flex;
   flex-direction: column;
@@ -768,7 +1162,6 @@
   margin-top: 16px;
 }
 
-.windowCard,
 .bookedCard {
   padding: 14px;
   border-radius: 10px;
@@ -776,23 +1169,101 @@
   background: #ffffff;
 }
 
-.windowHeader {
-  display: flex;
-  justify-content: space-between;
-  gap: 12px;
-  align-items: center;
-  flex-wrap: wrap;
+.windowCard {
+  box-sizing: border-box;
+  width: 100%;
+  max-width: 596px;
+  border-radius: 20px;
+  background: #ffffff;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+  border: none;
+  overflow: hidden;
 }
 
-.windowServices,
+.windowCardMainRow {
+  box-sizing: border-box;
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  min-height: 69px;
+  padding: 0 20px;
+  gap: 20px;
+}
+
+.windowDeleteButton {
+  box-sizing: border-box;
+  flex: 0 0 32px;
+  width: 32px;
+  height: 32px;
+  margin: 0;
+  padding: 0;
+  border: none;
+  background: transparent;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 8px;
+  transition: opacity 0.15s ease;
+}
+
+.windowDeleteButton:hover {
+  opacity: 0.85;
+}
+
+.windowDeleteButton:focus-visible {
+  outline: 2px solid #211500;
+  outline-offset: 2px;
+}
+
+.windowDeleteIcon {
+  display: block;
+  width: 32px;
+  height: 32px;
+  object-fit: contain;
+}
+
+.windowServiceTitle {
+  flex: 1 1 auto;
+  min-width: 0;
+  margin: 0;
+  font-family: 'Igra Sans', system-ui, sans-serif;
+  font-size: 24px;
+  font-weight: 400;
+  line-height: 120%;
+  color: #211500;
+  overflow-wrap: anywhere;
+}
+
+.windowTime {
+  flex: 0 0 auto;
+  font-family: 'Raleway', system-ui, sans-serif;
+  font-style: normal;
+  font-weight: 700;
+  font-size: 16px;
+  line-height: 19px;
+  display: flex;
+  align-items: center;
+  font-feature-settings: 'pnum' on, 'lnum' on;
+  color: #211500;
+  white-space: nowrap;
+}
+
 .bookedMeta {
-  margin-top: 8px;
+  margin-top: 0;
+  padding: 0 20px 14px;
   font-family: 'Rubik', system-ui, sans-serif;
+  font-size: 13px;
+  line-height: 1.4;
   color: #6f685d;
 }
 
 .windowComment {
-  margin-top: 8px;
+  padding: 0 20px 14px;
+  margin-top: -4px;
+  font-family: 'Rubik', system-ui, sans-serif;
+  font-size: 14px;
+  line-height: 1.45;
   color: #211500;
 }
 
@@ -967,6 +1438,32 @@
 
   .calendarLayout {
     grid-template-columns: 1fr;
+  }
+
+  .calendarFigmaGrid {
+    grid-template-columns: 1fr;
+  }
+
+  .calendarToolsRow {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .unsavedSidebarBanner,
+  .unsavedSidebarBannerPlaceholder {
+    width: 100%;
+  }
+
+  .modePill {
+    width: 100%;
+  }
+
+  .figmaTitleSaveRow {
+    flex-direction: column;
+  }
+
+  .saveCalendarButton {
+    width: 100%;
   }
 
   .fieldRow {
