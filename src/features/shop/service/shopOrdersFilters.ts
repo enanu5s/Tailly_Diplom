@@ -25,6 +25,18 @@ export function mapShopOrderStatusLabel(status: string): string {
   }
 }
 
+/** Подписи статуса в списке заказов (в т.ч. под макет карточки «Заказы из магазина»). */
+export function mapShopOrderStatusCardLabel(status: string): string {
+  switch (status) {
+    case 'delivering':
+      return 'Передан курьеру';
+    case 'completed':
+      return 'Получен';
+    default:
+      return mapShopOrderStatusLabel(status);
+  }
+}
+
 export function getShopOrderStatusTone(status: string): ShopOrderStatusTone {
   switch (status) {
     case 'created':

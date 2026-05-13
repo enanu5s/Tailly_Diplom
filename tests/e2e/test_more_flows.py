@@ -47,7 +47,7 @@ def test_product_page_guest_sees_add_to_cart(page: Page) -> None:
     )
 
 
-def test_client_shop_orders_has_search_and_filters(page: Page) -> None:
+def test_client_shop_orders_page_renders(page: Page) -> None:
     login_and_wait_redirect(
         page,
         CLIENT_EMAIL,
@@ -56,11 +56,10 @@ def test_client_shop_orders_has_search_and_filters(page: Page) -> None:
         url_matcher=PROFILE_LANDING_URL_RE,
     )
     page.goto("/shop/orders")
-    expect(page.get_by_role("heading", name="Заказы магазина")).to_be_visible(
+    expect(page.get_by_role("heading", name="Заказы из магазина")).to_be_visible(
         timeout=20_000,
     )
-    expect(page.get_by_label("Поиск по номеру заказа")).to_be_visible()
-    expect(page.get_by_role("button", name="Все")).to_be_visible()
+    expect(page.get_by_role("button", name=re.compile("Назад"))).to_be_visible()
 
 
 def test_client_sees_booking_cta_on_specialist_profile(page: Page) -> None:

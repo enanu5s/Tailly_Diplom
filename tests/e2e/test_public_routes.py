@@ -43,6 +43,6 @@ def test_unknown_route_shows_not_found(page: Page) -> None:
 
 def test_shop_orders_visible_for_guest(page: Page) -> None:
     page.goto("/shop/orders")
-    expect(page.get_by_role("heading", name="Заказы магазина")).to_be_visible(
+    expect(page.get_by_role("heading", name="Заказы из магазина")).to_be_visible(
         timeout=20_000,
     )

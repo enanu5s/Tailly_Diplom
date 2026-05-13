@@ -98,7 +98,7 @@ def test_guest_opens_shop_orders_page_renders(page: Page) -> None:
     """Гость открывает /shop/orders — страница публичная, без белого экрана и без принудительного логина."""
     page.goto("/shop/orders")
     expect(page).to_have_url(re.compile(r".*/shop/orders"), timeout=20_000)
-    expect(page.get_by_role("heading", name="Заказы магазина")).to_be_visible(
+    expect(page.get_by_role("heading", name="Заказы из магазина")).to_be_visible(
         timeout=20_000,
     )
 
