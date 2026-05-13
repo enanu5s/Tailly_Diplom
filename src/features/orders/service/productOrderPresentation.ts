@@ -18,7 +18,7 @@ export function getProductOrderStatusLabel(status: ProductOrderStatus): string {
     case 'shipped':
       return 'В пути';
     case 'delivered':
-      return 'Доставлен';
+      return 'Получен';
     case 'canceled':
       return 'Отменён';
     default:

@@ -599,19 +599,19 @@ function generateServiceSeed(): ServiceOrder[] {
       lifecycle: [
         {
           status: 'pending_confirmation',
-          changedAt: atTime(addDays(now, -7), 9, 0),
+          changedAt: atTime(addDays(now, 0), 9, 0),
         },
         {
           status: 'confirmed',
-          changedAt: atTime(addDays(now, -7), 9, 20),
+          changedAt: atTime(addDays(now, 0), 9, 20),
         },
         {
           status: 'active',
-          changedAt: atTime(addDays(now, -6), 10, 0),
+          changedAt: atTime(addDays(now, 0), 10, 0),
         },
         {
           status: 'completed',
-          changedAt: atTime(addDays(now, -6), 11, 0),
+          changedAt: atTime(addDays(now, 0), 11, 0),
         },
       ],
     },

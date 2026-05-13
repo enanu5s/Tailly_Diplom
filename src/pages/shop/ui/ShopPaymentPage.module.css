@@ -461,6 +461,52 @@
   line-height: 1.5;
 }
 
+.courierPaymentCard {
+  position: relative;
+}
+
+.courierPayDecor {
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+  overflow: hidden;
+  border-radius: inherit;
+  pointer-events: none;
+}
+
+.courierPayVector {
+  position: absolute;
+  left: 0;
+  bottom: 0;
+  width: min(52%, 407px);
+  height: auto;
+  max-height: 42%;
+  object-fit: contain;
+  object-position: left bottom;
+}
+
+.courierPayHero {
+  position: absolute;
+  right: -8px;
+  bottom: 0;
+  width: min(48%, 400px);
+  height: 90%;
+  max-height: 300px;
+  object-fit: contain;
+  object-position: right bottom;
+}
+
+.courierPaymentBody {
+  position: relative;
+  z-index: 2;
+  max-width: 440px;
+}
+
+.courierPaymentCard .payButton {
+  max-width: 422px;
+  margin-top: 28px;
+}
+
 .paymentCard > .payButton {
   max-width: 422px;
   margin-top: 28px;
@@ -511,7 +557,9 @@
     grid-template-columns: repeat(2, minmax(0, 1fr));
   }
 
-  .illustration {
+  .illustration,
+  .courierPayVector,
+  .courierPayHero {
     opacity: 0.45;
   }
 }
@@ -544,7 +592,8 @@
 
   .illustration,
   .illustrationSbpLeft,
-  .illustrationSbpRight {
+  .illustrationSbpRight,
+  .courierPayDecor {
     display: none;
   }
 

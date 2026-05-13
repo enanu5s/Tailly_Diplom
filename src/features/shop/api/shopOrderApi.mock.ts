@@ -164,7 +164,7 @@ export async function mockGetMyOrders(): Promise<Order[]> {
 
 export async function mockPayShopOrder(
   orderId: string,
-  paymentMethod: 'card' | 'sbp',
+  paymentMethod: 'card' | 'sbp' | 'card_courier' | 'cash',
 ): Promise<Order> {
   const orders = readStoredOrders();
   const index = orders.findIndex((order) => order.id === orderId);
@@ -183,6 +183,28 @@ export async function mockPayShopOrder(
 
   if (current.status === 'paid') {
     throw new Error('Заказ уже оплачен.');
+  }
+
+  if (paymentMethod === 'card_courier' || paymentMethod === 'cash') {
+    if (current.paymentMethod !== paymentMethod) {
+      throw new Error('Способ оплаты не совпадает с заказом.');
+    }
+
+    if (current.status !== 'created') {
+      throw new Error('Заказ уже подтверждён.');
+    }
+
+    const updated: Order = {
+      ...current,
+      status: 'paid',
+    };
+
+    orders[index] = updated;
+    writeStoredOrders(orders);
+
+    notifyShopOrderEvent({ order: updated, event: 'paid' });
+
+    return updated;
   }
 
   if (current.paymentMethod === 'cash' || current.paymentMethod === 'card_courier') {

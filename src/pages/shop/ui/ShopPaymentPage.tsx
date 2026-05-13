@@ -3,7 +3,7 @@
 import { useCallback, useEffect, useMemo, useState } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 
-import type { PayShopOrderPayload } from '@/features/shop/api/shopOrderApi';
+import { shopCartStore } from '@/features/shop/model/shopCartStore';
 import type { Order } from '@/features/shop/model/types';
 import { shopOrderService } from '@/features/shop/service/shopOrderService';
 
@@ -140,13 +140,12 @@ export function ShopPaymentPage() {
       return;
     }
 
-    const method: PayShopOrderPayload['paymentMethod'] = tab === 'sbp' ? 'sbp' : 'card';
-
     setPayError(null);
     setIsPaying(true);
 
     try {
-      await shopOrderService.payShopOrder(orderId, { paymentMethod: method });
+      await shopOrderService.payShopOrder(orderId, { paymentMethod: tab });
+      shopCartStore.clearLocal();
       navigate(`/shop/order/${encodeURIComponent(orderId)}`);
     } catch (error) {
       setPayError(error instanceof Error ? error.message : 'Не удалось провести оплату.');
@@ -177,12 +176,7 @@ export function ShopPaymentPage() {
   };
 
   const goBack = (): void => {
-    if (orderId) {
-      navigate(`/shop/order/${encodeURIComponent(orderId)}`);
-      return;
-    }
-
-    navigate('/shop');
+    navigate(-1);
   };
 
   return (
@@ -358,25 +352,42 @@ export function ShopPaymentPage() {
               ) : null}
 
               {tab === 'card_courier' || tab === 'cash' ? (
-                <section className={styles.paymentCard}>
-                  <h2 className={styles.sectionTitle}>
-                    {tab === 'card_courier' ? 'Оплата картой курьеру' : 'Оплата наличными курьеру'}
-                  </h2>
-                  <p className={styles.deliveryPayText}>
-                    Оплата будет произведена при получении заказа. Подтвердите выбранный способ
-                    оплаты, чтобы перейти к заказу.
-                  </p>
+                <section className={`${styles.paymentCard} ${styles.courierPaymentCard}`}>
+                  <div className={styles.courierPayDecor} aria-hidden>
+                    <img
+                      className={styles.courierPayVector}
+                      src="/images/shop-payment/courier_pay_vector.png"
+                      alt=""
+                    />
+                    <img
+                      className={styles.courierPayHero}
+                      src="/images/shop-payment/courier_pay_illustration.png"
+                      alt=""
+                    />
+                  </div>
 
-                  <button
-                    type="button"
-                    className={styles.payButton}
-                    disabled={isPaying}
-                    onClick={() => {
-                      void handlePay();
-                    }}
-                  >
-                    {isPaying ? 'Сохраняем…' : 'Подтвердить способ оплаты'}
-                  </button>
+                  <div className={styles.courierPaymentBody}>
+                    <h2 className={styles.sectionTitle}>
+                      {tab === 'card_courier'
+                        ? 'Оплата картой курьеру'
+                        : 'Оплата наличными курьеру'}
+                    </h2>
+                    <p className={styles.deliveryPayText}>
+                      Оплата будет произведена при получении заказа. Подтвердите выбранный способ
+                      оплаты, чтобы перейти к заказу.
+                    </p>
+
+                    <button
+                      type="button"
+                      className={styles.payButton}
+                      disabled={isPaying}
+                      onClick={() => {
+                        void handlePay();
+                      }}
+                    >
+                      {isPaying ? 'Сохраняем…' : 'Подтвердить способ оплаты'}
+                    </button>
+                  </div>
                 </section>
               ) : null}
             </div>

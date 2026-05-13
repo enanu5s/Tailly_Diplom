@@ -894,9 +894,10 @@ function getOrderAgeMs(order: ShopOrder): number {
 
 function getNextShopOrderStatus(order: ShopOrder): ShopOrder['status'] {
   const ageMs = getOrderAgeMs(order);
-  const toProcessingMs = 2 * 60 * 1000;
-  const toShippingMs = 10 * 60 * 1000;
-  const toCompletedMs = 24 * 60 * 60 * 1000;
+  /** Ускоренные демо-интервалы от `createdAt` (раньше «Получен» ждал сутки). */
+  const toProcessingMs = 1 * 1000;
+  const toShippingMs = 1 * 1000;
+  const toCompletedMs = 1 * 1000;
 
   if (order.status === 'created') {
     if (
@@ -949,19 +950,20 @@ function syncShopOrderStatusesByIds(ids: Set<string> | null): boolean {
       return order;
     }
 
-    const nextStatus = getNextShopOrderStatus(order);
+    let current = order;
+    let nextStatus = getNextShopOrderStatus(current);
 
-    if (nextStatus === order.status) {
-      return order;
+    while (nextStatus !== current.status) {
+      changed = true;
+      current = {
+        ...current,
+        status: nextStatus,
+        canBeCancelled: nextStatus === 'created' || nextStatus === 'paid',
+      };
+      nextStatus = getNextShopOrderStatus(current);
     }
 
-    changed = true;
-
-    return {
-      ...order,
-      status: nextStatus,
-      canBeCancelled: nextStatus === 'created' || nextStatus === 'paid',
-    };
+    return current;
   });
 
   if (changed) {

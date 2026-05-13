@@ -65,12 +65,7 @@ export const ShopCheckoutPage = observer(() => {
       return;
     }
 
-    if (order.paymentMethod === 'card' || order.paymentMethod === 'sbp') {
-      navigate(`/shop/order/${order.id}/payment`);
-      return;
-    }
-
-    navigate(`/shop/order/${order.id}`);
+    navigate(`/shop/order/${order.id}/payment`);
   };
 
   const {
@@ -551,11 +546,7 @@ export const ShopCheckoutPage = observer(() => {
                   }}
                   disabled={isSubmitting}
                 >
-                  {isSubmitting
-                    ? 'Оформляем заказ...'
-                    : form.paymentMethod === 'card' || form.paymentMethod === 'sbp'
-                      ? 'Перейти к оформлению'
-                      : 'Подтвердить заказ'}
+                  {isSubmitting ? 'Оформляем заказ...' : 'Перейти к оформлению'}
                 </button>
               </div>
             </aside>

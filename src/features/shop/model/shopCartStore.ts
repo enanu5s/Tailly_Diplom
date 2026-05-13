@@ -464,6 +464,10 @@ export class ShopCartStore {
   }
 
   async ensureServerSynced(): Promise<void> {
+    if (isMockApiMode) {
+      return;
+    }
+
     if (!this.canSyncWithServer(true)) {
       throw new Error('Серверная синхронизация корзины недоступна.');
     }

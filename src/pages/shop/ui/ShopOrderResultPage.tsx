@@ -1,7 +1,7 @@
 // src/pages/shop/ui/ShopOrderResultPage.tsx
 
 import { observer } from 'mobx-react-lite';
-import { useEffect, useState, type JSX } from 'react';
+import { useEffect, useState, type ChangeEvent, type JSX } from 'react';
 import { Link, useParams } from 'react-router-dom';
 
 import { ordersStore } from '@/features/orders/model/ordersStore';
@@ -11,6 +11,11 @@ import styles from './ShopOrderResultPage.module.css';
 
 type ProductOrderStatus = 'created' | 'paid' | 'shipped' | 'delivered' | 'canceled';
 const ORDER_STATUS_AUTO_REFRESH_MS = 90_000;
+
+const STAR_EMPTY_SRC = '/images/shop-order/star-empty.svg';
+const STAR_FILLED_SRC = '/images/shop-order/star-filled.svg';
+const STAR_INDICES = [1, 2, 3, 4, 5] as const;
+const MAX_REVIEW_PHOTOS = 5;
 
 type DeliveryMethod = 'courier' | 'pickup';
 
@@ -49,6 +54,7 @@ type ProductOrderView = {
     quantity: number;
     price: number;
     variantLabel?: string;
+    imageUrl?: string;
   }>;
   lifecycle?: Array<{
     status: string;
@@ -63,9 +69,28 @@ type StatusStep = {
   date?: string;
 };
 
+type SubmittedProductReview = {
+  rating: number;
+  text: string;
+  photos: string[];
+};
+
+type ReviewModalState = {
+  itemKey: string;
+  item: ProductOrderView['items'][number];
+  mode: 'compose' | 'view';
+};
+
 export const ShopOrderResultPage = observer(() => {
   const { orderId } = useParams<{ orderId: string }>();
   const [isCancelModalOpen, setIsCancelModalOpen] = useState(false);
+  const [reviewModal, setReviewModal] = useState<ReviewModalState | null>(null);
+  const [reviewDraftRating, setReviewDraftRating] = useState(0);
+  const [reviewDraftText, setReviewDraftText] = useState('');
+  const [reviewDraftPhotos, setReviewDraftPhotos] = useState<string[]>([]);
+  const [itemReviewByKey, setItemReviewByKey] = useState<
+    Record<string, SubmittedProductReview>
+  >({});
 
   useEffect(() => {
     window.scrollTo({
@@ -90,6 +115,9 @@ export const ShopOrderResultPage = observer(() => {
   const isLoading = ordersStore.selectedProductLoading;
   const error = ordersStore.selectedProductError;
   const isActionLoading = order ? ordersStore.actionLoadingId === order.id : false;
+  const showCancelOrderControl =
+    order !== null &&
+    (order.status === 'canceled' || canCancelProductOrder(order));
 
   useEffect(() => {
     if (!orderId || isLoading || error || !order) {
@@ -123,6 +151,24 @@ export const ShopOrderResultPage = observer(() => {
     };
   }, [isCancelModalOpen]);
 
+  useEffect(() => {
+    if (!reviewModal) {
+      return;
+    }
+
+    const onKeyDown = (event: KeyboardEvent) => {
+      if (event.key === 'Escape') {
+        setReviewModal(null);
+      }
+    };
+
+    window.addEventListener('keydown', onKeyDown);
+
+    return () => {
+      window.removeEventListener('keydown', onKeyDown);
+    };
+  }, [reviewModal]);
+
   const handleRequestCancel = (): void => {
     setIsCancelModalOpen(true);
   };
@@ -147,6 +193,87 @@ export const ShopOrderResultPage = observer(() => {
     }
   };
 
+  const openReviewModal = (
+    itemKey: string,
+    item: ProductOrderView['items'][number],
+    fromStar: number,
+  ): void => {
+    const submitted = itemReviewByKey[itemKey];
+    if (submitted) {
+      setReviewModal({ itemKey, item, mode: 'view' });
+      return;
+    }
+
+    setReviewModal({ itemKey, item, mode: 'compose' });
+    setReviewDraftRating(Math.max(fromStar, 1));
+    setReviewDraftText('');
+    setReviewDraftPhotos([]);
+  };
+
+  const closeReviewModal = (): void => {
+    if (reviewModal?.mode === 'compose') {
+      setReviewDraftPhotos((photos) => {
+        photos.forEach((url) => URL.revokeObjectURL(url));
+        return [];
+      });
+    }
+
+    setReviewModal(null);
+  };
+
+  const handleReviewPhotosChange = (event: ChangeEvent<HTMLInputElement>): void => {
+    const files = Array.from(event.target.files ?? []);
+    event.target.value = '';
+
+    if (files.length === 0) {
+      return;
+    }
+
+    setReviewDraftPhotos((prev) => {
+      const next = [...prev];
+      for (const file of files) {
+        if (next.length >= MAX_REVIEW_PHOTOS) {
+          break;
+        }
+        if (!file.type.startsWith('image/')) {
+          continue;
+        }
+        next.push(URL.createObjectURL(file));
+      }
+      return next;
+    });
+  };
+
+  const removeDraftPhoto = (index: number): void => {
+    setReviewDraftPhotos((prev) => {
+      const url = prev[index];
+      if (url) {
+        URL.revokeObjectURL(url);
+      }
+      return prev.filter((_, i) => i !== index);
+    });
+  };
+
+  const handleSubmitReview = (): void => {
+    if (!reviewModal || reviewModal.mode !== 'compose' || reviewDraftRating < 1) {
+      return;
+    }
+
+    setItemReviewByKey((prev) => ({
+      ...prev,
+      [reviewModal.itemKey]: {
+        rating: reviewDraftRating,
+        text: reviewDraftText.trim(),
+        photos: [...reviewDraftPhotos],
+      },
+    }));
+    setReviewDraftPhotos([]);
+    setReviewModal(null);
+  };
+
+  const reviewModalSubmitted =
+    reviewModal?.mode === 'view' ? itemReviewByKey[reviewModal.itemKey] : undefined;
+
   return (
     <main className={styles.page}>
       <div className={styles.blur} />
@@ -164,7 +291,7 @@ export const ShopOrderResultPage = observer(() => {
             <h1 className={styles.pageTitle}>Не удалось открыть заказ</h1>
             <p className={styles.stateText}>{error}</p>
 
-            <Link to="/shop" className={styles.primaryLink}>
+            <Link to="/shop" className={styles.primaryButton}>
               Вернуться в магазин
             </Link>
           </section>
@@ -178,7 +305,9 @@ export const ShopOrderResultPage = observer(() => {
               <div className={styles.leftColumn}>
                 <section className={styles.detailsCard}>
                   <div className={styles.detailsHeader}>
-                    <h2 className={styles.cardTitle}>Заказ №{order.number}</h2>
+                    <h2 className={styles.cardTitle}>
+                      Заказ №{formatOrderNumberForTitle(order.number)}
+                    </h2>
                     <span className={styles.dateBadge}>
                       {formatCompactDateTime(order.createdAt)}
                     </span>
@@ -198,24 +327,26 @@ export const ShopOrderResultPage = observer(() => {
                   </div>
 
                   <div className={styles.actions}>
-                    <button
-                      type="button"
-                      className={styles.cancelButton}
-                      disabled={
-                        order.status === 'canceled' ||
-                        isActionLoading ||
-                        !canCancelProductOrder(order)
-                      }
-                      onClick={handleRequestCancel}
-                    >
-                      {order.status === 'canceled'
-                        ? 'Заказ отменен'
-                        : isActionLoading
-                          ? 'Отменяем...'
-                          : 'Отменить заказ'}
-                    </button>
+                    {showCancelOrderControl ? (
+                      <button
+                        type="button"
+                        className={styles.secondaryButton}
+                        disabled={
+                          order.status === 'canceled' ||
+                          isActionLoading ||
+                          !canCancelProductOrder(order)
+                        }
+                        onClick={handleRequestCancel}
+                      >
+                        {order.status === 'canceled'
+                          ? 'Заказ отменен'
+                          : isActionLoading
+                            ? 'Отменяем...'
+                            : 'Отменить заказ'}
+                      </button>
+                    ) : null}
 
-                    <Link to="/shop" className={styles.primaryLink}>
+                    <Link to="/shop" className={styles.primaryButton}>
                       Продолжить покупки
                     </Link>
                   </div>
@@ -232,23 +363,63 @@ export const ShopOrderResultPage = observer(() => {
                 <h2 className={styles.cardTitle}>Ваш заказ</h2>
 
                 <div className={styles.summaryList}>
-                  {order.items.map((item, index) => (
-                    <div
-                      key={`${item.productId}-${item.variantId ?? 'default'}-${index}`}
-                      className={styles.summaryItem}
-                    >
-                      <div className={styles.summaryMeta}>
-                        <span className={styles.summaryName}>{item.title}</span>
-                        <span className={styles.summaryQuantity}>
-                          {item.quantity} шт.
-                        </span>
-                      </div>
+                  {order.items.map((item, index) => {
+                    const itemKey = getProductLineKey(item, index);
+                    const submittedReview = itemReviewByKey[itemKey];
+                    const savedRating = submittedReview?.rating ?? 0;
 
-                      <span className={styles.summaryPrice}>
-                        {formatPrice(item.price * item.quantity)}
-                      </span>
-                    </div>
-                  ))}
+                    return (
+                      <div
+                        key={itemKey}
+                        className={styles.summaryItem}
+                      >
+                        <div className={styles.summaryItemTop}>
+                          <div className={styles.summaryMeta}>
+                            <span className={styles.summaryName}>{item.title}</span>
+                            <span className={styles.summaryQuantity}>
+                              {item.quantity} шт.
+                            </span>
+                          </div>
+
+                          <span className={styles.summaryPrice}>
+                            {formatPrice(item.price * item.quantity)}
+                          </span>
+                        </div>
+
+                        {order.status === 'delivered' ? (
+                          <div
+                            className={styles.summaryStars}
+                            role="group"
+                            aria-label="Оценка товара"
+                          >
+                            {STAR_INDICES.map((star) => (
+                              <button
+                                key={star}
+                                type="button"
+                                className={styles.starButton}
+                                aria-label={
+                                  submittedReview
+                                    ? `Просмотреть отзыв, оценка ${savedRating} из 5`
+                                    : `Оценить ${star} из 5`
+                                }
+                                onClick={() => {
+                                  openReviewModal(itemKey, item, star);
+                                }}
+                              >
+                                <img
+                                  src={star <= savedRating ? STAR_FILLED_SRC : STAR_EMPTY_SRC}
+                                  alt=""
+                                  width={28}
+                                  height={28}
+                                  className={styles.starImg}
+                                />
+                              </button>
+                            ))}
+                          </div>
+                        ) : null}
+                      </div>
+                    );
+                  })}
                 </div>
 
                 <div className={styles.summaryDivider} />
@@ -311,12 +482,241 @@ export const ShopOrderResultPage = observer(() => {
                 </section>
               </div>
             ) : null}
+
+            {reviewModal ? (
+              <div
+                className={styles.reviewOverlay}
+                onClick={closeReviewModal}
+                role="presentation"
+              >
+                <section
+                  className={styles.reviewModal}
+                  onClick={(event) => event.stopPropagation()}
+                  role="dialog"
+                  aria-modal="true"
+                  aria-labelledby="product-review-title"
+                >
+                  <button
+                    type="button"
+                    className={styles.reviewModalClose}
+                    onClick={closeReviewModal}
+                    aria-label="Закрыть"
+                  >
+                    <span className={styles.reviewModalCloseIcon} />
+                  </button>
+
+                  <h2 id="product-review-title" className={styles.reviewModalTitle}>
+                    {reviewModal.mode === 'view' ? 'Ваш отзыв' : 'Отзыв на товар'}
+                  </h2>
+
+                  <div className={styles.reviewProductRow}>
+                    <div className={styles.reviewThumb}>
+                      {reviewModal.item.imageUrl ? (
+                        <img
+                          src={reviewModal.item.imageUrl}
+                          alt=""
+                          className={styles.reviewThumbImg}
+                        />
+                      ) : null}
+                    </div>
+
+                    <div className={styles.reviewProductMeta}>
+                      <p className={styles.reviewProductName}>{reviewModal.item.title}</p>
+
+                      <div
+                        className={styles.reviewModalStars}
+                        role="group"
+                        aria-label={
+                          reviewModal.mode === 'view' && reviewModalSubmitted
+                            ? `Оценка ${reviewModalSubmitted.rating} из 5`
+                            : 'Оценка'
+                        }
+                      >
+                        {reviewModal.mode === 'view' && reviewModalSubmitted ? (
+                          STAR_INDICES.map((star) => (
+                            <span
+                              key={star}
+                              className={styles.reviewModalStarStatic}
+                              aria-hidden={true}
+                            >
+                              <img
+                                src={
+                                  star <= reviewModalSubmitted.rating
+                                    ? STAR_FILLED_SRC
+                                    : STAR_EMPTY_SRC
+                                }
+                                alt=""
+                                width={28}
+                                height={28}
+                                className={styles.starImg}
+                              />
+                            </span>
+                          ))
+                        ) : (
+                          STAR_INDICES.map((star) => (
+                            <button
+                              key={star}
+                              type="button"
+                              className={styles.starButton}
+                              aria-label={`${star} из 5`}
+                              onClick={() => {
+                                setReviewDraftRating(star);
+                              }}
+                            >
+                              <img
+                                src={
+                                  star <= reviewDraftRating
+                                    ? STAR_FILLED_SRC
+                                    : STAR_EMPTY_SRC
+                                }
+                                alt=""
+                                width={28}
+                                height={28}
+                                className={styles.starImg}
+                              />
+                            </button>
+                          ))
+                        )}
+                      </div>
+                    </div>
+                  </div>
+
+                  {reviewModal.mode === 'view' && reviewModalSubmitted ? (
+                    <>
+                      <p className={styles.reviewFieldLabel}>Отзыв</p>
+                      <p className={styles.reviewTextReadonly}>
+                        {reviewModalSubmitted.text || 'Текст отзыва не указан.'}
+                      </p>
+
+                      <p className={styles.reviewFieldLabel}>Фотографии</p>
+                      <div className={styles.reviewPhotosRow}>
+                        {reviewModalSubmitted.photos.length > 0 ? (
+                          reviewModalSubmitted.photos.map((url) => (
+                            <div key={url} className={styles.reviewPhotoPreview}>
+                              <img
+                                src={url}
+                                alt=""
+                                className={styles.reviewPhotoPreviewImg}
+                              />
+                            </div>
+                          ))
+                        ) : (
+                          <p className={styles.reviewPhotosEmpty}>Фото не прикреплены.</p>
+                        )}
+                      </div>
+                    </>
+                  ) : (
+                    <>
+                      <label className={styles.reviewFieldLabel} htmlFor="product-review-text">
+                        Отзыв
+                      </label>
+                      <textarea
+                        id="product-review-text"
+                        className={styles.reviewTextarea}
+                        rows={3}
+                        placeholder="Поделитесь впечатлениями от товаре"
+                        value={reviewDraftText}
+                        onChange={(event) => {
+                          setReviewDraftText(event.target.value);
+                        }}
+                      />
+
+                      <p className={styles.reviewFieldLabel}>
+                        Фотографии
+                        <span className={styles.reviewPhotoHint}>
+                          {' '}
+                          (не более {MAX_REVIEW_PHOTOS} файлов)
+                        </span>
+                      </p>
+                      <div className={styles.reviewPhotosRow}>
+                        {reviewDraftPhotos.map((url, index) => (
+                          <div key={url} className={styles.reviewPhotoPreview}>
+                            <img
+                              src={url}
+                              alt=""
+                              className={styles.reviewPhotoPreviewImg}
+                            />
+                            <button
+                              type="button"
+                              className={styles.reviewPhotoRemove}
+                              onClick={() => {
+                                removeDraftPhoto(index);
+                              }}
+                              aria-label="Удалить фото"
+                            >
+                              ×
+                            </button>
+                          </div>
+                        ))}
+
+                        {reviewDraftPhotos.length < MAX_REVIEW_PHOTOS ? (
+                          <label className={styles.reviewPhotoUpload}>
+                            <span className={styles.reviewPhotoUploadIcon} aria-hidden />
+                            <span className={styles.reviewPhotoUploadText}>
+                              Загрузите фото
+                            </span>
+                            <input
+                              type="file"
+                              accept="image/*"
+                              multiple
+                              className={styles.reviewPhotoFileInput}
+                              onChange={handleReviewPhotosChange}
+                            />
+                          </label>
+                        ) : null}
+                      </div>
+                    </>
+                  )}
+
+                  <div className={styles.reviewModalActions}>
+                    {reviewModal.mode === 'view' ? (
+                      <button
+                        type="button"
+                        className={styles.reviewSecondaryBtn}
+                        onClick={closeReviewModal}
+                      >
+                        Закрыть
+                      </button>
+                    ) : (
+                      <>
+                        <button
+                          type="button"
+                          className={styles.reviewSecondaryBtn}
+                          onClick={closeReviewModal}
+                        >
+                          Отмена
+                        </button>
+                        <button
+                          type="button"
+                          className={styles.reviewPrimaryBtn}
+                          disabled={reviewDraftRating < 1}
+                          onClick={handleSubmitReview}
+                        >
+                          Отправить
+                        </button>
+                      </>
+                    )}
+                  </div>
+                </section>
+              </div>
+            ) : null}
           </>
         ) : null}
       </div>
     </main>
   );
 });
+
+function formatOrderNumberForTitle(number: string): string {
+  return number.trim().replace(/^№\s*/u, '');
+}
+
+function getProductLineKey(
+  item: ProductOrderView['items'][number],
+  index: number,
+): string {
+  return `${item.productId}-${item.variantId ?? 'default'}-${index}`;
+}
 
 function InfoBlock(props: { label: string; value: string }): JSX.Element {
   return (
@@ -514,7 +914,7 @@ function getPaymentLabel(value?: string): string {
 
 function getAddressLabel(order: ProductOrderView): string {
   if (order.delivery?.method === 'pickup') {
-    return order.delivery.pickupPointLabel ?? 'СДЕК - ПВЗ уточняется';
+    return order.delivery.pickupPointLabel ?? 'ПВЗ СДЭК';
   }
 
   if (order.delivery?.address) {

@@ -80,7 +80,7 @@ async function confirmOrderReal(orderId: string): Promise<void> {
 }
 
 export type PayShopOrderPayload = {
-  paymentMethod: 'card' | 'sbp';
+  paymentMethod: 'card' | 'sbp' | 'card_courier' | 'cash';
 };
 
 async function payShopOrderReal(

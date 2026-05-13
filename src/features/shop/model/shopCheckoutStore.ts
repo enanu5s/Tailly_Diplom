@@ -4,10 +4,10 @@ import { authStore } from '@/features/auth/model/authStore';
 import type { RepeatableProductOrder } from '@/features/orders/model/productOrderRepeat';
 import { profileService } from '@/features/profile/service/profileService';
 
-import { shopCartStore } from './shopCartStore';
 import { shopOrderService } from '../service/shopOrderService';
 import { shopService } from '../service/shopService';
 
+import { shopCartStore } from './shopCartStore';
 import type { CheckoutForm, PickupPoint, Product, Order } from './types';
 
 type CheckoutValidationErrors = Partial<
@@ -530,12 +530,6 @@ export class ShopCheckoutStore {
       const order = await shopOrderService.createOrder({
         form: formForSubmit,
         items: payloadItems,
-      });
-
-      runInAction(() => {
-        if (!this.repeatOrder) {
-          shopCartStore.clearLocal();
-        }
       });
 
       console.log('[shopCheckoutStore.submit] success', { order });
