@@ -6,6 +6,8 @@ import { Link } from 'react-router-dom';
 import { PET_WEIGHT_SIZES } from '@/features/pets/model/constants';
 import { LocalitySuggestInput } from '@/features/specialists-search/ui/LocalitySuggestInput/LocalitySuggestInput';
 
+import { specialistProfileStore } from '../model/specialistProfileStore';
+import { specialistReviewRepliesStore } from '../model/specialistReviewRepliesStore';
 import { SpecialistMiniCalendar } from './SpecialistMiniCalendar';
 import styles from './SpecialistProfileView.module.css';
 import {
@@ -196,7 +198,6 @@ type Props = {
   onBookService?: (serviceId: string) => void;
   /** Ссылки кабинета владельца профиля (только для isOwner). */
   ownerWorkspace?: {
-    reviewsPath: string;
     ordersPath: string;
     orderStatsPath: string;
     shopOrdersPath: string;
@@ -236,7 +237,7 @@ function formatPhone(phone: string): string {
   return phone.trim();
 }
 
-function formatDate(date: string): string {
+function formatReviewDateShort(date: string): string {
   const parsedDate = new Date(date);
 
   if (Number.isNaN(parsedDate.getTime())) {
@@ -244,8 +245,8 @@ function formatDate(date: string): string {
   }
 
   return new Intl.DateTimeFormat('ru-RU', {
-    day: 'numeric',
-    month: 'long',
+    day: '2-digit',
+    month: '2-digit',
     year: 'numeric',
   }).format(parsedDate);
 }
@@ -605,6 +606,21 @@ export const SpecialistProfileView = observer(
         return;
       }
       setActiveReviewPhotoIndex(activeReviewPhotoIndex + 1);
+    };
+
+    const saveReviewReply = async (review: SpecialistReview): Promise<void> => {
+      if (!profile) {
+        return;
+      }
+
+      const updated = await specialistReviewRepliesStore.saveReply({
+        slug: profile.slug.trim(),
+        review,
+      });
+
+      if (updated) {
+        specialistProfileStore.applyProfileFromReviewReply(updated);
+      }
     };
 
     const togglePetTypeAlias = (aliasId: string): void => {
@@ -1555,100 +1571,128 @@ export const SpecialistProfileView = observer(
                       {sortedVisibleReviews.map((review) => {
                         const reviewPhotos = review.photos ?? [];
                         const reviewImageUrl = reviewPhotos[0] ?? null;
-                        const hasReplySection = Boolean(
-                          review.specialistReply || profile.isOwner,
-                        );
+                        const extraPhotoCount = Math.max(0, reviewPhotos.length - 1);
+                        const serviceLabel = review.serviceTitle?.trim() || 'Передержка';
+                        const replyError = specialistReviewRepliesStore.getError(review.id);
+                        const replyDraft = specialistReviewRepliesStore.getDraft(review);
+                        const isSavingReply = specialistReviewRepliesStore.isSaving(review.id);
 
                         return (
                           <article
                             key={review.id}
                             className={`${styles.reviewCard} ${
                               reviewImageUrl
-                                ? styles.reviewCardWithImage
-                                : styles.reviewCardWithoutImage
-                            } ${
-                              hasReplySection ? '' : styles.reviewCardWithoutReplySection
+                                ? styles.reviewCardHasMedia
+                                : styles.reviewCardNoMedia
                             }`}
                           >
-                            {reviewImageUrl ? (
-                              <div className={styles.reviewPhotoWrap}>
-                                <img
-                                  className={styles.reviewPhoto}
-                                  src={reviewImageUrl}
-                                  alt=""
-                                  aria-hidden="true"
-                                  onClick={() => handleOpenReviewViewer(reviewPhotos, 0)}
-                                />
-
-                                <span className={styles.reviewPhotoCount}>
-                                  +{reviewPhotos.length}
-                                </span>
-                              </div>
-                            ) : null}
-
-                            <div className={styles.reviewContent}>
-                              <div className={styles.reviewHeader}>
-                                <span className={styles.reviewDate}>
-                                  {formatDate(review.createdAt)}
-                                </span>
-
-                                <div className={styles.reviewStars}>
-                                  {Array.from({ length: 5 }, (_, starIndex) => (
+                            <div className={styles.reviewCardBody}>
+                              {reviewImageUrl ? (
+                                <div className={styles.reviewMedia}>
+                                  <div className={styles.reviewPhotoWrap}>
                                     <img
-                                      key={`${review.id}-star-${starIndex}`}
-                                      src="/images/specialist-profile/Star.svg"
+                                      className={styles.reviewPhoto}
+                                      src={reviewImageUrl}
                                       alt=""
                                       aria-hidden="true"
-                                      className={
-                                        starIndex < getRoundedRating(review.rating)
-                                          ? styles.reviewStarIcon
-                                          : styles.reviewStarIconInactive
-                                      }
+                                      onClick={() => handleOpenReviewViewer(reviewPhotos, 0)}
                                     />
-                                  ))}
-                                </div>
-                              </div>
 
-                              <div className={styles.reviewMetaBlock}>
-                                <div>
-                                  <h4 className={styles.reviewService}>Передержка</h4>
-
-                                  <div className={styles.reviewAuthorRow}>
-                                    <span className={styles.reviewAuthor}>
-                                      {review.authorName}
-                                    </span>
-
-                                    {review.petName ? (
-                                      <span className={styles.reviewPetName}>
-                                        Питомец: {review.petName}
+                                    {extraPhotoCount > 0 ? (
+                                      <span className={styles.reviewPhotoCount}>
+                                        +{extraPhotoCount}
                                       </span>
                                     ) : null}
                                   </div>
                                 </div>
-                              </div>
+                              ) : null}
 
-                              <p className={styles.reviewText}>{review.text}</p>
+                              <div className={styles.reviewMain}>
+                                <div className={styles.reviewTopRow}>
+                                  <span className={styles.reviewDatePill}>
+                                    {formatReviewDateShort(review.createdAt)}
+                                  </span>
+
+                                  <div className={styles.reviewStars} aria-hidden="true">
+                                    {Array.from({ length: 5 }, (_, starIndex) => (
+                                      <img
+                                        key={`${review.id}-star-${starIndex}`}
+                                        src="/images/specialist-profile/Star.svg"
+                                        alt=""
+                                        className={
+                                          starIndex < getRoundedRating(review.rating)
+                                            ? styles.reviewStarIcon
+                                            : styles.reviewStarIconInactive
+                                        }
+                                      />
+                                    ))}
+                                  </div>
+                                </div>
+
+                                <p className={styles.reviewServiceTitle}>{serviceLabel}</p>
+
+                                <div className={styles.reviewAuthorLine}>
+                                  <span className={styles.reviewAuthorName}>
+                                    {review.authorName}
+                                  </span>
+
+                                  {review.petName ? (
+                                    <span className={styles.reviewPetLabel}>
+                                      Питомец: {review.petName}
+                                    </span>
+                                  ) : null}
+                                </div>
+
+                                <p className={styles.reviewBody}>{review.text}</p>
+                              </div>
                             </div>
 
                             {review.specialistReply ? (
-                              <div className={styles.replyCard}>
-                                <span className={styles.reviewDate}>
-                                  {formatDate(review.specialistReply.createdAt)}
+                              <div className={styles.reviewReplyPanel}>
+                                <span className={styles.reviewDatePill}>
+                                  {formatReviewDateShort(review.specialistReply.createdAt)}
                                 </span>
-
-                                <div className={styles.replyTitle}>Ответ специалиста</div>
-
-                                <p className={styles.replyText}>
+                                <div className={styles.reviewReplyPanelTitle}>
+                                  Ответ специалиста
+                                </div>
+                                <p className={styles.reviewReplyPublished}>
                                   {review.specialistReply.text}
                                 </p>
                               </div>
                             ) : profile.isOwner ? (
-                              <Link
-                                className={styles.reviewReplyButton}
-                                to={ownerWorkspace?.reviewsPath ?? '#'}
-                              >
-                                Ответить на отзыв
-                              </Link>
+                              <div className={styles.reviewReplyPanel}>
+                                <div className={styles.reviewReplyPanelTitle}>
+                                  Ответ специалиста
+                                </div>
+                                <textarea
+                                  id={`specialist-review-reply-${review.id}`}
+                                  className={styles.reviewReplyTextarea}
+                                  rows={3}
+                                  value={replyDraft}
+                                  placeholder="Введите текст"
+                                  onChange={(event) =>
+                                    specialistReviewRepliesStore.setDraft(
+                                      review.id,
+                                      event.target.value,
+                                    )
+                                  }
+                                />
+                                {replyError ? (
+                                  <p className={styles.reviewReplyError}>{replyError}</p>
+                                ) : null}
+                                <div className={styles.reviewReplyActions}>
+                                  <button
+                                    type="button"
+                                    className={styles.reviewReplySubmit}
+                                    disabled={isSavingReply}
+                                    onClick={() => {
+                                      void saveReviewReply(review);
+                                    }}
+                                  >
+                                    {isSavingReply ? 'Отправка...' : 'Отправить ответ'}
+                                  </button>
+                                </div>
+                              </div>
                             ) : null}
                           </article>
                         );

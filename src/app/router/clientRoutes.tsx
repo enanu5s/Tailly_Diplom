@@ -47,12 +47,6 @@ const SpecialistCalendarEditPage = lazy(() =>
   })),
 );
 
-const SpecialistReviewsPage = lazy(() =>
-  import('@/pages/specialist-reviews').then((module) => ({
-    default: module.SpecialistReviewsPage,
-  })),
-);
-
 const SpecialistOrdersPage = lazy(() =>
   import('@/pages/specialist-orders').then((module) => ({
     default: module.SpecialistOrdersPage,
@@ -133,10 +127,6 @@ export const clientRoutes: RouteObject[] = [
       {
         path: '/specialists/:specialistSlug/calendar/edit',
         element: withSuspense(<SpecialistCalendarEditPage />),
-      },
-      {
-        path: '/specialists/:specialistSlug/reviews',
-        element: withSuspense(<SpecialistReviewsPage />),
       },
       {
         path: '/specialists/:specialistSlug/orders/stats',

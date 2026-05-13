@@ -8,6 +8,7 @@ import { useAuth } from '@/features/auth/model/useAuth';
 import { messagesStore } from '@/features/messages';
 import { ordersStore } from '@/features/orders/model/ordersStore';
 import { specialistProfileStore } from '@/features/specialist-profile/model/specialistProfileStore';
+import { specialistReviewRepliesStore } from '@/features/specialist-profile/model/specialistReviewRepliesStore';
 import { SpecialistProfileView } from '@/features/specialist-profile/ui/SpecialistProfileView';
 import {
   canClientBookSpecialist,
@@ -196,6 +197,14 @@ export const SpecialistProfilePage = observer((): ReactElement => {
     void ordersStore.loadServices();
   }, [canManageOwnProfile, store.profile?.slug]);
 
+  useEffect(() => {
+    if (!canManageOwnProfile || !store.profile) {
+      return;
+    }
+
+    specialistReviewRepliesStore.hydrateDraftsFromReviews(store.profile.reviews);
+  }, [canManageOwnProfile, store.profile?.id]);
+
   const ownerProfileSlug = store.profile?.slug ?? '';
   const pendingClientOrdersCount =
     canManageOwnProfile && ownerProfileSlug
@@ -288,7 +297,6 @@ export const SpecialistProfilePage = observer((): ReactElement => {
           ownerWorkspace={
             canManageOwnProfile && store.profile
               ? {
-                  reviewsPath: `/specialists/${store.profile.slug.trim()}/reviews`,
                   ordersPath: `/specialists/${store.profile.slug.trim()}/orders`,
                   orderStatsPath: `/specialists/${store.profile.slug.trim()}/orders/stats`,
                   shopOrdersPath: '/shop/orders',

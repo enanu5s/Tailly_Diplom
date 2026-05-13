@@ -25,8 +25,8 @@ export const SpecialistOrdersPage = (): ReactElement => {
         <header className={styles.header}>
           <h1 className={styles.title}>Заказы клиентов</h1>
           <p className={styles.subtitle}>
-            Подтверждайте новые заявки, начинайте и завершайте услуги. Связанные отзывы
-            можно открыть со страницы ответов.
+            Подтверждайте новые заявки, начинайте и завершайте услуги. Ответы на отзывы
+            оставляйте в профиле в блоке «Отзывы о специалисте».
           </p>
           <div className={styles.headerLinks}>
             <Link
@@ -35,7 +35,7 @@ export const SpecialistOrdersPage = (): ReactElement => {
             >
               Статистика по заказам
             </Link>
-            <Link to={`/specialists/${slug}/reviews`} className={styles.secondaryLink}>
+            <Link to={`${profilePath}#specialist-reviews`} className={styles.secondaryLink}>
               Отзывы и ответы
             </Link>
           </div>

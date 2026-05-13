@@ -890,26 +890,121 @@
 }
 
 .reviewCard {
+  box-sizing: border-box;
   width: 100%;
   padding: 20px;
   border: 1px solid #c7c2ba;
   border-radius: 20px;
   background: #ffffff;
+  display: flex;
+  flex-direction: column;
+  gap: 0;
 }
 
-.reviewCardWithImage {
+.reviewCardBody {
   display: grid;
-  grid-template-columns: 238px minmax(0, 1fr);
+  grid-template-columns: minmax(0, 1fr);
   gap: 20px;
-  min-height: 270px;
+  align-items: start;
 }
 
-.reviewCardWithoutImage {
-  min-height: 271px;
+.reviewCardHasMedia .reviewCardBody {
+  grid-template-columns: 238px minmax(0, 1fr);
 }
 
-.reviewCardWithoutReplySection {
-  min-height: 0;
+.reviewMedia {
+  min-width: 0;
+}
+
+.reviewMain {
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.reviewTopRow {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px 20px;
+}
+
+.reviewDatePill {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  align-self: flex-start;
+  width: fit-content;
+  min-height: 28px;
+  padding: 5px 14px;
+  border-radius: 24px;
+  background: #fff3cd;
+  color: #211500;
+  font-family: 'Rubik', sans-serif;
+  font-size: 15px;
+  font-weight: 400;
+  line-height: 18px;
+}
+
+.reviewServiceTitle {
+  margin: 0;
+  font-family: 'Igra Sans', sans-serif;
+  font-size: 24px;
+  font-weight: 400;
+  line-height: 123%;
+  color: #211500;
+}
+
+.reviewAuthorLine {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 12px 20px;
+}
+
+.reviewAuthorName,
+.reviewPetLabel {
+  font-family: 'Raleway', sans-serif;
+  font-size: 16px;
+  font-weight: 700;
+  line-height: 19px;
+  font-feature-settings: 'pnum' on, 'lnum' on;
+}
+
+.reviewAuthorName {
+  color: #211500;
+}
+
+.reviewPetLabel {
+  color: #6f685d;
+}
+
+.reviewStars {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  margin-left: auto;
+}
+
+.reviewStarIcon,
+.reviewStarIconInactive {
+  width: 28px;
+  height: 28px;
+  object-fit: contain;
+}
+
+.reviewStarIconInactive {
+  opacity: 0.25;
+}
+
+.reviewBody {
+  margin: 0;
+  font-family: 'Rubik', sans-serif;
+  font-size: 15px;
+  line-height: 18px;
+  color: #211500;
 }
 
 .reviewPhotoWrap {
@@ -942,90 +1037,30 @@
   font-family: 'Rubik', sans-serif;
   font-size: 15px;
   font-weight: 500;
-}
-
-.reviewContent {
-  min-width: 0;
-}
-
-.reviewHeader {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  gap: 20px;
-  margin-bottom: 14px;
-}
-
-.reviewMetaBlock {
-  display: flex;
-  justify-content: space-between;
-  gap: 20px;
-}
-
-.reviewDate {
-  display: inline-flex;
-  min-height: 28px;
-  padding: 5px 12px;
-  border-radius: 24px;
-  background: #fff3cd;
-  color: #211500;
-  font-family: 'Rubik', sans-serif;
-  font-size: 15px;
   line-height: 18px;
 }
 
-.reviewService {
-  margin: 8px 0 10px;
-  font-family: 'Igra Sans', sans-serif;
-  font-size: 24px;
-  font-weight: 400;
-  line-height: 123%;
-  color: #211500;
-}
-
-.reviewAuthorRow {
+.reviewReplyPanel {
+  margin-top: 20px;
+  padding: 20px;
+  border-radius: 10px;
+  background: #f8f8f8;
   display: flex;
-  gap: 20px;
-  flex-wrap: wrap;
-  margin-bottom: 0;
+  flex-direction: column;
+  gap: 16px;
 }
 
-.reviewAuthor,
-.reviewPetName {
+.reviewReplyPanelTitle {
+  margin: 0;
   font-family: 'Raleway', sans-serif;
   font-size: 16px;
   font-weight: 700;
   line-height: 19px;
-}
-
-.reviewAuthor {
+  font-feature-settings: 'pnum' on, 'lnum' on;
   color: #211500;
 }
 
-.reviewPetName {
-  color: #6f685d;
-}
-
-.reviewStars {
-  display: inline-flex;
-  align-items: center;
-  gap: 7px;
-  white-space: nowrap;
-}
-
-.reviewStarIcon,
-.reviewStarIconInactive {
-  width: 28px;
-  height: 28px;
-  object-fit: contain;
-}
-
-.reviewStarIconInactive {
-  opacity: 0.25;
-}
-
-.reviewText,
-.replyText {
+.reviewReplyPublished {
   margin: 0;
   font-family: 'Rubik', sans-serif;
   font-size: 15px;
@@ -1033,54 +1068,61 @@
   color: #211500;
 }
 
-.reviewText {
-  margin-top: 8px;
-}
-
-.reviewCardWithoutReplySection .reviewText {
-  margin-bottom: 0;
-}
-
-.reviewReplyButton {
-  width: 237px;
-  min-height: 45px;
-  margin: 20px 0 0 auto;
-  padding: 10px 30px;
-  border-radius: 23px;
-  background: #ccd308;
-  color: #211500;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-family: 'Raleway', sans-serif;
-  font-size: 16px;
-  font-weight: 600;
-  text-decoration: none;
-}
-
-.reviewCardWithImage .replyCard,
-.reviewCardWithImage .reviewReplyButton {
-  grid-column: 1 / -1;
-}
-
-.replyCard {
-  margin-top: 24px;
-  padding: 20px;
+.reviewReplyTextarea {
+  box-sizing: border-box;
+  width: 100%;
+  min-height: 84px;
+  padding: 15px 20px;
   border: 1px solid #c7c2ba;
   border-radius: 10px;
   background: #ffffff;
+  color: #211500;
+  font-family: 'Rubik', sans-serif;
+  font-size: 15px;
+  line-height: 18px;
+  resize: vertical;
+}
+
+.reviewReplyTextarea::placeholder {
+  color: #6f685d;
+}
+
+.reviewReplyError {
+  margin: -8px 0 0;
+  font-family: 'Rubik', sans-serif;
+  font-size: 14px;
+  line-height: 18px;
+  color: #b91c1c;
+}
+
+.reviewReplyActions {
+  display: flex;
+  justify-content: flex-end;
+}
+
+.reviewReplySubmit {
+  min-width: 131px;
+  min-height: 45px;
+  padding: 10px 30px;
+  border: 0;
+  border-radius: 23px;
+  background: #211500;
+  color: #ffffff;
+  font-family: 'Raleway', sans-serif;
+  font-size: 16px;
+  font-weight: 600;
+  line-height: 19px;
+  font-feature-settings: 'pnum' on, 'lnum' on;
+  cursor: pointer;
+}
+
+.reviewReplySubmit:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
 }
 
 .reviewsLoadMoreButton {
   width: 238px;
-}
-
-.replyTitle {
-  margin: 24px 0 10px;
-  font-family: 'Raleway', sans-serif;
-  font-size: 16px;
-  font-weight: 700;
-  color: #211500;
 }
 
 .input,
@@ -1612,19 +1654,29 @@
     width: 100%;
   }
 
-  .reviewCardWithImage {
+  .reviewCardHasMedia .reviewCardBody {
     grid-template-columns: 1fr;
   }
-  
+
   .reviewPhotoWrap {
     width: 100%;
+    max-width: 320px;
   }
-  
-  .reviewHeader {
+
+  .reviewTopRow {
     flex-direction: column;
+    align-items: flex-start;
   }
-  
-  .reviewReplyButton {
+
+  .reviewStars {
+    margin-left: 0;
+  }
+
+  .reviewReplyActions {
+    width: 100%;
+  }
+
+  .reviewReplySubmit {
     width: 100%;
   }
 
