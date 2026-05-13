@@ -45,6 +45,8 @@ export const SpecialistsSearchPageContent = observer(() => {
   return (
     <div className={styles.layout}>
       <div className={styles.left}>
+        <h1 className={styles.pageTitle}>Поиск специалиста</h1>
+
         <FiltersPanel store={store} />
 
         <div className={styles.foundLine}>

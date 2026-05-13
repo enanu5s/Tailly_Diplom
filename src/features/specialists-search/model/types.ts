@@ -30,6 +30,12 @@ export type SpecialistCalendarSlot = {
 
 export type GeoPoint = { lat: number; lon: number };
 
+/** Категория веса питомца (фильтр и мок-данные специалиста) */
+export type PetSizeCategory = 'under_2' | '2_to_8' | '8_15' | '15_25' | 'over_25';
+
+/** Категория возраста питомца (фильтр и мок-данные специалиста) */
+export type PetAgeCategory = 'under_6mo' | '6mo_to_2' | '2_to_5' | 'over_5';
+
 export type Specialist = {
   id: string;
   name: string;
@@ -47,6 +53,10 @@ export type Specialist = {
    * Если не задано или пусто — при фильтре по датам специалист не отбрасывается (нет данных).
    */
   availabilityWeekdays?: number[];
+  /** Мок: с какими категориями веса питомца работает; не задано — любые */
+  petSizeCategories?: PetSizeCategory[];
+  /** Мок: с какими возрастными категориями работает; не задано — любые */
+  petAgeCategories?: PetAgeCategory[];
   /** Мок: окна на ближайшие дни (свободные и занятые) — для превью и отладки */
   calendarSlots?: SpecialistCalendarSlot[];
 };
@@ -66,6 +76,10 @@ export type SearchFilters = {
   serviceId: ServiceId | 'any';
   priceMin: number | null;
   priceMax: number | null;
+  /** Доп. фильтры: пустой массив — любой размер */
+  petSizes: PetSizeCategory[];
+  /** Пустой массив — любой возраст */
+  petAges: PetAgeCategory[];
   experienceMinYears: number | null;
   hasReviewsOnly: boolean;
 };

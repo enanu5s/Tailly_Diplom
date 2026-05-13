@@ -14,7 +14,48 @@ import type {
   MapBounds,
   SortMode,
   PetType,
+  PetSizeCategory,
+  PetAgeCategory,
 } from './types';
+
+type LegacyPersistedFilters = Partial<SearchFilters> & { petSize?: string; petAge?: string };
+
+function migratePersistedFilters(raw: LegacyPersistedFilters): SearchFilters {
+  const next = { ...defaultFilters(), ...raw };
+  const hasPetSizes = Array.isArray((raw as LegacyPersistedFilters).petSizes);
+  const legacyPetSize = raw.petSize;
+  if (typeof legacyPetSize === 'string' && !hasPetSizes) {
+    if (legacyPetSize === 'any') {
+      next.petSizes = [];
+    } else if (legacyPetSize === 'up_to_8') {
+      next.petSizes = ['under_2', '2_to_8'];
+    } else {
+      next.petSizes = [legacyPetSize as PetSizeCategory];
+    }
+  }
+  if (!Array.isArray(next.petSizes)) {
+    next.petSizes = [];
+  }
+  delete (next as LegacyPersistedFilters).petSize;
+
+  const hasPetAges = Array.isArray((raw as LegacyPersistedFilters).petAges);
+  const legacyPetAge = raw.petAge;
+  if (typeof legacyPetAge === 'string' && !hasPetAges) {
+    if (legacyPetAge === 'any') {
+      next.petAges = [];
+    } else if (legacyPetAge === 'up_to_2') {
+      next.petAges = ['under_6mo', '6mo_to_2'];
+    } else {
+      next.petAges = [legacyPetAge as PetAgeCategory];
+    }
+  }
+  if (!Array.isArray(next.petAges)) {
+    next.petAges = [];
+  }
+  delete (next as LegacyPersistedFilters).petAge;
+
+  return next;
+}
 
 function defaultFilters(): SearchFilters {
   return {
@@ -25,6 +66,8 @@ function defaultFilters(): SearchFilters {
     serviceId: 'any',
     priceMin: null,
     priceMax: null,
+    petSizes: [],
+    petAges: [],
     experienceMinYears: null,
     hasReviewsOnly: false,
   };
@@ -113,6 +156,28 @@ export class SpecialistsSearchStore {
       items = items.filter((sp) => sp.experienceYears >= f.experienceMinYears!);
     }
 
+    if (f.petSizes.length > 0) {
+      const selected = f.petSizes;
+      items = items.filter((sp) => {
+        const cats = sp.petSizeCategories;
+        if (cats == null || cats.length === 0) {
+          return true;
+        }
+        return selected.some((s) => cats.includes(s));
+      });
+    }
+
+    if (f.petAges.length > 0) {
+      const selected = f.petAges;
+      items = items.filter((sp) => {
+        const cats = sp.petAgeCategories;
+        if (cats == null || cats.length === 0) {
+          return true;
+        }
+        return selected.some((s) => cats.includes(s));
+      });
+    }
+
     // reviews
     if (f.hasReviewsOnly) {
       items = items.filter((sp) => sp.reviewsCount > 0);
@@ -164,7 +229,7 @@ export class SpecialistsSearchStore {
 
     if (persisted) {
       runInAction(() => {
-        this.filters = persisted.filters;
+        this.filters = migratePersistedFilters(persisted.filters as LegacyPersistedFilters);
         this.viewMode = persisted.viewMode;
         this.mapBounds = persisted.mapBounds;
 

@@ -13,7 +13,7 @@ import {
 } from './mockSpecialistCalendar';
 
 import type { SpecialistProfileResponse } from '@/features/specialist-profile/model/types';
-import type { Specialist } from '../model/types';
+import type { PetAgeCategory, PetSizeCategory, Specialist } from '../model/types';
 
 const CITY_COORDS: Record<string, { lat: number; lon: number }> = {
   Москва: { lat: 55.7558, lon: 37.6173 },
@@ -167,6 +167,28 @@ const SERVICE_SETS: Specialist['services'][] = [
   ],
 ];
 
+const PET_SIZE_SETS: PetSizeCategory[][] = [
+  ['under_2', '2_to_8', '8_15'],
+  ['8_15', '15_25'],
+  ['15_25', 'over_25'],
+  ['under_2', '2_to_8', '8_15', '15_25'],
+  ['8_15'],
+  ['over_25'],
+  ['2_to_8', 'over_25'],
+  ['8_15', '15_25', 'over_25'],
+];
+
+const PET_AGE_SETS: PetAgeCategory[][] = [
+  ['under_6mo', '6mo_to_2', '2_to_5'],
+  ['2_to_5', 'over_5'],
+  ['6mo_to_2'],
+  ['over_5'],
+  ['2_to_5'],
+  ['under_6mo', '6mo_to_2'],
+  ['under_6mo', '6mo_to_2', '2_to_5', 'over_5'],
+  ['2_to_5', 'over_5'],
+];
+
 function buildMockSpecialists(): Specialist[] {
   const profiles = MOCK_SPECIALIST_PROFILES;
 
@@ -183,6 +205,8 @@ function buildMockSpecialists(): Specialist[] {
     reviewsCount: 18,
     location: { lat: 55.7572, lon: 37.5598 },
     experienceYears: 5,
+    petSizeCategories: ['under_2', '2_to_8', '8_15', '15_25'],
+    petAgeCategories: ['6mo_to_2', '2_to_5', 'over_5'],
     availabilityWeekdays: availabilityWeekdaysForIndex(0),
     services: [
       {
@@ -236,6 +260,8 @@ function buildMockSpecialists(): Specialist[] {
       reviewsCount: 4 + s.index * 2,
       experienceYears: 2 + (s.index % 6),
       location: { lat: loc.lat + jitter, lon: loc.lon + jitter },
+      petSizeCategories: PET_SIZE_SETS[s.index % PET_SIZE_SETS.length],
+      petAgeCategories: PET_AGE_SETS[s.index % PET_AGE_SETS.length],
       availabilityWeekdays: availabilityWeekdaysForIndex(s.index),
       services,
       calendarSlots: slots,

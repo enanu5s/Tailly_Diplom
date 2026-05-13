@@ -1,5 +1,9 @@
 .page {
-  min-height: calc(100vh - 160px);
-  background: #f9fafb;
-  padding: 20px 0 60px;
+  position: relative;
+  box-sizing: border-box;
+  min-height: calc(100vh - 100px);
+  /* Услуги (показ списком): фон страницы */
+  background: #f8f8f8;
+  /* Заголовок в макете на top: 160px при высоте меню 100px */
+  padding: 60px 0 80px;
 }

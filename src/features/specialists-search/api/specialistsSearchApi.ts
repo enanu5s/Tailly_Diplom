@@ -20,6 +20,14 @@ async function realGetSpecialists(filters?: Partial<SearchFilters>): Promise<Spe
       priceMax: filters?.priceMax ?? undefined,
       experienceMinYears: filters?.experienceMinYears ?? undefined,
       hasReviewsOnly: filters?.hasReviewsOnly || undefined,
+      petSizes:
+        filters?.petSizes && filters.petSizes.length > 0
+          ? filters.petSizes.join(',')
+          : undefined,
+      petAges:
+        filters?.petAges && filters.petAges.length > 0
+          ? filters.petAges.join(',')
+          : undefined,
     },
   });
 }

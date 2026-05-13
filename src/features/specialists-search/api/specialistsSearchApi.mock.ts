@@ -24,6 +24,38 @@ function matchesService(
   return specialist.services.some((service) => service.serviceId === serviceId);
 }
 
+function matchesPetSize(
+  specialist: Specialist,
+  selected: SearchFilters['petSizes'] | undefined,
+): boolean {
+  if (!selected || selected.length === 0) {
+    return true;
+  }
+
+  const cats = specialist.petSizeCategories;
+  if (!cats || cats.length === 0) {
+    return true;
+  }
+
+  return selected.some((s) => cats.includes(s));
+}
+
+function matchesPetAge(
+  specialist: Specialist,
+  selected: SearchFilters['petAges'] | undefined,
+): boolean {
+  if (!selected || selected.length === 0) {
+    return true;
+  }
+
+  const cats = specialist.petAgeCategories;
+  if (!cats || cats.length === 0) {
+    return true;
+  }
+
+  return selected.some((s) => cats.includes(s));
+}
+
 function matchesPrice(
   specialist: Specialist,
   minPrice: number | null | undefined,
@@ -79,6 +111,14 @@ export async function mockGetSpecialists(
       typeof filters?.experienceMinYears === 'number' &&
       specialist.experienceYears < filters.experienceMinYears
     ) {
+      return false;
+    }
+
+    if (!matchesPetSize(specialist, filters?.petSizes)) {
+      return false;
+    }
+
+    if (!matchesPetAge(specialist, filters?.petAges)) {
       return false;
     }
 

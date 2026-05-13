@@ -1,28 +1,37 @@
 .layout {
-  display: flex;
-  justify-content: center;
+  box-sizing: border-box;
+  width: 100%;
+  /* Горизонтальные поля как у Frame 399 / колонок: (100vw − 1520px) / 2, max 200px */
+  padding-inline: min(200px, max(20px, calc((100vw - 1520px) / 2)));
 }
 
 .left {
   width: 100%;
-  max-width: 1280px;
-  padding: 16px 16px 48px;
+  max-width: 1520px;
+  margin: 0 auto;
+  padding: 0 0 64px;
   box-sizing: border-box;
 }
 
-@media (min-width: 640px) {
-  .left {
-    padding: 24px 20px 60px;
-  }
+.pageTitle {
+  margin: 0 0 30px;
+  font-family: 'Igra Sans', sans-serif;
+  font-size: 40px;
+  font-weight: 400;
+  line-height: 1.2;
+  color: #211500;
 }
 
 .foundLine {
-  margin-top: 16px;
-  margin-bottom: 12px;
-  font-size: 14px;
-  color: #111827;
+  margin: 38px 0 18px;
+  font-family: 'Igra Sans', sans-serif;
+  font-size: 24px;
+  font-weight: 400;
+  line-height: 1.2;
+  color: #211500;
 }
 
 .foundCount {
-  color: #6366f1;
+  font-weight: 400;
+  color: #211500;
 }

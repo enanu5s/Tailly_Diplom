@@ -1,6 +1,7 @@
 //src/features/specialists-search/ui/FiltersPanel/FiltersPanel.tsx
+import clsx from 'clsx';
 import { observer } from 'mobx-react-lite';
-import { useEffect, useRef, useState } from 'react';
+import { useEffect, useId, useRef, useState } from 'react';
 
 import { PET_TYPES, PET_TYPE_SHORT_LABELS } from '@/features/pets/model/constants';
 import { SERVICES } from '@/shared/config/services';
@@ -25,6 +26,7 @@ const PETS: Array<{ id: PetType | 'any'; title: string }> = [
 ];
 
 export const FiltersPanel = observer(({ store }: Props) => {
+  const additionalFiltersRegionId = useId();
   const [expanded, setExpanded] = useState(false);
 
   const [cityInput, setCityInput] = useState(store.filters.cityQuery);
@@ -315,7 +317,7 @@ export const FiltersPanel = observer(({ store }: Props) => {
               }}
               onKeyDown={handleCityKeyDown}
               onBlur={handleCityBlur}
-              placeholder="Начните вводить…"
+              placeholder="Начните вводить название…"
               autoComplete="off"
             />
             {citySuggestionsLoading && (
@@ -355,7 +357,7 @@ export const FiltersPanel = observer(({ store }: Props) => {
               onChange={(event) => setDistrictInput(event.target.value)}
               onKeyDown={handleDistrictKeyDown}
               onBlur={handleDistrictBlur}
-              placeholder="Начните вводить…"
+              placeholder="Начните вводить название…"
               autoComplete="off"
             />
 
@@ -494,6 +496,22 @@ export const FiltersPanel = observer(({ store }: Props) => {
       <div className={styles.actionsRow}>
         <button
           type="button"
+          className={clsx(styles.moreBtn, expanded && styles.moreBtnExpanded)}
+          aria-expanded={expanded}
+          aria-controls={expanded ? additionalFiltersRegionId : undefined}
+          onClick={() => setExpanded((value) => !value)}
+        >
+          <span className={styles.moreBtnLabel}>
+            {expanded ? 'Дополнительные фильтры' : 'Дополнительные фильтры'}
+          </span>
+          <span
+            className={clsx(styles.moreBtnChevron, expanded && styles.moreBtnChevronOpen)}
+            aria-hidden
+          />
+        </button>
+
+        <button
+          type="button"
           className={styles.resetBtn}
           onClick={() => {
             store.resetFilters();
@@ -504,17 +522,13 @@ export const FiltersPanel = observer(({ store }: Props) => {
         >
           Сбросить фильтр
         </button>
-
-        <button
-          type="button"
-          className={styles.moreBtn}
-          onClick={() => setExpanded((value) => !value)}
-        >
-          {expanded ? 'Скрыть дополнительные фильтры' : 'Дополнительные фильтры'}
-        </button>
       </div>
 
-      {expanded && <AdditionalFilters store={store} />}
+      {expanded ? (
+        <div id={additionalFiltersRegionId} className={styles.additionalFiltersWrap}>
+          <AdditionalFilters store={store} />
+        </div>
+      ) : null}
     </div>
   );
 });
