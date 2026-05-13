@@ -392,6 +392,131 @@
   color: #e20b0b;
 }
 
+button.deleteAccountButton {
+  cursor: pointer;
+}
+
+.deleteModalOverlay {
+  position: fixed;
+  inset: 0;
+  z-index: 1300;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 20px;
+  background: rgba(33, 21, 0, 0.35);
+}
+
+.deleteModal {
+  position: relative;
+  box-sizing: border-box;
+  width: 100%;
+  max-width: 596px;
+  min-height: 243px;
+  padding: 50px 40px 50px;
+  border-radius: 20px;
+  background: #ffffff;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+}
+
+.deleteModalClose {
+  position: absolute;
+  top: 20px;
+  right: 20px;
+  box-sizing: border-box;
+  width: 44px;
+  height: 44px;
+  display: grid;
+  place-items: center;
+  padding: 0;
+  border: none;
+  background: transparent;
+  cursor: pointer;
+}
+
+.deleteModalCloseIcon {
+  position: relative;
+  display: block;
+  width: 22px;
+  height: 22px;
+}
+
+.deleteModalCloseIcon::before,
+.deleteModalCloseIcon::after {
+  content: '';
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  width: 22px;
+  height: 2.5px;
+  margin-left: -11px;
+  margin-top: -1.25px;
+  background: #211500;
+  border-radius: 0.5px;
+}
+
+.deleteModalCloseIcon::before {
+  transform: rotate(45deg);
+}
+
+.deleteModalCloseIcon::after {
+  transform: rotate(-45deg);
+}
+
+.deleteModalTitle {
+  margin: 0 auto;
+  max-width: 352px;
+  text-align: center;
+  font-family: 'Igra Sans', 'Montserrat', system-ui, sans-serif;
+  font-style: normal;
+  font-weight: 400;
+  font-size: 24px;
+  line-height: 120%;
+  color: #211500;
+}
+
+.deleteModalLead {
+  margin: 20px auto 0;
+  max-width: 420px;
+  text-align: center;
+  font-family: 'Raleway', sans-serif;
+  font-style: normal;
+  font-weight: 700;
+  font-size: 16px;
+  line-height: 19px;
+  color: #211500;
+  font-feature-settings: 'pnum' on, 'lnum' on;
+  font-variant-numeric: lining-nums proportional-nums;
+}
+
+.deleteModalConfirm {
+  box-sizing: border-box;
+  display: flex;
+  flex-direction: row;
+  flex-wrap: wrap;
+  justify-content: center;
+  align-items: center;
+  align-content: center;
+  margin: 30px auto 0;
+  width: min(100%, 287px);
+  height: 45px;
+  padding: 10px 30px;
+  border-radius: 23px;
+  border: 1px solid #e20b0b;
+  background: rgba(226, 11, 11, 0.05);
+  font-family: 'Raleway', sans-serif;
+  font-style: normal;
+  font-weight: 600;
+  font-size: 16px;
+  line-height: 19px;
+  text-align: center;
+  text-decoration: none;
+  color: #e20b0b;
+  cursor: pointer;
+  font-feature-settings: 'pnum' on, 'lnum' on;
+  font-variant-numeric: lining-nums proportional-nums;
+}
+
 @media (max-width: 640px) {
   .card {
     min-height: auto;

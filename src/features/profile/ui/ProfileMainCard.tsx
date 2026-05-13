@@ -1,6 +1,6 @@
 //src/features/profile/ui/ProfileMainCard.tsx
 import { observer } from 'mobx-react-lite';
-import { useEffect, type ChangeEvent, type ReactElement } from 'react';
+import { useEffect, useState, type ChangeEvent, type ReactElement } from 'react';
 import { Link } from 'react-router-dom';
 
 import { LocalitySuggestInput } from '@/features/specialists-search/ui/LocalitySuggestInput/LocalitySuggestInput';
@@ -28,11 +28,37 @@ function buildFullName(params: {
 
 export const ProfileMainCard = observer(
   ({ mode = 'owner' }: ProfileMainCardProps): ReactElement => {
+    const [isDeleteAccountModalOpen, setIsDeleteAccountModalOpen] = useState(false);
+
     useEffect(() => {
       if (!profileStore.profile && !profileStore.loading) {
         void profileStore.load();
       }
     }, []);
+
+    useEffect(() => {
+      if (!profileStore.editing) {
+        setIsDeleteAccountModalOpen(false);
+      }
+    }, [profileStore.editing]);
+
+    useEffect(() => {
+      if (!isDeleteAccountModalOpen) {
+        return;
+      }
+
+      const onKeyDown = (event: KeyboardEvent): void => {
+        if (event.key === 'Escape') {
+          setIsDeleteAccountModalOpen(false);
+        }
+      };
+
+      window.addEventListener('keydown', onKeyDown);
+
+      return () => {
+        window.removeEventListener('keydown', onKeyDown);
+      };
+    }, [isDeleteAccountModalOpen]);
 
     const profile = profileStore.profile;
     const isEditing = profileStore.editing;
@@ -293,10 +319,65 @@ export const ProfileMainCard = observer(
             <Link className={styles.securityButton} to="/profile/security/password">
               Сменить пароль
             </Link>
-            <Link className={styles.deleteAccountButton} to="/account/delete">
+            <button
+              className={styles.deleteAccountButton}
+              type="button"
+              onClick={() => {
+                setIsDeleteAccountModalOpen(true);
+              }}
+            >
               Удалить аккаунт
-            </Link>
+            </button>
           </section>
+        ) : null}
+
+        {isDeleteAccountModalOpen ? (
+          <div
+            className={styles.deleteModalOverlay}
+            role="presentation"
+            onClick={() => {
+              setIsDeleteAccountModalOpen(false);
+            }}
+          >
+            <div
+              className={styles.deleteModal}
+              role="dialog"
+              aria-modal="true"
+              aria-labelledby="delete-account-client-title"
+              onClick={(event) => {
+                event.stopPropagation();
+              }}
+            >
+              <button
+                className={styles.deleteModalClose}
+                type="button"
+                aria-label="Закрыть"
+                onClick={() => {
+                  setIsDeleteAccountModalOpen(false);
+                }}
+              >
+                <span className={styles.deleteModalCloseIcon} aria-hidden />
+              </button>
+
+              <h2 id="delete-account-client-title" className={styles.deleteModalTitle}>
+                Удаление аккаунта клиента
+              </h2>
+
+              <p className={styles.deleteModalLead}>
+                Вы уверены, что хотите удалить аккаунт клиента?
+              </p>
+
+              <Link
+                className={styles.deleteModalConfirm}
+                to="/account/delete"
+                onClick={() => {
+                  setIsDeleteAccountModalOpen(false);
+                }}
+              >
+                Удалить
+              </Link>
+            </div>
+          </div>
         ) : null}
       </>
     );
