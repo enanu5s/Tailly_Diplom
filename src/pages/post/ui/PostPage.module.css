@@ -286,29 +286,72 @@
   display: flex;
   justify-content: center;
   align-items: center;
-  gap: 14px;
+  gap: 77px;
 }
 
 .viewerArrow {
-  min-width: 44px;
-  min-height: 44px;
-  border-radius: 12px;
-  border: 1px solid rgba(17, 24, 39, 0.2);
-  background: #f9fafb;
-  font-size: 16px;
-  color: #111827;
+  box-sizing: border-box;
+  width: 47px;
+  height: 44px;
+  padding: 0;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  border-radius: 10px;
+  background: transparent;
   cursor: pointer;
 }
 
+.viewerArrow:focus-visible {
+  outline: 2px solid #211500;
+  outline-offset: 2px;
+}
+
+.viewerArrowPrev {
+  border: 1px solid #c7c2ba;
+  color: #6f685d;
+}
+
+.viewerArrowNext {
+  border: 1px solid #6f685d;
+  color: #211500;
+}
+
+.viewerArrowIcon {
+  display: flex;
+  width: 37px;
+  height: 34px;
+  align-items: center;
+  justify-content: center;
+}
+
+.viewerArrowPrev .viewerArrowIcon {
+  transform: matrix(-1, 0, 0, 1, 0, 0);
+}
+
+.viewerArrowSvg {
+  display: block;
+  width: 37px;
+  height: 34px;
+}
+
 .viewerArrow:disabled {
-  opacity: 0.5;
+  opacity: 0.45;
   cursor: not-allowed;
 }
 
 .viewerCounter {
-  font-size: 12px;
-  color: #6b7280;
-  font-family: Rubik, Arial, sans-serif;
+  box-sizing: border-box;
+  min-width: 39px;
+  padding: 0 2px;
+  font-family: 'Igra Sans', Raleway, Arial, sans-serif;
+  font-style: normal;
+  font-weight: 400;
+  font-size: 24px;
+  line-height: 120%;
+  color: #211500;
+  text-align: center;
 }
 
 .content {

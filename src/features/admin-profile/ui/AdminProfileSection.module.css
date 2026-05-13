@@ -294,13 +294,6 @@
   box-shadow: 0 0 0 4px rgba(204, 211, 8, 0.18);
 }
 
-.actions,
-.modalActions {
-  display: flex;
-  justify-content: flex-end;
-  gap: 12px;
-}
-
 .loginSecurityStack {
   display: grid;
   gap: 12px;
@@ -350,66 +343,6 @@
 .passwordLockError {
   margin-top: 10px;
   color: #b91c1c;
-}
-
-.overlay {
-  position: fixed;
-  inset: 0;
-  z-index: 120;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  padding: 24px;
-  background: rgba(33, 21, 0, 0.45);
-}
-
-.modal {
-  width: 100%;
-  max-width: 480px;
-  max-height: calc(100vh - 48px);
-  overflow: auto;
-  display: grid;
-  gap: 16px;
-  padding: 24px;
-  border-radius: 20px;
-  background: #ffffff;
-  box-shadow: 0 24px 70px rgba(33, 21, 0, 0.2);
-}
-
-.modalHeader {
-  display: flex;
-  justify-content: space-between;
-  gap: 16px;
-}
-
-.modalTitle {
-  margin: 0;
-  font-family: 'Igra Sans', serif;
-  font-size: 24px;
-  font-weight: 400;
-  color: #211500;
-}
-
-.modalClose {
-  min-height: 40px;
-  padding: 0 14px;
-  border: 1px solid #c7c2ba;
-  border-radius: 20px;
-  background: #ffffff;
-  color: #211500;
-  cursor: pointer;
-}
-
-.modalLead {
-  margin: 0;
-  font-family: Rubik, sans-serif;
-  color: #6f685d;
-  line-height: 1.55;
-}
-
-.mockHintCode {
-  font-weight: 800;
-  color: #211500;
 }
 
 @media (max-width: 1400px) {
@@ -469,8 +402,4 @@
     width: 100%;
   }
 
-  .actions,
-  .modalActions {
-    flex-direction: column-reverse;
-  }
 }

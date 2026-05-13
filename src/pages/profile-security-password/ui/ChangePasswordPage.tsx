@@ -17,6 +17,7 @@ export const ChangePasswordPage = () => {
   const [error, setError] = useState<string | null>(null);
   const [success, setSuccess] = useState(false);
 
+  const [revealOld, setRevealOld] = useState(false);
   const [revealNew1, setRevealNew1] = useState(false);
   const [revealNew2, setRevealNew2] = useState(false);
 
@@ -83,13 +84,22 @@ export const ChangePasswordPage = () => {
               <div className={styles.label}>Текущий пароль</div>
               <div className={styles.passRow}>
                 <input
-                  className={`${styles.input} ${styles.inputNoIcon}`}
-                  type="password"
+                  className={styles.input}
+                  type={revealOld ? 'text' : 'password'}
                   value={oldPassword}
                   onChange={(e) => setOldPassword(e.target.value)}
                   placeholder="Введите текущий пароль"
                   required
+                  autoComplete="current-password"
                 />
+                <button
+                  className={styles.eyeBtn}
+                  type="button"
+                  onClick={() => setRevealOld((value) => !value)}
+                  title="Показать/скрыть"
+                >
+                  <EyeIcon isOff={!revealOld} />
+                </button>
               </div>
             </label>
 
@@ -103,6 +113,7 @@ export const ChangePasswordPage = () => {
                   onChange={(e) => setNew1(e.target.value)}
                   placeholder="Введите новый пароль"
                   required
+                  autoComplete="new-password"
                 />
                 <button
                   className={styles.eyeBtn}
@@ -125,6 +136,7 @@ export const ChangePasswordPage = () => {
                   onChange={(e) => setNew2(e.target.value)}
                   placeholder="Повторите новый пароль"
                   required
+                  autoComplete="new-password"
                 />
                 <button
                   className={styles.eyeBtn}
@@ -152,7 +164,7 @@ export const ChangePasswordPage = () => {
   );
 };
 
-function EyeIcon({ isOff }: { isOff?: boolean }) {
+export function EyeIcon({ isOff }: { isOff?: boolean }) {
   if (isOff) {
     return (
       <svg

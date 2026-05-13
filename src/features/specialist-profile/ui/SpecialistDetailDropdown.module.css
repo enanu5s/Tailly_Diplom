@@ -1,0 +1,153 @@
+/* Custom dropdown components matching Figma layout for specialist details.
+   Used for housing type (single-select) and pet size / pet age (multi-select). */
+
+.dropdown {
+  position: relative;
+  width: 100%;
+  max-width: 258px;
+  font-family: 'Rubik', sans-serif;
+}
+
+.trigger {
+  box-sizing: border-box;
+  width: 100%;
+  height: 34px;
+  padding: 0 36px 0 20px;
+  border: 1px solid #c7c2ba;
+  border-radius: 10px;
+  background: #ffffff;
+  color: #211500;
+  font-family: inherit;
+  font-size: 15px;
+  font-weight: 400;
+  line-height: 18px;
+  text-align: left;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  position: relative;
+}
+
+.trigger:focus-visible {
+  outline: 2px solid #ffb45c;
+  outline-offset: 2px;
+}
+
+.dropdownOpen .trigger {
+  border-radius: 10px 10px 0 0;
+  border-bottom-color: transparent;
+}
+
+.triggerLabel {
+  flex: 1 1 auto;
+  min-width: 0;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.triggerPlaceholder {
+  color: #6f685d;
+}
+
+.chevron {
+  position: absolute;
+  right: 14px;
+  top: 50%;
+  width: 10px;
+  height: 6px;
+  pointer-events: none;
+  transform: translateY(-50%);
+  transition: transform 0.15s ease;
+  color: #211500;
+}
+
+.dropdownOpen .chevron {
+  transform: translateY(-50%) rotate(180deg);
+}
+
+.panel {
+  position: absolute;
+  top: 100%;
+  left: 0;
+  width: 100%;
+  z-index: 20;
+  box-sizing: border-box;
+  background: #ffffff;
+  border: 1px solid #c7c2ba;
+  border-top: none;
+  border-radius: 0 0 10px 10px;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  max-height: 320px;
+  overflow-y: auto;
+}
+
+.optionRow {
+  appearance: none;
+  -webkit-appearance: none;
+  display: flex;
+  align-items: center;
+  width: 100%;
+  min-height: 34px;
+  padding: 0 20px;
+  border: 0;
+  background: #ffffff;
+  color: #211500;
+  font-family: inherit;
+  font-size: 15px;
+  font-weight: 400;
+  line-height: 18px;
+  text-align: left;
+  cursor: pointer;
+  user-select: none;
+}
+
+.optionRow:hover {
+  background: #faf6f0;
+}
+
+.optionRowSelected,
+.optionRowSelected:hover {
+  background: #fff3cd;
+}
+
+.optionRowCheck {
+  gap: 10px;
+}
+
+.optionCheckbox {
+  appearance: none;
+  -webkit-appearance: none;
+  width: 19px;
+  height: 19px;
+  margin: 0;
+  border: 1px solid #211500;
+  border-radius: 0;
+  background: #ffffff;
+  cursor: pointer;
+  position: relative;
+  flex-shrink: 0;
+}
+
+.optionCheckbox:checked {
+  background: #211500;
+}
+
+.optionCheckbox:checked::after {
+  content: '';
+  position: absolute;
+  left: 5px;
+  top: 1px;
+  width: 5px;
+  height: 10px;
+  border: solid #ffffff;
+  border-width: 0 2px 2px 0;
+  transform: rotate(45deg);
+}
+
+.optionCheckbox:focus-visible {
+  outline: 2px solid #ffb45c;
+  outline-offset: 1px;
+}

@@ -289,24 +289,56 @@ export const PostPage = observer(() => {
                     <div className={styles.viewerControls}>
                       <button
                         type="button"
-                        className={styles.viewerArrow}
+                        className={`${styles.viewerArrow} ${styles.viewerArrowPrev}`}
                         onClick={handlePrevImage}
                         disabled={!hasPrevImage}
                         aria-label="Предыдущее фото"
                       >
-                        ←
+                        <span className={styles.viewerArrowIcon}>
+                          <svg
+                            className={styles.viewerArrowSvg}
+                            viewBox="0 0 37 34"
+                            fill="none"
+                            xmlns="http://www.w3.org/2000/svg"
+                            aria-hidden={true}
+                          >
+                            <path
+                              d="M8 17h17M20 10l7 7-7 7"
+                              stroke="currentColor"
+                              strokeWidth="1.9"
+                              strokeLinecap="round"
+                              strokeLinejoin="round"
+                            />
+                          </svg>
+                        </span>
                       </button>
                       <div className={styles.viewerCounter}>
                         {currentImageIndex + 1} / {allImages.length}
                       </div>
                       <button
                         type="button"
-                        className={styles.viewerArrow}
+                        className={`${styles.viewerArrow} ${styles.viewerArrowNext}`}
                         onClick={handleNextImage}
                         disabled={!hasNextImage}
                         aria-label="Следующее фото"
                       >
-                        →
+                        <span className={styles.viewerArrowIcon}>
+                          <svg
+                            className={styles.viewerArrowSvg}
+                            viewBox="0 0 37 34"
+                            fill="none"
+                            xmlns="http://www.w3.org/2000/svg"
+                            aria-hidden={true}
+                          >
+                            <path
+                              d="M8 17h17M20 10l7 7-7 7"
+                              stroke="currentColor"
+                              strokeWidth="1.9"
+                              strokeLinecap="round"
+                              strokeLinejoin="round"
+                            />
+                          </svg>
+                        </span>
                       </button>
                     </div>
                   </div>

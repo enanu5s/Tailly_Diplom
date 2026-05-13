@@ -5,6 +5,28 @@ import { createPortal } from 'react-dom';
 
 import styles from './ReviewPhotoModal.module.css';
 
+function ReviewPhotoModalNavArrow() {
+  return (
+    <span className={styles.arrowIcon}>
+      <svg
+        className={styles.arrowSvg}
+        viewBox="0 0 37 34"
+        fill="none"
+        xmlns="http://www.w3.org/2000/svg"
+        aria-hidden={true}
+      >
+        <path
+          d="M8 17h17M20 10l7 7-7 7"
+          stroke="currentColor"
+          strokeWidth="1.9"
+          strokeLinecap="round"
+          strokeLinejoin="round"
+        />
+      </svg>
+    </span>
+  );
+}
+
 export function ReviewPhotoModal(props: {
   photos: string[];
   startIndex: number;
@@ -62,25 +84,25 @@ export function ReviewPhotoModal(props: {
         {props.photos.length > 1 && (
           <div className={styles.controls}>
             <button
-              className={styles.arrowBtn}
+              className={`${styles.arrowBtn} ${styles.arrowBtnPrev}`}
               type="button"
               disabled={!canPrev}
               onClick={() => setIdx((v) => Math.max(0, v - 1))}
               aria-label="Предыдущее фото"
             >
-              ←
+              <ReviewPhotoModalNavArrow />
             </button>
             <div className={styles.counter}>
               {idx + 1} / {props.photos.length}
             </div>
             <button
-              className={styles.arrowBtn}
+              className={`${styles.arrowBtn} ${styles.arrowBtnNext}`}
               type="button"
               disabled={!canNext}
               onClick={() => setIdx((v) => Math.min(props.photos.length - 1, v + 1))}
               aria-label="Следующее фото"
             >
-              →
+              <ReviewPhotoModalNavArrow />
             </button>
           </div>
         )}

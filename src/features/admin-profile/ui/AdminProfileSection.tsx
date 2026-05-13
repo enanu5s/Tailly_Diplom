@@ -125,7 +125,10 @@ export const AdminProfileSection = observer((): ReactElement => {
                 <button
                   className={styles.secondaryButton}
                   type="button"
-                  onClick={() => store.openEmailChangeModal()}
+                  onClick={() => {
+                    store.initSuperAdminEmailChangeFlow();
+                    navigate('/admin/profile/security/email');
+                  }}
                 >
                   Сменить email
                 </button>
@@ -289,123 +292,6 @@ export const AdminProfileSection = observer((): ReactElement => {
         </div>
       ) : null}
 
-      {store.isEmailChangeModalOpen ? (
-        <div className={styles.overlay}>
-          <div className={styles.modal} role="dialog" aria-modal="true">
-            <div className={styles.modalHeader}>
-              <h2 className={styles.modalTitle}>Смена email</h2>
-              <button
-                className={styles.modalClose}
-                type="button"
-                onClick={() => store.closeEmailChangeModal()}
-              >
-                Закрыть
-              </button>
-            </div>
-
-            {store.emailChangePhase === 'credentials' ? (
-              <>
-                <p className={styles.modalLead}>
-                  Текущий адрес: <strong>{profile.email}</strong>.
-                </p>
-
-                <label className={styles.field}>
-                  <span className={styles.fieldLabel}>Новый email</span>
-                  <input
-                    className={styles.input}
-                    type="email"
-                    value={store.emailChangeNewEmail}
-                    onChange={(event) =>
-                      store.setEmailChangeField('newEmail', event.target.value)
-                    }
-                    placeholder="new@example.com"
-                  />
-                </label>
-
-                <label className={styles.field}>
-                  <span className={styles.fieldLabel}>Пароль от аккаунта</span>
-                  <input
-                    className={styles.input}
-                    type="password"
-                    value={store.emailChangePassword}
-                    onChange={(event) =>
-                      store.setEmailChangeField('password', event.target.value)
-                    }
-                  />
-                </label>
-              </>
-            ) : (
-              <>
-                <p className={styles.modalLead}>
-                  Введите код из письма, отправленного на <strong>{profile.email}</strong>
-                  .
-                </p>
-
-                <label className={styles.field}>
-                  <span className={styles.fieldLabel}>Код подтверждения</span>
-                  <input
-                    className={styles.input}
-                    type="text"
-                    inputMode="numeric"
-                    value={store.emailChangeCode}
-                    onChange={(event) =>
-                      store.setEmailChangeField('code', event.target.value)
-                    }
-                    placeholder="000000"
-                  />
-                </label>
-              </>
-            )}
-
-            {store.emailChangeInfoMessage ? (
-              <div className={styles.infoBanner}>{store.emailChangeInfoMessage}</div>
-            ) : null}
-
-            {store.emailChangeMockHint ? (
-              <div className={styles.mockHintBanner}>
-                Демо-режим: код —{' '}
-                <span className={styles.mockHintCode}>{store.emailChangeMockHint}</span>
-              </div>
-            ) : null}
-
-            {store.emailChangeError ? (
-              <div className={styles.errorBanner}>{store.emailChangeError}</div>
-            ) : null}
-
-            <div className={styles.modalActions}>
-              <button
-                className={styles.secondaryButton}
-                type="button"
-                onClick={() => store.closeEmailChangeModal()}
-              >
-                Отмена
-              </button>
-
-              <button
-                className={styles.primaryButton}
-                type="button"
-                disabled={
-                  store.emailChangePhase === 'credentials'
-                    ? !store.canSubmitEmailChangeRequest
-                    : !store.canSubmitEmailChangeConfirm
-                }
-                onClick={() => {
-                  if (store.emailChangePhase === 'credentials') {
-                    void store.requestSuperAdminEmailChange();
-                    return;
-                  }
-
-                  void store.confirmSuperAdminEmailChange();
-                }}
-              >
-                {store.emailChangePhase === 'credentials'
-                  ? 'Отправить код'
-                  : 'Подтвердить'}
-              </button>
-            </div>
-          </div>
-        </div>
-      ) : null}
     </div>
   );
 });

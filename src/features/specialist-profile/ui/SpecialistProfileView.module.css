@@ -494,31 +494,81 @@
   display: flex;
   justify-content: center;
   align-items: center;
-  gap: 14px;
   flex-wrap: wrap;
+  column-gap: 24px;
+  row-gap: 12px;
+}
+
+.galleryViewerPager {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 77px;
 }
 
 .galleryViewerArrow {
-  min-width: 44px;
-  min-height: 44px;
-  border-radius: 12px;
-  border: 1px solid rgba(17, 24, 39, 0.2);
-  background: #f9fafb;
-  font-size: 16px;
-  color: #111827;
+  box-sizing: border-box;
+  width: 47px;
+  height: 44px;
+  padding: 0;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  border-radius: 10px;
+  background: transparent;
   cursor: pointer;
 }
 
+.galleryViewerArrow:focus-visible {
+  outline: 2px solid #211500;
+  outline-offset: 2px;
+}
+
+.galleryViewerArrowPrev {
+  border: 1px solid #c7c2ba;
+  color: #6f685d;
+}
+
+.galleryViewerArrowNext {
+  border: 1px solid #6f685d;
+  color: #211500;
+}
+
+.galleryViewerArrowIcon {
+  display: flex;
+  width: 37px;
+  height: 34px;
+  align-items: center;
+  justify-content: center;
+}
+
+.galleryViewerArrowPrev .galleryViewerArrowIcon {
+  transform: matrix(-1, 0, 0, 1, 0, 0);
+}
+
+.galleryViewerArrowSvg {
+  display: block;
+  width: 37px;
+  height: 34px;
+}
+
 .galleryViewerArrow:disabled {
-  opacity: 0.5;
+  opacity: 0.45;
   cursor: not-allowed;
 }
 
 .galleryViewerCounter {
-  color: #6b7280;
-  font-family: 'Rubik', sans-serif;
-  font-size: 12px;
-  line-height: 1;
+  box-sizing: border-box;
+  min-width: 39px;
+  padding: 0 2px;
+  font-family: 'Igra Sans', sans-serif;
+  font-style: normal;
+  font-weight: 400;
+  font-size: 24px;
+  line-height: 120%;
+  color: #211500;
+  text-align: center;
 }
 
 .galleryViewerDelete {
@@ -1477,7 +1527,7 @@
 
 .petTypeChip {
   min-height: 32px;
-  padding: 4px 10px 4px 12px;
+  padding: 4px 14px;
   border: 1px solid #c7c2ba;
   border-radius: 16px;
   background: #ffffff;
@@ -1493,11 +1543,6 @@
 .petTypeChipActive {
   border-color: #ffe4c3;
   background: #ffe4c3;
-}
-
-.petTypeChipClose {
-  font-size: 13px;
-  line-height: 1;
 }
 
 .detailsCardEditing .textarea {

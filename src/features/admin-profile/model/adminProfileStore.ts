@@ -66,7 +66,6 @@ class AdminProfileStore {
 
   form: AdminProfileForm = createInitialForm();
 
-  isEmailChangeModalOpen = false;
   emailChangePhase: EmailChangePhase = 'credentials';
   emailChangeNewEmail = '';
   emailChangePassword = '';
@@ -180,13 +179,12 @@ class AdminProfileStore {
     this.form = this.profile ? mapProfileToForm(this.profile) : createInitialForm();
   }
 
-  openEmailChangeModal(): void {
+  initSuperAdminEmailChangeFlow(): void {
     if (!this.isSuperAdmin) {
       return;
     }
 
     void adminProfileService.cancelSuperAdminEmailChange();
-    this.isEmailChangeModalOpen = true;
     this.emailChangePhase = 'credentials';
     this.emailChangeNewEmail = '';
     this.emailChangePassword = '';
@@ -198,7 +196,6 @@ class AdminProfileStore {
 
   closeEmailChangeModal(): void {
     void adminProfileService.cancelSuperAdminEmailChange();
-    this.isEmailChangeModalOpen = false;
     this.emailChangePhase = 'credentials';
     this.emailChangeNewEmail = '';
     this.emailChangePassword = '';
@@ -273,7 +270,6 @@ class AdminProfileStore {
       runInAction(() => {
         this.profile = updatedProfile;
         this.form = mapProfileToForm(updatedProfile);
-        this.isEmailChangeModalOpen = false;
         this.emailChangePhase = 'credentials';
         this.emailChangeNewEmail = '';
         this.emailChangePassword = '';
@@ -383,7 +379,6 @@ class AdminProfileStore {
     this.isSaving = false;
     this.saveError = '';
     this.form = createInitialForm();
-    this.isEmailChangeModalOpen = false;
     this.emailChangePhase = 'credentials';
     this.emailChangeNewEmail = '';
     this.emailChangePassword = '';

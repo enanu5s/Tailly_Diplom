@@ -53,6 +53,18 @@ const AdminPostsPage = lazy(() =>
   })),
 );
 
+const AdminChangeEmailPage = lazy(() =>
+  import('@/pages/admin-change-email').then((module) => ({
+    default: module.AdminChangeEmailPage,
+  })),
+);
+
+const AdminChangeEmailConfirmPage = lazy(() =>
+  import('@/pages/admin-change-email').then((module) => ({
+    default: module.AdminChangeEmailConfirmPage,
+  })),
+);
+
 const AdminChangePasswordPage = lazy(() =>
   import('@/pages/admin-change-password').then((module) => ({
     default: module.AdminChangePasswordPage,
@@ -71,6 +83,22 @@ export const adminRoutes: RouteObject[] = [
   {
     path: '/admin/profile',
     element: <AdminRouteGuard>{withSuspense(<AdminProfilePage />)}</AdminRouteGuard>,
+  },
+  {
+    path: '/admin/profile/security/email',
+    element: (
+      <AdminRouteGuard requireSuperAdmin>
+        {withSuspense(<AdminChangeEmailPage />)}
+      </AdminRouteGuard>
+    ),
+  },
+  {
+    path: '/admin/profile/security/email/confirm',
+    element: (
+      <AdminRouteGuard requireSuperAdmin>
+        {withSuspense(<AdminChangeEmailConfirmPage />)}
+      </AdminRouteGuard>
+    ),
   },
   {
     path: '/admin/profile/security/password',

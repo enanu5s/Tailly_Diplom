@@ -8,6 +8,10 @@ import { LocalitySuggestInput } from '@/features/specialists-search/ui/LocalityS
 
 import { specialistProfileStore } from '../model/specialistProfileStore';
 import { specialistReviewRepliesStore } from '../model/specialistReviewRepliesStore';
+import {
+  DetailMultiSelect,
+  DetailSingleSelect,
+} from './SpecialistDetailDropdown';
 import { SpecialistMiniCalendar } from './SpecialistMiniCalendar';
 import styles from './SpecialistProfileView.module.css';
 import {
@@ -274,6 +278,28 @@ function buildInitials(params: { firstName?: string; lastName?: string }): strin
   return `${(params.firstName ?? '').trim().charAt(0)}${(params.lastName ?? '')
     .trim()
     .charAt(0)}`.trim();
+}
+
+function GalleryViewerNavArrow() {
+  return (
+    <span className={styles.galleryViewerArrowIcon}>
+      <svg
+        className={styles.galleryViewerArrowSvg}
+        viewBox="0 0 37 34"
+        fill="none"
+        xmlns="http://www.w3.org/2000/svg"
+        aria-hidden={true}
+      >
+        <path
+          d="M8 17h17M20 10l7 7-7 7"
+          stroke="currentColor"
+          strokeWidth="1.9"
+          strokeLinecap="round"
+          strokeLinejoin="round"
+        />
+      </svg>
+    </span>
+  );
 }
 
 export const SpecialistProfileView = observer(
@@ -1116,22 +1142,15 @@ export const SpecialistProfileView = observer(
                       <span>Тип жилья:</span>
 
                       {isEditingDetails && detailsForm ? (
-                        <select
-                          className={styles.inlineSelect}
+                        <DetailSingleSelect
+                          ariaLabel="Тип жилья"
                           value={detailsForm.housingType}
-                          onChange={(event) =>
-                            onSetDetailsField(
-                              'housingType',
-                              event.target.value as SpecialistHousingType,
-                            )
-                          }
-                        >
-                          {HOUSING_OPTIONS.map((option) => (
-                            <option key={option} value={option}>
-                              {SPECIALIST_HOUSING_TYPE_LABELS[option]}
-                            </option>
-                          ))}
-                        </select>
+                          options={HOUSING_OPTIONS.map((option) => ({
+                            value: option,
+                            label: SPECIALIST_HOUSING_TYPE_LABELS[option],
+                          }))}
+                          onChange={(next) => onSetDetailsField('housingType', next)}
+                        />
                       ) : (
                         <strong>
                           {SPECIALIST_HOUSING_TYPE_LABELS[currentHousingType]}
@@ -1142,26 +1161,16 @@ export const SpecialistProfileView = observer(
                     <div className={styles.detailsCompactRow}>
                       <span>Размер питомца:</span>
                       {isEditingDetails && detailsForm ? (
-                        <div className={styles.inlineCheckboxGroup}>
-                          <label className={styles.checkboxItem}>
-                            <input
-                              type="checkbox"
-                              checked={detailsForm.petSizes.length === PET_SIZE_OPTIONS.length}
-                              onChange={onToggleAllPetSizes}
-                            />
-                            <span>Любой</span>
-                          </label>
-                          {PET_SIZE_OPTIONS.map((size) => (
-                            <label key={size} className={styles.checkboxItem}>
-                              <input
-                                type="checkbox"
-                                checked={detailsForm.petSizes.includes(size)}
-                                onChange={() => onTogglePetSize(size)}
-                              />
-                              <span>{SPECIALIST_PET_SIZE_LABELS[size]}</span>
-                            </label>
-                          ))}
-                        </div>
+                        <DetailMultiSelect
+                          ariaLabel="Размер питомца"
+                          values={detailsForm.petSizes}
+                          options={PET_SIZE_OPTIONS.map((size) => ({
+                            value: size,
+                            label: SPECIALIST_PET_SIZE_LABELS[size],
+                          }))}
+                          onToggle={onTogglePetSize}
+                          onToggleAll={onToggleAllPetSizes}
+                        />
                       ) : (
                         <strong>
                           {currentPetSizes.length === PET_SIZE_OPTIONS.length
@@ -1176,26 +1185,16 @@ export const SpecialistProfileView = observer(
                     <div className={styles.detailsCompactRow}>
                       <span>Возраст питомца:</span>
                       {isEditingDetails && detailsForm ? (
-                        <div className={styles.inlineCheckboxGroup}>
-                          <label className={styles.checkboxItem}>
-                            <input
-                              type="checkbox"
-                              checked={detailsForm.petAges.length === PET_AGE_OPTIONS.length}
-                              onChange={onToggleAllPetAges}
-                            />
-                            <span>Любой</span>
-                          </label>
-                          {PET_AGE_OPTIONS.map((age) => (
-                            <label key={age} className={styles.checkboxItem}>
-                              <input
-                                type="checkbox"
-                                checked={detailsForm.petAges.includes(age)}
-                                onChange={() => onTogglePetAge(age)}
-                              />
-                              <span>{SPECIALIST_PET_AGE_LABELS[age]}</span>
-                            </label>
-                          ))}
-                        </div>
+                        <DetailMultiSelect
+                          ariaLabel="Возраст питомца"
+                          values={detailsForm.petAges}
+                          options={PET_AGE_OPTIONS.map((age) => ({
+                            value: age,
+                            label: SPECIALIST_PET_AGE_LABELS[age],
+                          }))}
+                          onToggle={onTogglePetAge}
+                          onToggleAll={onToggleAllPetAges}
+                        />
                       ) : (
                         <strong>
                           {currentPetAges.length === PET_AGE_OPTIONS.length
@@ -1243,6 +1242,7 @@ export const SpecialistProfileView = observer(
                             <button
                               key={option.id}
                               type="button"
+                              aria-pressed={isSelected}
                               className={
                                 isSelected
                                   ? `${styles.petTypeChip} ${styles.petTypeChipActive}`
@@ -1251,9 +1251,6 @@ export const SpecialistProfileView = observer(
                               onClick={() => togglePetTypeAlias(option.id)}
                             >
                               <span>{option.label}</span>
-                              {isSelected ? (
-                                <span className={styles.petTypeChipClose}>✕</span>
-                              ) : null}
                             </button>
                           );
                         })}
@@ -1764,27 +1761,29 @@ export const SpecialistProfileView = observer(
                   </div>
 
                   <div className={styles.galleryViewerControls}>
-                    <button
-                      type="button"
-                      className={styles.galleryViewerArrow}
-                      disabled={!canPrevGalleryImage}
-                      onClick={handlePrevGalleryImage}
-                      aria-label="Предыдущее фото"
-                    >
-                      ←
-                    </button>
-                    <span className={styles.galleryViewerCounter}>
-                      {(activeGalleryIndex ?? 0) + 1} / {galleryItems.length}
-                    </span>
-                    <button
-                      type="button"
-                      className={styles.galleryViewerArrow}
-                      disabled={!canNextGalleryImage}
-                      onClick={handleNextGalleryImage}
-                      aria-label="Следующее фото"
-                    >
-                      →
-                    </button>
+                    <div className={styles.galleryViewerPager}>
+                      <button
+                        type="button"
+                        className={`${styles.galleryViewerArrow} ${styles.galleryViewerArrowPrev}`}
+                        disabled={!canPrevGalleryImage}
+                        onClick={handlePrevGalleryImage}
+                        aria-label="Предыдущее фото"
+                      >
+                        <GalleryViewerNavArrow />
+                      </button>
+                      <span className={styles.galleryViewerCounter}>
+                        {(activeGalleryIndex ?? 0) + 1} / {galleryItems.length}
+                      </span>
+                      <button
+                        type="button"
+                        className={`${styles.galleryViewerArrow} ${styles.galleryViewerArrowNext}`}
+                        disabled={!canNextGalleryImage}
+                        onClick={handleNextGalleryImage}
+                        aria-label="Следующее фото"
+                      >
+                        <GalleryViewerNavArrow />
+                      </button>
+                    </div>
                     {isEditingDetails ? (
                       <button
                         type="button"
@@ -1935,27 +1934,29 @@ export const SpecialistProfileView = observer(
                   </div>
 
                   <div className={styles.galleryViewerControls}>
-                    <button
-                      type="button"
-                      className={styles.galleryViewerArrow}
-                      disabled={!canPrevReviewPhoto}
-                      onClick={handlePrevReviewPhoto}
-                      aria-label="Предыдущее фото"
-                    >
-                      ←
-                    </button>
-                    <span className={styles.galleryViewerCounter}>
-                      {(activeReviewPhotoIndex ?? 0) + 1} / {activeReviewPhotos.length}
-                    </span>
-                    <button
-                      type="button"
-                      className={styles.galleryViewerArrow}
-                      disabled={!canNextReviewPhoto}
-                      onClick={handleNextReviewPhoto}
-                      aria-label="Следующее фото"
-                    >
-                      →
-                    </button>
+                    <div className={styles.galleryViewerPager}>
+                      <button
+                        type="button"
+                        className={`${styles.galleryViewerArrow} ${styles.galleryViewerArrowPrev}`}
+                        disabled={!canPrevReviewPhoto}
+                        onClick={handlePrevReviewPhoto}
+                        aria-label="Предыдущее фото"
+                      >
+                        <GalleryViewerNavArrow />
+                      </button>
+                      <span className={styles.galleryViewerCounter}>
+                        {(activeReviewPhotoIndex ?? 0) + 1} / {activeReviewPhotos.length}
+                      </span>
+                      <button
+                        type="button"
+                        className={`${styles.galleryViewerArrow} ${styles.galleryViewerArrowNext}`}
+                        disabled={!canNextReviewPhoto}
+                        onClick={handleNextReviewPhoto}
+                        aria-label="Следующее фото"
+                      >
+                        <GalleryViewerNavArrow />
+                      </button>
+                    </div>
                   </div>
                 </div>
               </div>
