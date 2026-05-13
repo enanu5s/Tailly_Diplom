@@ -11,7 +11,7 @@ import { shopCartApi } from '../api/shopCartApi';
 
 import type { Product } from './types';
 
-type StoredCartItem = {
+export type StoredCartItem = {
   productId: string;
   quantity: number;
 };
@@ -22,10 +22,8 @@ type CartStoragePayload = {
 
 type PendingCartMergePrompt = {
   userKey: string;
-  guestItemsCount: number;
-  guestLinesCount: number;
-  userItemsCount: number;
-  userLinesCount: number;
+  guestItems: StoredCartItem[];
+  userItems: StoredCartItem[];
 };
 
 const STORAGE_KEY_PREFIX = 'tailly_shop_cart';
@@ -97,10 +95,6 @@ function parseStoredItems(raw: string | null): StoredCartItem[] {
 
 function cloneItems(items: StoredCartItem[]): StoredCartItem[] {
   return JSON.parse(JSON.stringify(items)) as StoredCartItem[];
-}
-
-function getItemsCount(items: StoredCartItem[]): number {
-  return items.reduce((sum, item) => sum + item.quantity, 0);
 }
 
 function getUserStorageIdentity(user: AuthUser | null): string | null {
@@ -259,10 +253,8 @@ export class ShopCartStore {
       console.log('[CART] SHOW PROMPT');
       this.pendingCartMergePrompt = {
         userKey,
-        guestItemsCount: getItemsCount(guestItems),
-        guestLinesCount: guestItems.length,
-        userItemsCount: getItemsCount(userItems),
-        userLinesCount: userItems.length,
+        guestItems: cloneItems(guestItems),
+        userItems: cloneItems(userItems),
       };
       return;
     }
