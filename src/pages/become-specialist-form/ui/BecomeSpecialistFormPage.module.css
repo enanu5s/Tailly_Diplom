@@ -1,132 +1,161 @@
 .page {
-  min-height: calc(100vh - 160px);
-  background: #f8fafc;
-  padding: 40px 20px 56px;
+  position: relative;
+  box-sizing: border-box;
+  width: 100%;
+  min-height: calc(100vh - 100px);
+  background: #f8f8f8;
+  padding: 30px 0 80px;
 }
 
-.container {
+.shell {
   width: 100%;
-  max-width: 980px;
+  max-width: 1920px;
   margin: 0 auto;
-  display: grid;
+  padding: 0 clamp(16px, calc((100% - 1212px) / 2), 200px);
+  display: flex;
+  flex-direction: column;
   gap: 20px;
 }
 
 .backButton {
   width: fit-content;
-  background: none;
-  border: none;
-  color: #6366f1;
-  font-size: 1rem;
-  font-weight: 700;
-  cursor: pointer;
+  min-width: 134px;
+  min-height: 45px;
+  padding: 10px 18px 10px 14px;
+  box-sizing: border-box;
   display: inline-flex;
   align-items: center;
-  gap: 6px;
-  padding: 0;
-}
-
-.hero {
+  justify-content: center;
+  gap: 8px;
+  border: 1px solid #c7c2ba;
+  border-radius: 23px;
   background: #ffffff;
-  border-radius: 18px;
-  box-shadow: 0 18px 50px rgba(15, 23, 42, 0.08);
-  padding: 28px;
-  display: grid;
-  gap: 12px;
+  cursor: pointer;
+  font-family: 'Raleway', sans-serif;
+  font-weight: 600;
+  font-size: 16px;
+  line-height: 19px;
+  color: #6f685d;
+  font-feature-settings: 'pnum' on, 'lnum' on;
 }
 
-.badge {
-  display: inline-flex;
-  width: fit-content;
-  min-height: 32px;
-  align-items: center;
-  padding: 0 12px;
-  border-radius: 999px;
-  background: rgba(99, 102, 241, 0.12);
-  color: #4f46e5;
-  font-size: 14px;
-  font-weight: 700;
+.backButton:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.backArrow {
+  display: inline-block;
+  width: 20px;
+  height: 20px;
+  flex-shrink: 0;
+  background: #6f685d;
+  mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Cpath fill='black' d='M15.41 7.41L14 6l-6 6 6 6 1.41-1.41L10.83 12z'/%3E%3C/svg%3E")
+    center / contain no-repeat;
+  transform: rotate(0deg);
 }
 
 .title {
   margin: 0;
-  font-size: 2.25rem;
-  line-height: 1.1;
-  color: #0f172a;
-}
-
-.subtitle {
-  margin: 0;
-  color: #475569;
-  line-height: 1.65;
-  max-width: 760px;
+  max-width: 1212px;
+  font-family: 'Igra Sans', sans-serif;
+  font-weight: 400;
+  font-size: 40px;
+  line-height: 120%;
+  color: #211500;
 }
 
 .card {
+  box-sizing: border-box;
+  width: 100%;
+  max-width: 1212px;
+  margin: 0 auto;
   background: #ffffff;
-  border-radius: 18px;
-  box-shadow: 0 18px 50px rgba(15, 23, 42, 0.08);
-  padding: 28px;
+  border-radius: 20px;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+  padding: 30px;
 }
 
 .form {
-  display: grid;
-  gap: 24px;
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
 }
 
 .section {
-  display: grid;
-  gap: 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
 }
 
 .sectionTitle {
   margin: 0;
-  font-size: 1.35rem;
-  color: #0f172a;
+  font-family: 'Igra Sans', sans-serif;
+  font-weight: 400;
+  font-size: 24px;
+  line-height: 120%;
+  color: #211500;
 }
 
-.grid {
+.gridBasic {
   display: grid;
-  grid-template-columns: repeat(2, minmax(0, 1fr));
-  gap: 16px;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 12px 20px;
+}
+
+.gridContact {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+  gap: 12px 20px;
 }
 
 .field,
 .fieldWide {
-  display: grid;
-  gap: 8px;
+  display: flex;
+  flex-direction: column;
+  gap: 15px;
+  min-width: 0;
 }
 
 .fieldWide {
-  grid-column: 1 / -1;
+  width: 100%;
 }
 
-/* Подсказки 2GIS absolute — без z-index следующая строка сетки перекрывает список */
+.portfolioField {
+  max-width: 566px;
+  width: 100%;
+}
+
 .field:has([data-suggestions-open]) {
   position: relative;
   z-index: 30;
 }
 
 .label {
-  color: #334155;
-  font-size: 0.95rem;
+  font-family: 'Raleway', sans-serif;
   font-weight: 700;
+  font-size: 16px;
+  line-height: 19px;
+  color: #6f685d;
+  font-feature-settings: 'pnum' on, 'lnum' on;
 }
 
 .input,
 .textarea {
   width: 100%;
-  border: 1px solid #cbd5e1;
-  border-radius: 14px;
-  padding: 12px 14px;
-  font-size: 1rem;
-  color: #0f172a;
+  box-sizing: border-box;
+  border: 1px solid #c7c2ba;
+  border-radius: 10px;
+  padding: 14px 18px;
+  font-family: 'Rubik', sans-serif;
+  font-weight: 400;
+  font-size: 15px;
+  line-height: 18px;
+  color: #6f685d;
   outline: none;
   transition:
     border-color 0.2s ease,
     box-shadow 0.2s ease;
-  box-sizing: border-box;
-  font-family: inherit;
 }
 
 .input {
@@ -135,126 +164,490 @@
 
 .textarea {
   resize: vertical;
-  min-height: 112px;
+  min-height: 84px;
+}
+
+.textarea::placeholder {
+  color: #6f685d;
+  opacity: 0.85;
 }
 
 .input:focus,
 .textarea:focus {
-  border-color: #6366f1;
-  box-shadow: 0 0 0 4px rgba(99, 102, 241, 0.12);
+  border-color: #211500;
+  box-shadow: 0 0 0 2px rgba(33, 21, 0, 0.08);
 }
 
-.checkboxGrid,
-.toggleGrid {
+.expRow {
+  display: grid;
+  grid-template-columns: minmax(160px, 258px) 1fr;
+  gap: 20px;
+  align-items: start;
+}
+
+@media (max-width: 900px) {
+  .gridBasic {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .expRow {
+    grid-template-columns: 1fr;
+  }
+}
+
+@media (max-width: 560px) {
+  .gridBasic,
+  .gridContact {
+    grid-template-columns: 1fr;
+  }
+}
+
+.chipWrap {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px 12px;
+  align-items: center;
+}
+
+.chip {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 24px;
+  padding: 2px 15px;
+  border-radius: 20px;
+  border: 1px solid #c7c2ba;
+  background: #ffffff;
+  font-family: 'Raleway', sans-serif;
+  font-weight: 700;
+  font-size: 16px;
+  line-height: 19px;
+  color: #211500;
+  cursor: pointer;
+  font-feature-settings: 'pnum' on, 'lnum' on;
+  user-select: none;
+}
+
+.chip input {
+  position: absolute;
+  opacity: 0;
+  width: 0;
+  height: 0;
+}
+
+.chip:has(input:checked) {
+  background: #ffe4c3;
+  border-color: #ffe4c3;
+}
+
+.chip:focus-within {
+  outline: 2px solid #211500;
+  outline-offset: 2px;
+}
+
+.servicesBlock {
+  margin-top: 28px;
+  display: flex;
+  flex-direction: column;
+  gap: 15px;
+}
+
+.housingTop {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 20px;
+  align-items: flex-start;
+}
+
+.housingField {
+  flex: 1 1 280px;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 15px;
+}
+
+.ownPets {
+  flex: 0 0 auto;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding-top: 34px;
+  font-family: 'Rubik', sans-serif;
+  font-size: 15px;
+  line-height: 18px;
+  color: #211500;
+  cursor: pointer;
+}
+
+.ownPets input {
+  width: 19px;
+  height: 19px;
+  flex-shrink: 0;
+  accent-color: #211500;
+  border-radius: 2px;
+}
+
+@media (max-width: 900px) {
+  .ownPets {
+    padding-top: 0;
+    width: 100%;
+  }
+}
+
+.fieldStack {
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+}
+
+.skillGrid {
   display: grid;
   grid-template-columns: repeat(2, minmax(0, 1fr));
-  gap: 12px;
+  gap: 20px;
 }
 
-.checkboxCard,
-.toggleCard {
+@media (max-width: 640px) {
+  .skillGrid {
+    grid-template-columns: 1fr;
+  }
+}
+
+.skillPill {
+  position: relative;
+  box-sizing: border-box;
   display: flex;
-  gap: 10px;
-  align-items: flex-start;
-  border: 1px solid #e2e8f0;
-  border-radius: 14px;
+  align-items: center;
+  justify-content: center;
+  min-height: 45px;
+  padding: 10px 20px;
+  border-radius: 23px;
+  border: 1px solid #6f685d;
   background: #ffffff;
-  padding: 14px 16px;
-  color: #334155;
-  line-height: 1.45;
+  cursor: pointer;
+  text-align: center;
+  font-family: 'Raleway', sans-serif;
+  font-weight: 600;
+  font-size: 16px;
+  line-height: 19px;
+  color: #211500;
+  font-feature-settings: 'pnum' on, 'lnum' on;
 }
 
-.checkboxCard input,
-.toggleCard input {
-  margin-top: 3px;
+.skillPill input {
+  position: absolute;
+  inset: 0;
+  opacity: 0;
+  cursor: pointer;
+}
+
+.skillPill span {
+  pointer-events: none;
+}
+
+.skillPill:has(input:checked) {
+  background: #e5e881;
+  border-color: #e5e881;
+}
+
+.skillPill:focus-within {
+  outline: 2px solid #211500;
+  outline-offset: 2px;
 }
 
 .consentRow {
+  width: 100%;
+  max-width: 1212px;
+  margin: 0 auto;
   display: flex;
-  gap: 10px;
+  gap: 12px;
   align-items: flex-start;
-  font-size: 0.95rem;
-  color: #374151;
-  line-height: 1.45;
+  font-family: 'Rubik', sans-serif;
+  font-size: 15px;
+  line-height: 18px;
+  color: #211500;
 }
 
-.checkbox {
-  width: 18px;
-  height: 18px;
-  margin-top: 3px;
+.consentRow input {
+  width: 19px;
+  height: 19px;
+  flex-shrink: 0;
+  margin-top: 1px;
+  accent-color: #211500;
 }
 
 .consentText a {
-  color: #4f46e5;
-  font-weight: 700;
-  text-decoration: none;
-}
-
-.consentText a:hover {
+  color: #e98813;
+  font-weight: 600;
   text-decoration: underline;
 }
 
+.consentText a:hover {
+  opacity: 0.85;
+}
+
 .error {
-  border-radius: 14px;
+  width: 100%;
+  max-width: 1212px;
+  margin: 0 auto;
+  border-radius: 10px;
   background: #fef2f2;
   color: #b91c1c;
   padding: 14px 16px;
   line-height: 1.55;
+  font-family: 'Rubik', sans-serif;
+  font-size: 15px;
 }
 
-.success {
-  border-radius: 14px;
-  background: #ecfdf5;
-  color: #166534;
-  padding: 14px 16px;
-  line-height: 1.55;
-}
-
-.successLinkWrap {
-  margin-top: 10px;
-}
-
-.link {
-  color: #4f46e5;
-  font-weight: 700;
-  text-decoration: none;
-}
-
-.link:hover {
-  text-decoration: underline;
+.actions {
+  width: 100%;
+  max-width: 1212px;
+  margin: 0 auto;
+  display: flex;
+  justify-content: flex-end;
 }
 
 .submitButton {
-  min-height: 50px;
-  padding: 0 18px;
-  background: #6366f1;
+  min-height: 45px;
+  padding: 10px 30px;
+  background: #211500;
   color: #ffffff;
   border: none;
-  border-radius: 14px;
-  font-size: 1rem;
-  font-weight: 700;
+  border-radius: 23px;
+  font-family: 'Raleway', sans-serif;
+  font-weight: 600;
+  font-size: 16px;
+  line-height: 19px;
   cursor: pointer;
-  box-shadow: 0 14px 28px rgba(99, 102, 241, 0.2);
+  font-feature-settings: 'pnum' on, 'lnum' on;
 }
 
 .submitButton:disabled {
-  opacity: 0.7;
+  opacity: 0.55;
   cursor: not-allowed;
 }
 
-@media (max-width: 900px) {
-  .grid,
-  .checkboxGrid,
-  .toggleGrid {
-    grid-template-columns: 1fr;
+/* —— Уже отправлено (карточка) —— */
+
+.submittedCard {
+  position: relative;
+  box-sizing: border-box;
+  width: 100%;
+  max-width: 1212px;
+  margin: 0 auto;
+  min-height: 261px;
+  padding: 88px 24px 48px;
+  overflow: hidden;
+  background: #ffffff;
+  border-radius: 20px;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+  text-align: center;
+}
+
+.submittedShapeLeft {
+  position: absolute;
+  left: 0;
+  top: 0;
+  width: min(294px, 42%);
+  height: auto;
+  max-height: 124px;
+  object-fit: contain;
+  object-position: top left;
+  pointer-events: none;
+  user-select: none;
+  display: block;
+}
+
+.submittedShapeRight {
+  position: absolute;
+  right: 0;
+  bottom: 0;
+  width: min(294px, 42%);
+  height: auto;
+  max-height: 124px;
+  object-fit: contain;
+  object-position: bottom right;
+  pointer-events: none;
+  user-select: none;
+  display: block;
+}
+
+.submittedHeading {
+  position: relative;
+  z-index: 1;
+  margin: 0;
+  font-family: 'Igra Sans', sans-serif;
+  font-weight: 400;
+  font-size: 24px;
+  line-height: 120%;
+  color: #211500;
+}
+
+.submittedMessage {
+  position: relative;
+  z-index: 1;
+  margin: 20px auto 0;
+  max-width: 420px;
+  font-family: 'Rubik', sans-serif;
+  font-weight: 400;
+  font-size: 15px;
+  line-height: 18px;
+  color: #211500;
+  text-align: center;
+  font-feature-settings: 'pnum' on, 'lnum' on;
+}
+
+.feedbackEmail {
+  font-weight: 600;
+  word-break: break-word;
+}
+
+/* —— Модальное окно после отправки —— */
+
+.modalBackdrop {
+  position: fixed;
+  inset: 0;
+  z-index: 300;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 24px;
+  background: rgba(33, 21, 0, 0.25);
+}
+
+.successModal {
+  position: relative;
+  box-sizing: border-box;
+  width: 100%;
+  max-width: 596px;
+  min-height: 261px;
+  padding: 50px 32px 32px;
+  overflow: hidden;
+  background: #ffffff;
+  border-radius: 20px;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+  text-align: center;
+}
+
+.successModalShapeTop {
+  position: absolute;
+  left: clamp(-72px, -12vw, -24px);
+  top: 0;
+  width: min(202px, 48%);
+  height: auto;
+  max-height: 124px;
+  object-fit: contain;
+  object-position: top left;
+  pointer-events: none;
+  user-select: none;
+  display: block;
+}
+
+.successModalShapeBottom {
+  position: absolute;
+  right: clamp(-72px, -12vw, -24px);
+  bottom: 0;
+  width: min(213px, 48%);
+  height: auto;
+  max-height: 124px;
+  object-fit: contain;
+  object-position: bottom right;
+  pointer-events: none;
+  user-select: none;
+  display: block;
+}
+
+.modalClose {
+  position: absolute;
+  top: 20px;
+  right: 20px;
+  width: 22px;
+  height: 22px;
+  padding: 0;
+  border: none;
+  background: transparent;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.modalCloseLine {
+  position: absolute;
+  width: 18px;
+  height: 0;
+  border-top: 2.5px solid #211500;
+  border-radius: 1px;
+}
+
+.modalCloseLine:first-of-type {
+  transform: rotate(45deg);
+}
+
+.modalCloseLine:last-of-type {
+  transform: rotate(-45deg);
+}
+
+.modalTitle {
+  position: relative;
+  z-index: 1;
+  margin: 0;
+  font-family: 'Igra Sans', sans-serif;
+  font-weight: 400;
+  font-size: 24px;
+  line-height: 120%;
+  color: #211500;
+}
+
+.modalMessage {
+  position: relative;
+  z-index: 1;
+  margin: 20px auto 0;
+  max-width: 360px;
+  font-family: 'Rubik', sans-serif;
+  font-weight: 400;
+  font-size: 15px;
+  line-height: 18px;
+  color: #211500;
+  text-align: center;
+  font-feature-settings: 'pnum' on, 'lnum' on;
+}
+
+.modalPrimaryButton {
+  position: relative;
+  z-index: 1;
+  box-sizing: border-box;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin: 28px auto 0;
+  width: calc(100% - 64px);
+  max-width: min(100%, 380px);
+  min-height: 45px;
+  padding: 10px 30px;
+  background: #ccd308;
+  border-radius: 23px;
+  font-family: 'Raleway', sans-serif;
+  font-weight: 600;
+  font-size: 16px;
+  line-height: 19px;
+  color: #211500;
+  text-decoration: none;
+  font-feature-settings: 'pnum' on, 'lnum' on;
+}
+
+.modalPrimaryButton:hover {
+  filter: brightness(1.03);
+}
+
+@media (max-width: 520px) {
+  .submittedCard {
+    padding: 72px 16px 40px;
   }
 
-  .card,
-  .hero {
-    padding: 22px;
-  }
-
-  .title {
-    font-size: 1.9rem;
+  .modalPrimaryButton {
+    width: 100%;
+    max-width: none;
   }
 }

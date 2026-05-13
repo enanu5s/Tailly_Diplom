@@ -1,9 +1,14 @@
 // src/pages/become-specialist-form/ui/BecomeSpecialistFormPage.tsx
 
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
 
-import { specialistApplicationsService } from '@/features/specialist-applications';
+import { authStore } from '@/features/auth';
+import {
+  persistSpecialistFormSubmission,
+  readSpecialistFormSubmittedEmail,
+  specialistApplicationsService,
+} from '@/features/specialist-applications';
 import type { SpecialistApplicationQuestionnaire } from '@/features/specialist-applications/model/types';
 import { LocalitySuggestInput } from '@/features/specialists-search/ui/LocalitySuggestInput/LocalitySuggestInput';
 import { BackButton } from '@/shared/ui/back-button';
@@ -12,24 +17,35 @@ import styles from './BecomeSpecialistFormPage.module.css';
 
 import type { FormEvent, ReactElement } from 'react';
 
+const SUCCESS_MODAL_DECOR_TL_SRC = '/images/become-specialist/success-modal-decor-tl.png';
+const SUCCESS_MODAL_DECOR_BR_SRC = '/images/become-specialist/success-modal-decor-br.png';
+const SUBMITTED_CARD_DECOR_TL_SRC = '/images/become-specialist/submitted-card-decor-tl.png';
+const SUBMITTED_CARD_DECOR_BR_SRC = '/images/become-specialist/submitted-card-decor-br.png';
+
 const ANIMAL_TYPE_OPTIONS = [
-  'Собаки',
-  'Кошки',
-  'Птицы',
-  'Грызуны',
-  'Рыбы',
-  'Рептилии',
-  'Другие',
+  'Собака',
+  'Кошка',
+  'Хомяк',
+  'Кролик',
+  'Морская свинка',
+  'Крыса',
+  'Мышь',
+  'Черепаха',
+  'Птица',
+  'Рыбка',
+  'Шиншила',
+  'Хорёк',
+  'Ящерица',
+  'Змея',
+  'Улитка',
 ] as const;
 
 const SERVICE_FORMAT_OPTIONS = [
   'Выгул',
-  'Дневной присмотр',
-  'Ночной присмотр',
-  'Передержка у клиента',
-  'Передержка у себя',
-  'Сопровождение в ветклинику',
-  'Регулярные визиты',
+  'Передержка',
+  'Груминг',
+  'Тренировки',
+  'Фотосессия',
 ] as const;
 
 function createInitialQuestionnaire(): SpecialistApplicationQuestionnaire {
@@ -59,8 +75,14 @@ function toggleArrayValue(values: string[], value: string): string[] {
   return [...values, value];
 }
 
+function buildFullName(first: string, last: string, patronymic: string): string {
+  return [last.trim(), first.trim(), patronymic.trim()].filter(Boolean).join(' ');
+}
+
 export const BecomeSpecialistFormPage = (): ReactElement => {
-  const [name, setName] = useState('');
+  const [firstName, setFirstName] = useState('');
+  const [lastName, setLastName] = useState('');
+  const [patronymic, setPatronymic] = useState('');
   const [email, setEmail] = useState('');
   const [phone, setPhone] = useState('');
   const [city, setCity] = useState('');
@@ -71,7 +93,21 @@ export const BecomeSpecialistFormPage = (): ReactElement => {
   const [consent, setConsent] = useState(false);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
-  const [success, setSuccess] = useState(false);
+  const [storedSubmissionEmail, setStoredSubmissionEmail] = useState<string | null>(
+    null,
+  );
+  const [successModalOpen, setSuccessModalOpen] = useState(false);
+  const [successModalEmail, setSuccessModalEmail] = useState('');
+
+  useEffect(() => {
+    const syncStoredEmail = (): void => {
+      setStoredSubmissionEmail(readSpecialistFormSubmittedEmail());
+    };
+
+    syncStoredEmail();
+
+    return authStore.subscribe(syncStoredEmail);
+  }, []);
 
   const setQuestionnaireField = <K extends keyof SpecialistApplicationQuestionnaire>(
     key: K,
@@ -88,8 +124,12 @@ export const BecomeSpecialistFormPage = (): ReactElement => {
       return 'Нужно согласие на обработку персональных данных.';
     }
 
-    if (!name.trim()) {
-      return 'Укажи ФИО.';
+    if (!lastName.trim()) {
+      return 'Укажи фамилию.';
+    }
+
+    if (!firstName.trim()) {
+      return 'Укажи имя.';
     }
 
     if (!email.trim()) {
@@ -132,7 +172,7 @@ export const BecomeSpecialistFormPage = (): ReactElement => {
     }
 
     if (!questionnaire.motivation.trim()) {
-      return 'Расскажи, почему хочешь стать специалистом Tailly.';
+      return 'Расскажи, почему хочешь стать специалистом в Тейлли.';
     }
 
     return null;
@@ -144,7 +184,6 @@ export const BecomeSpecialistFormPage = (): ReactElement => {
   const handleSubmit = async (event: FormEvent): Promise<void> => {
     event.preventDefault();
     setError('');
-    setSuccess(false);
 
     const submitValidationError = validateForm();
 
@@ -155,10 +194,12 @@ export const BecomeSpecialistFormPage = (): ReactElement => {
 
     setLoading(true);
 
+    const submittedEmail = email.trim();
+
     try {
       await specialistApplicationsService.createApplication({
-        fullName: name.trim(),
-        email: email.trim(),
+        fullName: buildFullName(firstName, lastName, patronymic),
+        email: submittedEmail,
         phone: phone.trim(),
         city: city.trim(),
         about: about.trim(),
@@ -173,8 +214,13 @@ export const BecomeSpecialistFormPage = (): ReactElement => {
         },
       });
 
-      setSuccess(true);
-      setName('');
+      persistSpecialistFormSubmission(submittedEmail);
+      setStoredSubmissionEmail(submittedEmail);
+      setSuccessModalEmail(submittedEmail);
+      setSuccessModalOpen(true);
+      setFirstName('');
+      setLastName('');
+      setPatronymic('');
       setEmail('');
       setPhone('');
       setCity('');
@@ -192,61 +238,176 @@ export const BecomeSpecialistFormPage = (): ReactElement => {
     }
   };
 
-  return (
-    <section className={styles.page}>
-      <div className={styles.container}>
-        <BackButton
-          className={styles.backButton}
-          fallbackTo="/become-specialist"
-          label="← Назад"
-        />
+  const closeSuccessModal = (): void => {
+    setSuccessModalOpen(false);
+  };
 
-        <div className={styles.hero}>
-          <div className={styles.badge}>Tailly</div>
+  useEffect(() => {
+    if (!successModalOpen) {
+      return;
+    }
+
+    const onKeyDown = (event: globalThis.KeyboardEvent): void => {
+      if (event.key === 'Escape') {
+        setSuccessModalOpen(false);
+      }
+    };
+
+    document.addEventListener('keydown', onKeyDown);
+
+    return () => {
+      document.removeEventListener('keydown', onKeyDown);
+    };
+  }, [successModalOpen]);
+
+  const feedbackLine = (address: string): ReactElement => (
+    <>
+      Обратная связь вам придёт на вашу почту:{' '}
+      <span className={styles.feedbackEmail}>{address}</span>
+    </>
+  );
+
+  if (storedSubmissionEmail) {
+    return (
+      <section className={styles.page}>
+        <div className={styles.shell}>
+          <BackButton className={styles.backButton} fallbackTo="/become-specialist">
+            <>
+              <span className={styles.backArrow} aria-hidden />
+              Назад
+            </>
+          </BackButton>
+
           <h1 className={styles.title}>Анкета специалиста</h1>
-          <p className={styles.subtitle}>
-            Мы собираем не просто контактные данные, а структурированную анкету, чтобы
-            администраторам было легче провести интервью и быстрее принять решение.
-          </p>
+
+          <div className={styles.submittedCard} role="status">
+            <img
+              className={styles.submittedShapeLeft}
+              src={SUBMITTED_CARD_DECOR_TL_SRC}
+              alt=""
+              aria-hidden
+              width={294}
+              height={124}
+              draggable={false}
+            />
+            <img
+              className={styles.submittedShapeRight}
+              src={SUBMITTED_CARD_DECOR_BR_SRC}
+              alt=""
+              aria-hidden
+              width={294}
+              height={124}
+              draggable={false}
+            />
+            <h2 className={styles.submittedHeading}>Ваша анкета уже отправлена</h2>
+            <p className={styles.submittedMessage}>{feedbackLine(storedSubmissionEmail)}</p>
+          </div>
         </div>
 
-        <div className={styles.card}>
-          <form className={styles.form} onSubmit={handleSubmit}>
+        {successModalOpen ? (
+          <div
+            className={styles.modalBackdrop}
+            role="presentation"
+            onMouseDown={(event) => {
+              if (event.target === event.currentTarget) {
+                closeSuccessModal();
+              }
+            }}
+          >
+            <div
+              className={styles.successModal}
+              role="dialog"
+              aria-modal="true"
+              aria-labelledby="specialist-form-success-title"
+            >
+              <img
+                className={styles.successModalShapeTop}
+                src={SUCCESS_MODAL_DECOR_TL_SRC}
+                alt=""
+                aria-hidden
+                width={202}
+                height={124}
+                draggable={false}
+              />
+              <img
+                className={styles.successModalShapeBottom}
+                src={SUCCESS_MODAL_DECOR_BR_SRC}
+                alt=""
+                aria-hidden
+                width={213}
+                height={124}
+                draggable={false}
+              />
+              <button
+                type="button"
+                className={styles.modalClose}
+                onClick={closeSuccessModal}
+                aria-label="Закрыть"
+              >
+                <span className={styles.modalCloseLine} />
+                <span className={styles.modalCloseLine} />
+              </button>
+              <h2 id="specialist-form-success-title" className={styles.modalTitle}>
+                Анкета отправлена
+              </h2>
+              <p className={styles.modalMessage}>{feedbackLine(successModalEmail)}</p>
+              <Link className={styles.modalPrimaryButton} to="/">
+                На главную страницу
+              </Link>
+            </div>
+          </div>
+        ) : null}
+      </section>
+    );
+  }
+
+  return (
+    <section className={styles.page}>
+      <div className={styles.shell}>
+        <BackButton className={styles.backButton} fallbackTo="/become-specialist">
+          <>
+            <span className={styles.backArrow} aria-hidden />
+            Назад
+          </>
+        </BackButton>
+
+        <h1 className={styles.title}>Анкета специалиста</h1>
+
+        <form className={styles.form} onSubmit={handleSubmit}>
+          <div className={styles.card}>
             <section className={styles.section}>
               <h2 className={styles.sectionTitle}>Основные данные</h2>
 
-              <div className={styles.grid}>
+              <div className={styles.gridBasic}>
                 <label className={styles.field}>
-                  <span className={styles.label}>ФИО</span>
+                  <span className={styles.label}>Имя</span>
                   <input
                     className={styles.input}
-                    value={name}
-                    onChange={(event) => setName(event.target.value)}
-                    placeholder="Иванова Анна Сергеевна"
+                    value={firstName}
+                    onChange={(event) => setFirstName(event.target.value)}
+                    placeholder="Иван"
                     required
                   />
                 </label>
 
                 <label className={styles.field}>
-                  <span className={styles.label}>Email</span>
+                  <span className={styles.label}>Фамилия</span>
                   <input
                     className={styles.input}
-                    type="email"
-                    value={email}
-                    onChange={(event) => setEmail(event.target.value)}
-                    placeholder="name@example.com"
+                    value={lastName}
+                    onChange={(event) => setLastName(event.target.value)}
+                    placeholder="Иванов"
                     required
                   />
                 </label>
 
                 <label className={styles.field}>
-                  <span className={styles.label}>Телефон</span>
+                  <span className={styles.label}>Отчество (не обязательно)</span>
                   <input
                     className={styles.input}
-                    value={phone}
-                    onChange={(event) => setPhone(event.target.value)}
-                    placeholder="+7 (900) 000-00-00"
-                    required
+                    value={patronymic}
+                    onChange={(event) => setPatronymic(event.target.value)}
+                    placeholder="Иванович"
                   />
                 </label>
 
@@ -258,31 +419,58 @@ export const BecomeSpecialistFormPage = (): ReactElement => {
                     id="become-specialist-city"
                     value={city}
                     onChange={setCity}
-                    placeholder="Начните вводить город или ПГТ…"
+                    placeholder="Начните вводить..."
                     inputClassName={styles.input}
                     required
                   />
                 </div>
+              </div>
 
-                <label className={styles.fieldWide}>
-                  <span className={styles.label}>Кратко о себе</span>
-                  <textarea
-                    className={styles.textarea}
-                    value={about}
-                    onChange={(event) => setAbout(event.target.value)}
-                    placeholder="Расскажите о своём опыте, стиле общения с клиентами и сильных сторонах."
+              <div className={styles.gridContact}>
+                <label className={styles.field}>
+                  <span className={styles.label}>Телефон</span>
+                  <input
+                    className={styles.input}
+                    value={phone}
+                    onChange={(event) => setPhone(event.target.value)}
+                    placeholder="+7 (900) 900-00-90"
+                    required
+                  />
+                </label>
+
+                <label className={styles.field}>
+                  <span className={styles.label}>Email</span>
+                  <input
+                    className={styles.input}
+                    type="email"
+                    value={email}
+                    onChange={(event) => setEmail(event.target.value)}
+                    placeholder="name123@tailly.local"
                     required
                   />
                 </label>
               </div>
-            </section>
 
+              <label className={`${styles.field} ${styles.fieldWide}`}>
+                <span className={styles.label}>Кратко о себе</span>
+                <textarea
+                  className={styles.textarea}
+                  value={about}
+                  onChange={(event) => setAbout(event.target.value)}
+                  placeholder="Расскажите о своём опыте, стиле общения с клиентами, сильных сторонах и тд."
+                  required
+                />
+              </label>
+            </section>
+          </div>
+
+          <div className={styles.card}>
             <section className={styles.section}>
               <h2 className={styles.sectionTitle}>Опыт и специализация</h2>
 
-              <div className={styles.grid}>
+              <div className={styles.expRow}>
                 <label className={styles.field}>
-                  <span className={styles.label}>Опыт работы с животными, лет</span>
+                  <span className={styles.label}>Опыт работы с животными</span>
                   <input
                     className={styles.input}
                     type="number"
@@ -296,16 +484,16 @@ export const BecomeSpecialistFormPage = (): ReactElement => {
                       const years = Math.min(60, Math.max(0, Number(digits) || 0));
                       setQuestionnaireField('experienceYears', years);
                     }}
-                    placeholder="Например: 5"
+                    placeholder="Например: 1 год, 5 лет"
                     required
                   />
                 </label>
 
-                <label className={styles.fieldWide}>
-                  <span className={styles.label}>С какими животными работаешь</span>
-                  <div className={styles.checkboxGrid}>
+                <div className={styles.field}>
+                  <span className={styles.label}>С какими животными работаешь?</span>
+                  <div className={styles.chipWrap}>
                     {ANIMAL_TYPE_OPTIONS.map((option) => (
-                      <label key={option} className={styles.checkboxCard}>
+                      <label key={option} className={styles.chip}>
                         <input
                           type="checkbox"
                           checked={questionnaire.animalTypes.includes(option)}
@@ -320,226 +508,223 @@ export const BecomeSpecialistFormPage = (): ReactElement => {
                       </label>
                     ))}
                   </div>
-                </label>
+                </div>
+              </div>
 
-                <label className={styles.fieldWide}>
-                  <span className={styles.label}>Какие услуги готов оказывать</span>
-                  <div className={styles.checkboxGrid}>
-                    {SERVICE_FORMAT_OPTIONS.map((option) => (
-                      <label key={option} className={styles.checkboxCard}>
-                        <input
-                          type="checkbox"
-                          checked={questionnaire.serviceFormats.includes(option)}
-                          onChange={() =>
-                            setQuestionnaireField(
-                              'serviceFormats',
-                              toggleArrayValue(questionnaire.serviceFormats, option),
-                            )
-                          }
-                        />
-                        <span>{option}</span>
-                      </label>
-                    ))}
-                  </div>
-                </label>
+              <div className={styles.servicesBlock}>
+                <span className={styles.label}>Какие услуги готов оказывать?</span>
+                <div className={styles.chipWrap}>
+                  {SERVICE_FORMAT_OPTIONS.map((option) => (
+                    <label key={option} className={styles.chip}>
+                      <input
+                        type="checkbox"
+                        checked={questionnaire.serviceFormats.includes(option)}
+                        onChange={() =>
+                          setQuestionnaireField(
+                            'serviceFormats',
+                            toggleArrayValue(questionnaire.serviceFormats, option),
+                          )
+                        }
+                      />
+                      <span>{option}</span>
+                    </label>
+                  ))}
+                </div>
               </div>
             </section>
+          </div>
 
+          <div className={styles.card}>
             <section className={styles.section}>
               <h2 className={styles.sectionTitle}>Условия работы</h2>
 
-              <div className={styles.grid}>
-                <label className={styles.fieldWide}>
+              <div className={styles.housingTop}>
+                <label className={styles.housingField}>
                   <span className={styles.label}>
                     Условия, в которых будешь работать с питомцем
                   </span>
-                  <textarea
-                    className={styles.textarea}
+                  <input
+                    className={styles.input}
                     value={questionnaire.housingType}
                     onChange={(event) =>
                       setQuestionnaireField('housingType', event.target.value)
                     }
-                    placeholder="Например: квартира / дом, есть ли отдельная комната, дети, другие животные."
+                    placeholder="Например: квартира/дом, есть ли отдельная комната, дети, другие животные"
                     required
                   />
                 </label>
 
-                <label className={styles.fieldWide}>
-                  <span className={styles.label}>Районы и география выезда</span>
-                  <textarea
-                    className={styles.textarea}
+                <label className={styles.ownPets}>
+                  <input
+                    type="checkbox"
+                    checked={questionnaire.hasOwnPets}
+                    onChange={(event) =>
+                      setQuestionnaireField('hasOwnPets', event.target.checked)
+                    }
+                  />
+                  <span>Есть свои питомцы</span>
+                </label>
+              </div>
+
+              <div className={styles.fieldStack}>
+                <label className={styles.field}>
+                  <span className={styles.label}>
+                    Районы и география выезда (если нужно)
+                  </span>
+                  <input
+                    className={styles.input}
                     value={questionnaire.districtPreferences}
                     onChange={(event) =>
                       setQuestionnaireField('districtPreferences', event.target.value)
                     }
-                    placeholder="Например: центр города, северные районы, до 30 минут на авто."
+                    placeholder="Например: центр города, северный район, до 30 минут на авто/общественном транспорте"
                   />
                 </label>
 
-                <label className={styles.fieldWide}>
+                <label className={styles.field}>
                   <span className={styles.label}>Предпочтительный график</span>
-                  <textarea
-                    className={styles.textarea}
+                  <input
+                    className={styles.input}
                     value={questionnaire.schedulePreferences}
                     onChange={(event) =>
                       setQuestionnaireField('schedulePreferences', event.target.value)
                     }
-                    placeholder="Например: будни после 18:00, выходные, беру ночные заказы."
+                    placeholder="Например: будни после 18:00, выходные, беру ночные заказы"
                     required
                   />
                 </label>
               </div>
             </section>
+          </div>
 
+          <div className={styles.card}>
             <section className={styles.section}>
               <h2 className={styles.sectionTitle}>
-                Навыки и готовность к сложным кейсам
+                Навыки и готовность к сложным заказам
               </h2>
 
-              <div className={styles.grid}>
-                <div className={styles.fieldWide}>
-                  <div className={styles.toggleGrid}>
-                    <label className={styles.toggleCard}>
-                      <input
-                        type="checkbox"
-                        checked={questionnaire.canGiveMedication}
-                        onChange={(event) =>
-                          setQuestionnaireField('canGiveMedication', event.target.checked)
-                        }
-                      />
-                      <span>Готов(а) давать лекарства по инструкции</span>
-                    </label>
+              <div className={styles.field}>
+                <span className={styles.label}>Выберите навыки, к которым вы готовы</span>
+                <div className={styles.skillGrid}>
+                  <label className={styles.skillPill}>
+                    <input
+                      type="checkbox"
+                      checked={questionnaire.canGiveMedication}
+                      onChange={(event) =>
+                        setQuestionnaireField('canGiveMedication', event.target.checked)
+                      }
+                    />
+                    <span>Готов(а) давать лекарства по инструкции</span>
+                  </label>
 
-                    <label className={styles.toggleCard}>
-                      <input
-                        type="checkbox"
-                        checked={questionnaire.canHandleDifficultBehavior}
-                        onChange={(event) =>
-                          setQuestionnaireField(
-                            'canHandleDifficultBehavior',
-                            event.target.checked,
-                          )
-                        }
-                      />
-                      <span>Есть опыт с тревожными или сложными животными</span>
-                    </label>
+                  <label className={styles.skillPill}>
+                    <input
+                      type="checkbox"
+                      checked={questionnaire.canHandleDifficultBehavior}
+                      onChange={(event) =>
+                        setQuestionnaireField(
+                          'canHandleDifficultBehavior',
+                          event.target.checked,
+                        )
+                      }
+                    />
+                    <span>Есть опыт с тревожными или сложными животными</span>
+                  </label>
 
-                    <label className={styles.toggleCard}>
-                      <input
-                        type="checkbox"
-                        checked={questionnaire.canTakeOvernightOrders}
-                        onChange={(event) =>
-                          setQuestionnaireField(
-                            'canTakeOvernightOrders',
-                            event.target.checked,
-                          )
-                        }
-                      />
-                      <span>Готов(а) брать ночные и длительные заказы</span>
-                    </label>
+                  <label className={styles.skillPill}>
+                    <input
+                      type="checkbox"
+                      checked={questionnaire.hasPetFirstAidBasics}
+                      onChange={(event) =>
+                        setQuestionnaireField(
+                          'hasPetFirstAidBasics',
+                          event.target.checked,
+                        )
+                      }
+                    />
+                    <span>Знаю базовые действия первой помощи питомцу</span>
+                  </label>
 
-                    <label className={styles.toggleCard}>
-                      <input
-                        type="checkbox"
-                        checked={questionnaire.hasOwnPets}
-                        onChange={(event) =>
-                          setQuestionnaireField('hasOwnPets', event.target.checked)
-                        }
-                      />
-                      <span>Есть свои питомцы</span>
-                    </label>
-
-                    <label className={styles.toggleCard}>
-                      <input
-                        type="checkbox"
-                        checked={questionnaire.hasPetFirstAidBasics}
-                        onChange={(event) =>
-                          setQuestionnaireField(
-                            'hasPetFirstAidBasics',
-                            event.target.checked,
-                          )
-                        }
-                      />
-                      <span>Знаю базовые действия первой помощи питомцу</span>
-                    </label>
-                  </div>
+                  <label className={styles.skillPill}>
+                    <input
+                      type="checkbox"
+                      checked={questionnaire.canTakeOvernightOrders}
+                      onChange={(event) =>
+                        setQuestionnaireField(
+                          'canTakeOvernightOrders',
+                          event.target.checked,
+                        )
+                      }
+                    />
+                    <span>Готов(а) брать ночные и длительные заказы</span>
+                  </label>
                 </div>
               </div>
             </section>
+          </div>
 
+          <div className={styles.card}>
             <section className={styles.section}>
               <h2 className={styles.sectionTitle}>Мотивация и материалы</h2>
 
-              <div className={styles.grid}>
-                <label className={styles.field}>
-                  <span className={styles.label}>Ссылка на портфолио или соцсети</span>
-                  <input
-                    className={styles.input}
-                    value={questionnaire.portfolioUrl}
-                    onChange={(event) =>
-                      setQuestionnaireField('portfolioUrl', event.target.value)
-                    }
-                    placeholder="https://..."
-                  />
-                </label>
+              <label className={`${styles.field} ${styles.portfolioField}`}>
+                <span className={styles.label}>Ссылка на портфолио или соцсети</span>
+                <input
+                  className={styles.input}
+                  value={questionnaire.portfolioUrl}
+                  onChange={(event) =>
+                    setQuestionnaireField('portfolioUrl', event.target.value)
+                  }
+                  placeholder="https://..."
+                />
+              </label>
 
-                <label className={styles.fieldWide}>
-                  <span className={styles.label}>
-                    Почему хочешь стать специалистом Tailly
-                  </span>
-                  <textarea
-                    className={styles.textarea}
-                    value={questionnaire.motivation}
-                    onChange={(event) =>
-                      setQuestionnaireField('motivation', event.target.value)
-                    }
-                    placeholder="Что важно в этой роли, почему тебе подходит платформа и как видишь свою работу."
-                    required
-                  />
-                </label>
+              <label className={`${styles.field} ${styles.fieldWide}`}>
+                <span className={styles.label}>
+                  Почему хочешь стать специалистом в Тейлли?
+                </span>
+                <textarea
+                  className={styles.textarea}
+                  value={questionnaire.motivation}
+                  onChange={(event) =>
+                    setQuestionnaireField('motivation', event.target.value)
+                  }
+                  placeholder="Что важно, почему тебе подходит платформа и как видишь свою работу"
+                  required
+                />
+              </label>
 
-                <label className={styles.fieldWide}>
-                  <span className={styles.label}>Дополнительная информация</span>
-                  <textarea
-                    className={styles.textarea}
-                    value={questionnaire.additionalInfo}
-                    onChange={(event) =>
-                      setQuestionnaireField('additionalInfo', event.target.value)
-                    }
-                    placeholder="Можно добавить сертификаты, особенности графика, ограничения или важные детали."
-                  />
-                </label>
-              </div>
+              <label className={`${styles.field} ${styles.fieldWide}`}>
+                <span className={styles.label}>Дополнительная информация</span>
+                <textarea
+                  className={styles.textarea}
+                  value={questionnaire.additionalInfo}
+                  onChange={(event) =>
+                    setQuestionnaireField('additionalInfo', event.target.value)
+                  }
+                  placeholder="Можно добавить особенности графика, ограничения или просто важные детали"
+                />
+              </label>
             </section>
+          </div>
 
-            <label className={styles.consentRow}>
-              <input
-                className={styles.checkbox}
-                type="checkbox"
-                checked={consent}
-                onChange={(event) => setConsent(event.target.checked)}
-              />
-              <span className={styles.consentText}>
-                Я согласен на обработку персональных данных.{' '}
-                <a href="/docs/personal-data-agreement.pdf" download>
-                  Скачать документ
-                </a>
-              </span>
-            </label>
+          <label className={styles.consentRow}>
+            <input
+              type="checkbox"
+              checked={consent}
+              onChange={(event) => setConsent(event.target.checked)}
+            />
+            <span className={styles.consentText}>
+              Я согласен(а) на{' '}
+              <a href="/docs/personal-data-agreement.pdf" download>
+                обработку персональных данных
+              </a>
+            </span>
+          </label>
 
-            {error ? <div className={styles.error}>{error}</div> : null}
+          {error ? <div className={styles.error}>{error}</div> : null}
 
-            {success ? (
-              <div className={styles.success}>
-                Заявка отправлена и передана администраторам на проверку.
-                <div className={styles.successLinkWrap}>
-                  <Link to="/become-specialist" className={styles.link}>
-                    Вернуться на страницу “Стать специалистом”
-                  </Link>
-                </div>
-              </div>
-            ) : null}
-
+          <div className={styles.actions}>
             <button
               className={styles.submitButton}
               type="submit"
@@ -547,8 +732,8 @@ export const BecomeSpecialistFormPage = (): ReactElement => {
             >
               {loading ? 'Отправляем...' : 'Отправить заявку'}
             </button>
-          </form>
-        </div>
+          </div>
+        </form>
       </div>
     </section>
   );

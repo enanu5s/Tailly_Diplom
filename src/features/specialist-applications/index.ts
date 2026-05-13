@@ -18,3 +18,8 @@ export {
   SpecialistApplicationsError,
   createEmptySpecialistApplicationQuestionnaire,
 } from './model/types';
+
+export {
+  persistSpecialistFormSubmission,
+  readSpecialistFormSubmittedEmail,
+} from './model/specialistApplicationFormPersistence';
