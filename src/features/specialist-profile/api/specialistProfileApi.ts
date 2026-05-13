@@ -45,11 +45,18 @@ function buildServiceDescription(service: SpecialistService): string {
   const name = service.name.trim().toLowerCase();
   const location = service.locationLabel.trim() || 'по согласованию';
 
-  if (name.includes('прогул')) {
+  if (name.includes('прогул') || name.includes('выгул')) {
     const duration = service.bookingPolicy?.duration.defaultDurationMinutes;
     const durationSuffix =
       typeof duration === 'number' && duration > 0 ? `, длительность ${duration} минут.` : '.';
-    return `Прогулка с собакой ${location.toLowerCase()}${durationSuffix}`;
+    return `Выгул ${location.toLowerCase()}${durationSuffix}`;
+  }
+
+  if (name.includes('груминг')) {
+    const duration = service.bookingPolicy?.duration.defaultDurationMinutes;
+    const durationSuffix =
+      typeof duration === 'number' && duration > 0 ? `, ориентир по времени ${duration} минут.` : '.';
+    return `Груминг ${location.toLowerCase()}${durationSuffix}`;
   }
 
   if (name.includes('передерж')) {

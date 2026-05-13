@@ -1,299 +1,480 @@
 /* src/features/service-booking/ui/ServiceBookingPageContent.module.css */
 
 .page {
-  max-width: 1280px;
+  box-sizing: border-box;
+  width: 100%;
+  min-height: calc(100vh - 100px - 275px);
+  padding: 30px clamp(16px, 10.4vw, 200px) 48px;
+  background: #f8f8f8;
+}
+
+.pageInner {
+  max-width: 1520px;
   margin: 0 auto;
-  padding: 24px 20px 40px;
 }
 
-.layout {
-  display: grid;
-  grid-template-columns: minmax(0, 1fr) 320px;
-  gap: 20px;
-  align-items: start;
+.backRow {
+  margin-bottom: 16px;
 }
 
-.card {
+.backButton {
+  box-sizing: border-box;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  min-width: 134px;
+  height: 45px;
+  padding: 0 22px 0 18px;
+  border: 1px solid #c7c2ba;
+  border-radius: 23px;
   background: #ffffff;
-  border-radius: 18px;
-  box-shadow: 0 12px 30px rgba(17, 24, 39, 0.08);
-  padding: 24px;
+  font-family: 'Raleway', sans-serif;
+  font-weight: 600;
+  font-size: 16px;
+  line-height: 19px;
+  color: #6f685d;
+  cursor: pointer;
+  transition:
+    border-color 0.15s ease,
+    background-color 0.15s ease;
 }
 
-.header {
+.backButton:hover {
+  border-color: #6f685d;
+}
+
+.backIcon {
+  display: inline-flex;
+  width: 20px;
+  height: 20px;
+  align-items: center;
+  justify-content: center;
+  font-size: 16px;
+  line-height: 1;
+}
+
+.pageTitle {
+  margin: 0 0 28px;
+  max-width: 520px;
+  font-family: 'Igra Sans', 'Raleway', sans-serif;
+  font-size: 40px;
+  font-weight: 400;
+  line-height: 120%;
+  color: #211500;
+}
+
+.twoColumns {
   display: flex;
-  justify-content: space-between;
-  gap: 16px;
-  align-items: flex-start;
   flex-wrap: wrap;
-  margin-bottom: 18px;
+  gap: 20px;
+  align-items: flex-start;
 }
 
-.title {
-  margin: 0 0 6px;
-  font-size: 30px;
-  line-height: 1.1;
-  color: #111827;
+.calendarCard {
+  box-sizing: border-box;
+  flex: 0 1 442px;
+  width: 100%;
+  max-width: 442px;
+  min-height: 584px;
+  padding: 30px;
+  background: #ffffff;
+  border-radius: 20px;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
 }
 
-.subtitle {
-  margin: 0;
-  color: rgba(17, 24, 39, 0.72);
+.formCard {
+  box-sizing: border-box;
+  flex: 1 1 400px;
+  min-width: 0;
+  min-height: 584px;
+  padding: 30px;
+  background: #ffffff;
+  border-radius: 20px;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+  display: flex;
+  flex-direction: column;
 }
 
-.helperText {
-  margin: 8px 0 0;
-  color: rgba(17, 24, 39, 0.58);
-  font-size: 14px;
+.cardTitle {
+  margin: 0 0 20px;
+  font-family: 'Igra Sans', 'Raleway', sans-serif;
+  font-size: 24px;
+  font-weight: 400;
+  line-height: 120%;
+  color: #211500;
 }
 
-.sideTitle {
+.specialistHeading {
+  margin: 0 0 20px;
+  font-family: 'Igra Sans', 'Raleway', sans-serif;
+  font-size: 24px;
+  font-weight: 400;
+  line-height: 120%;
+  color: #211500;
+}
+
+.repeatNote {
   margin: 0 0 16px;
-  font-size: 22px;
-  color: #111827;
+  font-family: 'Rubik', sans-serif;
+  font-size: 14px;
+  line-height: 1.45;
+  color: #6f685d;
 }
 
-.formGrid {
+.error {
+  margin: 0 0 16px;
+  padding: 14px 16px;
+  border-radius: 10px;
+  background: rgba(239, 68, 68, 0.08);
+  color: #b91c1c;
+  font-family: 'Rubik', sans-serif;
+  font-size: 15px;
+}
+
+.formBody {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+  flex: 1;
+}
+
+.row3 {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 288px 134px;
+  gap: 20px;
+  align-items: end;
+}
+
+.row2dates {
+  display: grid;
+  grid-template-columns: 288px 288px;
+  gap: 20px;
+  align-items: end;
+}
+
+.row2wide {
   display: grid;
   grid-template-columns: repeat(2, minmax(0, 1fr));
-  gap: 16px;
+  gap: 20px;
+  align-items: end;
 }
 
-.field,
+.field {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  min-width: 0;
+}
+
 .fieldWide {
   display: flex;
   flex-direction: column;
-  gap: 8px;
-}
-
-.fieldWide {
+  gap: 10px;
   grid-column: 1 / -1;
 }
 
 .label {
-  font-size: 14px;
-  color: rgba(17, 24, 39, 0.8);
+  font-family: 'Raleway', sans-serif;
+  font-weight: 700;
+  font-size: 16px;
+  line-height: 19px;
+  font-feature-settings: 'pnum' on, 'lnum' on;
+  color: #6f685d;
 }
 
 .subLabel {
-  font-size: 13px;
-  color: rgba(17, 24, 39, 0.62);
+  font-family: 'Raleway', sans-serif;
+  font-weight: 700;
+  font-size: 14px;
+  line-height: 17px;
+  color: #6f685d;
 }
 
 .control,
 .textarea {
+  box-sizing: border-box;
   width: 100%;
-  border-radius: 14px;
-  border: 1px solid rgba(17, 24, 39, 0.12);
+  border-radius: 10px;
+  border: 1px solid #c7c2ba;
   background: #ffffff;
-  font: inherit;
-  color: #111827;
+  font-family: 'Rubik', sans-serif;
+  font-size: 15px;
+  line-height: 18px;
+  color: #211500;
 }
 
 .control {
-  height: 46px;
-  padding: 0 14px;
+  height: 48px;
+  padding: 0 16px;
+}
+
+.controlService {
+  font-family: 'Igra Sans', 'Raleway', sans-serif;
+  font-size: 20px;
+  line-height: 1.2;
 }
 
 .textarea {
-  padding: 14px;
+  min-height: 84px;
+  padding: 14px 16px;
   resize: vertical;
 }
 
-.modeBadge {
+.controlWrap {
+  position: relative;
+}
+
+.dateLike {
   display: flex;
-  justify-content: space-between;
-  gap: 12px;
   align-items: center;
-  padding: 14px 16px;
-  border-radius: 16px;
-  background: rgba(99, 102, 241, 0.08);
-  color: #111827;
-  flex-wrap: wrap;
+  justify-content: space-between;
+  gap: 10px;
+  height: 48px;
+  padding: 0 12px 0 16px;
+  border-radius: 10px;
+  border: 1px solid #c7c2ba;
+  background: #ffffff;
+  font-family: 'Rubik', sans-serif;
+  font-size: 15px;
+  line-height: 18px;
+  color: #211500;
 }
 
-.modeBadgeLabel {
-  font-size: 14px;
-  color: rgba(17, 24, 39, 0.62);
+.dateLikeMuted {
+  color: #6f685d;
 }
 
-.modeBadgeValue {
-  font-weight: 600;
-  color: #4338ca;
+.calendarGlyph {
+  flex: none;
+  width: 24px;
+  height: 24px;
+  opacity: 0.85;
+}
+
+.slotsSection {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.slotsGrid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(135px, 1fr));
+  gap: 12px 16px;
+}
+
+.slotButton,
+.slotButtonActive {
+  box-sizing: border-box;
+  height: 48px;
+  padding: 0 10px;
+  border-radius: 10px;
+  font-family: 'Rubik', sans-serif;
+  font-size: 15px;
+  line-height: 18px;
+  cursor: pointer;
+  transition:
+    border-color 0.15s ease,
+    background-color 0.15s ease;
+}
+
+.slotButton {
+  border: 1px solid #c7c2ba;
+  background: #ffffff;
+  color: #211500;
+}
+
+.slotButton:hover {
+  border-color: #6f685d;
+}
+
+.slotButtonActive {
+  border: 2px solid #ffa232;
+  background: #ffe4c3;
+  color: #211500;
 }
 
 .rangeGrid {
   display: grid;
   grid-template-columns: repeat(2, minmax(0, 1fr));
-  gap: 14px;
+  gap: 16px;
 }
 
-.rangeGridTimeRange {
+.rangeGrid3 {
+  display: grid;
   grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 16px;
 }
 
 .infoBox {
-  margin-top: 12px;
-  padding: 14px 16px;
-  border-radius: 14px;
-  background: rgba(17, 24, 39, 0.05);
-  color: rgba(17, 24, 39, 0.72);
-}
-
-.slotsGrid {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 10px;
-}
-
-.slotButton,
-.slotButtonActive {
-  min-height: 44px;
-  padding: 0 16px;
-  border-radius: 14px;
-  font: inherit;
-  cursor: pointer;
-  transition:
-    border-color 0.2s ease,
-    background-color 0.2s ease,
-    color 0.2s ease,
-    box-shadow 0.2s ease;
-}
-
-.slotButton {
-  border: 1px solid rgba(17, 24, 39, 0.12);
-  background: #ffffff;
-  color: #111827;
-}
-
-.slotButtonActive {
-  border: 1px solid #6366f1;
-  background: rgba(99, 102, 241, 0.1);
-  color: #4338ca;
-  box-shadow: 0 10px 24px rgba(99, 102, 241, 0.14);
+  padding: 12px 14px;
+  border-radius: 10px;
+  background: rgba(33, 21, 0, 0.04);
+  font-family: 'Rubik', sans-serif;
+  font-size: 14px;
+  line-height: 1.45;
+  color: #6f685d;
 }
 
 .emptyState {
   padding: 14px 16px;
-  border-radius: 14px;
-  background: rgba(17, 24, 39, 0.05);
-  color: rgba(17, 24, 39, 0.72);
-}
-
-.error {
-  margin-bottom: 14px;
-  padding: 14px 16px;
-  border-radius: 14px;
-  background: rgba(239, 68, 68, 0.08);
-  color: #b91c1c;
+  border-radius: 10px;
+  background: rgba(33, 21, 0, 0.04);
+  font-family: 'Rubik', sans-serif;
+  font-size: 15px;
+  line-height: 1.45;
+  color: #6f685d;
 }
 
 .emptyPets {
-  margin-top: 20px;
   padding: 18px;
-  border-radius: 16px;
-  background: rgba(17, 24, 39, 0.04);
+  border-radius: 10px;
+  border: 1px dashed #c7c2ba;
 }
 
 .emptyPetsText {
   margin: 0 0 12px;
-  color: #111827;
+  font-family: 'Rubik', sans-serif;
+  font-size: 15px;
+  color: #211500;
 }
 
-.actions {
-  margin-top: 24px;
-  display: flex;
-  gap: 12px;
-  flex-wrap: wrap;
+.footer {
+  display: grid;
+  grid-template-columns: 1fr auto 1fr;
+  align-items: center;
+  gap: 16px;
+  margin-top: 28px;
+  padding-top: 8px;
+}
+
+.total {
+  justify-self: start;
+  margin: 0;
+  font-family: 'Igra Sans', 'Raleway', sans-serif;
+  font-size: 24px;
+  font-weight: 400;
+  line-height: 120%;
+  color: #211500;
+}
+
+.cancelBtn {
+  justify-self: center;
+}
+
+.submitBtn {
+  justify-self: end;
 }
 
 .primaryButton,
 .secondaryButton {
-  min-height: 46px;
-  padding: 0 18px;
-  border-radius: 14px;
-  font: inherit;
+  box-sizing: border-box;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 45px;
+  padding: 10px 30px;
+  border-radius: 23px;
+  font-family: 'Raleway', sans-serif;
+  font-weight: 600;
+  font-size: 16px;
+  line-height: 19px;
+  font-feature-settings: 'pnum' on, 'lnum' on;
   cursor: pointer;
-  transition:
-    transform 0.2s ease,
-    box-shadow 0.2s ease,
-    opacity 0.2s ease;
+  border: none;
+  transition: opacity 0.15s ease;
 }
 
 .primaryButton {
-  border: none;
-  background: #6366f1;
-  color: #ffffff;
-  box-shadow: 0 12px 28px rgba(99, 102, 241, 0.26);
+  min-width: 200px;
+  background: #211500;
+  color: #f8f8f8;
 }
 
 .secondaryButton {
-  border: 1px solid rgba(17, 24, 39, 0.12);
+  border: 1px solid #6f685d;
   background: #ffffff;
-  color: #111827;
+  color: #211500;
 }
 
 .primaryButton:disabled,
 .secondaryButton:disabled {
   cursor: not-allowed;
-  opacity: 0.6;
-  transform: none;
-  box-shadow: none;
+  opacity: 0.55;
 }
 
-.summaryRow {
+.loadingCard,
+.errorCard {
+  max-width: 720px;
+  margin: 0 auto;
+  padding: 32px;
+  background: #ffffff;
+  border-radius: 20px;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+  font-family: 'Rubik', sans-serif;
+  font-size: 16px;
+  color: #211500;
+}
+
+.locationReadonly {
   display: flex;
-  justify-content: space-between;
-  gap: 12px;
-  padding: 10px 0;
-  border-bottom: 1px solid rgba(17, 24, 39, 0.08);
+  align-items: center;
+  height: 48px;
+  padding: 0 16px;
+  border-radius: 10px;
+  border: 1px solid #c7c2ba;
+  font-family: 'Rubik', sans-serif;
+  font-size: 15px;
+  color: #211500;
 }
 
-.summaryRow:last-child {
-  border-bottom: none;
+.timeRow {
+  display: grid;
+  grid-template-columns: 134px 134px;
+  gap: 20px;
 }
 
-.summaryLabel {
-  color: rgba(17, 24, 39, 0.58);
-}
+@media (max-width: 1200px) {
+  .twoColumns {
+    flex-direction: column;
+  }
 
-.summaryValue {
-  color: #111827;
-  text-align: right;
-  max-width: 60%;
-}
-
-.inlineLinkButton {
-  padding: 0;
-  border: none;
-  background: transparent;
-  color: #4f46e5;
-  cursor: pointer;
-  font: inherit;
-  text-align: left;
-}
-
-.inlineLinkButton:hover {
-  text-decoration: underline;
-}
-
-@media (max-width: 960px) {
-  .layout {
-    grid-template-columns: 1fr;
+  .calendarCard {
+    max-width: none;
   }
 }
 
-@media (max-width: 760px) {
-  .formGrid,
-  .rangeGrid {
+@media (max-width: 900px) {
+  .row3 {
     grid-template-columns: 1fr;
   }
 
-  .rangeGridTimeRange {
+  .row2dates {
     grid-template-columns: 1fr;
   }
 
-  .summaryValue {
-    max-width: 68%;
+  .footer {
+    grid-template-columns: 1fr;
+    justify-items: stretch;
+  }
+
+  .total {
+    justify-self: start;
+  }
+
+  .cancelBtn,
+  .submitBtn {
+    justify-self: stretch;
+    width: 100%;
+  }
+
+  .cancelBtn .secondaryButton,
+  .submitBtn .primaryButton {
+    width: 100%;
+  }
+
+  .rangeGrid3 {
+    grid-template-columns: 1fr;
   }
 }

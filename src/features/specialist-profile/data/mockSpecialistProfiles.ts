@@ -88,11 +88,10 @@ const PRIMARY_SPECIALIST_PROFILE: SpecialistProfileResponse = {
   },
   services: [
     {
-      id: 'service-walk-1',
-      name: 'Прогулка с собакой',
+      id: 'walking',
+      name: 'Выгул',
       locationLabel: 'На улице рядом с домом клиента',
-      description:
-        'Прогулка с собакой на улице рядом с домом клиента, длительность 60 минут.',
+      description: 'Выгул на улице рядом с домом клиента, длительность 60 минут.',
       price: 900,
       priceUnit: 'walk',
       bookingPolicy: {
@@ -122,11 +121,120 @@ const PRIMARY_SPECIALIST_PROFILE: SpecialistProfileResponse = {
       },
     },
     {
-      id: 'service-photo-1',
-      name: 'Фотосессия питомца',
-      locationLabel: 'На прогулке или дома у клиента',
+      id: 'boarding',
+      name: 'Передержка',
+      locationLabel: 'У специалиста дома',
       description:
-        'Фотосессия питомца на прогулке или дома у клиента, длительность от 90 до 240 минут.',
+        'Передержка у специалиста или у клиента. Срок: от 1 до 30 дней.',
+      price: 1200,
+      priceUnit: 'day',
+      bookingPolicy: {
+        mode: 'multi_day_stay',
+        duration: {
+          defaultDurationMinutes: 0,
+          minDurationMinutes: 0,
+          maxDurationMinutes: 0,
+          durationStepMinutes: 0,
+        },
+        buffer: {
+          hasBufferBefore: false,
+          bufferBeforeMinutes: 0,
+          hasBufferAfter: false,
+          bufferAfterMinutes: 0,
+        },
+        compatibility: {
+          canOverlapWithOtherServices: true,
+          compatibleServiceIds: ['training'],
+        },
+        advance: {
+          minAdvanceMinutes: 1440,
+          maxAdvanceDays: 90,
+        },
+        multiDay: {
+          allowsMultiDayBooking: true,
+          minStayDays: 1,
+          maxStayDays: 30,
+          checkInTime: '13:00',
+          checkOutTime: '11:00',
+        },
+        allowsClientComment: true,
+        requiresSpecialistConfirmation: true,
+      },
+    },
+    {
+      id: 'grooming',
+      name: 'Груминг',
+      locationLabel: 'У вас или в зоне груминга',
+      description:
+        'Стрижка, купание и базовый уход. Длительность по согласованию, обычно 60–120 минут.',
+      price: 1800,
+      priceUnit: 'service',
+      bookingPolicy: {
+        mode: 'fixed_slot',
+        duration: {
+          defaultDurationMinutes: 90,
+          minDurationMinutes: 60,
+          maxDurationMinutes: 120,
+          durationStepMinutes: 30,
+        },
+        buffer: {
+          hasBufferBefore: false,
+          bufferBeforeMinutes: 0,
+          hasBufferAfter: true,
+          bufferAfterMinutes: 15,
+        },
+        compatibility: {
+          canOverlapWithOtherServices: false,
+          compatibleServiceIds: [],
+        },
+        advance: {
+          minAdvanceMinutes: 180,
+          maxAdvanceDays: 21,
+        },
+        allowsClientComment: true,
+        requiresSpecialistConfirmation: true,
+      },
+    },
+    {
+      id: 'training',
+      name: 'Тренировки',
+      locationLabel: 'У вас или онлайн',
+      description:
+        'Работа с поведением и базовыми командами, длительность 30–60 минут.',
+      price: 800,
+      priceUnit: 'service',
+      bookingPolicy: {
+        mode: 'open_request',
+        duration: {
+          defaultDurationMinutes: 45,
+          minDurationMinutes: 30,
+          maxDurationMinutes: 60,
+          durationStepMinutes: 15,
+        },
+        buffer: {
+          hasBufferBefore: false,
+          bufferBeforeMinutes: 0,
+          hasBufferAfter: false,
+          bufferAfterMinutes: 0,
+        },
+        compatibility: {
+          canOverlapWithOtherServices: true,
+          compatibleServiceIds: ['boarding'],
+        },
+        advance: {
+          minAdvanceMinutes: 60,
+          maxAdvanceDays: 30,
+        },
+        allowsClientComment: true,
+        requiresSpecialistConfirmation: true,
+      },
+    },
+    {
+      id: 'photoshoot',
+      name: 'Фотосессия',
+      locationLabel: 'На улице или дома у клиента',
+      description:
+        'Фотосессия на улице или дома у клиента, длительность от 90 до 240 минут.',
       price: 2500,
       priceUnit: 'service',
       bookingPolicy: {
@@ -155,121 +263,12 @@ const PRIMARY_SPECIALIST_PROFILE: SpecialistProfileResponse = {
         requiresSpecialistConfirmation: true,
       },
     },
-    {
-      id: 'service-boarding-1',
-      name: 'Передержка у специалиста',
-      locationLabel: 'У специалиста дома',
-      description:
-        'Передержка осуществляется у специалиста или у клиента. Срок передержки: от 1 до 30 дней.',
-      price: 1200,
-      priceUnit: 'day',
-      bookingPolicy: {
-        mode: 'multi_day_stay',
-        duration: {
-          defaultDurationMinutes: 0,
-          minDurationMinutes: 0,
-          maxDurationMinutes: 0,
-          durationStepMinutes: 0,
-        },
-        buffer: {
-          hasBufferBefore: false,
-          bufferBeforeMinutes: 0,
-          hasBufferAfter: false,
-          bufferAfterMinutes: 0,
-        },
-        compatibility: {
-          canOverlapWithOtherServices: true,
-          compatibleServiceIds: ['service-consult-1'],
-        },
-        advance: {
-          minAdvanceMinutes: 1440,
-          maxAdvanceDays: 90,
-        },
-        multiDay: {
-          allowsMultiDayBooking: true,
-          minStayDays: 1,
-          maxStayDays: 30,
-          checkInTime: '13:00',
-          checkOutTime: '11:00',
-        },
-        allowsClientComment: true,
-        requiresSpecialistConfirmation: true,
-      },
-    },
-    {
-      id: 'service-visit-1',
-      name: 'Визит на дом',
-      locationLabel: 'У клиента',
-      description:
-        'Визит к питомцу у вас дома: кормление, уход, игры и короткая прогулка, длительность 60 минут.',
-      price: 1300,
-      priceUnit: 'visit',
-      bookingPolicy: {
-        mode: 'fixed_slot',
-        duration: {
-          defaultDurationMinutes: 60,
-          minDurationMinutes: 30,
-          maxDurationMinutes: 120,
-          durationStepMinutes: 30,
-        },
-        buffer: {
-          hasBufferBefore: false,
-          bufferBeforeMinutes: 0,
-          hasBufferAfter: true,
-          bufferAfterMinutes: 15,
-        },
-        compatibility: {
-          canOverlapWithOtherServices: false,
-          compatibleServiceIds: [],
-        },
-        advance: {
-          minAdvanceMinutes: 180,
-          maxAdvanceDays: 21,
-        },
-        allowsClientComment: true,
-        requiresSpecialistConfirmation: true,
-      },
-    },
-    {
-      id: 'service-consult-1',
-      name: 'Онлайн-консультация',
-      locationLabel: 'Онлайн',
-      description:
-        'Онлайн-консультация по уходу и поведению питомца, длительность 30–60 минут.',
-      price: 700,
-      priceUnit: 'service',
-      bookingPolicy: {
-        mode: 'open_request',
-        duration: {
-          defaultDurationMinutes: 30,
-          minDurationMinutes: 30,
-          maxDurationMinutes: 60,
-          durationStepMinutes: 30,
-        },
-        buffer: {
-          hasBufferBefore: false,
-          bufferBeforeMinutes: 0,
-          hasBufferAfter: false,
-          bufferAfterMinutes: 0,
-        },
-        compatibility: {
-          canOverlapWithOtherServices: true,
-          compatibleServiceIds: ['service-boarding-1'],
-        },
-        advance: {
-          minAdvanceMinutes: 60,
-          maxAdvanceDays: 30,
-        },
-        allowsClientComment: true,
-        requiresSpecialistConfirmation: true,
-      },
-    },
   ],
   reviews: [
     {
       id: 'review-from-order-service-order-completed-anna-1',
       orderId: 'service-order-completed-anna-1',
-      serviceTitle: 'Передержка у специалиста',
+      serviceTitle: 'Передержка',
       authorName: 'Анна Петрова',
       petName: 'Марта',
       rating: 5,
@@ -288,7 +287,7 @@ const PRIMARY_SPECIALIST_PROFILE: SpecialistProfileResponse = {
     {
       id: 'review-from-order-service-order-completed-kirill-1',
       orderId: 'service-order-completed-kirill-1',
-      serviceTitle: 'Фотосессия питомца',
+      serviceTitle: 'Фотосессия',
       authorName: 'Кирилл Соколов',
       petName: 'Пушок',
       rating: 5,
@@ -302,7 +301,7 @@ const PRIMARY_SPECIALIST_PROFILE: SpecialistProfileResponse = {
     {
       id: 'review-from-order-service-order-completed-elena-1',
       orderId: 'service-order-completed-elena-1',
-      serviceTitle: 'Передержка у специалиста',
+      serviceTitle: 'Передержка',
       authorName: 'Елена Смирнова',
       petName: 'Снежок',
       rating: 5,

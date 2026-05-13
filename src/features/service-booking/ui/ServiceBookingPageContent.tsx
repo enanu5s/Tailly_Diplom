@@ -7,6 +7,7 @@ import { useLocation, useSearchParams } from 'react-router-dom';
 import { useAuth } from '@/features/auth/model/useAuth';
 import { useAppNavigate } from '@/shared/lib/navigation/useAppNavigate';
 
+import { ServiceBookingCalendar } from './ServiceBookingCalendar';
 import styles from './ServiceBookingPageContent.module.css';
 import { serviceBookingStore } from '../model/serviceBookingStore';
 
@@ -45,16 +46,15 @@ function formatPrice(value: number, currency: 'RUB'): string {
   }).format(value);
 }
 
-function formatDate(value: string): string {
+function formatShortBookingDate(value: string): string {
   if (!value) {
     return '—';
   }
 
-  return new Date(`${value}T00:00:00`).toLocaleDateString('ru-RU', {
-    weekday: 'long',
-    day: '2-digit',
+  return new Date(`${value}T12:00:00`).toLocaleDateString('ru-RU', {
+    weekday: 'short',
+    day: 'numeric',
     month: 'long',
-    year: 'numeric',
   });
 }
 
@@ -78,120 +78,6 @@ function formatModeLabel(mode: string): string {
   return mode;
 }
 
-function buildSummaryDateLabel(): string {
-  const mode = serviceBookingStore.bookingMode;
-
-  if (mode === 'fixed_slot') {
-    return serviceBookingStore.draft.selectedDate
-      ? formatDate(serviceBookingStore.draft.selectedDate)
-      : '—';
-  }
-
-  if (mode === 'time_range') {
-    if (
-      !serviceBookingStore.draft.requestedStartDate ||
-      !serviceBookingStore.draft.requestedEndDate
-    ) {
-      return '—';
-    }
-
-    if (
-      serviceBookingStore.draft.requestedStartDate ===
-      serviceBookingStore.draft.requestedEndDate
-    ) {
-      return formatDate(serviceBookingStore.draft.requestedStartDate);
-    }
-
-    return `${formatDate(
-      serviceBookingStore.draft.requestedStartDate,
-    )} — ${formatDate(serviceBookingStore.draft.requestedEndDate)}`;
-  }
-
-  if (mode === 'multi_day_stay') {
-    if (
-      !serviceBookingStore.draft.stayCheckInDate ||
-      !serviceBookingStore.draft.stayCheckOutDate
-    ) {
-      return '—';
-    }
-
-    return `${formatDate(
-      serviceBookingStore.draft.stayCheckInDate,
-    )} — ${formatDate(serviceBookingStore.draft.stayCheckOutDate)}`;
-  }
-
-  if (serviceBookingStore.draft.requestedStartDate) {
-    return formatDate(serviceBookingStore.draft.requestedStartDate);
-  }
-
-  return 'По согласованию';
-}
-
-function buildSummaryTimeLabel(): string {
-  const mode = serviceBookingStore.bookingMode;
-  const selectedSlot = serviceBookingStore.selectedSlot;
-
-  if (mode === 'fixed_slot') {
-    return selectedSlot
-      ? `${selectedSlot.startTime} – ${selectedSlot.endTime}`
-      : 'Не выбрано';
-  }
-
-  if (mode === 'time_range') {
-    const { requestedStartTime, requestedEndTime, requestedStartDate, requestedEndDate } =
-      serviceBookingStore.draft;
-
-    if (
-      !requestedStartDate ||
-      !requestedStartTime ||
-      !requestedEndDate ||
-      !requestedEndTime
-    ) {
-      return 'Не выбрано';
-    }
-
-    return `${requestedStartTime} – ${requestedEndTime}`;
-  }
-
-  if (mode === 'multi_day_stay') {
-    const { stayCheckInTime, stayCheckOutTime, stayCheckInDate, stayCheckOutDate } =
-      serviceBookingStore.draft;
-
-    if (!stayCheckInDate || !stayCheckInTime || !stayCheckOutDate || !stayCheckOutTime) {
-      return 'Не выбрано';
-    }
-
-    return `Заезд ${stayCheckInTime}, выезд ${stayCheckOutTime}`;
-  }
-
-  const startTime = serviceBookingStore.draft.requestedStartTime;
-  const endTime = serviceBookingStore.draft.requestedEndTime;
-
-  if (!startTime && !endTime) {
-    return 'По согласованию';
-  }
-
-  if (startTime && endTime) {
-    return `${startTime} – ${endTime}`;
-  }
-
-  return startTime || endTime || 'По согласованию';
-}
-
-function buildSummaryExtraLabel(): string | null {
-  if (serviceBookingStore.bookingMode !== 'multi_day_stay') {
-    return null;
-  }
-
-  const stayDays = serviceBookingStore.stayDays;
-
-  if (!stayDays) {
-    return null;
-  }
-
-  return `${stayDays} дн.`;
-}
-
 function canSubmitBooking(): boolean {
   const selectedService = serviceBookingStore.selectedService;
   const selectedPet = serviceBookingStore.selectedPet;
@@ -212,9 +98,9 @@ function canSubmitBooking(): boolean {
 
     return Boolean(
       serviceBookingStore.draft.requestedStartDate &&
-      serviceBookingStore.draft.requestedStartTime &&
-      serviceBookingStore.draft.requestedEndDate &&
-      serviceBookingStore.draft.requestedEndTime,
+        serviceBookingStore.draft.requestedStartTime &&
+        serviceBookingStore.draft.requestedEndDate &&
+        serviceBookingStore.draft.requestedEndTime,
     );
   }
 
@@ -225,9 +111,9 @@ function canSubmitBooking(): boolean {
 
     return Boolean(
       serviceBookingStore.draft.stayCheckInDate &&
-      serviceBookingStore.draft.stayCheckInTime &&
-      serviceBookingStore.draft.stayCheckOutDate &&
-      serviceBookingStore.draft.stayCheckOutTime,
+        serviceBookingStore.draft.stayCheckInTime &&
+        serviceBookingStore.draft.stayCheckOutDate &&
+        serviceBookingStore.draft.stayCheckOutTime,
     );
   }
 
@@ -240,6 +126,17 @@ function canSubmitBooking(): boolean {
   }
 
   return true;
+}
+
+function CalendarIcon(): ReactElement {
+  return (
+    <svg className={styles.calendarGlyph} viewBox="0 0 24 24" aria-hidden>
+      <path
+        fill="currentColor"
+        d="M19 4h-1V2h-2v2H8V2H6v2H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V6c0-1.1-.9-2-2-2zm0 16H5V10h14v10zm0-12H5V6h14v2z"
+      />
+    </svg>
+  );
 }
 
 export const ServiceBookingPageContent = observer((): ReactElement => {
@@ -274,6 +171,7 @@ export const ServiceBookingPageContent = observer((): ReactElement => {
   const availableSlots = serviceBookingStore.availableSlotsForSelectedDate;
   const bookingMode = serviceBookingStore.bookingMode;
   const estimatedPrice = serviceBookingStore.estimatedPrice;
+  const draft = serviceBookingStore.draft;
 
   const handleSubmit = async (): Promise<void> => {
     if (!user?.id) {
@@ -305,10 +203,53 @@ export const ServiceBookingPageContent = observer((): ReactElement => {
     }
   };
 
+  const handleCalendarDay = (iso: string): void => {
+    if (!availableDates.some((item) => item.date === iso)) {
+      return;
+    }
+
+    if (bookingMode === 'fixed_slot') {
+      serviceBookingStore.setSelectedDate(iso);
+      return;
+    }
+
+    if (bookingMode === 'time_range' || bookingMode === 'open_request') {
+      serviceBookingStore.setRequestedRange({ startDate: iso });
+      return;
+    }
+
+    if (bookingMode === 'multi_day_stay') {
+      const inD = draft.stayCheckInDate.trim();
+
+      if (!inD || iso < inD) {
+        serviceBookingStore.setStayRange({ checkInDate: iso, checkOutDate: iso });
+        return;
+      }
+
+      serviceBookingStore.setStayRange({ checkOutDate: iso });
+    }
+  };
+
+  const calendarAnchorIso =
+    bookingMode === 'fixed_slot'
+      ? draft.selectedDate
+      : bookingMode === 'multi_day_stay'
+        ? draft.stayCheckInDate || draft.stayCheckOutDate
+        : draft.requestedStartDate;
+
+  const calendarPrimaryIso =
+    bookingMode === 'fixed_slot'
+      ? draft.selectedDate
+      : bookingMode === 'multi_day_stay'
+        ? draft.stayCheckInDate
+        : draft.requestedStartDate;
+
+  const calendarSecondaryIso = bookingMode === 'multi_day_stay' ? draft.stayCheckOutDate : '';
+
   if (serviceBookingStore.loading) {
     return (
       <section className={styles.page}>
-        <div className={styles.card}>Подготавливаем оформление заказа...</div>
+        <div className={styles.loadingCard}>Подготавливаем оформление заказа...</div>
       </section>
     );
   }
@@ -316,7 +257,7 @@ export const ServiceBookingPageContent = observer((): ReactElement => {
   if (serviceBookingStore.error) {
     return (
       <section className={styles.page}>
-        <div className={styles.card}>
+        <div className={styles.errorCard}>
           <div className={styles.error}>{serviceBookingStore.error}</div>
           <button
             type="button"
@@ -335,258 +276,157 @@ export const ServiceBookingPageContent = observer((): ReactElement => {
   if (!specialist) {
     return (
       <section className={styles.page}>
-        <div className={styles.card}>
+        <div className={styles.errorCard}>
           <div className={styles.error}>Не удалось определить специалиста.</div>
         </div>
       </section>
     );
   }
 
+  const specialistName = `${specialist.main.firstName} ${specialist.main.lastName}`.trim();
+
+  const totalLabel =
+    selectedService && estimatedPrice !== null
+      ? `Итоговая сумма: ${formatPrice(estimatedPrice, 'RUB')}`
+      : 'Итоговая сумма: —';
+
   return (
     <section className={styles.page}>
-      <div className={styles.layout}>
-        <div className={styles.card}>
-          <div className={styles.header}>
-            <div>
-              <h1 className={styles.title}>Оформление заказа</h1>
-              <p className={styles.subtitle}>
-                Специалист:{' '}
-                {`${specialist.main.firstName} ${specialist.main.lastName}`.trim()}
+      <div className={styles.pageInner}>
+        <div className={styles.backRow}>
+          <button
+            type="button"
+            className={styles.backButton}
+            onClick={() => {
+              navigate(`/specialists/${specialist.slug}`);
+            }}
+          >
+            <span className={styles.backIcon} aria-hidden>
+              ←
+            </span>
+            Назад
+          </button>
+        </div>
+
+        <h1 className={styles.pageTitle}>Оформление заказа</h1>
+
+        <div className={styles.twoColumns}>
+          <aside className={styles.calendarCard}>
+            <h2 className={styles.cardTitle}>Календарь</h2>
+            <ServiceBookingCalendar
+              availableDates={availableDates}
+              bookingMode={bookingMode}
+              anchorIso={calendarAnchorIso}
+              selectedPrimaryIso={calendarPrimaryIso}
+              selectedSecondaryIso={calendarSecondaryIso}
+              onSelectDay={handleCalendarDay}
+            />
+          </aside>
+
+          <div className={styles.formCard}>
+            <h2 className={styles.specialistHeading}>Специалист: {specialistName}</h2>
+
+            {serviceBookingStore.sourceOrderId ? (
+              <p className={styles.repeatNote}>
+                Вы оформляете повторный заказ на основе предыдущего.
               </p>
-              <p className={styles.helperText}>
-                Формат бронирования зависит от выбранной услуги.
-              </p>
-              {serviceBookingStore.sourceOrderId ? (
-                <p className={styles.helperText}>
-                  Вы оформляете повторный заказ на основе предыдущего.
-                </p>
-              ) : null}
-            </div>
+            ) : null}
 
-            <button
-              type="button"
-              className={styles.secondaryButton}
-              onClick={() => {
-                navigate(`/specialists/${specialist.slug}`);
-              }}
-            >
-              Вернуться в профиль
-            </button>
-          </div>
+            {serviceBookingStore.submitError ? (
+              <div className={styles.error}>{serviceBookingStore.submitError}</div>
+            ) : null}
 
-          {serviceBookingStore.submitError ? (
-            <div className={styles.error}>{serviceBookingStore.submitError}</div>
-          ) : null}
+            <div className={styles.formBody}>
+              {bookingMode === 'fixed_slot' ? (
+                <div className={styles.row3}>
+                  <label className={styles.field}>
+                    <span className={styles.label}>Услуга</span>
+                    <select
+                      className={`${styles.control} ${styles.controlService}`}
+                      value={draft.serviceId}
+                      onChange={(event) => {
+                        serviceBookingStore.setServiceId(event.target.value);
+                      }}
+                    >
+                      <option value="">Выберите услугу</option>
+                      {services.map((service) => (
+                        <option key={service.id} value={service.id}>
+                          {service.name} — {formatPrice(service.price, 'RUB')}{' '}
+                          {formatPriceUnit(service.priceUnit)}
+                        </option>
+                      ))}
+                    </select>
+                  </label>
 
-          <div className={styles.formGrid}>
-            <label className={styles.field}>
-              <span className={styles.label}>Услуга</span>
-              <select
-                className={styles.control}
-                value={serviceBookingStore.draft.serviceId}
-                onChange={(event) => {
-                  serviceBookingStore.setServiceId(event.target.value);
-                }}
-              >
-                <option value="">Выберите услугу</option>
-                {services.map((service) => (
-                  <option key={service.id} value={service.id}>
-                    {service.name} — {formatPrice(service.price, 'RUB')}{' '}
-                    {formatPriceUnit(service.priceUnit)}
-                  </option>
-                ))}
-              </select>
-            </label>
+                  <div className={styles.field}>
+                    <span className={styles.label}>Выберите дату</span>
+                    <div className={styles.controlWrap}>
+                      <div
+                        className={`${styles.dateLike} ${
+                          !draft.selectedDate ? styles.dateLikeMuted : ''
+                        }`}
+                      >
+                        <span>
+                          {draft.selectedDate
+                            ? formatShortBookingDate(draft.selectedDate)
+                            : 'Выберите дату'}
+                        </span>
+                        <CalendarIcon />
+                      </div>
+                    </div>
+                  </div>
 
-            <label className={styles.field}>
-              <span className={styles.label}>Питомец</span>
-              <select
-                className={styles.control}
-                value={serviceBookingStore.draft.petId}
-                onChange={(event) => {
-                  serviceBookingStore.setPetId(event.target.value);
-                }}
-                disabled={pets.length === 0}
-              >
-                <option value="">
-                  {pets.length === 0 ? 'Сначала добавьте питомца' : 'Выберите питомца'}
-                </option>
-                {pets.map((pet) => (
-                  <option key={pet.id} value={pet.id}>
-                    {pet.name}
-                  </option>
-                ))}
-              </select>
-            </label>
-
-            <div className={styles.fieldWide}>
-              <div className={styles.modeBadge}>
-                {selectedService ? (
-                  <>
-                    <span className={styles.modeBadgeLabel}>Режим бронирования</span>
-                    <span className={styles.modeBadgeValue}>
-                      {formatModeLabel(bookingMode)}
-                    </span>
-                  </>
-                ) : (
-                  <>
-                    <span className={styles.modeBadgeLabel}>Режим бронирования</span>
-                    <span className={styles.modeBadgeValue}>Сначала выберите услугу</span>
-                  </>
-                )}
-              </div>
-            </div>
-
-            {bookingMode === 'fixed_slot' ? (
-              <>
-                <label className={styles.field}>
-                  <span className={styles.label}>Дата</span>
-                  <select
-                    className={styles.control}
-                    value={serviceBookingStore.draft.selectedDate}
-                    onChange={(event) => {
-                      serviceBookingStore.setSelectedDate(event.target.value);
-                    }}
-                    disabled={availableDates.length === 0}
-                  >
-                    <option value="">
-                      {availableDates.length === 0
-                        ? 'Нет доступных дат'
-                        : 'Выберите дату'}
-                    </option>
-                    {availableDates.map((dateItem) => (
-                      <option key={dateItem.date} value={dateItem.date}>
-                        {dateItem.label}
+                  <label className={styles.field}>
+                    <span className={styles.label}>Питомец</span>
+                    <select
+                      className={styles.control}
+                      value={draft.petId}
+                      onChange={(event) => {
+                        serviceBookingStore.setPetId(event.target.value);
+                      }}
+                      disabled={pets.length === 0}
+                    >
+                      <option value="">
+                        {pets.length === 0 ? 'Сначала добавьте питомца' : 'Выберите питомца'}
                       </option>
-                    ))}
-                  </select>
-                </label>
-
-                <div className={styles.fieldWide}>
-                  <span className={styles.label}>Доступные слоты</span>
-
-                  {availableDates.length === 0 ? (
-                    <div className={styles.emptyState}>
-                      У выбранного специалиста пока нет доступных слотов для этой услуги.
-                    </div>
-                  ) : availableSlots.length === 0 ? (
-                    <div className={styles.emptyState}>
-                      На выбранную дату нет доступных слотов для этой услуги.
-                    </div>
-                  ) : (
-                    <div className={styles.slotsGrid}>
-                      {availableSlots.map((slot) => {
-                        const isSelected =
-                          slot.id === serviceBookingStore.draft.selectedSlotId;
-
-                        return (
-                          <button
-                            key={slot.id}
-                            type="button"
-                            className={
-                              isSelected ? styles.slotButtonActive : styles.slotButton
-                            }
-                            onClick={() => {
-                              serviceBookingStore.setSelectedSlotId(slot.id);
-                            }}
-                          >
-                            {slot.startTime} – {slot.endTime}
-                          </button>
-                        );
-                      })}
-                    </div>
-                  )}
+                      {pets.map((pet) => (
+                        <option key={pet.id} value={pet.id}>
+                          {pet.name}
+                        </option>
+                      ))}
+                    </select>
+                  </label>
                 </div>
-              </>
-            ) : null}
-
-            {bookingMode === 'time_range' ? (
-              <div className={styles.fieldWide}>
-                <span className={styles.label}>Интервал времени</span>
-                {availableDates.length === 0 ? (
-                  <div className={styles.emptyState}>
-                    У выбранного специалиста нет свободных дат для этой услуги в
-                    календаре.
+              ) : (
+                <>
+                  <div className={styles.row2wide}>
+                    <label className={styles.field}>
+                      <span className={styles.label}>Услуга</span>
+                      <select
+                        className={`${styles.control} ${styles.controlService}`}
+                        value={draft.serviceId}
+                        onChange={(event) => {
+                          serviceBookingStore.setServiceId(event.target.value);
+                        }}
+                      >
+                        <option value="">Выберите услугу</option>
+                        {services.map((service) => (
+                          <option key={service.id} value={service.id}>
+                            {service.name} — {formatPrice(service.price, 'RUB')}{' '}
+                            {formatPriceUnit(service.priceUnit)}
+                          </option>
+                        ))}
+                      </select>
+                    </label>
                   </div>
-                ) : (
-                  <>
-                    <div className={`${styles.rangeGrid} ${styles.rangeGridTimeRange}`}>
+
+                  {bookingMode === 'multi_day_stay' ? (
+                    <div className={styles.row2dates}>
                       <label className={styles.field}>
-                        <span className={styles.subLabel}>Дата</span>
+                        <span className={styles.label}>Дата заезда</span>
                         <select
                           className={styles.control}
-                          value={serviceBookingStore.draft.requestedStartDate}
-                          onChange={(event) => {
-                            serviceBookingStore.setRequestedRange({
-                              startDate: event.target.value,
-                            });
-                          }}
-                        >
-                          <option value="">Выберите дату</option>
-                          {availableDates.map((dateItem) => (
-                            <option key={dateItem.date} value={dateItem.date}>
-                              {dateItem.label}
-                            </option>
-                          ))}
-                        </select>
-                      </label>
-
-                      <label className={styles.field}>
-                        <span className={styles.subLabel}>Время начала</span>
-                        <input
-                          className={styles.control}
-                          type="time"
-                          step={1800}
-                          value={serviceBookingStore.draft.requestedStartTime}
-                          onChange={(event) => {
-                            serviceBookingStore.setRequestedRange({
-                              startTime: event.target.value,
-                            });
-                          }}
-                        />
-                      </label>
-
-                      <label className={styles.field}>
-                        <span className={styles.subLabel}>Время окончания</span>
-                        <input
-                          className={styles.control}
-                          type="time"
-                          step={1800}
-                          value={serviceBookingStore.draft.requestedEndTime}
-                          onChange={(event) => {
-                            serviceBookingStore.setRequestedRange({
-                              endTime: event.target.value,
-                            });
-                          }}
-                        />
-                      </label>
-                    </div>
-
-                    <div className={styles.infoBox}>
-                      Доступны только дни из свободного календаря специалиста. Начало и
-                      конец интервала — в пределах выбранного дня.
-                    </div>
-                  </>
-                )}
-              </div>
-            ) : null}
-
-            {bookingMode === 'multi_day_stay' ? (
-              <div className={styles.fieldWide}>
-                <span className={styles.label}>Параметры передержки</span>
-                {availableDates.length === 0 ? (
-                  <div className={styles.emptyState}>
-                    У выбранного специалиста нет свободных дат для этой услуги в
-                    календаре.
-                  </div>
-                ) : (
-                  <>
-                    <div className={styles.rangeGrid}>
-                      <label className={styles.field}>
-                        <span className={styles.subLabel}>Дата заезда</span>
-                        <select
-                          className={styles.control}
-                          value={serviceBookingStore.draft.stayCheckInDate}
+                          value={draft.stayCheckInDate}
                           onChange={(event) => {
                             serviceBookingStore.setStayRange({
                               checkInDate: event.target.value,
@@ -603,31 +443,16 @@ export const ServiceBookingPageContent = observer((): ReactElement => {
                       </label>
 
                       <label className={styles.field}>
-                        <span className={styles.subLabel}>Время заезда</span>
-                        <input
-                          className={styles.control}
-                          type="time"
-                          step={1800}
-                          value={serviceBookingStore.draft.stayCheckInTime}
-                          onChange={(event) => {
-                            serviceBookingStore.setStayRange({
-                              checkInTime: event.target.value,
-                            });
-                          }}
-                        />
-                      </label>
-
-                      <label className={styles.field}>
-                        <span className={styles.subLabel}>Дата выезда</span>
+                        <span className={styles.label}>Дата выезда</span>
                         <select
                           className={styles.control}
-                          value={serviceBookingStore.draft.stayCheckOutDate}
+                          value={draft.stayCheckOutDate}
                           onChange={(event) => {
                             serviceBookingStore.setStayRange({
                               checkOutDate: event.target.value,
                             });
                           }}
-                          disabled={!serviceBookingStore.draft.stayCheckInDate}
+                          disabled={!draft.stayCheckInDate}
                         >
                           <option value="">Выберите дату</option>
                           {stayCheckoutDates.map((dateItem) => (
@@ -637,236 +462,318 @@ export const ServiceBookingPageContent = observer((): ReactElement => {
                           ))}
                         </select>
                       </label>
-
-                      <label className={styles.field}>
-                        <span className={styles.subLabel}>Время выезда</span>
-                        <input
-                          className={styles.control}
-                          type="time"
-                          step={1800}
-                          value={serviceBookingStore.draft.stayCheckOutTime}
-                          onChange={(event) => {
-                            serviceBookingStore.setStayRange({
-                              checkOutTime: event.target.value,
-                            });
-                          }}
-                        />
-                      </label>
                     </div>
+                  ) : null}
 
-                    <div className={styles.infoBox}>
-                      Длительность передержки: {serviceBookingStore.stayDays || 0} дн.
-                      Доступны только дни из свободного календаря специалиста.
-                    </div>
-                  </>
-                )}
-              </div>
-            ) : null}
-
-            {bookingMode === 'open_request' ? (
-              <div className={styles.fieldWide}>
-                <span className={styles.label}>Предпочтительное время</span>
-                {availableDates.length === 0 ? (
-                  <div className={styles.emptyState}>
-                    У выбранного специалиста нет свободных дат для этой услуги в
-                    календаре.
-                  </div>
-                ) : (
-                  <>
-                    <div className={styles.rangeGrid}>
-                      <label className={styles.field}>
-                        <span className={styles.subLabel}>Предпочтительная дата</span>
-                        <select
-                          className={styles.control}
-                          value={serviceBookingStore.draft.requestedStartDate}
-                          onChange={(event) => {
-                            serviceBookingStore.setRequestedRange({
-                              startDate: event.target.value,
-                            });
-                          }}
+                  {bookingMode === 'time_range' || bookingMode === 'open_request' ? (
+                    <div className={styles.field}>
+                      <span className={styles.label}>Дата</span>
+                      <div className={styles.controlWrap}>
+                        <div
+                          className={`${styles.dateLike} ${
+                            !draft.requestedStartDate ? styles.dateLikeMuted : ''
+                          }`}
                         >
-                          <option value="">Выберите дату</option>
-                          {availableDates.map((dateItem) => (
-                            <option key={dateItem.date} value={dateItem.date}>
-                              {dateItem.label}
+                          <span>
+                            {draft.requestedStartDate
+                              ? formatShortBookingDate(draft.requestedStartDate)
+                              : 'Выберите дату'}
+                          </span>
+                          <CalendarIcon />
+                        </div>
+                      </div>
+                    </div>
+                  ) : null}
+
+                  {bookingMode === 'multi_day_stay' ? (
+                    <>
+                      <div className={styles.row2wide}>
+                        <label className={styles.field}>
+                          <span className={styles.label}>Где проходит?</span>
+                          <div className={styles.locationReadonly}>
+                            {selectedService?.locationLabel ?? '—'}
+                          </div>
+                        </label>
+
+                        <label className={styles.field}>
+                          <span className={styles.label}>Питомец</span>
+                          <select
+                            className={styles.control}
+                            value={draft.petId}
+                            onChange={(event) => {
+                              serviceBookingStore.setPetId(event.target.value);
+                            }}
+                            disabled={pets.length === 0}
+                          >
+                            <option value="">
+                              {pets.length === 0
+                                ? 'Сначала добавьте питомца'
+                                : 'Выберите питомца'}
                             </option>
-                          ))}
-                        </select>
-                      </label>
+                            {pets.map((pet) => (
+                              <option key={pet.id} value={pet.id}>
+                                {pet.name}
+                              </option>
+                            ))}
+                          </select>
+                        </label>
+                      </div>
 
-                      <label className={styles.field}>
-                        <span className={styles.subLabel}>Удобное время начала</span>
-                        <input
-                          className={styles.control}
-                          type="time"
-                          step={1800}
-                          value={serviceBookingStore.draft.requestedStartTime}
-                          onChange={(event) => {
-                            serviceBookingStore.setRequestedRange({
-                              startTime: event.target.value,
-                            });
-                          }}
-                        />
-                      </label>
+                      <div className={styles.row2wide}>
+                        <label className={styles.field}>
+                          <span className={styles.label}>Время заезда</span>
+                          <input
+                            className={styles.control}
+                            type="time"
+                            step={1800}
+                            value={draft.stayCheckInTime}
+                            onChange={(event) => {
+                              serviceBookingStore.setStayRange({
+                                checkInTime: event.target.value,
+                              });
+                            }}
+                          />
+                        </label>
 
-                      <label className={styles.field}>
-                        <span className={styles.subLabel}>Удобное время окончания</span>
-                        <input
-                          className={styles.control}
-                          type="time"
-                          step={1800}
-                          value={serviceBookingStore.draft.requestedEndTime}
-                          onChange={(event) => {
-                            serviceBookingStore.setRequestedRange({
-                              endTime: event.target.value,
-                            });
-                          }}
-                        />
-                      </label>
+                        <label className={styles.field}>
+                          <span className={styles.label}>Время выезда</span>
+                          <input
+                            className={styles.control}
+                            type="time"
+                            step={1800}
+                            value={draft.stayCheckOutTime}
+                            onChange={(event) => {
+                              serviceBookingStore.setStayRange({
+                                checkOutTime: event.target.value,
+                              });
+                            }}
+                          />
+                        </label>
+                      </div>
+                    </>
+                  ) : (
+                    <label className={styles.field}>
+                      <span className={styles.label}>Питомец</span>
+                      <select
+                        className={styles.control}
+                        value={draft.petId}
+                        onChange={(event) => {
+                          serviceBookingStore.setPetId(event.target.value);
+                        }}
+                        disabled={pets.length === 0}
+                      >
+                        <option value="">
+                          {pets.length === 0 ? 'Сначала добавьте питомца' : 'Выберите питомца'}
+                        </option>
+                        {pets.map((pet) => (
+                          <option key={pet.id} value={pet.id}>
+                            {pet.name}
+                          </option>
+                        ))}
+                      </select>
+                    </label>
+                  )}
+                </>
+              )}
+
+              {bookingMode === 'fixed_slot' ? (
+                <div className={styles.slotsSection}>
+                  <span className={styles.label}>Выберите время</span>
+                  {availableDates.length === 0 ? (
+                    <div className={styles.emptyState}>
+                      У выбранного специалиста пока нет доступных слотов для этой услуги.
                     </div>
-
-                    <div className={styles.infoBox}>
-                      Доступны только дни из свободного календаря специалиста. Точное
-                      время согласуется после запроса.
+                  ) : availableSlots.length === 0 ? (
+                    <div className={styles.emptyState}>
+                      На выбранную дату нет доступных слотов для этой услуги.
                     </div>
-                  </>
-                )}
+                  ) : (
+                    <div className={styles.slotsGrid}>
+                      {availableSlots.map((slot) => {
+                        const isSelected = slot.id === draft.selectedSlotId;
+
+                        return (
+                          <button
+                            key={slot.id}
+                            type="button"
+                            className={isSelected ? styles.slotButtonActive : styles.slotButton}
+                            onClick={() => {
+                              serviceBookingStore.setSelectedSlotId(slot.id);
+                            }}
+                          >
+                            {slot.startTime} — {slot.endTime}
+                          </button>
+                        );
+                      })}
+                    </div>
+                  )}
+                </div>
+              ) : null}
+
+              {bookingMode === 'time_range' ? (
+                <div className={styles.fieldWide}>
+                  {availableDates.length === 0 ? (
+                    <div className={styles.emptyState}>
+                      У выбранного специалиста нет свободных дат для этой услуги в календаре.
+                    </div>
+                  ) : (
+                    <>
+                      <div className={styles.rangeGrid3}>
+                        <label className={styles.field}>
+                          <span className={styles.subLabel}>Время начала</span>
+                          <input
+                            className={styles.control}
+                            type="time"
+                            step={1800}
+                            value={draft.requestedStartTime}
+                            onChange={(event) => {
+                              serviceBookingStore.setRequestedRange({
+                                startTime: event.target.value,
+                              });
+                            }}
+                          />
+                        </label>
+
+                        <label className={styles.field}>
+                          <span className={styles.subLabel}>Время окончания</span>
+                          <input
+                            className={styles.control}
+                            type="time"
+                            step={1800}
+                            value={draft.requestedEndTime}
+                            onChange={(event) => {
+                              serviceBookingStore.setRequestedRange({
+                                endTime: event.target.value,
+                              });
+                            }}
+                          />
+                        </label>
+                      </div>
+
+                      <div className={styles.infoBox}>
+                        Режим: {formatModeLabel(bookingMode)}. Доступны только дни из календаря
+                        специалиста; начало и конец — в пределах выбранного дня.
+                      </div>
+                    </>
+                  )}
+                </div>
+              ) : null}
+
+              {bookingMode === 'open_request' ? (
+                <div className={styles.fieldWide}>
+                  {availableDates.length === 0 ? (
+                    <div className={styles.emptyState}>
+                      У выбранного специалиста нет свободных дат для этой услуги в календаре.
+                    </div>
+                  ) : (
+                    <>
+                      <div className={styles.rangeGrid3}>
+                        <label className={styles.field}>
+                          <span className={styles.subLabel}>Удобное время начала</span>
+                          <input
+                            className={styles.control}
+                            type="time"
+                            step={1800}
+                            value={draft.requestedStartTime}
+                            onChange={(event) => {
+                              serviceBookingStore.setRequestedRange({
+                                startTime: event.target.value,
+                              });
+                            }}
+                          />
+                        </label>
+
+                        <label className={styles.field}>
+                          <span className={styles.subLabel}>Удобное время окончания</span>
+                          <input
+                            className={styles.control}
+                            type="time"
+                            step={1800}
+                            value={draft.requestedEndTime}
+                            onChange={(event) => {
+                              serviceBookingStore.setRequestedRange({
+                                endTime: event.target.value,
+                              });
+                            }}
+                          />
+                        </label>
+                      </div>
+
+                      <div className={styles.infoBox}>
+                        Режим: {formatModeLabel(bookingMode)}. Точное время согласуется после
+                        запроса.
+                      </div>
+                    </>
+                  )}
+                </div>
+              ) : null}
+
+              <label className={styles.fieldWide}>
+                <span className={styles.label}>Комментарий</span>
+                <textarea
+                  className={styles.textarea}
+                  rows={3}
+                  value={draft.comment}
+                  onChange={(event) => {
+                    serviceBookingStore.setComment(event.target.value);
+                  }}
+                  placeholder="Например: Питомец боится громких звуков, важно гулять на поводке, дома есть домофон..."
+                />
+              </label>
+            </div>
+
+            {pets.length === 0 ? (
+              <div className={styles.emptyPets}>
+                <p className={styles.emptyPetsText}>
+                  Чтобы оформить услугу, сначала добавьте хотя бы одного питомца в профиль.
+                </p>
+                <button
+                  type="button"
+                  className={styles.secondaryButton}
+                  onClick={() => {
+                    navigate('/profile');
+                  }}
+                >
+                  Перейти в профиль
+                </button>
               </div>
             ) : null}
 
-            <label className={styles.fieldWide}>
-              <span className={styles.label}>Комментарий</span>
-              <textarea
-                className={styles.textarea}
-                rows={5}
-                value={serviceBookingStore.draft.comment}
-                onChange={(event) => {
-                  serviceBookingStore.setComment(event.target.value);
-                }}
-                placeholder="Например: питомец боится громких звуков, важно гулять на поводке, дома есть домофон..."
-              />
-            </label>
-          </div>
+            <div className={styles.footer}>
+              <p className={styles.total}>{totalLabel}</p>
 
-          {pets.length === 0 ? (
-            <div className={styles.emptyPets}>
-              <p className={styles.emptyPetsText}>
-                Чтобы оформить услугу, сначала добавьте хотя бы одного питомца в профиль.
-              </p>
-              <button
-                type="button"
-                className={styles.secondaryButton}
-                onClick={() => {
-                  navigate('/profile');
-                }}
-              >
-                Перейти в профиль
-              </button>
+              <div className={styles.cancelBtn}>
+                <button
+                  type="button"
+                  className={styles.secondaryButton}
+                  onClick={() => {
+                    navigate(`/specialists/${specialist.slug}`);
+                  }}
+                >
+                  Отмена
+                </button>
+              </div>
+
+              <div className={styles.submitBtn}>
+                <button
+                  type="button"
+                  className={styles.primaryButton}
+                  disabled={
+                    serviceBookingStore.submitting ||
+                    pets.length === 0 ||
+                    !user?.id ||
+                    !canSubmitBooking()
+                  }
+                  onClick={() => {
+                    void handleSubmit();
+                  }}
+                >
+                  {serviceBookingStore.submitting ? 'Создание...' : 'Создать заказ'}
+                </button>
+              </div>
             </div>
-          ) : null}
-
-          <div className={styles.actions}>
-            <button
-              type="button"
-              className={styles.secondaryButton}
-              onClick={() => {
-                navigate('/profile');
-              }}
-            >
-              Отмена
-            </button>
-
-            <button
-              type="button"
-              className={styles.primaryButton}
-              disabled={
-                serviceBookingStore.submitting ||
-                pets.length === 0 ||
-                !user?.id ||
-                !canSubmitBooking()
-              }
-              onClick={() => {
-                void handleSubmit();
-              }}
-            >
-              {serviceBookingStore.submitting ? 'Создание...' : 'Создать заказ'}
-            </button>
           </div>
         </div>
-
-        <aside className={styles.card}>
-          <h2 className={styles.sideTitle}>Сводка</h2>
-
-          <div className={styles.summaryRow}>
-            <span className={styles.summaryLabel}>Специалист</span>
-
-            <button
-              type="button"
-              className={styles.inlineLinkButton}
-              onClick={() => {
-                navigate(`/specialists/${specialist.slug}`, {
-                  state: {
-                    from: `${location.pathname}${location.search}`,
-                  },
-                });
-              }}
-            >
-              {`${specialist.main.firstName} ${specialist.main.lastName}`.trim()}
-            </button>
-          </div>
-
-          <div className={styles.summaryRow}>
-            <span className={styles.summaryLabel}>Город</span>
-            <span className={styles.summaryValue}>{specialist.main.city}</span>
-          </div>
-
-          <div className={styles.summaryRow}>
-            <span className={styles.summaryLabel}>Услуга</span>
-            <span className={styles.summaryValue}>
-              {selectedService?.name ?? 'Не выбрана'}
-            </span>
-          </div>
-
-          <div className={styles.summaryRow}>
-            <span className={styles.summaryLabel}>Режим</span>
-            <span className={styles.summaryValue}>{formatModeLabel(bookingMode)}</span>
-          </div>
-
-          <div className={styles.summaryRow}>
-            <span className={styles.summaryLabel}>Формат</span>
-            <span className={styles.summaryValue}>
-              {selectedService?.locationLabel ?? '—'}
-            </span>
-          </div>
-
-          <div className={styles.summaryRow}>
-            <span className={styles.summaryLabel}>Дата</span>
-            <span className={styles.summaryValue}>{buildSummaryDateLabel()}</span>
-          </div>
-
-          <div className={styles.summaryRow}>
-            <span className={styles.summaryLabel}>Время</span>
-            <span className={styles.summaryValue}>{buildSummaryTimeLabel()}</span>
-          </div>
-
-          {buildSummaryExtraLabel() ? (
-            <div className={styles.summaryRow}>
-              <span className={styles.summaryLabel}>Длительность</span>
-              <span className={styles.summaryValue}>{buildSummaryExtraLabel()}</span>
-            </div>
-          ) : null}
-
-          <div className={styles.summaryRow}>
-            <span className={styles.summaryLabel}>Стоимость</span>
-            <span className={styles.summaryValue}>
-              {selectedService && estimatedPrice !== null
-                ? `${formatPrice(estimatedPrice, 'RUB')} ${formatPriceUnit(
-                    selectedService.priceUnit,
-                  )}`
-                : '—'}
-            </span>
-          </div>
-        </aside>
       </div>
     </section>
   );

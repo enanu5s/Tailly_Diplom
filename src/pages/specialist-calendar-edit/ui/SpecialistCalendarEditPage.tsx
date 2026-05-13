@@ -573,39 +573,45 @@ export const SpecialistCalendarEditPage = observer(() => {
   return (
     <section className={styles.page}>
       <div className={styles.container}>
-        <header className={styles.headerBar}>
-          <div className={styles.headerTop}>
-            <div>
-              <span className={styles.eyebrow}>Календарь</span>
-              <h1 className={styles.title}>Когда вас можно записать</h1>
-              <p className={styles.description}>
-                Настройте недельный шаблон, правила слотов и точечные дни на вкладках ниже.
-                На календаре: обычный выбор — клик или касание; дополнительные действия —
-                правый клик на ПК или долгое нажатие на телефоне и планшете.
-              </p>
-            </div>
+        <div className={styles.topNavRow}>
+          <Link
+            to={`/specialists/${store.profile.slug}`}
+            className={styles.backPill}
+            title="Вернуться в профиль специалиста"
+          >
+            <span className={styles.backPillIcon} aria-hidden>
+              ←
+            </span>
+            Назад
+          </Link>
+        </div>
 
-            <div className={styles.headerActions}>
-              <Link
-                to={`/specialists/${store.profile.slug}`}
-                className={styles.secondaryLink}
-              >
-                Назад в профиль
-              </Link>
-
-              <button
-                type="button"
-                className={styles.primaryButton}
-                onClick={() => {
-                  void store.save();
-                }}
-                disabled={store.isSaving}
-              >
-                {store.isSaving ? 'Сохранение...' : 'Сохранить календарь'}
-              </button>
-            </div>
+        <header className={styles.pageIntro}>
+          <div className={styles.pageIntroText}>
+            <span className={styles.eyebrow}>Календарь</span>
+            <h1 className={styles.title}>Когда вас можно записать</h1>
+            <p className={styles.description}>
+              Настройте недельный шаблон, правила слотов и точечные дни на вкладках ниже.
+              На календаре: обычный выбор — клик или касание; дополнительные действия —
+              правый клик на ПК или долгое нажатие на телефоне и планшете.
+            </p>
           </div>
 
+          <div className={styles.headerActions}>
+            <button
+              type="button"
+              className={styles.primaryButton}
+              onClick={() => {
+                void store.save();
+              }}
+              disabled={store.isSaving}
+            >
+              {store.isSaving ? 'Сохранение...' : 'Сохранить календарь'}
+            </button>
+          </div>
+        </header>
+
+        <div className={styles.tabsBar}>
           <nav className={styles.tabs} role="tablist" aria-label="Разделы редактирования">
             <button
               type="button"
@@ -635,7 +641,7 @@ export const SpecialistCalendarEditPage = observer(() => {
               Календарь
             </button>
           </nav>
-        </header>
+        </div>
 
         {store.hasUnsavedChanges ? (
           <div className={styles.warningBanner}>
@@ -817,8 +823,9 @@ export const SpecialistCalendarEditPage = observer(() => {
                     </div>
                   </div>
                   <p className={styles.calendarGridHint}>
-                    Зелёная точка — окна доступности без записей. Фиолетовая обводка —
-                    сегодня. «···» напоминает, что у дня есть контекстное меню.
+                    Жёлтая точка — окна доступности без записей. Оранжевая точка — частичная
+                    занятость. Оранжевая обводка — сегодня. «···» напоминает, что у дня есть
+                    контекстное меню.
                   </p>
                 </div>
               </div>
