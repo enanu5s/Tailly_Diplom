@@ -75,7 +75,7 @@ const MOCK_REVIEWS_SEED: HomeReviewSeed[] = [
     petName: 'Жучка',
     ownerName: 'Павел',
     sitterId: 'specialist-2',
-    serviceTitle: 'Выгул',
+    serviceTitle: 'Тренировки',
     photoUrls: ['/images/reviews/r-6.png'],
   },
   {
@@ -83,11 +83,11 @@ const MOCK_REVIEWS_SEED: HomeReviewSeed[] = [
     createdAtIso: '2026-03-05T11:00:00.000Z',
     rating: 5,
     text:
-      'Нужен был ситтер на выходные: заранее созвонились, обсудили питание и привычки. В период заказа получали фото прогулок и короткие отчёты. Собака расслабленная и довольная, мы спокойны за следующий раз. Площадка удобная, оплата прозрачная.',
+      'Заказывали Фотосессию: заранее согласовали локацию и время, на съёмке спокойно работали с собакой. Снимки прислали в срок, свет и кадры удачные. Площадка удобная, оплата прозрачная.',
     petName: 'Рекс',
     ownerName: 'Светлана П.',
     sitterId: 'specialist-5',
-    serviceTitle: 'Выгул',
+    serviceTitle: 'Фотосессия',
     photoUrls: ['/images/reviews/r-7.png'],
   },
 ];

@@ -10,7 +10,9 @@ import {
   OrderServiceRevenueBarChart,
   OrderStatsStatusSectionLayout,
 } from './SpecialistOrderStatsCharts';
+import kpiChameleonUrl from '../assets/kpi-chameleon.png';
 import styles from './SpecialistOrderStatsPage.module.css';
+import { SpecialistOrderStatsPeriodSelect } from './SpecialistOrderStatsPeriodSelect';
 import {
   STATUS_LABELS,
   STATUS_ORDER,
@@ -41,11 +43,21 @@ function formatRub(value: number): string {
   }).format(value);
 }
 
+function formatCancellationRate(value: number | null): string {
+  if (value === null) {
+    return '—';
+  }
+  const text = new Intl.NumberFormat('ru-RU', {
+    minimumFractionDigits: Number.isInteger(value) ? 0 : 2,
+    maximumFractionDigits: 2,
+  }).format(value);
+  return `${text}%`;
+}
+
 export const SpecialistOrderStatsPage = (): ReactElement => {
   const { specialistSlug } = useParams<{ specialistSlug: string }>();
   const slug = specialistSlug?.trim() ?? '';
   const profilePath = slug ? `/specialists/${slug}` : '/';
-  const ordersPath = slug ? `/specialists/${slug}/orders` : '/';
 
   const [orders, setOrders] = useState<ServiceOrder[]>([]);
   const [loading, setLoading] = useState(true);
@@ -120,121 +132,66 @@ export const SpecialistOrderStatsPage = (): ReactElement => {
     [filteredOrders],
   );
 
+  const canceledCount = stats.statusCounts.canceled;
+
+  const leftColumn =
+    settings.showStatusBreakdown && settings.showCharts ? (
+      <OrderStatsStatusSectionLayout stats={stats} />
+    ) : settings.showStatusBreakdown && !settings.showCharts ? (
+      <div className={styles.statusCardFallback}>
+        <h2 className={styles.statusCardFallbackTitle}>По статусам</h2>
+        {stats.totalInPeriod === 0 ? (
+          <p className={styles.emptyHint}>В выбранном периоде заказов пока нет.</p>
+        ) : (
+          <ul className={styles.statusList}>
+            {STATUS_ORDER.map((status) => (
+              <li key={status} className={styles.statusRow}>
+                <span>{STATUS_LABELS[status]}</span>
+                <span className={styles.statusCount}>{stats.statusCounts[status]}</span>
+              </li>
+            ))}
+            <li className={styles.statusRow}>
+              <span>Процент отмен</span>
+              <span className={styles.statusCount}>
+                {formatCancellationRate(stats.cancellationRatePercent)}
+              </span>
+            </li>
+          </ul>
+        )}
+      </div>
+    ) : null;
+
+  const rightColumn =
+    settings.showByService && settings.showCharts ? (
+      <OrderServiceRevenueBarChart byService={stats.byService} formatRub={formatRub} />
+    ) : null;
+
+  const chartsRowVisible = Boolean(leftColumn || rightColumn);
+  const chartsColumnCount = (leftColumn ? 1 : 0) + (rightColumn ? 1 : 0);
+
   return (
     <div className={styles.page}>
-      <div className={styles.container}>
-        <nav className={styles.breadcrumb}>
-          <Link to={profilePath} className={styles.backLink}>
-            ← Профиль специалиста
+      <div className={styles.shell}>
+        <div className={styles.toolbar}>
+          <Link to={profilePath} className={styles.backPill}>
+            <span className={styles.backArrow} aria-hidden />
+            Назад
           </Link>
-          <Link to={ordersPath} className={styles.backLink}>
-            Заказы клиентов
-          </Link>
-        </nav>
+        </div>
 
-        <header className={styles.header}>
-          <h1 className={styles.title}>Статистика по заказам</h1>
-          <p className={styles.subtitle}>
-            Сводка по вашим заказам услуг: статусы, выручка, услуги и клиенты. Период и
-            блоки на экране можно настроить — параметры сохраняются в этом браузере.
-          </p>
-        </header>
+        <h1 className={styles.title}>Статистика по заказам</h1>
+        <p className={styles.subtitle}>
+          Сводка по вашим заказам услуг: статусы, выручка, услуги и клиенты. Период и блоки
+          на экране можно настроить — параметры сохраняются в этом браузере.
+        </p>
 
-        <section className={styles.settingsCard} aria-labelledby="stats-settings-title">
-          <h2 id="stats-settings-title" className={styles.settingsTitle}>
-            Настройка отображения
-          </h2>
-          <div className={styles.settingsGrid}>
-            <div>
-              <label className={styles.fieldLabel} htmlFor="stats-period">
-                Период
-              </label>
-              <select
-                id="stats-period"
-                className={styles.select}
-                value={settings.period}
-                onChange={(e) => {
-                  const value = e.target.value as SpecialistOrderStatsSettings['period'];
-                  updateSettings({ period: value });
-                }}
-              >
-                {PERIOD_OPTIONS.map((opt) => (
-                  <option key={opt.value} value={opt.value}>
-                    {opt.label}
-                  </option>
-                ))}
-              </select>
-            </div>
-            <div>
-              <span className={styles.fieldLabel}>Блоки на странице</span>
-              <div className={styles.checkboxList}>
-                <label className={styles.checkboxRow}>
-                  <input
-                    type="checkbox"
-                    checked={settings.showStatusBreakdown}
-                    onChange={(e) => {
-                      updateSettings({ showStatusBreakdown: e.target.checked });
-                    }}
-                  />
-                  <span>Распределение по статусам</span>
-                </label>
-                <label className={styles.checkboxRow}>
-                  <input
-                    type="checkbox"
-                    checked={settings.showRevenue}
-                    onChange={(e) => {
-                      updateSettings({ showRevenue: e.target.checked });
-                    }}
-                  />
-                  <span>Выручка и средний чек</span>
-                </label>
-                <label className={styles.checkboxRow}>
-                  <input
-                    type="checkbox"
-                    checked={settings.showByService}
-                    onChange={(e) => {
-                      updateSettings({ showByService: e.target.checked });
-                    }}
-                  />
-                  <span>По услугам</span>
-                </label>
-                <label className={styles.checkboxRow}>
-                  <input
-                    type="checkbox"
-                    checked={settings.showTopClients}
-                    onChange={(e) => {
-                      updateSettings({ showTopClients: e.target.checked });
-                    }}
-                  />
-                  <span>Топ клиентов</span>
-                </label>
-                <label className={styles.checkboxRow}>
-                  <input
-                    type="checkbox"
-                    checked={settings.showReviewsBlock}
-                    onChange={(e) => {
-                      updateSettings({ showReviewsBlock: e.target.checked });
-                    }}
-                  />
-                  <span>Отзывы за период</span>
-                </label>
-                <label className={styles.checkboxRow}>
-                  <input
-                    type="checkbox"
-                    checked={settings.showCharts}
-                    onChange={(e) => {
-                      updateSettings({ showCharts: e.target.checked });
-                    }}
-                  />
-                  <span>Диаграммы</span>
-                </label>
-              </div>
-            </div>
-          </div>
-          <p className={styles.settingsHint}>
-            Настройки хранятся локально и не синхронизируются между устройствами.
-          </p>
-        </section>
+        <div className={styles.periodRow}>
+          <SpecialistOrderStatsPeriodSelect
+            options={PERIOD_OPTIONS}
+            value={settings.period}
+            onChange={(period) => updateSettings({ period })}
+          />
+        </div>
 
         {error ? <div className={styles.errorBox}>{error}</div> : null}
 
@@ -244,182 +201,78 @@ export const SpecialistOrderStatsPage = (): ReactElement => {
           <p className={styles.emptyHint}>Не указан профиль специалиста.</p>
         ) : (
           <>
-            <div className={styles.summaryGrid}>
-              <div className={styles.summaryCard}>
-                <div className={styles.summaryValue}>{stats.totalInPeriod}</div>
-                <div className={styles.summaryLabel}>Заказов в выбранном периоде</div>
-              </div>
-              <div className={styles.summaryCard}>
-                <div className={styles.summaryValue}>{stats.completedCount}</div>
-                <div className={styles.summaryLabel}>Завершено</div>
-              </div>
-              {settings.showRevenue ? (
-                <>
-                  <div className={styles.summaryCard}>
-                    <div className={styles.summaryValue}>
-                      {formatRub(stats.completedRevenueRub)}
-                    </div>
-                    <div className={styles.summaryLabel}>Выручка по завершённым</div>
+            <div className={styles.kpiRowWrap}>
+              <div className={styles.kpiRow}>
+                <div className={styles.kpiCard}>
+                  <div className={styles.kpiLabel}>Количество заказов</div>
+                  <div className={styles.kpiValue}>{stats.totalInPeriod}</div>
+                </div>
+                <div className={styles.kpiCard}>
+                  <div className={styles.kpiLabel}>Отменено заказов</div>
+                  <div className={styles.kpiValue}>{canceledCount}</div>
+                </div>
+                <div className={styles.kpiCard}>
+                  <div className={styles.kpiLabel}>Прибыль за период</div>
+                  <div className={styles.kpiValue}>
+                    {settings.showRevenue
+                      ? formatRub(stats.completedRevenueRub)
+                      : '—'}
                   </div>
-                  <div className={styles.summaryCard}>
-                    <div className={styles.summaryValue}>
-                      {stats.avgCheckRub !== null ? formatRub(stats.avgCheckRub) : '—'}
-                    </div>
-                    <div className={styles.summaryLabel}>Средний чек</div>
+                </div>
+                <div className={styles.kpiCard}>
+                  <div className={styles.kpiLabel}>Средний чек заказа</div>
+                  <div className={styles.kpiValue}>
+                    {settings.showRevenue && stats.avgCheckRub !== null
+                      ? formatRub(stats.avgCheckRub)
+                      : '—'}
                   </div>
-                </>
-              ) : null}
+                </div>
+              </div>
+              <div className={styles.kpiRowArt} aria-hidden>
+                <img
+                  src={kpiChameleonUrl}
+                  alt=""
+                  className={styles.kpiRowArtImg}
+                  width={220}
+                  height={138}
+                />
+              </div>
             </div>
 
-            {settings.showStatusBreakdown ? (
-              <section className={styles.sectionCard}>
-                <h3 className={styles.sectionTitle}>По статусам</h3>
-                {stats.totalInPeriod === 0 ? (
-                  <p className={styles.emptyHint}>
-                    В выбранном периоде заказов пока нет.
-                  </p>
-                ) : settings.showCharts ? (
-                  <OrderStatsStatusSectionLayout stats={stats}>
-                    <ul className={styles.statusList}>
-                      {STATUS_ORDER.map((status) => (
-                        <li key={status} className={styles.statusRow}>
-                          <span>{STATUS_LABELS[status]}</span>
-                          <span className={styles.statusCount}>
-                            {stats.statusCounts[status]}
-                          </span>
-                        </li>
-                      ))}
-                      <li className={styles.statusRow}>
-                        <span>Доля отмен от всех заказов в периоде</span>
-                        <span className={styles.statusCount}>
-                          {stats.cancellationRatePercent !== null
-                            ? `${stats.cancellationRatePercent}%`
-                            : '—'}
-                        </span>
-                      </li>
-                    </ul>
-                  </OrderStatsStatusSectionLayout>
-                ) : (
-                  <ul className={styles.statusList}>
-                    {STATUS_ORDER.map((status) => (
-                      <li key={status} className={styles.statusRow}>
-                        <span>{STATUS_LABELS[status]}</span>
-                        <span className={styles.statusCount}>
-                          {stats.statusCounts[status]}
-                        </span>
-                      </li>
-                    ))}
-                    <li className={styles.statusRow}>
-                      <span>Доля отмен от всех заказов в периоде</span>
-                      <span className={styles.statusCount}>
-                        {stats.cancellationRatePercent !== null
-                          ? `${stats.cancellationRatePercent}%`
-                          : '—'}
-                      </span>
-                    </li>
-                  </ul>
-                )}
-              </section>
+            {chartsRowVisible ? (
+              <div
+                className={`${styles.chartsRow}${
+                  chartsColumnCount === 1 ? ` ${styles.chartsRowSingle}` : ''
+                }`}
+              >
+                {leftColumn}
+                {rightColumn}
+              </div>
             ) : null}
 
-            {settings.showReviewsBlock ? (
-              <section className={styles.sectionCard}>
-                <h3 className={styles.sectionTitle}>Отзывы</h3>
-                {stats.completedCount === 0 ? (
-                  <p className={styles.emptyHint}>
-                    Нет завершённых заказов в периоде — оценки не считаются.
-                  </p>
-                ) : (
-                  <ul className={styles.statusList}>
-                    <li className={styles.statusRow}>
-                      <span>Завершённых заказов с отзывом</span>
-                      <span className={styles.statusCount}>{stats.ordersWithReview}</span>
-                    </li>
-                    <li className={styles.statusRow}>
-                      <span>Средняя оценка (по завершённым с оценкой)</span>
-                      <span className={styles.statusCount}>
-                        {stats.avgRating !== null ? stats.avgRating.toFixed(2) : '—'}
-                      </span>
-                    </li>
-                  </ul>
-                )}
-              </section>
-            ) : null}
-
-            {settings.showByService ? (
+            {settings.showByService && !settings.showCharts ? (
               <section className={styles.sectionCard}>
                 <h3 className={styles.sectionTitle}>По услугам</h3>
                 {stats.byService.length === 0 ? (
                   <p className={styles.emptyHint}>Нет данных по услугам.</p>
                 ) : (
-                  <>
-                    {settings.showCharts ? (
-                      <OrderServiceRevenueBarChart
-                        byService={stats.byService}
-                        formatRub={formatRub}
-                      />
-                    ) : null}
-                    <div className={styles.tableWrap}>
-                      <table className={styles.table}>
-                        <thead>
-                          <tr>
-                            <th>Услуга</th>
-                            <th className={styles.numCell}>Заказов</th>
-                            <th className={styles.numCell}>Завершено</th>
-                            <th className={styles.numCell}>Выручка</th>
-                          </tr>
-                        </thead>
-                        <tbody>
-                          {stats.byService.map((row) => (
-                            <tr key={row.serviceTitle}>
-                              <td>{row.serviceTitle}</td>
-                              <td className={styles.numCell}>{row.totalCount}</td>
-                              <td className={styles.numCell}>{row.completedCount}</td>
-                              <td className={styles.numCell}>
-                                {formatRub(row.revenueRub)}
-                              </td>
-                            </tr>
-                          ))}
-                        </tbody>
-                      </table>
-                    </div>
-                  </>
-                )}
-              </section>
-            ) : null}
-
-            {settings.showTopClients ? (
-              <section className={styles.sectionCard}>
-                <h3 className={styles.sectionTitle}>Клиенты по выручке</h3>
-                {stats.topClients.length === 0 ? (
-                  <p className={styles.emptyHint}>
-                    Нет завершённых заказов — список клиентов пуст.
-                  </p>
-                ) : (
                   <div className={styles.tableWrap}>
                     <table className={styles.table}>
                       <thead>
                         <tr>
-                          <th>Клиент</th>
-                          <th className={styles.numCell}>Визитов</th>
+                          <th>Услуга</th>
+                          <th className={styles.numCell}>Заказов</th>
+                          <th className={styles.numCell}>Завершено</th>
                           <th className={styles.numCell}>Выручка</th>
                         </tr>
                       </thead>
                       <tbody>
-                        {stats.topClients.map((row) => (
-                          <tr key={row.clientId}>
-                            <td>
-                              <Link
-                                className={styles.clientLink}
-                                to={`/specialists/${slug}/clients/${row.clientId}`}
-                              >
-                                {row.clientName}
-                              </Link>
-                            </td>
+                        {stats.byService.map((row) => (
+                          <tr key={row.serviceTitle}>
+                            <td>{row.serviceTitle}</td>
+                            <td className={styles.numCell}>{row.totalCount}</td>
                             <td className={styles.numCell}>{row.completedCount}</td>
-                            <td className={styles.numCell}>
-                              {formatRub(row.revenueRub)}
-                            </td>
+                            <td className={styles.numCell}>{formatRub(row.revenueRub)}</td>
                           </tr>
                         ))}
                       </tbody>
@@ -428,6 +281,7 @@ export const SpecialistOrderStatsPage = (): ReactElement => {
                 )}
               </section>
             ) : null}
+
           </>
         )}
       </div>

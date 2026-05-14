@@ -14,12 +14,23 @@ type BackTarget = {
 type Props = {
   from?: BackTarget;
   fallbackPath?: string;
+  /** When set, called instead of navigating via `from` / `fallbackPath`. */
+  onBack?: () => void;
 };
 
-export const ProductBackButton = ({ from, fallbackPath = '/shop' }: Props) => {
+export const ProductBackButton = ({
+  from,
+  fallbackPath = '/shop',
+  onBack,
+}: Props) => {
   const navigate = useAppNavigate();
 
   const handleBack = (): void => {
+    if (onBack) {
+      onBack();
+      return;
+    }
+
     if (from) {
       navigate(`${from.pathname}${from.search}${from.hash}`, {
         state: {

@@ -15,33 +15,17 @@ export const SpecialistOrdersPage = (): ReactElement => {
 
   return (
     <div className={styles.page}>
-      <div className={styles.container}>
-        <nav className={styles.breadcrumb}>
-          <Link to={profilePath} className={styles.backLink}>
-            ← Профиль специалиста
-          </Link>
-        </nav>
+      <div className={styles.shell}>
+        <Link to={profilePath} className={styles.backPill}>
+          <span className={styles.backArrow} aria-hidden />
+          Назад
+        </Link>
 
-        <header className={styles.header}>
+        <div className={styles.titleRow}>
           <h1 className={styles.title}>Заказы клиентов</h1>
-          <p className={styles.subtitle}>
-            Подтверждайте новые заявки, начинайте и завершайте услуги. Ответы на отзывы
-            оставляйте в профиле в блоке «Отзывы о специалисте».
-          </p>
-          <div className={styles.headerLinks}>
-            <Link
-              to={`/specialists/${slug}/orders/stats`}
-              className={styles.secondaryLink}
-            >
-              Статистика по заказам
-            </Link>
-            <Link to={`${profilePath}#specialist-reviews`} className={styles.secondaryLink}>
-              Отзывы и ответы
-            </Link>
-          </div>
-        </header>
+        </div>
 
-        <OrdersServicesSection viewerRole="specialist" />
+        <OrdersServicesSection viewerRole="specialist" presentation="specialistOrders" />
       </div>
     </div>
   );

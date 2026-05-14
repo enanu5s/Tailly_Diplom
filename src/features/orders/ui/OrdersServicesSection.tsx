@@ -1,13 +1,14 @@
 // src/features/orders/ui/OrdersServicesSection.tsx
 
 import { observer } from 'mobx-react-lite';
-import { useEffect, useRef, useState } from 'react';
-import { useLocation, useParams } from 'react-router-dom';
+import { useEffect, useMemo, useRef, useState } from 'react';
+import { useLocation } from 'react-router-dom';
 
 import { useAuth } from '@/features/auth/model/useAuth';
 import { messagesStore } from '@/features/messages/model/messagesStore';
 import { getMessagesViewerFromUser } from '@/features/messages/model/messagesViewer';
 import { useAppNavigate } from '@/shared/lib/navigation/useAppNavigate';
+import { PaginationNav } from '@/shared/ui/pagination-nav';
 
 import styles from './OrdersServicesSection.module.css';
 import { ordersStore } from '../model/ordersStore';
@@ -23,9 +24,16 @@ type ProfileOrdersLocationState = {
   justCreatedOrderId?: string;
 };
 
+type OrdersPresentation = 'default' | 'specialistOrders';
+
 type Props = {
   viewerRole?: ViewerRole;
+  /** Specialist profile orders: hero on page, two-column cards, “Популярные темы”. */
+  presentation?: OrdersPresentation;
 };
+
+/** Как в каталоге магазина (`limit: 12`), чтобы пагинация вела себя предсказуемо. */
+const SPECIALIST_ORDERS_PAGE_SIZE = 12;
 
 const FILTERS: Array<{ value: ServicesFilter; label: string }> = [
   { value: 'all', label: 'Все' },
@@ -76,7 +84,7 @@ function formatStatus(status: OrderStatus): string {
   }
 
   if (status === 'active') {
-    return 'Выполняется';
+    return 'В работе';
   }
 
   if (status === 'completed') {
@@ -197,10 +205,30 @@ function canRepeat(order: ServiceOrder, viewerRole: ViewerRole): boolean {
 }
 
 function canCancel(order: ServiceOrder, viewerRole: ViewerRole): boolean {
-  return (
-    viewerRole === 'client' &&
-    (order.status === 'pending_confirmation' || order.status === 'confirmed')
-  );
+  const cancellable =
+    order.status === 'pending_confirmation' || order.status === 'confirmed';
+
+  if (!cancellable) {
+    return false;
+  }
+
+  return viewerRole === 'client' || viewerRole === 'specialist';
+}
+
+function specialistOrdersActionsClass(status: OrderStatus): string {
+  if (status === 'completed' || status === 'canceled') {
+    return styles.actionsSpecialistLayoutTerminal;
+  }
+
+  if (status === 'active') {
+    return styles.actionsSpecialistLayoutActive;
+  }
+
+  if (status === 'pending_confirmation' || status === 'confirmed') {
+    return styles.actionsSpecialistLayoutPreActive;
+  }
+
+  return '';
 }
 
 function canConfirm(order: ServiceOrder, viewerRole: ViewerRole): boolean {
@@ -224,20 +252,20 @@ function isRelevantProfileState(state: ProfileOrdersLocationState | null): boole
 }
 
 export const OrdersServicesSection = observer(
-  ({ viewerRole = 'client' }: Props): ReactElement => {
+  ({ viewerRole = 'client', presentation = 'default' }: Props): ReactElement => {
     const isSpecialistViewer = viewerRole === 'specialist';
+    const isSpecialistOrdersPresentation =
+      presentation === 'specialistOrders' && isSpecialistViewer;
     const navigate = useAppNavigate();
     const location = useLocation();
-    const { specialistSlug: specialistSlugParam } = useParams<{
-      specialistSlug?: string;
-    }>();
     const { user } = useAuth();
-    const specialistSlug = specialistSlugParam?.trim() ?? '';
     const locationState = (location.state as ProfileOrdersLocationState | null) ?? null;
 
     const [freshOrderId, setFreshOrderId] = useState<string | null>(
       locationState?.justCreatedOrderId ?? null,
     );
+
+    const [ordersListPage, setOrdersListPage] = useState(1);
 
     const orderRefs = useRef<Record<string, HTMLElement | null>>({});
     const serviceOrdersLength = ordersStore.serviceOrders.length;
@@ -245,6 +273,14 @@ export const OrdersServicesSection = observer(
     useEffect(() => {
       void ordersStore.loadServices();
     }, []);
+
+    useEffect(() => {
+      if (!isSpecialistOrdersPresentation) {
+        return;
+      }
+
+      setOrdersListPage(1);
+    }, [ordersStore.servicesFilter, isSpecialistOrdersPresentation]);
 
     useEffect(() => {
       if (!locationState?.highlightedOrderId && !locationState?.justCreatedOrderId) {
@@ -305,6 +341,54 @@ export const OrdersServicesSection = observer(
 
     const serviceOrders = ordersStore.serviceOrders;
 
+    const specialistOrderTotalPages = Math.max(
+      1,
+      Math.ceil(serviceOrders.length / SPECIALIST_ORDERS_PAGE_SIZE),
+    );
+
+    const ordersPageSafe = Math.min(
+      Math.max(1, ordersListPage),
+      specialistOrderTotalPages,
+    );
+
+    useEffect(() => {
+      if (!isSpecialistOrdersPresentation || ordersStore.servicesLoading) {
+        return;
+      }
+
+      const targetId =
+        locationState?.highlightedOrderId ?? locationState?.justCreatedOrderId;
+
+      if (!targetId) {
+        return;
+      }
+
+      const idx = serviceOrders.findIndex((o) => o.id === targetId);
+
+      if (idx < 0) {
+        return;
+      }
+
+      setOrdersListPage(Math.floor(idx / SPECIALIST_ORDERS_PAGE_SIZE) + 1);
+    }, [
+      isSpecialistOrdersPresentation,
+      ordersStore.servicesLoading,
+      location.key,
+      locationState?.highlightedOrderId,
+      locationState?.justCreatedOrderId,
+      serviceOrders,
+    ]);
+
+    const visibleServiceOrders = useMemo(() => {
+      if (!isSpecialistOrdersPresentation) {
+        return serviceOrders;
+      }
+
+      const start = (ordersPageSafe - 1) * SPECIALIST_ORDERS_PAGE_SIZE;
+
+      return serviceOrders.slice(start, start + SPECIALIST_ORDERS_PAGE_SIZE);
+    }, [isSpecialistOrdersPresentation, serviceOrders, ordersPageSafe]);
+
     const handleSetFilter = (filter: ServicesFilter): void => {
       ordersStore.setServicesFilter(filter);
     };
@@ -327,20 +411,6 @@ export const OrdersServicesSection = observer(
       });
     };
 
-    const openClientProfile = (order: ServiceOrder): void => {
-      const slug = specialistSlug || order.specialistSlug;
-      const clientKey = order.clientSlug || order.clientId;
-      if (!slug || !clientKey) {
-        return;
-      }
-
-      navigate(`/specialists/${slug}/clients/${encodeURIComponent(clientKey)}`, {
-        state: {
-          from: `${location.pathname}${location.search}`,
-        },
-      });
-    };
-
     const handleContactClient = async (order: ServiceOrder): Promise<void> => {
       if (!user?.id) {
         return;
@@ -356,16 +426,26 @@ export const OrdersServicesSection = observer(
     };
 
     return (
-      <section className={styles.section}>
-        <div className={styles.header}>
-          <div>
-            <h2 className={styles.title}>
-              {isSpecialistViewer ? 'Заказы клиентов' : 'Заказы услуг специалистов'}
-            </h2>
+      <section
+        className={
+          isSpecialistOrdersPresentation ? `${styles.section} ${styles.sectionSpecialistOrders}` : styles.section
+        }
+      >
+        {!isSpecialistOrdersPresentation ? (
+          <div className={styles.header}>
+            <div>
+              <h2 className={styles.title}>
+                {isSpecialistViewer ? 'Заказы клиентов' : 'Заказы услуг специалистов'}
+              </h2>
+            </div>
           </div>
-        </div>
+        ) : null}
 
-        <div className={styles.filters}>
+        <div className={styles.filtersBlock}>
+          {isSpecialistOrdersPresentation ? (
+            <p className={styles.filtersLabel}>Сортировка заказов</p>
+          ) : null}
+          <div className={styles.filters}>
           {FILTERS.map((filter) => {
             const isActive = ordersStore.servicesFilter === filter.value;
 
@@ -382,6 +462,7 @@ export const OrdersServicesSection = observer(
               </button>
             );
           })}
+          </div>
         </div>
 
         {ordersStore.servicesError ? (
@@ -400,14 +481,21 @@ export const OrdersServicesSection = observer(
           <div className={styles.emptyState}>По выбранному фильтру заказов пока нет.</div>
         ) : null}
 
-        <div className={styles.listScroll}>
-          <div className={styles.list}>
-            {serviceOrders.map((order) => {
+        <div
+          className={
+            isSpecialistOrdersPresentation ? styles.listPlain : styles.listScroll
+          }
+        >
+          <div
+            className={
+              isSpecialistOrdersPresentation ? `${styles.list} ${styles.listGrid}` : styles.list
+            }
+          >
+            {visibleServiceOrders.map((order) => {
               const loadingThisCard = ordersStore.actionLoadingId === order.id;
               const isFresh = freshOrderId === order.id;
               const startLabel = buildOrderStartLabel(order);
               const isLongStartLabel = startLabel.length > 26;
-
               return (
                 <article
                   key={order.id}
@@ -447,15 +535,7 @@ export const OrdersServicesSection = observer(
                             </div>
                             <div className={`${styles.metaItem} ${styles.metaPerson}`}>
                               <span className={styles.metaLabel}>Клиент:</span>
-                              <button
-                                type="button"
-                                className={styles.inlineLinkButton}
-                                onClick={() => {
-                                  openClientProfile(order);
-                                }}
-                              >
-                                {order.clientName}
-                              </button>
+                              <span className={styles.metaValue}>{order.clientName}</span>
                             </div>
                           </>
                         ) : (
@@ -540,111 +620,217 @@ export const OrdersServicesSection = observer(
                     ))}
                   </div>
 
-                  <div className={styles.actions}>
-                    {canCancel(order, viewerRole) ? (
-                      <button
-                        type="button"
-                        className={styles.secondaryButton}
-                        disabled={loadingThisCard}
-                        onClick={() => {
-                          void ordersStore.cancelService(order.id);
-                        }}
-                      >
-                        Отменить заказ
-                      </button>
-                    ) : null}
+                  <div
+                    className={
+                      isSpecialistOrdersPresentation
+                        ? `${styles.actions} ${specialistOrdersActionsClass(order.status)}`
+                        : styles.actions
+                    }
+                  >
+                    {isSpecialistOrdersPresentation ? (
+                      <>
+                        {order.status === 'completed' || order.status === 'canceled' ? (
+                          <button
+                            type="button"
+                            className={styles.secondaryButton}
+                            disabled={!user?.id}
+                            onClick={() => {
+                              void handleContactClient(order);
+                            }}
+                          >
+                            Связаться
+                          </button>
+                        ) : null}
 
-                    {!isSpecialistViewer ? (
-                      <button
-                        type="button"
-                        className={styles.primaryButton}
-                        onClick={() => {
-                          openSpecialistProfile(order.specialistSlug);
-                        }}
-                      >
-                        Перейти в профиль специалиста
-                      </button>
+                        {order.status === 'active' ? (
+                          <>
+                            <button
+                              type="button"
+                              className={styles.secondaryButton}
+                              disabled={!user?.id}
+                              onClick={() => {
+                                void handleContactClient(order);
+                              }}
+                            >
+                              Связаться
+                            </button>
+                            <button
+                              type="button"
+                              className={styles.primaryButton}
+                              disabled={loadingThisCard}
+                              onClick={() => {
+                                void ordersStore.completeService(order.id);
+                              }}
+                            >
+                              Завершить заказ
+                            </button>
+                          </>
+                        ) : null}
+
+                        {order.status === 'pending_confirmation' ||
+                        order.status === 'confirmed' ? (
+                          <>
+                            {canCancel(order, viewerRole) ? (
+                              <button
+                                type="button"
+                                className={`${styles.secondaryButton} ${styles.dangerButton}`}
+                                disabled={loadingThisCard}
+                                onClick={() => {
+                                  void ordersStore.cancelService(order.id);
+                                }}
+                              >
+                                Отменить заказ
+                              </button>
+                            ) : null}
+                            <div className={styles.actionsSpecialistRightCluster}>
+                              <button
+                                type="button"
+                                className={styles.secondaryButton}
+                                disabled={!user?.id}
+                                onClick={() => {
+                                  void handleContactClient(order);
+                                }}
+                              >
+                                Связаться
+                              </button>
+                              {canConfirm(order, viewerRole) ? (
+                                <button
+                                  type="button"
+                                  className={styles.primaryButton}
+                                  disabled={loadingThisCard}
+                                  onClick={() => {
+                                    void ordersStore.confirmService(order.id);
+                                  }}
+                                >
+                                  Подтвердить
+                                </button>
+                              ) : null}
+                              {canStart(order, viewerRole) ? (
+                                <button
+                                  type="button"
+                                  className={styles.primaryButton}
+                                  disabled={loadingThisCard}
+                                  onClick={() => {
+                                    void ordersStore.startService(order.id);
+                                  }}
+                                >
+                                  Начать выполнение
+                                </button>
+                              ) : null}
+                            </div>
+                          </>
+                        ) : null}
+                      </>
                     ) : (
                       <>
-                        <button
-                          type="button"
-                          className={styles.primaryButton}
-                          onClick={() => {
-                            openClientProfile(order);
-                          }}
-                        >
-                          Профиль клиента
-                        </button>
-                        <button
-                          type="button"
-                          className={styles.secondaryButton}
-                          disabled={!user?.id}
-                          onClick={() => {
-                            void handleContactClient(order);
-                          }}
-                        >
-                          Связаться
-                        </button>
+                        {canCancel(order, viewerRole) ? (
+                          <button
+                            type="button"
+                            className={`${styles.secondaryButton} ${styles.dangerButton}`}
+                            disabled={loadingThisCard}
+                            onClick={() => {
+                              void ordersStore.cancelService(order.id);
+                            }}
+                          >
+                            Отменить заказ
+                          </button>
+                        ) : null}
+
+                        {!isSpecialistViewer ? (
+                          <button
+                            type="button"
+                            className={styles.primaryButton}
+                            onClick={() => {
+                              openSpecialistProfile(order.specialistSlug);
+                            }}
+                          >
+                            Перейти в профиль специалиста
+                          </button>
+                        ) : (
+                          <button
+                            type="button"
+                            className={styles.secondaryButton}
+                            disabled={!user?.id}
+                            onClick={() => {
+                              void handleContactClient(order);
+                            }}
+                          >
+                            Связаться
+                          </button>
+                        )}
+
+                        {canConfirm(order, viewerRole) ? (
+                          <button
+                            type="button"
+                            className={styles.primaryButton}
+                            disabled={loadingThisCard}
+                            onClick={() => {
+                              void ordersStore.confirmService(order.id);
+                            }}
+                          >
+                            Подтвердить
+                          </button>
+                        ) : null}
+
+                        {canStart(order, viewerRole) ? (
+                          <button
+                            type="button"
+                            className={styles.primaryButton}
+                            disabled={loadingThisCard}
+                            onClick={() => {
+                              void ordersStore.startService(order.id);
+                            }}
+                          >
+                            Начать выполнение
+                          </button>
+                        ) : null}
+
+                        {canComplete(order, viewerRole) ? (
+                          <button
+                            type="button"
+                            className={styles.primaryButton}
+                            disabled={loadingThisCard}
+                            onClick={() => {
+                              void ordersStore.completeService(order.id);
+                            }}
+                          >
+                            Завершить заказ
+                          </button>
+                        ) : null}
+
+                        {canRepeat(order, viewerRole) ? (
+                          <button
+                            type="button"
+                            className={styles.secondaryButton}
+                            disabled={loadingThisCard}
+                            onClick={() => {
+                              void handleRepeat(order.id);
+                            }}
+                          >
+                            Повторить заказ
+                          </button>
+                        ) : null}
                       </>
                     )}
-
-                    {canConfirm(order, viewerRole) ? (
-                      <button
-                        type="button"
-                        className={styles.primaryButton}
-                        disabled={loadingThisCard}
-                        onClick={() => {
-                          void ordersStore.confirmService(order.id);
-                        }}
-                      >
-                        Подтвердить
-                      </button>
-                    ) : null}
-
-                    {canStart(order, viewerRole) ? (
-                      <button
-                        type="button"
-                        className={styles.primaryButton}
-                        disabled={loadingThisCard}
-                        onClick={() => {
-                          void ordersStore.startService(order.id);
-                        }}
-                      >
-                        Начать выполнение
-                      </button>
-                    ) : null}
-
-                    {canComplete(order, viewerRole) ? (
-                      <button
-                        type="button"
-                        className={styles.primaryButton}
-                        disabled={loadingThisCard}
-                        onClick={() => {
-                          void ordersStore.completeService(order.id);
-                        }}
-                      >
-                        Завершить заказ
-                      </button>
-                    ) : null}
-
-                    {canRepeat(order, viewerRole) ? (
-                      <button
-                        type="button"
-                        className={styles.secondaryButton}
-                        disabled={loadingThisCard}
-                        onClick={() => {
-                          void handleRepeat(order.id);
-                        }}
-                      >
-                        Повторить заказ
-                      </button>
-                    ) : null}
                   </div>
                 </article>
               );
             })}
           </div>
         </div>
+
+        {isSpecialistOrdersPresentation &&
+        !ordersStore.servicesLoading &&
+        specialistOrderTotalPages > 1 ? (
+          <div className={styles.paginationWrap}>
+            <PaginationNav
+              page={ordersPageSafe}
+              totalPages={specialistOrderTotalPages}
+              onPageChange={setOrdersListPage}
+              ariaLabel="Пагинация списка заказов"
+            />
+          </div>
+        ) : null}
       </section>
     );
   },

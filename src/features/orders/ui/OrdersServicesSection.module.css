@@ -3,6 +3,28 @@
   width: 100%;
 }
 
+.sectionSpecialistOrders .filtersBlock {
+  margin-top: 0;
+}
+
+.paginationWrap {
+  padding-top: 8px;
+}
+
+.filtersBlock {
+  margin-bottom: 20px;
+}
+
+.filtersLabel {
+  margin: 0 0 15px;
+  font-family: 'Raleway', sans-serif;
+  font-size: 16px;
+  font-weight: 700;
+  line-height: 19px;
+  font-feature-settings: 'pnum' on, 'lnum' on;
+  color: #211500;
+}
+
 .header {
   margin-bottom: 20px;
 }
@@ -24,7 +46,6 @@
   display: flex;
   flex-wrap: wrap;
   gap: 12px;
-  margin-bottom: 20px;
 }
 
 @media (min-width: 1500px) {
@@ -88,6 +109,10 @@
   color: #211500;
 }
 
+.listPlain {
+  width: 100%;
+}
+
 .listScroll {
   max-height: 778px;
   overflow-y: auto;
@@ -118,20 +143,30 @@
   gap: 20px;
 }
 
+.listGrid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 750px));
+  gap: 20px;
+  align-items: start;
+  justify-content: start;
+}
+
 .card,
 .cardFresh {
   position: relative;
   box-sizing: border-box;
-  min-height: 359px;
+  min-height: 378px;
   padding: 30px;
   background: #ffffff;
-  border: 1px solid #c7c2ba;
+  border: 0;
   border-radius: 20px;
-  filter: drop-shadow(0 4px 20px rgba(0, 0, 0, 0.1));
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
 }
 
 .cardFresh {
-  border-color: #ccd308;
+  box-shadow:
+    0 4px 20px rgba(0, 0, 0, 0.1),
+    0 0 0 2px #ccd308;
 }
 
 .cardHeader,
@@ -200,15 +235,22 @@
   background: #ffe4c3;
 }
 
-.statusConfirmed,
-.statusActive,
-.statusCompleted {
+.statusConfirmed {
   background: #e5e881;
 }
 
+.statusActive {
+  background: #fff3cd;
+}
+
+.statusCompleted {
+  background: #211500;
+  color: #ffffff;
+}
+
 .statusCanceled {
-  background: rgba(226, 11, 11, 0.08);
-  color: #e20b0b;
+  background: rgba(226, 11, 11, 0.6);
+  color: #ffffff;
 }
 
 .metaGrid {
@@ -298,6 +340,10 @@
   cursor: pointer;
 }
 
+a.inlineLinkButton:visited {
+  color: #211500;
+}
+
 .commentBox {
   position: absolute;
   left: 30px;
@@ -332,6 +378,26 @@
   flex-wrap: wrap;
 }
 
+.sectionSpecialistOrders .actions.actionsSpecialistLayoutTerminal {
+  justify-content: flex-end;
+}
+
+.sectionSpecialistOrders .actions.actionsSpecialistLayoutActive {
+  justify-content: space-between;
+}
+
+.sectionSpecialistOrders .actions.actionsSpecialistLayoutPreActive {
+  justify-content: space-between;
+}
+
+.actionsSpecialistRightCluster {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 20px;
+  align-items: center;
+  justify-content: flex-end;
+}
+
 .primaryButton,
 .secondaryButton,
 .uploadButton,
@@ -358,7 +424,7 @@
   color: #211500;
 }
 
-.actions .secondaryButton:nth-child(1) {
+.dangerButton {
   border-color: #e20b0b;
   background: rgba(226, 11, 11, 0.05);
   color: #e20b0b;
@@ -522,6 +588,12 @@
 
 .replyBody {
   padding: 0 16px 16px;
+}
+
+@media (max-width: 1540px) {
+  .listGrid {
+    grid-template-columns: minmax(0, 1fr);
+  }
 }
 
 @media (max-width: 980px) {

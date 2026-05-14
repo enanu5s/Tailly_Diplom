@@ -113,7 +113,7 @@ export function buildRollingDemoCalendar(now: Date = new Date()): SpecialistCale
     availabilityRules: [
       {
         id: 'rule-walk-weekdays',
-        title: 'Выгул по будням',
+        title: 'Выгул',
         serviceIds: ['walking'],
         startDate: firstDayOfMonthIso(now),
         startTime: '09:00',
@@ -127,7 +127,7 @@ export function buildRollingDemoCalendar(now: Date = new Date()): SpecialistCale
       },
       {
         id: 'rule-photo-weekend',
-        title: 'Фотосессии по выходным',
+        title: 'Фотосессия',
         serviceIds: ['photoshoot'],
         startDate: firstDayOfMonthIso(now),
         startTime: '11:00',
@@ -141,7 +141,7 @@ export function buildRollingDemoCalendar(now: Date = new Date()): SpecialistCale
       },
       {
         id: 'rule-boarding-daily',
-        title: 'Передержка ежедневно',
+        title: 'Передержка',
         serviceIds: ['boarding'],
         startDate: firstDayOfMonthIso(now),
         startTime: '09:00',

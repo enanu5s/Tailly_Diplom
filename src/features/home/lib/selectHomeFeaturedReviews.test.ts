@@ -17,7 +17,7 @@ const base = (): HomeReview => ({
   ownerName: 'Имя',
   sitterId: 's',
   sitterName: 'С',
-  serviceTitle: 'Услуга',
+  serviceTitle: 'Выгул',
   photoUrls: ['/a.png'],
 });
 

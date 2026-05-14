@@ -166,7 +166,7 @@ const PRIMARY_SPECIALIST_PROFILE: SpecialistProfileResponse = {
       name: 'Груминг',
       locationLabel: 'У вас или в зоне груминга',
       description:
-        'Стрижка, купание и базовый уход. Длительность по согласованию, обычно 60–120 минут.',
+        'Купание, уход за шерстью и базовая гигиена. Длительность по согласованию, обычно 60–120 минут.',
       price: 1800,
       priceUnit: 'service',
       bookingPolicy: {

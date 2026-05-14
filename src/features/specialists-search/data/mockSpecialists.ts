@@ -48,7 +48,7 @@ const SERVICE_SETS: Specialist['services'][] = [
       priceFrom: 1200,
       priceTo: 1800,
       durationMinutes: 60,
-      note: 'Выгул 1 ч',
+      note: 'Выгул',
     },
     {
       serviceId: 'boarding',
@@ -56,7 +56,7 @@ const SERVICE_SETS: Specialist['services'][] = [
       priceFrom: 2500,
       priceTo: 4200,
       durationMinutes: 1440,
-      note: 'Передержка от суток',
+      note: 'Передержка',
     },
   ],
   [
@@ -104,7 +104,7 @@ const SERVICE_SETS: Specialist['services'][] = [
       priceFrom: 1900,
       priceTo: 4500,
       durationMinutes: 120,
-      note: 'Комплекс / стрижка',
+      note: 'Груминг',
     },
     {
       serviceId: 'walking',
@@ -119,7 +119,7 @@ const SERVICE_SETS: Specialist['services'][] = [
       petTypes: ['dog'],
       priceFrom: 1600,
       durationMinutes: 60,
-      note: 'Коррекция поведения',
+      note: 'Тренировки',
     },
     {
       serviceId: 'boarding',
@@ -135,7 +135,7 @@ const SERVICE_SETS: Specialist['services'][] = [
       priceFrom: 3500,
       priceTo: 8000,
       durationMinutes: 120,
-      note: 'Обычно 2–4 ч · студия / выезд',
+      note: 'Фотосессия',
     },
     {
       serviceId: 'grooming',
@@ -150,7 +150,7 @@ const SERVICE_SETS: Specialist['services'][] = [
       petTypes: ['dog'],
       priceFrom: 800,
       durationMinutes: 30,
-      note: 'Короткий выгул',
+      note: 'Выгул',
     },
     {
       serviceId: 'training',
@@ -200,7 +200,7 @@ function buildMockSpecialists(): Specialist[] {
     city: 'Москва',
     district: 'Пресненский район',
     description:
-      'Дневная передержка, присмотр за кошками, забота и внимание к привычкам питомца.',
+      'Передержка и выгул: забота о привычках питомца, внимание к деталям и регулярная связь.',
     rating: 5,
     reviewsCount: 18,
     location: { lat: 55.7572, lon: 37.5598 },
@@ -215,7 +215,7 @@ function buildMockSpecialists(): Specialist[] {
         priceFrom: 1500,
         priceTo: 3800,
         durationMinutes: 720,
-        note: 'Передержка, фотоотчёт',
+        note: 'Передержка',
       },
       {
         serviceId: 'walking',

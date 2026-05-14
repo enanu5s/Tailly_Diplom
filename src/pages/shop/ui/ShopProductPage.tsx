@@ -3,6 +3,7 @@ import { observer } from 'mobx-react-lite';
 import { useEffect, useRef } from 'react';
 import { Link, useLocation, useParams } from 'react-router-dom';
 
+import { useAuth } from '@/features/auth/model/useAuth';
 import { shopProductStore } from '@/features/shop/model/shopProductStore';
 import {
   ProductBackButton,
@@ -26,6 +27,7 @@ type ShopProductPageLocationState = {
 export const ShopProductPage = observer(() => {
   const { slug } = useParams<{ slug: string }>();
   const location = useLocation();
+  const { isSpecialist, user } = useAuth();
   const reviewsAnchorRef = useRef<HTMLDivElement | null>(null);
 
   useEffect(() => {
@@ -58,11 +60,16 @@ export const ShopProductPage = observer(() => {
   const state = (location.state ?? null) as ShopProductPageLocationState | null;
   const from = state?.from;
 
+  const productBackFallbackPath =
+    isSpecialist && user?.specialistSlug?.trim()
+      ? `/specialists/${user.specialistSlug.trim()}`
+      : '/shop';
+
   return (
     <main className={styles.page}>
       <div className={styles.container}>
         <div className={styles.topBar}>
-          <ProductBackButton from={from} />
+          <ProductBackButton from={from} fallbackPath={productBackFallbackPath} />
         </div>
 
         <nav className={styles.breadcrumbs} aria-label="Хлебные крошки">

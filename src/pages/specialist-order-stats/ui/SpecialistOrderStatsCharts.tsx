@@ -1,17 +1,7 @@
 // src/pages/specialist-order-stats/ui/SpecialistOrderStatsCharts.tsx
 
-import {
-  Bar,
-  BarChart,
-  CartesianGrid,
-  Cell,
-  Pie,
-  PieChart,
-  ResponsiveContainer,
-  Tooltip,
-  XAxis,
-  YAxis,
-} from 'recharts';
+import { useMemo, useState } from 'react';
+import { Cell, Pie, PieChart, ResponsiveContainer, Tooltip } from 'recharts';
 
 import styles from './SpecialistOrderStatsCharts.module.css';
 import {
@@ -22,9 +12,19 @@ import {
 
 import type { CSSProperties, ReactElement } from 'react';
 
-const STATUS_COLORS = ['#f59e0b', '#3b82f6', '#8b5cf6', '#22c55e', '#ef4444'];
+/** Цвета сегментов в порядке STATUS_ORDER (Figma) */
+const STATUS_SEGMENT_COLORS = ['#ffa232', '#ffc721', '#ccd308', '#211500', '#e20b0b'];
 
-const SERVICE_BAR_COLOR = '#6366f1';
+function formatPercentRu(value: number | null): string {
+  if (value === null) {
+    return '—';
+  }
+  const text = new Intl.NumberFormat('ru-RU', {
+    minimumFractionDigits: Number.isInteger(value) ? 0 : 2,
+    maximumFractionDigits: 2,
+  }).format(value);
+  return `${text}%`;
+}
 
 export function OrderStatusPieChart({
   stats,
@@ -39,7 +39,7 @@ export function OrderStatusPieChart({
     key: status,
     name: STATUS_LABELS[status],
     value: stats.statusCounts[status],
-    fill: STATUS_COLORS[index] ?? '#94a3b8',
+    fill: STATUS_SEGMENT_COLORS[index] ?? '#c7c2ba',
   })).filter((row) => row.value > 0);
 
   if (pieData.length === 0) {
@@ -47,46 +47,39 @@ export function OrderStatusPieChart({
   }
 
   return (
-    <div className={styles.chartWrap}>
-      <h4 className={styles.chartTitle}>Диаграмма по статусам</h4>
-      <ResponsiveContainer width="100%" height={260}>
-        <PieChart margin={{ top: 4, right: 8, bottom: 4, left: 8 }}>
+    <div className={styles.pieWrap}>
+      <ResponsiveContainer width="100%" height={258}>
+        <PieChart margin={{ top: 0, right: 0, bottom: 0, left: 0 }}>
           <Pie
             data={pieData}
             dataKey="value"
             nameKey="name"
             cx="50%"
             cy="50%"
-            innerRadius={58}
-            outerRadius={92}
-            paddingAngle={2}
+            innerRadius="25%"
+            outerRadius="50%"
+            paddingAngle={1.5}
+            stroke="#ffffff"
+            strokeWidth={2}
           >
             {pieData.map((entry) => (
-              <Cell key={entry.key} fill={entry.fill} stroke="none" />
+              <Cell key={entry.key} fill={entry.fill} />
             ))}
           </Pie>
           <Tooltip
-            formatter={(value) => {
-              const n = typeof value === 'number' ? value : Number(value ?? 0);
-              return [`${Number.isFinite(n) ? n : 0} заказ.`, 'Количество'];
+            formatter={(v) => {
+              const n = typeof v === 'number' ? v : Number(v ?? 0);
+              return [`${Number.isFinite(n) ? n : 0}`, 'Заказов'];
             }}
-            labelFormatter={(label) => String(label)}
             contentStyle={{
               borderRadius: 10,
-              border: '1px solid rgba(17, 24, 39, 0.08)',
+              border: '1px solid #c7c2ba',
+              fontFamily: 'Rubik, system-ui, sans-serif',
+              fontSize: 13,
             }}
           />
         </PieChart>
       </ResponsiveContainer>
-      <ul className={styles.legendList} aria-label="Легенда диаграммы">
-        {pieData.map((row) => (
-          <li key={row.key} className={styles.legendItem}>
-            <span className={styles.legendSwatch} style={{ backgroundColor: row.fill }} />
-            <span className={styles.legendLabel}>{row.name}</span>
-            <span className={styles.legendValue}>{row.value}</span>
-          </li>
-        ))}
-      </ul>
     </div>
   );
 }
@@ -100,84 +93,76 @@ export function OrderServiceRevenueBarChart({
   byService,
   formatRub,
 }: ServiceChartProps): ReactElement | null {
-  if (byService.length === 0) {
+  const rows = useMemo(() => {
+    return byService.slice(0, 10).map((row) => {
+      const title = row.serviceTitle.trim() || '—';
+      return {
+        key: title,
+        label: title,
+        revenue: row.revenueRub,
+        orders: row.totalCount,
+      };
+    });
+  }, [byService]);
+
+  const [hoverKey, setHoverKey] = useState<string | null>(null);
+
+  if (rows.length === 0) {
     return null;
   }
 
-  const rows = byService.slice(0, 10).map((row) => {
-    const title = row.serviceTitle.trim() || 'Услуга';
-    const short = title.length > 36 ? `${title.slice(0, 34).trim()}…` : title;
-    return {
-      key: title,
-      name: short,
-      fullName: title,
-      revenue: row.revenueRub,
-      orders: row.totalCount,
-    };
-  });
-
-  const barHeight = Math.max(280, rows.length * 44 + 48);
+  const maxRevenue = Math.max(...rows.map((r) => r.revenue), 1);
+  const axisMax = Math.max(5000, Math.ceil(maxRevenue / 1000) * 1000);
+  const ticks = [0, 1, 2, 3, 4, 5].map((i) => (axisMax / 5) * i);
 
   return (
-    <div
-      className={styles.serviceChartSection}
-      style={
-        {
-          '--service-rows': rows.length,
-        } as CSSProperties
-      }
-    >
-      <h4 className={styles.chartTitle}>Выручка по услугам (завершённые)</h4>
-      <div className={styles.serviceChartWrap}>
-        <ResponsiveContainer width="100%" height={barHeight}>
-          <BarChart
-            layout="vertical"
-            data={rows}
-            margin={{ top: 8, right: 20, left: 8, bottom: 8 }}
-          >
-            <CartesianGrid strokeDasharray="3 3" horizontal={false} stroke="#e5e7eb" />
-            <XAxis
-              type="number"
-              tickFormatter={(v) => formatRub(Number(v))}
-              tick={{ fontSize: 11, fill: '#6b7280' }}
-            />
-            <YAxis
-              type="category"
-              dataKey="name"
-              width={148}
-              tick={{ fontSize: 11, fill: '#374151' }}
-              interval={0}
-            />
-            <Tooltip
-              formatter={(value, _name, item) => {
-                const payload = item?.payload as
-                  | { fullName?: string; orders?: number }
-                  | undefined;
-                const num = typeof value === 'number' ? value : Number(value ?? 0);
-                const rub = Number.isFinite(num) ? formatRub(num) : String(value ?? '');
-                const ordersNote =
-                  typeof payload?.orders === 'number'
-                    ? ` · заказов: ${payload.orders}`
-                    : '';
-                return [`${rub}${ordersNote}`, 'Выручка'];
-              }}
-              labelFormatter={(_label, payload) => {
-                const row = payload?.[0]?.payload as { fullName?: string } | undefined;
-                return row?.fullName ?? '';
-              }}
-              contentStyle={{
-                borderRadius: 10,
-                border: '1px solid rgba(17, 24, 39, 0.08)',
-                maxWidth: 320,
-              }}
-            />
-            <Bar dataKey="revenue" radius={[0, 6, 6, 0]} maxBarSize={28}>
-              {rows.map((row) => (
-                <Cell key={row.key} fill={SERVICE_BAR_COLOR} />
-              ))}
-            </Bar>
-          </BarChart>
-        </ResponsiveContainer>
+    <div className={styles.revenuePanel}>
+      <h2 className={styles.revenueTitle}>Выручка по услугам</h2>
+      <div className={styles.revenueChart}>
+      <div className={styles.revenuePlot}>
+        <div className={styles.revenueYAxis} aria-hidden />
+        <div className={styles.revenueRows}>
+          {rows.map((row) => {
+            const widthPct = Math.min(100, (row.revenue / axisMax) * 100);
+            const active = hoverKey === row.key;
+
+            return (
+              <div
+                key={row.key}
+                className={styles.revenueRow}
+                onPointerEnter={() => setHoverKey(row.key)}
+                onPointerLeave={() => setHoverKey(null)}
+              >
+                <span className={styles.revenueLabel}>{row.label}</span>
+                <div className={styles.revenueTrack}>
+                  <div
+                    className={styles.revenueBar}
+                    style={{ width: `${widthPct}%` } as CSSProperties}
+                  />
+                </div>
+                {active ? (
+                  <div className={styles.revenueTooltip} role="tooltip">
+                    <div className={styles.revenueTooltipTitle}>{row.label}</div>
+                    <div className={styles.revenueTooltipLine}>
+                      Прибыль: {formatRub(row.revenue)}
+                    </div>
+                    <div className={styles.revenueTooltipMeta}>
+                      Заказов: {row.orders}
+                    </div>
+                  </div>
+                ) : null}
+              </div>
+            );
+          })}
+        </div>
+      </div>
+      <div className={styles.revenueTicks}>
+        {ticks.map((t) => (
+          <span key={t} className={styles.revenueTick}>
+            {formatRub(t)}
+          </span>
+        ))}
+      </div>
       </div>
     </div>
   );
@@ -185,15 +170,44 @@ export function OrderServiceRevenueBarChart({
 
 export function OrderStatsStatusSectionLayout({
   stats,
-  children,
 }: {
   stats: ComputedSpecialistOrderStats;
-  children: ReactElement;
 }): ReactElement {
   return (
-    <div className={styles.statusBlock}>
-      <OrderStatusPieChart stats={stats} />
-      <div>{children}</div>
+    <div className={styles.statusPanel}>
+      <h2 className={styles.panelTitle}>Диаграмма по статусам</h2>
+
+      {stats.totalInPeriod === 0 ? (
+        <p className={styles.panelEmpty}>В выбранном периоде заказов пока нет.</p>
+      ) : (
+        <>
+          <div className={styles.statusBody}>
+            <OrderStatusPieChart stats={stats} />
+            <div className={styles.statusLegendColumn}>
+              <ul className={styles.statusLegend} aria-label="Статусы заказов">
+                {STATUS_ORDER.map((status, index) => (
+                  <li key={status} className={styles.statusLegendRow}>
+                    <span
+                      className={styles.statusSwatch}
+                      style={{ background: STATUS_SEGMENT_COLORS[index] }}
+                    />
+                    <span className={styles.statusLegendLabel}>
+                      {STATUS_LABELS[status]}
+                    </span>
+                    <span className={styles.statusLegendValue}>
+                      {stats.statusCounts[status]}
+                    </span>
+                  </li>
+                ))}
+              </ul>
+              <div className={styles.cancelRateRow}>
+                <span>Процент отмен</span>
+                <span>{formatPercentRu(stats.cancellationRatePercent)}</span>
+              </div>
+            </div>
+          </div>
+        </>
+      )}
     </div>
   );
 }

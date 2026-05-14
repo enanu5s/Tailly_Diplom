@@ -6,6 +6,8 @@ import { Link, useParams } from 'react-router-dom';
 
 import { ordersStore } from '@/features/orders/model/ordersStore';
 import { canCancelProductOrder } from '@/features/orders/model/types';
+import { ProductBackButton } from '@/features/shop/ui';
+import { useAppNavigate } from '@/shared/lib/navigation/useAppNavigate';
 
 import styles from './ShopOrderResultPage.module.css';
 
@@ -83,6 +85,7 @@ type ReviewModalState = {
 
 export const ShopOrderResultPage = observer(() => {
   const { orderId } = useParams<{ orderId: string }>();
+  const navigate = useAppNavigate();
   const [isCancelModalOpen, setIsCancelModalOpen] = useState(false);
   const [reviewModal, setReviewModal] = useState<ReviewModalState | null>(null);
   const [reviewDraftRating, setReviewDraftRating] = useState(0);
@@ -279,6 +282,13 @@ export const ShopOrderResultPage = observer(() => {
       <div className={styles.blur} />
 
       <div className={styles.container}>
+        <div className={styles.pageHeader}>
+          <ProductBackButton onBack={() => navigate(-1)} />
+          {!isLoading && !error && order ? (
+            <h1 className={styles.pageTitle}>Детали заказа</h1>
+          ) : null}
+        </div>
+
         {isLoading ? (
           <section className={styles.stateCard}>
             <h1 className={styles.pageTitle}>Загружаем заказ</h1>
@@ -299,8 +309,6 @@ export const ShopOrderResultPage = observer(() => {
 
         {!isLoading && !error && order ? (
           <>
-            <h1 className={styles.pageTitle}>Детали заказа</h1>
-
             <div className={styles.layout}>
               <div className={styles.leftColumn}>
                 <section className={styles.detailsCard}>

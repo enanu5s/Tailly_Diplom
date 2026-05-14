@@ -33,11 +33,11 @@ export const STATUS_ORDER: OrderStatus[] = [
 ];
 
 export const STATUS_LABELS: Record<OrderStatus, string> = {
-  pending_confirmation: 'Ожидают подтверждения',
-  confirmed: 'Подтверждены',
+  pending_confirmation: 'Ждут подтверждения',
+  confirmed: 'Подтверждён',
   active: 'В работе',
-  completed: 'Завершены',
-  canceled: 'Отменены',
+  completed: 'Завершен',
+  canceled: 'Отменён',
 };
 
 export function getPeriodStart(period: StatsPeriod): Date | null {
@@ -130,7 +130,7 @@ export function computeSpecialistOrderStats(
   for (const order of orders) {
     statusCounts[order.status] += 1;
 
-    const title = order.serviceTitle.trim() || 'Услуга';
+    const title = order.serviceTitle.trim() || '—';
     const existingService = serviceMap.get(title) ?? {
       total: 0,
       completed: 0,

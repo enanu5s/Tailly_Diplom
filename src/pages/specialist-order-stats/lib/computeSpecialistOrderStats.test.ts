@@ -23,11 +23,11 @@ function minimalOrder(
     sitterId: 's',
     sitterName: 'S',
     serviceId: 'svc',
-    serviceTitle: 'Услуга',
+    serviceTitle: 'Выгул',
     servicePriceUnit: 'service',
     serviceSnapshot: {
       id: 'svc',
-      title: 'Услуга',
+      title: 'Выгул',
       locationLabel: 'L',
       price: 100,
       priceUnit: 'service',
@@ -125,7 +125,7 @@ describe('computeSpecialistOrderStats', () => {
         id: 'a',
         status: 'completed',
         specialistSlug: 'x',
-        serviceTitle: 'Стрижка',
+        serviceTitle: 'Груминг',
         clientId: 'c1',
         clientName: 'Иван',
         price: 200,
@@ -136,7 +136,7 @@ describe('computeSpecialistOrderStats', () => {
         id: 'b',
         status: 'completed',
         specialistSlug: 'x',
-        serviceTitle: 'Стрижка',
+        serviceTitle: 'Груминг',
         clientId: 'c1',
         clientName: 'Иван',
         price: 400,
@@ -147,7 +147,7 @@ describe('computeSpecialistOrderStats', () => {
         id: 'c',
         status: 'canceled',
         specialistSlug: 'x',
-        serviceTitle: 'Другое',
+        serviceTitle: 'Фотосессия',
         clientId: 'c2',
         clientName: 'Пётр',
         price: 100,
@@ -163,7 +163,7 @@ describe('computeSpecialistOrderStats', () => {
     expect(s.ordersWithReview).toBe(2);
     expect(s.avgRating).toBe(4.5);
     expect(s.statusCounts.canceled).toBe(1);
-    expect(s.byService[0]?.serviceTitle).toBe('Стрижка');
+    expect(s.byService[0]?.serviceTitle).toBe('Груминг');
     expect(s.topClients[0]?.clientName).toBe('Иван');
   });
 });

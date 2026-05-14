@@ -4,6 +4,7 @@ import { observer } from 'mobx-react-lite';
 import { useEffect } from 'react';
 import { Link } from 'react-router-dom';
 
+import { useAuth } from '@/features/auth/model/useAuth';
 import { ordersStore } from '@/features/orders/model/ordersStore';
 import { ProductBackButton } from '@/features/shop/ui/ProductBackButton/ProductBackButton';
 import {
@@ -22,6 +23,8 @@ function formatQuantityLine(quantity: number): string {
 }
 
 export const ShopOrdersPage = observer(() => {
+  const { isSpecialist, user } = useAuth();
+
   useEffect(() => {
     if (ordersStore.productOrders.length === 0 && !ordersStore.productsLoading) {
       void ordersStore.loadProducts();
@@ -30,11 +33,16 @@ export const ShopOrdersPage = observer(() => {
 
   const orders = ordersStore.productOrders;
 
+  const backFallbackPath =
+    isSpecialist && user?.specialistSlug?.trim()
+      ? `/specialists/${user.specialistSlug.trim()}`
+      : '/shop';
+
   return (
     <div className={styles.page}>
       <div className={styles.container}>
         <div className={styles.pageHeader}>
-          <ProductBackButton fallbackPath="/shop" />
+          <ProductBackButton fallbackPath={backFallbackPath} />
           <h1 className={styles.title}>Заказы из магазина</h1>
         </div>
 

@@ -1,4 +1,5 @@
-/* src/features/shop/ui/CatalogPagination/CatalogPagination.module.css */
+/* src/shared/ui/pagination-nav/PaginationNav.module.css */
+
 .pagination {
   display: flex;
   align-items: center;

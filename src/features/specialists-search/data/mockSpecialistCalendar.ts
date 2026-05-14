@@ -88,7 +88,7 @@ export function buildSpecialistCalendarSlots(
         endTime: mix % 5 === 4 ? '17:30' : '18:00',
         kind: 'available',
         serviceId: mix % 5 === 4 ? 'grooming' : 'boarding',
-        title: mix % 5 === 4 ? 'Окно груминг' : 'Передержка: слот',
+        title: mix % 5 === 4 ? 'Груминг' : 'Передержка',
       });
     }
 
@@ -100,7 +100,7 @@ export function buildSpecialistCalendarSlots(
         endTime: '20:00',
         kind: 'booked',
         serviceId: 'photoshoot',
-        title: 'Фотосессия (занято)',
+        title: 'Фотосессия',
       });
     }
   }

@@ -66,7 +66,7 @@ function buildBulkSpecialistApplications(): SpecialistApplication[] {
       questionnaire: {
         experienceYears: i % 2 === 0 ? 5 : 2,
         animalTypes: i % 3 === 0 ? ['Собаки'] : ['Собаки', 'Кошки'],
-        serviceFormats: ['Выгул', 'Передержка у клиента'],
+        serviceFormats: ['Выгул', 'Передержка'],
         canGiveMedication: i % 2 === 0,
         canHandleDifficultBehavior: i % 4 !== 0,
         canTakeOvernightOrders: i % 5 === 0,
@@ -112,7 +112,7 @@ export const INITIAL_APPLICATIONS: SpecialistApplication[] = [
     questionnaire: {
       experienceYears: 5,
       animalTypes: ['Собаки', 'Кошки'],
-      serviceFormats: ['Выгул', 'Дневной присмотр', 'Передержка у клиента'],
+      serviceFormats: ['Выгул', 'Груминг', 'Передержка'],
       canGiveMedication: true,
       canHandleDifficultBehavior: true,
       canTakeOvernightOrders: false,
@@ -124,7 +124,7 @@ export const INITIAL_APPLICATIONS: SpecialistApplication[] = [
       schedulePreferences: 'Будни после 18:00, выходные почти весь день.',
       portfolioUrl: 'https://example.com/morozova-pets',
       motivation:
-        'Хочу развивать практику петситтинга как основную занятость и работать через прозрачную платформу.',
+        'Хочу развивать практику передержки и выгула как основную занятость и работать через прозрачную платформу.',
       additionalInfo:
         'Есть опыт сопровождения животных после операций и общения с ветеринаром по назначениям.',
     },
@@ -149,7 +149,7 @@ export const INITIAL_APPLICATIONS: SpecialistApplication[] = [
     questionnaire: {
       experienceYears: 2,
       animalTypes: ['Собаки', 'Кошки', 'Грызуны'],
-      serviceFormats: ['Передержка у себя', 'Передержка у клиента', 'Ночной присмотр'],
+      serviceFormats: ['Передержка', 'Выгул', 'Тренировки'],
       canGiveMedication: true,
       canHandleDifficultBehavior: false,
       canTakeOvernightOrders: true,
