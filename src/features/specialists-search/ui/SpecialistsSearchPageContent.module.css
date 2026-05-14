@@ -1,34 +1,84 @@
 .layout {
   box-sizing: border-box;
   width: 100%;
-  /* Горизонтальные поля как у Frame 399 / колонок: (100vw − 1520px) / 2, max 200px */
-  padding-inline: min(200px, max(20px, calc((100vw - 1520px) / 2)));
+  max-width: 100%;
+  /* Мобильные: фиксированные поля; шире — как у макета по центру */
+  padding-inline: 16px;
+}
+
+@media (min-width: 480px) {
+  .layout {
+    padding-inline: 20px;
+  }
+}
+
+@media (min-width: 768px) {
+  .layout {
+    padding-inline: min(200px, max(24px, calc((100vw - 1520px) / 2)));
+  }
 }
 
 .left {
   width: 100%;
   max-width: 1520px;
   margin: 0 auto;
-  padding: 0 0 64px;
+  padding: 0 0 40px;
   box-sizing: border-box;
 }
 
+@media (min-width: 768px) {
+  .left {
+    padding-bottom: 56px;
+  }
+}
+
+@media (min-width: 1200px) {
+  .left {
+    padding-bottom: 64px;
+  }
+}
+
 .pageTitle {
-  margin: 0 0 30px;
+  margin: 0 0 20px;
   font-family: 'Igra Sans', sans-serif;
-  font-size: 40px;
+  font-size: clamp(26px, 5vw, 40px);
   font-weight: 400;
   line-height: 1.2;
   color: #211500;
+  text-wrap: balance;
+}
+
+@media (min-width: 768px) {
+  .pageTitle {
+    margin-bottom: 28px;
+  }
+}
+
+@media (min-width: 1200px) {
+  .pageTitle {
+    margin-bottom: 30px;
+  }
 }
 
 .foundLine {
-  margin: 38px 0 18px;
+  margin: 24px 0 14px;
   font-family: 'Igra Sans', sans-serif;
-  font-size: 24px;
+  font-size: clamp(18px, 2.8vw, 24px);
   font-weight: 400;
-  line-height: 1.2;
+  line-height: 1.25;
   color: #211500;
+}
+
+@media (min-width: 768px) {
+  .foundLine {
+    margin: 32px 0 16px;
+  }
+}
+
+@media (min-width: 1200px) {
+  .foundLine {
+    margin: 38px 0 18px;
+  }
 }
 
 .foundCount {

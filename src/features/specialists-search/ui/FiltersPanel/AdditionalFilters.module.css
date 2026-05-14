@@ -6,27 +6,46 @@
 
 .row {
   display: grid;
-  gap: 20px;
+  gap: 16px;
   align-items: end;
   width: 100%;
   box-sizing: border-box;
   grid-template-columns: 1fr;
 }
 
+@media (min-width: 768px) {
+  .row {
+    gap: 20px;
+  }
+}
+
 .field {
   display: flex;
   flex-direction: column;
-  gap: 15px;
+  gap: 10px;
   min-width: 0;
+}
+
+@media (min-width: 768px) {
+  .field {
+    gap: 15px;
+  }
 }
 
 .label {
   font-family: 'Raleway', sans-serif;
-  font-size: 16px;
+  font-size: 14px;
   font-weight: 700;
-  line-height: 19px;
+  line-height: 1.25;
   font-feature-settings: 'pnum' on, 'lnum' on;
   color: #6f685d;
+}
+
+@media (min-width: 768px) {
+  .label {
+    font-size: 16px;
+    line-height: 19px;
+  }
 }
 
 .input,
@@ -36,14 +55,23 @@
   height: 48px;
   border-radius: 10px;
   border: 1px solid #c7c2ba;
-  padding: 0 20px;
+  padding: 0 16px;
   background: #fff;
   outline: none;
   font-family: 'Rubik', sans-serif;
-  font-size: 15px;
+  font-size: 16px;
   font-weight: 400;
-  line-height: 18px;
+  line-height: 1.25;
   color: #211500;
+}
+
+@media (min-width: 768px) {
+  .input,
+  .select {
+    padding: 0 20px;
+    font-size: 15px;
+    line-height: 18px;
+  }
 }
 
 .input::placeholder {

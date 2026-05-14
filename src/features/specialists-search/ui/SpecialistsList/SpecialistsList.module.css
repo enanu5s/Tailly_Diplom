@@ -1,7 +1,13 @@
 .list {
   display: grid;
   grid-template-columns: minmax(0, 1fr);
-  gap: 20px;
+  gap: 16px;
+}
+
+@media (min-width: 600px) {
+  .list {
+    gap: 20px;
+  }
 }
 
 @media (min-width: 900px) {
@@ -19,12 +25,19 @@
 }
 
 .state {
-  padding: 24px 20px;
+  padding: 20px 16px;
   font-family: 'Rubik', sans-serif;
   font-size: 15px;
-  line-height: 1.4;
+  line-height: 1.45;
   color: #211500;
   background: #fff;
-  border-radius: 20px;
+  border-radius: 16px;
   box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+}
+
+@media (min-width: 768px) {
+  .state {
+    padding: 24px 20px;
+    border-radius: 20px;
+  }
 }

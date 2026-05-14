@@ -2,19 +2,42 @@
   box-sizing: border-box;
   /* Frame 399: белая панель фильтров */
   background: #ffffff;
-  border-radius: 20px;
+  border-radius: 16px;
   box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
-  padding: 20px;
+  padding: 16px;
+}
+
+@media (min-width: 480px) {
+  .root {
+    border-radius: 18px;
+    padding: 18px;
+  }
+}
+
+@media (min-width: 768px) {
+  .root {
+    border-radius: 20px;
+    padding: 20px;
+  }
 }
 
 .grid {
   display: grid;
-  gap: 20px;
-  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 16px;
+  /* Узкие экраны: одна колонка — читаемые подписи и поля */
+  grid-template-columns: minmax(0, 1fr);
 }
 
-@media (min-width: 900px) {
+@media (min-width: 560px) {
   .grid {
+    gap: 18px;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+@media (min-width: 1024px) {
+  .grid {
+    gap: 20px;
     grid-template-columns: repeat(4, minmax(0, 1fr));
   }
 }
@@ -28,34 +51,64 @@
 .field {
   display: flex;
   flex-direction: column;
-  gap: 15px;
+  gap: 10px;
   min-width: 0;
+}
+
+@media (min-width: 560px) {
+  .field {
+    gap: 12px;
+  }
+}
+
+@media (min-width: 768px) {
+  .field {
+    gap: 15px;
+  }
 }
 
 .label {
   font-family: 'Raleway', sans-serif;
-  font-size: 16px;
+  font-size: 14px;
   font-weight: 700;
-  line-height: 19px;
+  line-height: 1.25;
   font-feature-settings: 'pnum' on, 'lnum' on;
   color: #6f685d;
+}
+
+@media (min-width: 768px) {
+  .label {
+    font-size: 16px;
+    line-height: 19px;
+  }
 }
 
 .input,
 .select {
   box-sizing: border-box;
   width: 100%;
+  min-height: 48px;
   height: 48px;
   border-radius: 10px;
   border: 1px solid #c7c2ba;
-  padding: 0 20px;
+  padding: 0 16px;
   background: #fff;
   outline: none;
   font-family: 'Rubik', sans-serif;
-  font-size: 15px;
+  /* 16px на узких экранах — без авто-зума в iOS Safari */
+  font-size: 16px;
   font-weight: 400;
-  line-height: 18px;
+  line-height: 1.25;
   color: #211500;
+}
+
+@media (min-width: 768px) {
+  .input,
+  .select {
+    padding: 0 20px;
+    font-size: 15px;
+    line-height: 18px;
+  }
 }
 
 .input::placeholder {
@@ -80,10 +133,19 @@
 .actionsRow {
   display: flex;
   flex-wrap: wrap;
-  align-items: center;
+  align-items: stretch;
   justify-content: space-between;
-  gap: 16px;
-  margin-top: 20px;
+  gap: 12px;
+  margin-top: 16px;
+}
+
+@media (min-width: 768px) {
+  .actionsRow {
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 16px;
+    margin-top: 20px;
+  }
 }
 
 .moreBtn {
@@ -92,9 +154,9 @@
   align-items: center;
   justify-content: space-between;
   gap: 10px;
-  min-width: 268px;
-  width: max-content;
-  max-width: 100%;
+  min-width: 0;
+  width: 100%;
+  flex: 1 1 220px;
   min-height: 45px;
   padding: 10px 20px 10px 24px;
   border: none;
@@ -103,11 +165,22 @@
   cursor: pointer;
   flex-shrink: 0;
   font-family: 'Raleway', sans-serif;
-  font-size: 16px;
+  font-size: 15px;
   font-weight: 600;
-  line-height: 19px;
+  line-height: 1.25;
   font-feature-settings: 'pnum' on, 'lnum' on;
   color: #211500;
+}
+
+@media (min-width: 768px) {
+  .moreBtn {
+    min-width: 268px;
+    width: max-content;
+    max-width: 100%;
+    flex: 0 0 auto;
+    font-size: 16px;
+    line-height: 19px;
+  }
 }
 
 .moreBtnExpanded {
@@ -156,17 +229,27 @@
   align-items: center;
   justify-content: center;
   min-height: 45px;
-  padding: 10px 30px;
+  padding: 10px 20px;
   border-radius: 23px;
   border: 1px solid #6f685d;
   background: #ffffff;
   cursor: pointer;
   font-family: 'Raleway', sans-serif;
-  font-size: 16px;
+  font-size: 15px;
   font-weight: 600;
-  line-height: 19px;
+  line-height: 1.25;
   font-feature-settings: 'pnum' on, 'lnum' on;
   color: #211500;
+  flex: 1 1 160px;
+}
+
+@media (min-width: 768px) {
+  .resetBtn {
+    flex: 0 0 auto;
+    padding: 10px 30px;
+    font-size: 16px;
+    line-height: 19px;
+  }
 }
 
 .resetBtn:hover {
