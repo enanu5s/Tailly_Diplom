@@ -1,0 +1,150 @@
+// src/pages/admin-login/ui/AdminLoginPage.tsx
+
+import { observer } from 'mobx-react-lite';
+import { useEffect, useState, useSyncExternalStore } from 'react';
+import { useLocation } from 'react-router-dom';
+
+import { adminLoginStore } from '@/features/admin-auth/model/adminLoginStore';
+import { authStore } from '@/features/auth/model/authStore';
+import { isMockApiMode } from '@/shared/config/env';
+import {
+  getMockAdminPanelLoginDemoRows,
+  type MockDemoCredentialRow,
+} from '@/shared/config/mockDemoCredentials';
+import { canAccessAdminArea } from '@/shared/lib/auth/roleAccess';
+import { useAppNavigate } from '@/shared/lib/navigation/useAppNavigate';
+import { subscribeMockDatabase } from '@/shared/mock-db/store';
+
+import styles from './AdminLoginPage.module.css';
+
+import type { FormEvent, ReactElement } from 'react';
+
+type LocationState = {
+  from?: string;
+};
+
+export const AdminLoginPage = observer((): ReactElement => {
+  const navigate = useAppNavigate();
+  const location = useLocation();
+  const authState = useSyncExternalStore(authStore.subscribe, authStore.getState);
+
+  const state = (location.state ?? null) as LocationState | null;
+
+  const [mockDemoRows, setMockDemoRows] = useState<MockDemoCredentialRow[]>(() =>
+    getMockAdminPanelLoginDemoRows(),
+  );
+
+  useEffect(() => {
+    return subscribeMockDatabase(() => {
+      setMockDemoRows(getMockAdminPanelLoginDemoRows());
+    });
+  }, []);
+
+  useEffect(() => {
+    if (canAccessAdminArea(authState.user)) {
+      navigate('/admin', { replace: true });
+    }
+  }, [authState.user, navigate]);
+
+  const handleSubmit = async (event: FormEvent<HTMLFormElement>): Promise<void> => {
+    event.preventDefault();
+
+    const success = await adminLoginStore.submit();
+
+    if (!success) {
+      return;
+    }
+
+    navigate(state?.from ?? '/admin', { replace: true });
+  };
+
+  return (
+    <section className={styles.page}>
+      <div className={styles.card}>
+        <div className={styles.header}>
+          <span className={styles.badge}>Tailly Admin</span>
+
+          <h1 className={styles.title}>Вход для администратора</h1>
+
+          <p className={styles.subtitle}>
+            Используйте корпоративный логин и пароль администратора.
+          </p>
+        </div>
+
+        <form className={styles.form} onSubmit={handleSubmit}>
+          <label className={styles.field}>
+            <span className={styles.label}>Email</span>
+
+            <input
+              className={styles.input}
+              type="email"
+              value={adminLoginStore.email}
+              onChange={(event) => adminLoginStore.setEmail(event.target.value)}
+              placeholder="admin@tailly.local"
+              autoComplete="username"
+              required
+            />
+          </label>
+
+          <label className={styles.field}>
+            <span className={styles.label}>Пароль</span>
+
+            <input
+              className={styles.input}
+              type="password"
+              value={adminLoginStore.password}
+              onChange={(event) => adminLoginStore.setPassword(event.target.value)}
+              placeholder="Введите пароль"
+              autoComplete="current-password"
+              required
+            />
+          </label>
+
+          {adminLoginStore.failedAttemptsLeft !== null &&
+          adminLoginStore.failedAttemptsLeft > 0 ? (
+            <div className={styles.attempts}>
+              Осталось попыток: {adminLoginStore.failedAttemptsLeft}
+            </div>
+          ) : null}
+
+          {adminLoginStore.submitError ? (
+            <div className={styles.error}>{adminLoginStore.submitError}</div>
+          ) : null}
+
+          <button
+            className={styles.submitButton}
+            type="submit"
+            disabled={!adminLoginStore.canSubmit}
+          >
+            {adminLoginStore.isSubmitting ? 'Выполняется вход...' : 'Войти'}
+          </button>
+
+          <button
+            className={styles.linkButton}
+            type="button"
+            onClick={() => navigate('/admin/forgot-password')}
+          >
+            Восстановить пароль
+          </button>
+        </form>
+
+        {isMockApiMode ? (
+          <div className={styles.demoBlock}>
+            <div className={styles.demoTitle}>Тестовые аккаунты (mock API)</div>
+
+            <div className={styles.demoList}>
+              {mockDemoRows.map((row) => (
+                <div key={row.email} className={styles.demoItem}>
+                  <span className={styles.demoCaption}>{row.caption}:</span>{' '}
+                  <code className={styles.demoCode}>{row.email}</code>
+                  {' / '}
+                  <code className={styles.demoCode}>{row.password}</code>
+                </div>
+              ))}
+            </div>
+          </div>
+        ) : null}
+      </div>
+    </section>
+  );
+});

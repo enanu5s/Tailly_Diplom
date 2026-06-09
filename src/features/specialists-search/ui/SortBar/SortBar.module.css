@@ -1,0 +1,148 @@
+.root {
+  display: flex;
+  justify-content: space-between;
+  align-items: stretch;
+  gap: 14px;
+  margin: 0 0 16px;
+  flex-wrap: wrap;
+}
+
+@media (min-width: 720px) {
+  .root {
+    align-items: center;
+    gap: 16px;
+    margin-bottom: 20px;
+  }
+}
+
+@media (max-width: 719px) {
+  .root {
+    flex-direction: column;
+  }
+}
+
+.sort {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex-wrap: wrap;
+  min-width: 0;
+  width: 100%;
+}
+
+@media (min-width: 720px) {
+  .sort {
+    gap: 12px;
+    width: auto;
+    flex: 1 1 auto;
+  }
+}
+
+.label {
+  font-family: 'Raleway', sans-serif;
+  font-size: 14px;
+  font-weight: 700;
+  line-height: 1.25;
+  font-feature-settings: 'pnum' on, 'lnum' on;
+  color: #6f685d;
+  width: 100%;
+  flex-basis: 100%;
+}
+
+@media (min-width: 400px) {
+  .label {
+    width: auto;
+    flex-basis: auto;
+  }
+}
+
+@media (min-width: 768px) {
+  .label {
+    font-size: 16px;
+    line-height: 19px;
+  }
+}
+
+.btn,
+.active {
+  box-sizing: border-box;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 36px;
+  height: auto;
+  padding: 6px 16px;
+  border-radius: 23px;
+  border: 1px solid #6f685d;
+  cursor: pointer;
+  font-family: 'Raleway', sans-serif;
+  font-size: 14px;
+  font-weight: 600;
+  line-height: 1.25;
+  font-feature-settings: 'pnum' on, 'lnum' on;
+  color: #211500;
+  transition: background 0.15s ease, border-color 0.15s ease;
+}
+
+.btn {
+  background: #f8f8f8;
+}
+
+.btn:hover {
+  background: #f0efe9;
+}
+
+.active {
+  background: #ffa232;
+  border-color: #ffa232;
+}
+
+.active:hover {
+  background: #ff9914;
+  border-color: #ff9914;
+}
+
+@media (min-width: 768px) {
+  .btn,
+  .active {
+    min-height: 29px;
+    height: 29px;
+    padding: 0 30px;
+    font-size: 16px;
+    line-height: 19px;
+  }
+}
+
+.mapBtn {
+  box-sizing: border-box;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 45px;
+  width: 100%;
+  padding: 10px 20px;
+  border-radius: 23px;
+  border: none;
+  background: #ccd308;
+  color: #211500;
+  cursor: pointer;
+  font-family: 'Raleway', sans-serif;
+  font-size: 15px;
+  font-weight: 600;
+  line-height: 1.25;
+  font-feature-settings: 'pnum' on, 'lnum' on;
+  transition: filter 0.15s ease;
+}
+
+@media (min-width: 720px) {
+  .mapBtn {
+    width: auto;
+    padding: 10px 30px;
+    font-size: 16px;
+    line-height: 19px;
+  }
+}
+
+.mapBtn:hover {
+  filter: brightness(0.97);
+}

@@ -1,0 +1,74 @@
+.page {
+  width: 100%;
+  margin: 0;
+  padding: 0;
+  min-height: 0;
+  font-family: 'Igra Sans', system-ui, sans-serif;
+  background: transparent;
+  display: block;
+}
+
+.container {
+  width: 100%;
+  max-width: 1520px;
+  margin: 0 auto;
+  padding: clamp(2.25rem, 5vw, 3.75rem) clamp(1rem, 2.8vw, 1.5rem) 0;
+  display: flex;
+  flex-direction: column;
+  gap: clamp(3.5rem, 8vw, 120px);
+}
+
+.block {
+  display: flex;
+  flex-direction: column;
+  gap: 40px;
+}
+
+.sectionTitle {
+  margin: 0;
+  font-size: clamp(1.65rem, 1.35rem + 1.6vw, 40px);
+  line-height: 1.06;
+  font-weight: 700;
+  color: #23150d;
+  letter-spacing: -0.02em;
+}
+
+.feedbackOnHome {
+  margin-top: clamp(3.5rem, 8vw, 6.875rem);
+}
+
+.error {
+  color: #b91c1c;
+}
+
+@media (max-width: 1023px) {
+  .container {
+    padding-top: clamp(1.75rem, 4vw, 2.25rem);
+    padding-bottom: 0;
+    gap: clamp(3rem, 7vw, 5.25rem);
+  }
+
+  .feedbackOnHome {
+    margin-top: clamp(3rem, 7vw, 5.25rem);
+  }
+}
+
+@media (max-width: 767px) {
+  .container {
+    padding: clamp(1.25rem, 4vw, 1.5rem) clamp(0.875rem, 3.5vw, 1rem) 0;
+    gap: clamp(2.5rem, 8vw, 3.875rem);
+  }
+
+  .block {
+    gap: 16px;
+  }
+
+  .sectionTitle {
+    font-size: clamp(1.45rem, 1.1rem + 2.2vw, 2.1rem);
+    line-height: 1.1;
+  }
+
+  .feedbackOnHome {
+    margin-top: clamp(2.5rem, 8vw, 3.875rem);
+  }
+}

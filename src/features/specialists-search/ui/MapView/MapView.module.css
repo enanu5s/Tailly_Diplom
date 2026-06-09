@@ -1,0 +1,83 @@
+.root {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  gap: 16px;
+  align-items: start;
+}
+
+@media (min-width: 600px) {
+  .root {
+    gap: 20px;
+  }
+}
+
+@media (min-width: 1100px) {
+  .root {
+    /* Frame 400 + Frame 562: 750 + 20 + 750 в полосе 1520px */
+    grid-template-columns: minmax(0, 750px) minmax(0, 750px);
+  }
+}
+
+.listPane {
+  box-sizing: border-box;
+  display: flex;
+  flex-direction: column;
+  max-height: min(704px, 55vh);
+  overflow: hidden;
+  background: transparent;
+  border: none;
+  border-radius: 0;
+  box-shadow: none;
+}
+
+@media (min-width: 720px) {
+  .listPane {
+    max-height: min(704px, 65vh);
+  }
+}
+
+@media (min-width: 1100px) {
+  .listPane {
+    max-height: min(704px, 70vh);
+  }
+}
+
+.list {
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+  overflow: auto;
+}
+
+.mapPane {
+  box-sizing: border-box;
+  /* Frame 562: карта в рамке */
+  overflow: hidden;
+  min-height: 280px;
+  height: min(704px, calc(100vh - 180px));
+  background: #f8f8f8;
+  border: 1px solid #c7c2ba;
+  border-radius: 20px;
+  box-shadow: none;
+}
+
+@media (min-width: 600px) {
+  .mapPane {
+    min-height: 360px;
+    height: min(704px, calc(100vh - 200px));
+  }
+}
+
+@media (min-width: 1100px) {
+  .mapPane {
+    min-height: 520px;
+    height: min(704px, calc(100vh - 220px));
+  }
+}
+
+.emptyState {
+  padding: 20px;
+  font-size: 14px;
+  color: #374151;
+}

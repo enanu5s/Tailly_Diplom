@@ -1,0 +1,13 @@
+/* src/pages/specialist-profile/ui/SpecialistProfilePage.module.css */
+
+.page {
+  min-height: calc(100vh - 160px);
+  background: #f9fafb;
+  padding: 32px 20px 80px;
+}
+
+.container {
+  width: 100%;
+  max-width: 1520px;
+  margin: 0 auto;
+}

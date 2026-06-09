@@ -1,0 +1,104 @@
+/* src/pages/shop/ui/ShopProductPage.module.css */
+.page {
+  min-height: calc(100vh - 160px);
+  padding: 24px 20px 72px;
+  background:
+    radial-gradient(circle at right 42%, rgba(255, 214, 142, 0.38), transparent 18%),
+    #f8f8f8;
+}
+
+.container {
+  max-width: 1024px;
+  margin: 0 auto;
+}
+
+.topBar {
+  margin-bottom: 24px;
+}
+
+.breadcrumbs {
+  display: none;
+}
+
+.content {
+  display: flex;
+  flex-direction: column;
+  gap: 32px;
+}
+
+.hero {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+  gap: 16px;
+  align-items: stretch;
+}
+
+.galleryCol,
+.infoCol {
+  min-width: 0;
+}
+
+.details {
+  width: 100%;
+}
+
+.stateCard {
+  padding: 36px;
+  border: 1px solid #e4ded6;
+  border-radius: 20px;
+  background: #ffffff;
+  box-shadow: 0 14px 34px rgba(33, 21, 0, 0.08);
+}
+
+.stateTitle {
+  margin: 0 0 12px;
+  color: #211500;
+  font-size: 30px;
+}
+
+.stateText {
+  margin: 0;
+  color: rgba(33, 21, 0, 0.72);
+  font-size: 16px;
+  line-height: 1.6;
+}
+
+.stateActions {
+  margin-top: 20px;
+}
+
+.backLinkButton {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 44px;
+  padding: 0 22px;
+  border-radius: 999px;
+  background: #211500;
+  color: #ffffff;
+  font-size: 14px;
+  font-weight: 600;
+  text-decoration: none;
+}
+
+@media (max-width: 1100px) {
+  .container {
+    max-width: 100%;
+  }
+
+  .hero {
+    grid-template-columns: minmax(0, 1fr) minmax(360px, 1fr);
+  }
+}
+
+@media (max-width: 900px) {
+  .hero {
+    grid-template-columns: 1fr;
+  }
+}
+
+@media (max-width: 640px) {
+  .page {
+    padding: 20px 14px 56px;
+  }
+}

@@ -1,0 +1,256 @@
+/* src/features/specialist-profile/ui/SpecialistMiniCalendar.module.css */
+.card {
+  width: 100%;
+  min-height: 584px;
+  padding: 30px;
+  background: #ffffff;
+  border-radius: 20px;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+}
+
+.header {
+  position: relative;
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  margin-bottom: 20px;
+}
+
+.title {
+  margin: 0;
+  font-family: 'Igra Sans', sans-serif;
+  font-size: 24px;
+  font-weight: 400;
+  line-height: 1.2;
+  color: #211500;
+}
+
+.editButton {
+  width: 28px;
+  height: 28px;
+  border: 0;
+  padding: 0;
+  background: transparent;
+  color: #6f685d;
+  cursor: pointer;
+}
+
+.editButton::before {
+  content: '✎';
+  display: block;
+  font-size: 24px;
+  line-height: 28px;
+}
+
+.monthControls {
+  display: grid;
+  grid-template-columns: 47px minmax(0, 1fr) 47px;
+  align-items: center;
+  gap: 0;
+  width: 100%;
+  height: 44px;
+  margin-bottom: 18px;
+}
+
+.monthLabel {
+  margin: 0;
+  font-family: 'Igra Sans', sans-serif;
+  font-size: 24px;
+  font-weight: 400;
+  line-height: 1.2;
+  text-align: center;
+  color: #211500;
+  text-transform: capitalize;
+}
+
+.monthNavButton {
+  width: 47px;
+  height: 44px;
+  border: 1px solid #c7c2ba;
+  border-radius: 10px;
+  background: #ffffff;
+  color: #6f685d;
+  font-size: 34px;
+  line-height: 1;
+  cursor: pointer;
+}
+
+.weekdays {
+  display: grid;
+  grid-template-columns: repeat(7, minmax(0, 1fr));
+  gap: 6px;
+  width: calc(100% - 30px);
+  margin: 0 auto 18px;
+}
+
+.weekday {
+  font-family: 'Raleway', sans-serif;
+  font-size: 16px;
+  font-weight: 700;
+  line-height: 1.2;
+  text-align: center;
+  color: #211500;
+}
+
+.grid {
+  display: grid;
+  grid-template-columns: repeat(7, minmax(0, 1fr));
+  gap: 6px;
+  margin-bottom: 27px;
+}
+
+.dayCell {
+  position: relative;
+  min-height: 60px;
+  border: 1px solid #c7c2ba;
+  border-radius: 10px;
+  background: #ffffff;
+  display: flex;
+  justify-content: center;
+  padding-top: 12px;
+}
+
+.dayCellCurrent {
+  border-color: #211500;
+}
+
+.dayCellEmpty {
+  border-color: #c7c2ba;
+}
+
+.dayNumber {
+  font-family: 'Rubik', sans-serif;
+  font-size: 15px;
+  font-weight: 400;
+  line-height: 18px;
+  color: #211500;
+}
+
+.dayCellEmpty .dayNumber,
+.pastDay .dayNumber {
+  color: #c7c2ba;
+}
+
+.pastDay {
+  border-color: #c7c2ba;
+}
+
+.statusAvailable {
+  border-color: #211500;
+}
+
+.statusPartiallyBooked {
+  border: 2px solid #ffa232;
+}
+
+.statusFullyBooked {
+  border-color: #c7c2ba;
+}
+
+.statusFullyBooked .dayNumber {
+  color: #c7c2ba;
+}
+
+.statusDayOff {
+  border-color: #c7c2ba;
+}
+
+.statusDayOff .dayNumber {
+  color: #c7c2ba;
+}
+
+.today {
+  border-color: #ffa232;
+}
+
+.dot {
+  position: absolute;
+  left: 50%;
+  bottom: 10px;
+  width: 8px;
+  height: 8px;
+  border-radius: 999px;
+  transform: translateX(-50%);
+}
+
+.dotBusy {
+  background: #ffa232;
+}
+
+.dotAvailable {
+  background: #ffc721;
+}
+
+.legend {
+  display: flex;
+  justify-content: center;
+  gap: 20px;
+}
+
+.legendItem {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  font-family: 'Rubik', sans-serif;
+  font-size: 15px;
+  font-weight: 400;
+  line-height: 18px;
+  color: #211500;
+}
+
+.legendDot {
+  width: 8px;
+  height: 8px;
+  border-radius: 999px;
+  flex: 0 0 auto;
+}
+
+.legendDotBusy {
+  background: #ffa232;
+}
+
+.legendDotAvailable {
+  background: #ffc721;
+}
+
+@media (max-width: 640px) {
+  .card {
+    min-height: auto;
+    padding: 20px;
+  }
+
+  .monthControls {
+    grid-template-columns: 44px minmax(0, 1fr) 44px;
+  }
+
+  .monthNavButton {
+    width: 44px;
+    height: 42px;
+  }
+
+  .monthLabel {
+    font-size: 21px;
+  }
+
+  .weekdays {
+    width: 100%;
+    gap: 4px;
+  }
+
+  .grid {
+    gap: 4px;
+  }
+
+  .dayCell {
+    min-height: 52px;
+  }
+
+  .weekday {
+    font-size: 14px;
+  }
+
+  .legend {
+    flex-wrap: wrap;
+    gap: 14px;
+  }
+}

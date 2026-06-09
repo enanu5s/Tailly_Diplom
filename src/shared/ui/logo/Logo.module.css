@@ -1,0 +1,36 @@
+.logo {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.image {
+  display: block;
+  width: 100%;
+  height: auto;
+}
+
+.text {
+  display: inline-block;
+  line-height: 1;
+}
+
+.small {
+  width: 92px;
+}
+
+.medium {
+  width: 120px;
+}
+
+.large {
+  width: 112px;
+}
+
+.light {
+  color: #ffffff;
+}
+
+.dark {
+  color: #111827;
+}

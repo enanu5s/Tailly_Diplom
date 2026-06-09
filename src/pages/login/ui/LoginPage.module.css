@@ -1,0 +1,455 @@
+/* src/pages/login/ui/LoginPage.module.css */
+
+.page {
+  position: relative;
+  overflow: hidden;
+  min-height: calc(100vh - 160px);
+  padding: 30px 24px 84px;
+  background: #f8f8f8;
+  display: grid;
+  grid-template-columns: minmax(0, 596px);
+  align-items: start;
+  justify-content: center;
+  gap: 22px;
+}
+
+.background {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+}
+
+.backgroundBlobLeft,
+.backgroundBlobRight {
+  position: absolute;
+  border-radius: 999px;
+  filter: blur(72px);
+  opacity: 0.8;
+}
+
+.backgroundBlobLeft {
+  top: 180px;
+  left: calc(50% - 340px);
+  width: 220px;
+  height: 220px;
+  background: rgba(214, 223, 135, 0.55);
+}
+
+.backgroundBlobRight {
+  top: 112px;
+  right: calc(50% - 420px);
+  width: 300px;
+  height: 300px;
+  background: rgba(248, 203, 145, 0.55);
+}
+
+.layout {
+  position: relative;
+  z-index: 1;
+  width: min(100%, 596px);
+  display: grid;
+}
+
+.backButton {
+  display: inline-flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 10px;
+  width: fit-content;
+  min-height: 40px;
+  padding: 0 22px;
+  border: 1px solid #d4cec7;
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.9);
+  color: #6d665f;
+  font-size: 16px;
+  font-weight: 500;
+  cursor: pointer;
+  transition:
+    background-color 0.2s ease,
+    border-color 0.2s ease,
+    transform 0.2s ease;
+  position: absolute;
+  top: 30px;
+  left: max(20px, calc((100vw - 1520px) / 2 + 20px));
+  z-index: 2;
+}
+
+.backButton:hover {
+  background: #ffffff;
+  border-color: #c7beb5;
+  transform: translateY(-1px);
+}
+
+.backIcon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 18px;
+  line-height: 1;
+}
+
+.stack {
+  width: min(100%, 596px);
+  margin: 0 auto;
+  display: grid;
+  gap: 12px;
+}
+
+.card {
+  position: relative;
+  width: 100%;
+  max-width: 596px;
+  background: #ffffff;
+  border-radius: 20px;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+}
+
+.cardInner {
+  position: relative;
+  width: 100%;
+  max-width: 596px;
+  height: 477px;
+  padding: 40px 60px 40px;
+  display: grid;
+  gap: 16px;
+  isolation: isolate;
+}
+
+.cardInner > * {
+  position: relative;
+  z-index: 1;
+}
+
+.header {
+  display: grid;
+  gap: 8px;
+  justify-items: center;
+}
+
+.title {
+  margin: 0;
+  width: 344px;
+  max-width: 100%;
+  color: #211500;
+  font-family: 'Igra Sans', system-ui, -apple-system, sans-serif;
+  font-style: normal;
+  font-weight: 400;
+  font-size: 40px;
+  line-height: 120%;
+  text-align: center;
+}
+
+.form {
+  display: grid;
+  gap: 16px;
+}
+
+.field {
+  display: grid;
+}
+
+.input {
+  width: 100%;
+  min-height: 48px;
+  border: 1px solid #c7c2ba;
+  border-radius: 10px;
+  background: #ffffff;
+  padding: 0 20px;
+  font-family: 'Rubik', system-ui, -apple-system, sans-serif;
+  font-size: 15px;
+  color: #211500;
+  outline: none;
+  transition:
+    border-color 0.2s ease,
+    box-shadow 0.2s ease,
+    background-color 0.2s ease;
+}
+
+.input::placeholder {
+  color: #6f685d;
+}
+
+.input:focus {
+  border-color: #b39a83;
+  box-shadow: 0 0 0 4px rgba(115, 78, 34, 0.08);
+  background: #ffffff;
+}
+
+.optionsRow {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px 18px;
+  flex-wrap: wrap;
+}
+
+.checkboxRow {
+  display: inline-flex;
+  align-items: center;
+  gap: 12px;
+  cursor: pointer;
+}
+
+.checkbox {
+  width: 16px;
+  height: 16px;
+  margin: 0;
+  accent-color: #2f1a00;
+  cursor: pointer;
+}
+
+.checkboxLabel {
+  color: #211500;
+  font-family: 'Rubik', system-ui, -apple-system, sans-serif;
+  font-size: 15px;
+  line-height: 1;
+}
+
+.inlineLink {
+  border: none;
+  background: transparent;
+  color: #6f685d;
+  font-family: 'Rubik', system-ui, -apple-system, sans-serif;
+  font-size: 15px;
+  line-height: 1;
+  text-decoration: underline;
+  padding: 0;
+  cursor: pointer;
+  transition: color 0.2s ease;
+}
+
+.inlineLink:hover {
+  color: #6e6155;
+}
+
+.attempts,
+.infoBanner,
+.error {
+  border-radius: 14px;
+  padding: 12px 14px;
+  font-size: 14px;
+  line-height: 1.45;
+}
+
+.attempts {
+  background: #fff4e8;
+  color: #9a4e16;
+}
+
+.infoBanner {
+  background: #eef5ff;
+  color: #1d4f91;
+}
+
+.error {
+  background: #fff1f1;
+  color: #b42318;
+}
+
+.frame305Decor {
+  position: absolute;
+  width: 101px;
+  height: 154px;
+  left: 0;
+  top: 323px;
+  z-index: 0;
+  pointer-events: none;
+  user-select: none;
+  border-radius: 20px;
+}
+
+.submitButton {
+  width: 300px;
+  justify-self: center;
+  min-height: 45px;
+  border: none;
+  border-radius: 23px;
+  background: #211500;
+  color: #ffffff;
+  font-family: 'Raleway', system-ui, -apple-system, sans-serif;
+  font-size: 16px;
+  font-weight: 600;
+  cursor: pointer;
+  transition:
+    transform 0.2s ease,
+    opacity 0.2s ease,
+    box-shadow 0.2s ease;
+  box-shadow: none;
+}
+
+.submitButton:hover:not(:disabled) {
+  transform: translateY(-1px);
+}
+
+.submitButton:disabled {
+  opacity: 0.65;
+  cursor: not-allowed;
+  box-shadow: none;
+}
+
+.demoDisclosure {
+  margin-top: 2px;
+}
+
+/* .demoSummary {
+  color: #6f685d;
+  font-size: 13px;
+  cursor: pointer;
+  user-select: none;
+} */
+
+.demoBlock {
+  display: grid;
+  gap: 12px;
+  border-radius: 20px;
+  background: #f8f6f4;
+  padding: 12px 14px;
+}
+
+.demoList {
+  display: grid;
+  gap: 10px;
+}
+
+.demoItem {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 6px;
+  color: #6f645d;
+  font-size: 14px;
+  line-height: 1.5;
+}
+
+.demoCaption {
+  color: #5f554e;
+}
+
+.demoDivider {
+  color: #8b8179;
+}
+
+.demoCode {
+  font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, 'Liberation Mono',
+    'Courier New', monospace;
+  font-size: 13px;
+  color: #2b211b;
+  background: #ede7e1;
+  padding: 3px 8px;
+  border-radius: 8px;
+}
+
+.registerCard {
+  background: #ffffff;
+  border-radius: 20px;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+  padding: 14px 32px 16px;
+  display: grid;
+  justify-items: center;
+  gap: 10px;
+}
+
+.registerText {
+  margin: 0;
+  color: #6f685d;
+  font-family: 'Rubik', system-ui, -apple-system, sans-serif;
+  font-size: 15px;
+  line-height: 1;
+}
+
+.registerButton {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 240px;
+  min-height: 45px;
+  padding: 0 24px;
+  border: 1px solid #6f685d;
+  border-radius: 999px;
+  background: #ffffff;
+  color: #211500;
+  font-family: 'Raleway', system-ui, -apple-system, sans-serif;
+  font-size: 16px;
+  font-weight: 600;
+  text-decoration: none;
+  transition:
+    background-color 0.2s ease,
+    border-color 0.2s ease,
+    transform 0.2s ease;
+}
+
+.registerButton:hover {
+  background: #faf7f3;
+  border-color: #a89c92;
+  transform: translateY(-1px);
+}
+
+@media (max-width: 768px) {
+  .page {
+    padding: 20px 16px 64px;
+    grid-template-columns: minmax(0, 596px);
+    justify-content: center;
+    gap: 16px;
+  }
+
+  .backgroundBlobLeft {
+    top: 220px;
+    left: -50px;
+    width: 180px;
+    height: 180px;
+  }
+
+  .backgroundBlobRight {
+    top: 120px;
+    right: -70px;
+    width: 220px;
+    height: 220px;
+  }
+
+  .stack {
+    max-width: 100%;
+  }
+
+  .backButton {
+    position: relative;
+    top: auto;
+    left: auto;
+    justify-self: start;
+  }
+
+  .cardInner {
+    padding: 30px 20px 24px;
+  }
+
+  .title {
+    width: 100%;
+    font-size: 32px;
+  }
+
+  .optionsRow {
+    align-items: flex-start;
+    flex-direction: column;
+    gap: 10px;
+  }
+
+  .submitButton {
+    width: 100%;
+  }
+
+  .frame305Decor {
+    left: 0;
+    bottom: 0;
+    width: 120px;
+    height: auto;
+  }
+
+  .registerCard {
+    padding: 20px;
+  }
+
+  .registerButton {
+    width: 100%;
+    min-width: 0;
+  }
+}

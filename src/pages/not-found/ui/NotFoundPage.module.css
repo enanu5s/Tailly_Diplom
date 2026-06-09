@@ -1,0 +1,331 @@
+.page {
+  min-height: calc(100vh - 120px);
+  padding: 40px 20px 72px;
+  background: linear-gradient(180deg, #f8faff 0%, #f9fafb 100%);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.card {
+  width: 100%;
+  max-width: 1280px;
+  display: grid;
+  grid-template-columns: minmax(0, 1.1fr) minmax(320px, 0.9fr);
+  gap: 24px;
+  align-items: stretch;
+  padding: 32px;
+  border: 1px solid rgba(99, 102, 241, 0.08);
+  border-radius: 24px;
+  background: #ffffff;
+  box-shadow: 0 20px 60px rgba(17, 24, 39, 0.08);
+}
+
+.left {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+}
+
+.codeRow {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 16px;
+}
+
+.code {
+  font-size: clamp(56px, 10vw, 112px);
+  line-height: 0.9;
+  font-weight: 800;
+  color: #111827;
+}
+
+.zeroWrap {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.zeroOuter {
+  width: clamp(72px, 10vw, 112px);
+  height: clamp(72px, 10vw, 112px);
+  border-radius: 999px;
+  background: linear-gradient(135deg, #6366f1 0%, #818cf8 100%);
+  padding: 8px;
+}
+
+.zeroInner {
+  width: 100%;
+  height: 100%;
+  border-radius: 999px;
+  background: #ffffff;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.paw {
+  font-size: clamp(28px, 4vw, 42px);
+}
+
+.badge {
+  align-self: flex-start;
+  margin-bottom: 16px;
+  padding: 8px 14px;
+  border-radius: 999px;
+  background: #eef2ff;
+  color: #4f46e5;
+  font-size: 14px;
+  font-weight: 600;
+}
+
+.title {
+  margin: 0 0 12px;
+  font-size: clamp(30px, 4vw, 44px);
+  line-height: 1.1;
+  font-weight: 800;
+  color: #111827;
+}
+
+.description {
+  margin: 0 0 10px;
+  font-size: 17px;
+  line-height: 1.6;
+  color: #374151;
+}
+
+.hint {
+  margin: 0 0 24px;
+  font-size: 15px;
+  line-height: 1.6;
+  color: #6b7280;
+}
+
+.actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+  margin-bottom: 24px;
+}
+
+.primaryButton,
+.secondaryButton,
+.ghostButton {
+  min-height: 46px;
+  padding: 0 18px;
+  border-radius: 14px;
+  font-size: 15px;
+  font-weight: 600;
+  text-decoration: none;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition:
+    transform 0.2s ease,
+    background-color 0.2s ease,
+    border-color 0.2s ease;
+}
+
+.primaryButton {
+  border: none;
+  background: #6366f1;
+  color: #ffffff;
+}
+
+.primaryButton:hover {
+  background: #5558ee;
+  transform: translateY(-1px);
+}
+
+.secondaryButton {
+  border: 1px solid #c7d2fe;
+  background: #eef2ff;
+  color: #4338ca;
+}
+
+.secondaryButton:hover {
+  background: #e5eaff;
+  transform: translateY(-1px);
+}
+
+.ghostButton {
+  border: 1px solid #e5e7eb;
+  background: #ffffff;
+  color: #374151;
+}
+
+.ghostButton:hover {
+  border-color: #d1d5db;
+  transform: translateY(-1px);
+}
+
+.meta {
+  display: grid;
+  gap: 12px;
+}
+
+.metaItem {
+  padding: 14px 16px;
+  border: 1px solid #eef2f7;
+  border-radius: 16px;
+  background: #f8fafc;
+}
+
+.metaLabel {
+  display: block;
+  margin-bottom: 4px;
+  font-size: 12px;
+  font-weight: 700;
+  text-transform: uppercase;
+  color: #9ca3af;
+}
+
+.metaValue {
+  display: block;
+  font-size: 14px;
+  line-height: 1.5;
+  color: #374151;
+  word-break: break-word;
+}
+
+.right {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.illustration {
+  width: 100%;
+  min-height: 360px;
+  border-radius: 24px;
+  border: 1px solid rgba(99, 102, 241, 0.08);
+  background: linear-gradient(180deg, #eef2ff 0%, #ffffff 100%);
+  padding: 24px;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  gap: 16px;
+}
+
+.petCard {
+  display: flex;
+  gap: 16px;
+  align-items: center;
+  padding: 20px;
+  border-radius: 20px;
+  background: #ffffff;
+  box-shadow: 0 12px 32px rgba(17, 24, 39, 0.08);
+}
+
+.petAvatar {
+  width: 72px;
+  height: 72px;
+  border-radius: 18px;
+  background: #eef2ff;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 34px;
+  flex-shrink: 0;
+}
+
+.petTextBlock {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.petTitle {
+  font-size: 20px;
+  font-weight: 800;
+  color: #111827;
+}
+
+.petText {
+  font-size: 14px;
+  line-height: 1.5;
+  color: #6b7280;
+}
+
+.floatingCardTop,
+.floatingCardBottom {
+  padding: 12px 14px;
+  border-radius: 16px;
+  background: #ffffff;
+  box-shadow: 0 10px 24px rgba(17, 24, 39, 0.06);
+  color: #374151;
+  font-size: 14px;
+  font-weight: 600;
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  width: fit-content;
+}
+
+.floatingEmoji {
+  font-size: 18px;
+}
+
+.trail {
+  display: flex;
+  gap: 10px;
+  opacity: 0.9;
+}
+
+.trailPaw {
+  font-size: 24px;
+}
+
+.backgroundGlow,
+.backgroundGlowSecondary,
+.blob {
+  display: none;
+}
+
+@media (max-width: 980px) {
+  .card {
+    grid-template-columns: 1fr;
+  }
+
+  .right {
+    order: -1;
+  }
+
+  .illustration {
+    min-height: auto;
+  }
+}
+
+@media (max-width: 640px) {
+  .page {
+    padding: 24px 16px 56px;
+    min-height: auto;
+  }
+
+  .card {
+    padding: 20px;
+    border-radius: 20px;
+  }
+
+  .actions {
+    flex-direction: column;
+  }
+
+  .primaryButton,
+  .secondaryButton,
+  .ghostButton {
+    width: 100%;
+  }
+
+  .petCard {
+    padding: 16px;
+  }
+
+  .petAvatar {
+    width: 60px;
+    height: 60px;
+    font-size: 28px;
+  }
+}

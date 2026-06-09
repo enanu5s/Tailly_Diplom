@@ -1,0 +1,68 @@
+/* src/features/shop/ui/CartSummary/CartSummary.module.css */
+.card {
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+  padding: 20px;
+  border-radius: 16px;
+  background: #ffffff;
+  box-shadow: 0 8px 24px rgba(33, 21, 0, 0.08);
+}
+
+.title {
+  margin: 0;
+  color: #211500;
+  font-size: 24px;
+  font-weight: 500;
+}
+
+.rows {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.row {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 16px;
+}
+
+.label {
+  color: #6f685d;
+  font-size: 14px;
+  font-weight: 600;
+}
+
+.value {
+  color: #211500;
+  font-size: 15px;
+  font-weight: 800;
+}
+
+.total {
+  color: #211500;
+  font-size: 24px;
+  font-weight: 500;
+}
+
+.hint {
+  margin: 0;
+  color: #6f685d;
+  font-size: 13px;
+  line-height: 1.5;
+}
+
+.checkoutButton {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 38px;
+  border-radius: 999px;
+  background: #211500;
+  color: #ffffff;
+  font-size: 14px;
+  font-weight: 700;
+  text-decoration: none;
+}

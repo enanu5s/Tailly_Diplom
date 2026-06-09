@@ -7,9 +7,12 @@ yarn-error.log*
 pnpm-debug.log*
 lerna-debug.log*
 
+# Dependencies / build
 node_modules
 dist
 dist-ssr
+
+# Local-only files
 *.local
 
 # Editor directories and files
@@ -22,3 +25,8 @@ dist-ssr
 *.njsproj
 *.sln
 *.sw?
+
+# Секреты и локальные переменные (в т.ч. VITE_2GIS_API_KEY) — только в .env, не коммитить
+.env
+.env.*
+!.env.example

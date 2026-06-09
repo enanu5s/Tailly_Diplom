@@ -1,0 +1,207 @@
+// src/shared/mock-db/seed/cms.seed.ts
+/** Единый сид постов и баннеров админки (источник для MockDbSnapshot.cms и re-export в фичах). */
+
+import type { AdminManagedBanner, AdminManagedPost } from '@/features/admin-posts-banners-management/model/types';
+
+/** Увеличивайте при изменении `SEED_CMS_POSTS` / `SEED_CMS_BANNERS`, чтобы mock-база подтянула свежий сид. */
+export const SEED_CMS_DATA_REVISION = 2 as const;
+
+export const SEED_CMS_POSTS: AdminManagedPost[] = [
+  {
+    id: 'admin-post-1',
+    title: 'Как подготовить питомца к первой передержке',
+    content:
+      'Передержка может стать стрессом для животного, если его не подготовить заранее. Познакомьте питомца с ситтером до заселения, передайте привычные вещи, составьте понятный режим прогулок и кормления, а также заранее расскажите о реакциях питомца на чужих людей, шум и новую обстановку. Отдельно согласуйте правила кошек и собак: двери, «безопасные зоны», куда нельзя заходить, и кто убирает после прогулки. Если питомец пьёт лекарства, оставьте дозировку в письменном виде и покажите, как это обычно делается дома — так меньше риск ошибок в чужой среде. В первые сутки лучше не вводить резкие новшества: оставьте привычный корм, любимую игрушку и спокойный сценарий знакомства, а все эксперименты отложите на потом, когда питомец поймёт, что ситуация предсказуема.',
+    imageUrls: ['/images/home/54.png'],
+    coverImageUrl: '/images/home/s-boarding.png',
+    tags: ['уход', 'передержка'],
+    status: 'published',
+    publishedAt: '2026-02-20T10:00:00.000Z',
+    createdAt: '2026-02-19T18:00:00.000Z',
+    updatedAt: '2026-02-20T10:00:00.000Z',
+  },
+  {
+    id: 'admin-post-2',
+    title: '5 признаков хорошего петситтера',
+    content: 'Вопросы, отчёты, безопасность — и спокойствие вам.',
+    imageUrls: [
+      '/images/home/32.jpg',
+    ],
+    coverImageUrl: '/images/home/32.jpg',
+    tags: ['советы'],
+    status: 'published',
+    publishedAt: '2026-02-18T14:30:00.000Z',
+    createdAt: '2026-02-18T10:30:00.000Z',
+    updatedAt: '2026-02-18T14:30:00.000Z',
+  },
+  {
+    id: 'admin-post-3',
+    title: 'Новый раздел с рекомендациями для владельцев',
+    content:
+      'Мы готовим отдельную подборку материалов для владельцев животных: инструкции, памятки, чек-листы и советы по взаимодействию со специалистами. Материал находится в черновике и будет опубликован после финальной редакторской проверки. В плане — сценарии “первого дня”, мини-гайды по кормам и вакцинации, а также отдельные заметки про кошек и собак, чтобы владельцу было проще сравнить ожидания. После публикации мы добавим короткие “оглавления” внутри длинных материалов, чтобы важные пункты можно было открывать с телефона без бесконечного скролла.',
+    imageUrls: [
+      '/images/home/s-grooming.png',
+      '/images/home/feedback-cat-blob.png',
+    ],
+    coverImageUrl: '/images/home/s-grooming.png',
+    tags: ['новости', 'платформа'],
+    status: 'draft',
+    createdAt: '2026-03-10T09:00:00.000Z',
+    updatedAt: '2026-03-10T09:00:00.000Z',
+  },
+  {
+    id: 'admin-post-4',
+    title: 'Зимняя прогулка с собакой: что учесть',
+    content:
+      'Короткий день, снег, соль и обледенение: зимние риски заметно отличаются от “обычных” прогулок. Используйте снаряжение, хорошо читаемое в сумерках, смотрите, чтобы ошейник/шлейка не натирала шерсть от влажного снега, и планируйте маршрут так, чтобы собака не скользила на льду. После улицы промойте лапы, проверьте пальцы и пространство между ними, особенно если в городе активно сыплют реагенты. Если питомцу дискомфортно на холоду, укоротите сессии и больше грейте “по ощущениям”, а не “по графику”.',
+    imageUrls: [
+      '/images/home/s-walk.jpg',
+    ],
+    coverImageUrl: '/images/home/s-walk.jpg',
+    tags: ['собаки', 'прогулка', 'зима'],
+    status: 'published',
+    publishedAt: '2026-03-15T11:00:00.000Z',
+    createdAt: '2026-03-14T10:00:00.000Z',
+    updatedAt: '2026-03-15T11:00:00.000Z',
+  },
+  {
+    id: 'admin-post-5',
+    title: 'Аптечка для питомца при передержке',
+    content: 'Список лекарств, ветконтакты, аллергии, паразиты — письменно.',
+    imageUrls: [
+      '/images/home/43.jpg',
+    ],
+    coverImageUrl: '/images/home/43.jpg',
+    tags: ['уход', 'здоровье', 'передержка'],
+    status: 'published',
+    publishedAt: '2026-03-16T08:30:00.000Z',
+    createdAt: '2026-03-15T14:00:00.000Z',
+    updatedAt: '2026-03-16T08:30:00.000Z',
+  },
+  {
+    id: 'admin-post-6',
+    title: 'Как читать сигналы стресса у кошки',
+    content:
+      'Кошка редко “кричит” словами — она говорит телом: зрачки, уши, хвост, дыхание. Если питомец “сжимается”, уходит под мебель или начинает часто лизать лапу, снизьте нагрузку: меньше зрительного контакта, больше расстояния, меньше попыток “сразу дружить”. Создайте “базу спокойствия” в отдельной зоне с едой, водой, лотком и укрытием — даже в чужом доме это сильно снижает фоновый стресс. Старайтесь держать распорядок предсказуемым: кормление, игры и уборка лотка в одно и то же время, без хаотичного “проверяю, как поживает киса каждые 5 минут”.',
+    imageUrls: ['/images/home/feedback-cat-blob.jpg'],
+    coverImageUrl: '/images/home/feedback-cat-blob.jpg',
+    tags: ['кошки', 'поведение'],
+    status: 'published',
+    publishedAt: '2026-03-17T12:00:00.000Z',
+    createdAt: '2026-03-16T18:00:00.000Z',
+    updatedAt: '2026-03-17T12:00:00.000Z',
+  },
+  {
+    id: 'admin-post-7',
+    title: 'Знакомство двух животных: пошагово',
+    content: 'Сначала запахи, потом короткие встречи.',
+    imageUrls: [
+      '/images/home/s-boarding.jpg',
+      
+    ],
+    coverImageUrl: '/images/home/s-boarding.jpg',
+    tags: ['советы', 'поведение'],
+    status: 'published',
+    publishedAt: '2026-03-18T09:15:00.000Z',
+    createdAt: '2026-03-17T11:00:00.000Z',
+    updatedAt: '2026-03-18T09:15:00.000Z',
+  },
+  {
+    id: 'admin-post-8',
+    title: 'Питание в дороге: контейнеры и вода',
+    content:
+      'Смена рациона “на бегу” — частая причина расстройств. Берите привычный корм порциями, разложите сухой запас в отдельный контейнер, а влажный/домашнюю еду пакуйте с датой и этапом поездки. Пейте/кормите малыми порциями, делайте паузы, следите, чтобы питомец не перегревался в салоне. В жару выбирайте тень, на морозе — сократите “холодные” остановки и смотрите, чтобы вода не была слишком ледяной. Возьмите пакеты, салфетки, одноразовую посуду и запас “аварийного” питания на случай задержек.',
+    imageUrls: [
+      '/images/home/static-hero-banner.jpg',
+      
+    ],
+    coverImageUrl: '/images/home/static-hero-banner.jpg',
+    tags: ['путешествия', 'уход'],
+    status: 'published',
+    publishedAt: '2026-03-19T07:45:00.000Z',
+    createdAt: '2026-03-18T16:20:00.000Z',
+    updatedAt: '2026-03-19T07:45:00.000Z',
+  },
+  {
+    id: 'admin-post-9',
+    title: 'Документы и ветпаспорт перед выездом',
+    content: 'Сроки прививок — заранее. Копии — в облаке.',
+    imageUrls: ['/images/home/s-photoshoot.png'],
+    coverImageUrl: '/images/home/s-photoshoot.png',
+    tags: ['советы', 'документы'],
+    status: 'published',
+    publishedAt: '2026-03-20T10:20:00.000Z',
+    createdAt: '2026-03-19T20:00:00.000Z',
+    updatedAt: '2026-03-20T10:20:00.000Z',
+  },
+];
+
+export const SEED_CMS_BANNERS: AdminManagedBanner[] = [
+  {
+    id: 'banner-1',
+    title: 'Найдите проверенного петситтера рядом',
+    description: 'Главный баннер на главной странице с переходом в поиск специалистов.',
+    imageUrl: '/images/banner-home-hero.png',
+    linkUrl: '/services?service=boarding',
+    linkTarget: 'specialists',
+    placement: 'home_hero',
+    status: 'published',
+    startsAt: '2026-03-01T00:00:00.000Z',
+    createdAt: '2026-03-01T08:00:00.000Z',
+    updatedAt: '2026-03-01T08:00:00.000Z',
+  },
+  {
+    id: 'banner-home-post-4',
+    title: 'Зимние прогулки: безопасность и комфорт',
+    description: 'Короткая памятка для владельцев собак в холодный сезон.',
+    imageUrl: '/images/banner-posts.png',
+    linkUrl: '/posts/admin-post-4',
+    linkTarget: 'posts',
+    linkedPostId: 'admin-post-4',
+    placement: 'home_hero',
+    status: 'published',
+    startsAt: '2026-03-14T00:00:00.000Z',
+    createdAt: '2026-03-14T09:00:00.000Z',
+    updatedAt: '2026-03-14T09:00:00.000Z',
+  },
+  {
+    id: 'banner-home-post-5',
+    title: 'Соберите аптечку перед передержкой',
+    description: 'Что положить в дорожный набор для питомца — в статье.',
+    imageUrl: '/images/banner-specialists.png',
+    linkUrl: '/posts/admin-post-5',
+    linkTarget: 'posts',
+    linkedPostId: 'admin-post-5',
+    placement: 'home_hero',
+    status: 'published',
+    startsAt: '2026-03-15T00:00:00.000Z',
+    createdAt: '2026-03-15T10:00:00.000Z',
+    updatedAt: '2026-03-15T10:00:00.000Z',
+  },
+  {
+    id: 'banner-2',
+    title: 'Полезные статьи по уходу за питомцами',
+    description: 'Баннер внутри раздела постов для повышения просмотров публикаций.',
+    imageUrl: '/images/banner-posts.png',
+    linkUrl: '/posts/admin-post-1',
+    linkTarget: 'posts',
+    linkedPostId: 'admin-post-1',
+    placement: 'posts',
+    status: 'published',
+    startsAt: '2026-03-05T00:00:00.000Z',
+    createdAt: '2026-03-04T12:00:00.000Z',
+    updatedAt: '2026-03-05T00:00:00.000Z',
+  },
+  {
+    id: 'banner-3',
+    title: 'Весенний спецпроект',
+    description: 'Черновой баннер для будущей кампании в каталоге специалистов.',
+    imageUrl: '/images/banner-specialists.png',
+    linkUrl: '/specialists',
+    linkTarget: 'specialists',
+    placement: 'specialists',
+    status: 'draft',
+    createdAt: '2026-03-12T13:20:00.000Z',
+    updatedAt: '2026-03-12T13:20:00.000Z',
+  },
+];

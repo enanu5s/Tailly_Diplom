@@ -1,0 +1,389 @@
+.page {
+  position: relative;
+  overflow: hidden;
+  min-height: 716px;
+  background: #f8f8f8;
+  padding: 30px 20px 110px;
+  box-sizing: border-box;
+}
+
+.page::before,
+.page::after {
+  content: '';
+  position: absolute;
+  width: 120px;
+  height: 120px;
+  border-radius: 50%;
+  filter: blur(70px);
+  pointer-events: none;
+}
+
+.page::before {
+  left: 31.2%;
+  top: 128px;
+  background: #ccd308;
+}
+
+.page::after {
+  right: 31.4%;
+  top: 328px;
+  background: #ffa232;
+}
+
+.container {
+  position: relative;
+  max-width: 1520px;
+  min-height: 576px;
+  margin: 0 auto;
+  z-index: 1;
+}
+
+.backBtn {
+  box-sizing: border-box;
+  position: absolute;
+  left: 0;
+  top: 0;
+  width: 134px;
+  height: 45px;
+  border: 1px solid #c7c2ba;
+  border-radius: 23px;
+  background: transparent;
+  color: #6f685d;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+  font-family: 'Raleway', sans-serif;
+  font-size: 16px;
+  font-weight: 600;
+  line-height: 19px;
+  font-feature-settings: 'pnum' on, 'lnum' on;
+  cursor: pointer;
+}
+
+.backIcon {
+  flex: 0 0 auto;
+}
+
+.card {
+  position: absolute;
+  left: 50%;
+  top: 85px;
+  transform: translateX(-50%);
+  width: 596px;
+  height: 478px;
+  background: #ffffff;
+  border-radius: 20px;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+}
+
+.cardConfirm {
+  box-sizing: border-box;
+  height: auto;
+  min-height: 384px;
+  padding: 40px 60px 40px;
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+/* Step 2: column layout so banners do not overlap the form */
+.cardConfirm .h2 {
+  position: static;
+  transform: none;
+  width: 100%;
+  max-width: none;
+  margin: 0;
+}
+
+.cardConfirm .lead,
+.cardConfirm .leadConfirm {
+  position: static;
+  transform: none;
+  left: auto;
+  right: auto;
+  width: 100%;
+  max-width: 482px;
+  margin: 0 auto;
+}
+
+.cardConfirm .field {
+  position: static;
+  width: 100%;
+}
+
+.cardConfirm .infoBanner,
+.cardConfirm .mockHint,
+.cardConfirm .error {
+  position: static;
+}
+
+.cardConfirm .primaryBtn {
+  position: static;
+  left: auto;
+  right: auto;
+  width: 100%;
+  margin-top: 6px;
+}
+
+.h2 {
+  position: absolute;
+  left: 50%;
+  top: 40px;
+  transform: translateX(-50%);
+  width: max-content;
+  max-width: calc(100% - 120px);
+  margin: 0;
+  font-family: 'Igra Sans', sans-serif;
+  font-size: 40px;
+  font-weight: 400;
+  line-height: 1.2;
+  color: #211500;
+  text-align: center;
+}
+
+.lead {
+  position: absolute;
+  left: 60px;
+  right: 60px;
+  top: 107px;
+  margin: 0;
+  font-family: 'Rubik', sans-serif;
+  font-size: 15px;
+  font-weight: 400;
+  line-height: 18px;
+  text-align: center;
+  color: #211500;
+}
+
+.leadConfirm {
+  left: 50%;
+  right: auto;
+  width: min(482px, calc(100% - 120px));
+  transform: translateX(-50%);
+}
+
+.rowNewEmail {
+  top: 159px;
+}
+
+.rowPassword {
+  top: 271px;
+}
+
+.rowCode {
+  top: 177px;
+}
+
+.field {
+  position: absolute;
+  left: 60px;
+  width: 476px;
+}
+
+.label {
+  margin: 0 0 15px;
+  font-family: 'Raleway', sans-serif;
+  font-size: 16px;
+  font-weight: 700;
+  line-height: 19px;
+  font-feature-settings: 'pnum' on, 'lnum' on;
+  text-align: left;
+  color: #6f685d;
+}
+
+.passRow {
+  position: relative;
+}
+
+.input {
+  box-sizing: border-box;
+  width: 100%;
+  height: 48px;
+  margin-top: 0;
+  border: 1px solid #c7c2ba;
+  border-radius: 10px;
+  padding: 0 54px 0 20px;
+  background: #ffffff;
+  font-family: 'Rubik', sans-serif;
+  font-size: 15px;
+  line-height: 18px;
+  color: #211500;
+  outline: none;
+}
+
+.passRow .input {
+  margin-top: 0;
+}
+
+.inputPlain {
+  padding-right: 20px;
+}
+
+.input::placeholder {
+  color: #6f685d;
+  opacity: 1;
+}
+
+.eyeBtn {
+  position: absolute;
+  right: 20px;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 22px;
+  height: 22px;
+  padding: 0;
+  border: 0;
+  background: transparent;
+  color: #211500;
+  cursor: pointer;
+}
+
+.primaryBtn {
+  position: absolute;
+  left: 154px;
+  right: 154px;
+  top: 393px;
+  height: 45px;
+  padding: 10px 30px;
+  border-radius: 23px;
+  border: none;
+  cursor: pointer;
+  background: #211500;
+  color: #f8f8f8;
+  font-family: 'Raleway', sans-serif;
+  font-size: 16px;
+  font-weight: 600;
+  line-height: 19px;
+  text-align: center;
+  font-feature-settings: 'pnum' on, 'lnum' on;
+}
+
+.primaryBtn:disabled {
+  cursor: not-allowed;
+  opacity: 0.6;
+}
+
+.error {
+  position: absolute;
+  left: 60px;
+  right: 60px;
+  top: 352px;
+  padding: 10px 12px;
+  border-radius: 12px;
+  background: rgba(226, 11, 11, 0.05);
+  color: #e20b0b;
+  font-family: 'Rubik', sans-serif;
+  font-size: 14px;
+}
+
+.infoBanner {
+  position: absolute;
+  left: 60px;
+  right: 60px;
+  top: 318px;
+  padding: 10px 12px;
+  border-radius: 12px;
+  background: rgba(204, 211, 8, 0.18);
+  color: #211500;
+  font-family: 'Rubik', sans-serif;
+  font-size: 14px;
+  line-height: 1.45;
+}
+
+.mockHint {
+  position: absolute;
+  left: 60px;
+  right: 60px;
+  top: 330px;
+  padding: 10px 12px;
+  border-radius: 12px;
+  background: rgba(33, 21, 0, 0.06);
+  color: #211500;
+  font-family: 'Rubik', sans-serif;
+  font-size: 14px;
+  line-height: 1.45;
+}
+
+.mockHintCode {
+  font-weight: 600;
+}
+
+.stateCard {
+  position: relative;
+  z-index: 1;
+  margin-top: 120px;
+  padding: 24px;
+  text-align: center;
+  font-family: 'Rubik', sans-serif;
+  color: #6f685d;
+}
+
+@media (max-width: 760px) {
+  .page {
+    min-height: auto;
+    padding: 24px 16px 72px;
+  }
+
+  .container {
+    min-height: auto;
+  }
+
+  .backBtn,
+  .card,
+  .field,
+  .primaryBtn,
+  .error,
+  .infoBanner,
+  .mockHint,
+  .h2,
+  .lead,
+  .input {
+    position: static;
+    transform: none;
+    left: auto;
+    right: auto;
+    top: auto;
+  }
+
+  .card {
+    width: 100%;
+    height: auto;
+    margin-top: 28px;
+    padding: 28px 20px 32px;
+  }
+
+  .h2 {
+    margin: 0 auto 16px;
+    font-size: 32px;
+  }
+
+  .lead {
+    margin-bottom: 20px;
+  }
+
+  .field {
+    width: 100%;
+    margin-bottom: 8px;
+  }
+
+  .label {
+    margin-bottom: 10px;
+  }
+
+  .input {
+    position: relative;
+    margin-bottom: 18px;
+  }
+
+  .primaryBtn {
+    width: 100%;
+    margin-top: 12px;
+  }
+
+  .error,
+  .infoBanner,
+  .mockHint {
+    margin-bottom: 12px;
+  }
+}

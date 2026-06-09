@@ -1,0 +1,82 @@
+/* src/pages/app-error/AppErrorPage.module.css */
+.page {
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 24px;
+  background: #f8fafc;
+}
+
+.card {
+  width: 100%;
+  max-width: 560px;
+  padding: 32px;
+  border-radius: 20px;
+  background: #ffffff;
+  box-shadow: 0 20px 60px rgba(15, 23, 42, 0.08);
+  text-align: center;
+}
+
+.code {
+  margin: 0 0 12px;
+  font-size: 14px;
+  line-height: 20px;
+  color: #6366f1;
+}
+
+.title {
+  margin: 0 0 16px;
+  font-size: 32px;
+  line-height: 1.2;
+  color: #0f172a;
+}
+
+.description {
+  margin: 0;
+  font-size: 16px;
+  line-height: 1.6;
+  color: #475569;
+}
+
+.actions {
+  display: flex;
+  gap: 12px;
+  justify-content: center;
+  margin-top: 28px;
+  flex-wrap: wrap;
+}
+
+.primaryButton,
+.secondaryButton {
+  min-width: 160px;
+  border: none;
+  border-radius: 14px;
+  padding: 14px 18px;
+  font: inherit;
+  font-weight: 600;
+  cursor: pointer;
+  transition:
+    transform 0.2s ease,
+    box-shadow 0.2s ease,
+    background-color 0.2s ease;
+}
+
+.primaryButton {
+  background: #6366f1;
+  color: #ffffff;
+  box-shadow: 0 12px 24px rgba(99, 102, 241, 0.22);
+}
+
+.primaryButton:hover {
+  transform: translateY(-1px);
+}
+
+.secondaryButton {
+  background: #e2e8f0;
+  color: #0f172a;
+}
+
+.secondaryButton:hover {
+  transform: translateY(-1px);
+}

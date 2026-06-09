@@ -1,0 +1,258 @@
+/* src/pages/shop-orders/ui/ShopOrdersPage.module.css — макет «Заказы из магазина» */
+
+.page {
+  box-sizing: border-box;
+  min-height: calc(100vh - 100px);
+  padding: 30px 20px 106px;
+  background: #f8f8f8;
+}
+
+.container {
+  box-sizing: border-box;
+  max-width: 1520px;
+  margin: 0 auto;
+}
+
+.pageHeader {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 30px;
+  margin-bottom: 30px;
+}
+
+.title {
+  margin: 0;
+  color: #211500;
+  font-family: 'Igra Sans', serif;
+  font-size: 40px;
+  font-weight: 400;
+  line-height: 120%;
+}
+
+.stateCard {
+  padding: 32px 30px;
+  border-radius: 20px;
+  background: #ffffff;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+}
+
+.stateTitle {
+  margin: 0 0 10px;
+  color: #211500;
+  font-family: 'Igra Sans', serif;
+  font-size: 24px;
+  font-weight: 400;
+  line-height: 120%;
+}
+
+.stateText {
+  margin: 0;
+  color: #6f685d;
+  font-family: 'Rubik', sans-serif;
+  font-size: 15px;
+  line-height: 1.5;
+}
+
+.stateLink {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  margin-top: 20px;
+  min-height: 45px;
+  padding: 10px 30px;
+  border: 1px solid #6f685d;
+  border-radius: 23px;
+  background: #ffffff;
+  color: #211500;
+  text-decoration: none;
+  font-family: 'Raleway', sans-serif;
+  font-size: 16px;
+  font-weight: 600;
+  line-height: 19px;
+  cursor: pointer;
+  font-feature-settings: 'pnum' on, 'lnum' on;
+  transition:
+    background-color 0.2s ease,
+    border-color 0.2s ease;
+}
+
+.stateLink:hover {
+  background: #f8f8f8;
+}
+
+.listSection {
+  display: flex;
+  flex-direction: column;
+}
+
+.ordersGrid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 750px));
+  gap: 20px;
+  justify-content: space-between;
+}
+
+.orderCard {
+  box-sizing: border-box;
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+  min-height: 154px;
+  padding: 30px;
+  border-radius: 20px;
+  background: #ffffff;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+}
+
+.orderCardTop {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 16px;
+}
+
+.statusBadge {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  box-sizing: border-box;
+  min-height: 28px;
+  padding: 5px 14px;
+  border-radius: 24px;
+  font-family: 'Rubik', sans-serif;
+  font-size: 15px;
+  font-weight: 400;
+  line-height: 18px;
+  white-space: nowrap;
+}
+
+.statusBadge[data-tone='active'] {
+  background: #ffe4c3;
+  color: #211500;
+}
+
+.statusBadge[data-tone='completed'] {
+  background: #e5e881;
+  color: #211500;
+}
+
+.statusBadge[data-tone='cancelled'] {
+  background: rgba(226, 11, 11, 0.6);
+  color: #ffffff;
+}
+
+.statusBadge[data-tone='neutral'] {
+  background: #e8e6e1;
+  color: #211500;
+}
+
+.orderPrice {
+  flex-shrink: 0;
+  color: #211500;
+  font-family: 'Igra Sans', serif;
+  font-size: 24px;
+  font-weight: 400;
+  line-height: 120%;
+  text-align: right;
+  white-space: nowrap;
+}
+
+.orderCardBody {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 20px;
+}
+
+.orderCardText {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  min-width: 0;
+}
+
+.orderNumber {
+  color: #211500;
+  font-family: 'Raleway', sans-serif;
+  font-size: 16px;
+  font-weight: 700;
+  line-height: 19px;
+  word-break: break-word;
+  font-feature-settings: 'pnum' on, 'lnum' on;
+}
+
+.orderQuantity {
+  color: #6f685d;
+  font-family: 'Raleway', sans-serif;
+  font-size: 16px;
+  font-weight: 700;
+  line-height: 19px;
+  font-feature-settings: 'pnum' on, 'lnum' on;
+}
+
+.detailsLink {
+  box-sizing: border-box;
+  display: inline-flex;
+  flex-shrink: 0;
+  align-items: center;
+  justify-content: center;
+  min-height: 45px;
+  padding: 10px 30px;
+  border: 1px solid #6f685d;
+  border-radius: 23px;
+  background: #ffffff;
+  color: #211500;
+  text-decoration: none;
+  font-family: 'Raleway', sans-serif;
+  font-size: 16px;
+  font-weight: 600;
+  line-height: 19px;
+  font-feature-settings: 'pnum' on, 'lnum' on;
+  transition:
+    background-color 0.2s ease,
+    border-color 0.2s ease;
+}
+
+.detailsLink:hover {
+  background: #f8f8f8;
+}
+
+@media (max-width: 1180px) {
+  .ordersGrid {
+    grid-template-columns: 1fr;
+  }
+}
+
+@media (max-width: 640px) {
+  .page {
+    padding: 24px 16px 80px;
+  }
+
+  .stateCard,
+  .orderCard {
+    padding: 20px;
+  }
+
+  .title {
+    font-size: 32px;
+  }
+
+  .orderCardBody {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .detailsLink {
+    width: 100%;
+  }
+
+  .orderPrice {
+    text-align: left;
+  }
+
+  .orderCardTop {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+}

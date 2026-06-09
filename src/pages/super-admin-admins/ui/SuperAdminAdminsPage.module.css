@@ -1,0 +1,13 @@
+/* src/pages/super-admin-admins/ui/SuperAdminAdminsPage.module.css */
+
+.page {
+  min-height: calc(100vh - 160px);
+  padding: 40px 20px 80px;
+  background: #f8fafc;
+}
+
+.container {
+  width: 100%;
+  max-width: 1520px;
+  margin: 0 auto;
+}

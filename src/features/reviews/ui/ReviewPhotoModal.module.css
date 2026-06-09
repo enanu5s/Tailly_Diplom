@@ -1,0 +1,137 @@
+.overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(17, 24, 39, 0.7);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 18px;
+  padding-bottom: max(18px, env(safe-area-inset-bottom));
+  z-index: 50;
+  overscroll-behavior: contain;
+  /* Высокое фото иначе выталкивало стрелки за экран при overflow:hidden у body */
+  overflow-y: auto;
+  -webkit-overflow-scrolling: touch;
+  box-sizing: border-box;
+}
+
+.modal {
+  width: min(920px, 100%);
+  max-height: min(92vh, calc(100vh - 36px));
+  background: #fff;
+  border-radius: 18px;
+  padding: 14px;
+  padding-top: 42px;
+  position: relative;
+  box-shadow: 0 20px 60px rgba(17, 24, 39, 0.25);
+  display: flex;
+  flex-direction: column;
+  margin: auto;
+  min-height: 0;
+}
+
+.closeBtn {
+  position: absolute;
+  right: 12px;
+  top: 10px;
+  border: none;
+  background: transparent;
+  font-size: 18px;
+  cursor: pointer;
+}
+
+.photoWrap {
+  border-radius: 16px;
+  overflow: hidden;
+  flex: 1 1 auto;
+  min-height: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(17, 24, 39, 0.04);
+}
+
+.photo {
+  display: block;
+  max-width: 100%;
+  /* Резерв под крестик, отступы и блок стрелок — чтобы панель всегда помещалась в экран */
+  max-height: min(65vh, calc(100vh - 200px));
+  width: auto;
+  height: auto;
+  object-fit: contain;
+}
+
+.controls {
+  flex-shrink: 0;
+  margin-top: 12px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 77px;
+  padding-top: 4px;
+}
+
+.arrowBtn {
+  box-sizing: border-box;
+  width: 47px;
+  height: 44px;
+  padding: 0;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  border-radius: 10px;
+  background: transparent;
+  cursor: pointer;
+}
+
+.arrowBtn:focus-visible {
+  outline: 2px solid #211500;
+  outline-offset: 2px;
+}
+
+.arrowBtnPrev {
+  border: 1px solid #c7c2ba;
+  color: #6f685d;
+}
+
+.arrowBtnNext {
+  border: 1px solid #6f685d;
+  color: #211500;
+}
+
+.arrowIcon {
+  display: flex;
+  width: 37px;
+  height: 34px;
+  align-items: center;
+  justify-content: center;
+}
+
+.arrowBtnPrev .arrowIcon {
+  transform: matrix(-1, 0, 0, 1, 0, 0);
+}
+
+.arrowSvg {
+  display: block;
+  width: 37px;
+  height: 34px;
+}
+
+.arrowBtn:disabled {
+  opacity: 0.45;
+  cursor: not-allowed;
+}
+
+.counter {
+  box-sizing: border-box;
+  min-width: 39px;
+  padding: 0 2px;
+  font-family: 'Igra Sans', 'Raleway', Arial, sans-serif;
+  font-style: normal;
+  font-weight: 400;
+  font-size: 24px;
+  line-height: 120%;
+  color: #211500;
+  text-align: center;
+}

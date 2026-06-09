@@ -1,0 +1,20 @@
+.root {
+  display: flex;
+  gap: 6px;
+}
+
+.star,
+.starActive {
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  font-size: 22px;
+  line-height: 1;
+  padding: 2px;
+}
+
+.star:disabled,
+.starActive:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}

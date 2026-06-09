@@ -1,0 +1,802 @@
+/* src/features/super-admin-admins-management/ui/SuperAdminAdminsManagementSection.module.css */
+.root {
+  width: 100%;
+  padding: 30px 0 110px;
+  color: #211500;
+}
+
+.backButton {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+  width: 134px;
+  height: 45px;
+  border: 1px solid #c7c2ba;
+  border-radius: 23px;
+  background: transparent;
+  color: #6f685d;
+  font-family: Raleway, sans-serif;
+  font-size: 16px;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.backIcon {
+  font-size: 20px;
+  line-height: 1;
+}
+
+.pageHeader {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 24px;
+  margin-top: 30px;
+}
+
+.title {
+  margin: 0;
+  font-family: 'Igra Sans', Raleway, sans-serif;
+  font-size: 40px;
+  font-weight: 400;
+  line-height: 1.2;
+  color: #211500;
+}
+
+.addButton {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 18px;
+  width: 442px;
+  height: 45px;
+  border: none;
+  border-radius: 44px;
+  background: #211500;
+  color: #ffffff;
+  font-family: Raleway, sans-serif;
+  font-size: 16px;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.addIcon {
+  font-size: 20px;
+  line-height: 1;
+}
+
+.section {
+  margin-top: 26px;
+}
+
+.sectionTitle {
+  margin: 0 0 20px;
+  font-family: 'Igra Sans', Raleway, sans-serif;
+  font-size: 24px;
+  font-weight: 400;
+  line-height: 1.2;
+  color: #211500;
+}
+
+.grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 750px));
+  gap: 20px;
+}
+
+.card,
+.stateCard,
+.emptyCard {
+  background: #ffffff;
+  border-radius: 20px;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+}
+
+.card {
+  position: relative;
+  min-height: 357px;
+  padding: 30px;
+}
+
+.stateCard,
+.emptyCard {
+  padding: 30px;
+  font-family: Rubik, sans-serif;
+  font-size: 15px;
+}
+
+.cardDepartment {
+  max-width: 420px;
+  font-family: Raleway, sans-serif;
+  font-size: 16px;
+  font-weight: 700;
+  line-height: 19px;
+  color: #6f685d;
+}
+
+.statusActive,
+.statusBlocked,
+.statusPasswordLock {
+  position: absolute;
+  top: 30px;
+  right: 30px;
+  display: inline-flex;
+  min-width: 104px;
+  height: 30px;
+  align-items: center;
+  justify-content: center;
+  padding: 0 18px;
+  border-radius: 23px;
+  font-family: Rubik, sans-serif;
+  font-size: 15px;
+  font-weight: 400;
+  line-height: 18px;
+  color: #211500;
+}
+
+.statusActive {
+  background: #e5e881;
+}
+
+.statusBlocked {
+  background: rgba(226, 11, 11, 0.08);
+  color: #e20b0b;
+}
+
+.statusPasswordLock {
+  background: #ffa232;
+}
+
+.cardTitle {
+  width: 300px;
+  margin: 16px 0 0;
+  font-family: 'Igra Sans', Raleway, sans-serif;
+  font-size: 24px;
+  font-weight: 400;
+  line-height: 1.2;
+  color: #211500;
+}
+
+.cardEmail {
+  position: absolute;
+  top: 75px;
+  right: 30px;
+  max-width: 240px;
+  font-family: Raleway, sans-serif;
+  font-size: 16px;
+  font-weight: 700;
+  line-height: 19px;
+  text-align: right;
+  color: #211500;
+  word-break: break-word;
+}
+
+.cardInfo {
+  display: grid;
+  grid-template-columns: 258px 1fr;
+  gap: 20px;
+  margin-top: 16px;
+}
+
+.cardInfoColumn {
+  display: grid;
+  align-content: start;
+  gap: 10px;
+}
+
+.metaLine {
+  display: flex;
+  gap: 6px;
+  min-height: 19px;
+  font-family: Raleway, sans-serif;
+  font-size: 16px;
+  font-weight: 700;
+  line-height: 19px;
+}
+
+.metaLabel {
+  color: #6f685d;
+}
+
+.metaValue {
+  color: #211500;
+}
+
+.cardActions {
+  position: absolute;
+  left: 30px;
+  right: 30px;
+  bottom: 29px;
+  display: grid;
+  grid-template-columns: 238px 1fr;
+  gap: 10px;
+}
+
+.dangerButton,
+.dangerOutlineButton,
+.outlineButton,
+.modalCancelButton,
+.modalSubmitButton,
+.modalDangerButton,
+.quickButton,
+.quickButtonActive {
+  display: inline-flex;
+  min-height: 45px;
+  align-items: center;
+  justify-content: center;
+  padding: 10px 24px;
+  border-radius: 23px;
+  font-family: Raleway, sans-serif;
+  font-size: 16px;
+  font-weight: 600;
+  line-height: 19px;
+  cursor: pointer;
+  transition:
+    opacity 0.2s ease,
+    transform 0.2s ease;
+}
+
+.dangerButton {
+  border: none;
+  background: #e20b0b;
+  color: #ffffff;
+}
+
+.dangerOutlineButton {
+  border: 1px solid #e20b0b;
+  background: rgba(226, 11, 11, 0.05);
+  color: #e20b0b;
+}
+
+.outlineButton {
+  border: 1px solid #6f685d;
+  background: transparent;
+  color: #211500;
+}
+
+button:disabled {
+  cursor: not-allowed;
+  opacity: 0.55;
+}
+
+.errorBanner,
+.successBanner {
+  margin-top: 24px;
+  border-radius: 20px;
+  padding: 16px 20px;
+  font-family: Rubik, sans-serif;
+  font-size: 15px;
+  line-height: 1.45;
+}
+
+.errorBanner {
+  background: rgba(226, 11, 11, 0.08);
+  color: #e20b0b;
+}
+
+.successBanner {
+  position: fixed;
+  left: 50%;
+  bottom: 24px;
+  z-index: 250;
+  width: min(720px, calc(100% - 32px));
+  margin: 0;
+  transform: translateX(-50%);
+  box-shadow: 0 10px 28px rgba(0, 0, 0, 0.16);
+  background: #e5e881;
+  color: #211500;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+}
+
+.successUndoButton {
+  min-height: 36px;
+  border-radius: 18px;
+  padding: 0 14px;
+  border: 1px solid #211500;
+  background: #ffffff;
+  color: #211500;
+  font-family: Raleway, sans-serif;
+  font-size: 14px;
+  font-weight: 700;
+  cursor: pointer;
+  white-space: nowrap;
+}
+
+.pagination {
+  width: 100%;
+  margin: 30px auto 0;
+  display: grid;
+  grid-template-columns: 64px 1fr 64px;
+  align-items: center;
+  color: #211500;
+  font-size: 15px;
+  line-height: 18px;
+}
+
+.pagination span {
+  text-align: center;
+}
+
+.pagination button {
+  border: 0;
+  background: transparent;
+  color: #211500;
+  font-size: 34px;
+  cursor: pointer;
+}
+
+.pagination button:disabled {
+  color: #c7c2ba;
+  cursor: not-allowed;
+}
+
+.overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 100;
+  display: flex;
+  align-items: flex-start;
+  justify-content: center;
+  overflow: auto;
+  padding: 130px 24px 40px;
+  background: rgba(33, 21, 0, 0.35);
+}
+
+.modal {
+  position: relative;
+  width: min(1212px, 100%);
+  background: #ffffff;
+  border-radius: 20px;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+}
+
+.modalCreate {
+  min-height: 559px;
+}
+
+.modalEdit {
+  min-height: 544px;
+}
+
+.modalBlock {
+  min-height: 454px;
+}
+
+.modalTitle {
+  margin: 0;
+  padding: 60px 92px 0 60px;
+  font-family: 'Igra Sans', Raleway, sans-serif;
+  font-size: 40px;
+  font-weight: 400;
+  line-height: 1.2;
+  color: #211500;
+}
+
+.closeButton {
+  position: absolute;
+  top: 58px;
+  right: 58px;
+  width: 28px;
+  height: 28px;
+  border: none;
+  background: transparent;
+  cursor: pointer;
+}
+
+.closeButton::before,
+.closeButton::after {
+  position: absolute;
+  top: 13px;
+  left: 2px;
+  width: 24px;
+  height: 3px;
+  border-radius: 3px;
+  background: #211500;
+  content: '';
+}
+
+.closeButton::before {
+  transform: rotate(45deg);
+}
+
+.closeButton::after {
+  transform: rotate(-45deg);
+}
+
+.modalForm {
+  position: relative;
+  height: 271px;
+  margin-top: 30px;
+}
+
+.field {
+  display: grid;
+  gap: 10px;
+}
+
+.fieldLabel {
+  font-family: Raleway, sans-serif;
+  font-size: 16px;
+  font-weight: 700;
+  line-height: 19px;
+  color: #6f685d;
+}
+
+.input {
+  width: 100%;
+  height: 48px;
+  box-sizing: border-box;
+  border: 1px solid #c7c2ba;
+  border-radius: 10px;
+  background: #ffffff;
+  padding: 0 20px;
+  font-family: Rubik, sans-serif;
+  font-size: 15px;
+  line-height: 18px;
+  color: #211500;
+  outline: none;
+}
+
+.input::placeholder {
+  color: #6f685d;
+}
+
+.input:focus {
+  border-color: #211500;
+}
+
+.inputDisabled {
+  background: #f8f8f8;
+}
+
+.select {
+  appearance: auto;
+  cursor: pointer;
+}
+
+.fieldEmail,
+.fieldFirstName,
+.fieldLastName,
+.fieldMiddleName,
+.fieldPhone,
+.fieldDepartment,
+.fieldBirthDate {
+  position: absolute;
+}
+
+.fieldEmail {
+  left: 60px;
+  top: 0;
+  width: 380px;
+}
+
+.fieldFirstName {
+  left: 60px;
+  top: 97px;
+  width: 228px;
+}
+
+.fieldLastName {
+  left: 308px;
+  top: 97px;
+  width: 288px;
+}
+
+.fieldMiddleName {
+  left: 616px;
+  top: 97px;
+  width: 288px;
+}
+
+.fieldBirthDate {
+  left: 924px;
+  top: 97px;
+  width: 228px;
+}
+
+.fieldPhone {
+  left: 60px;
+  top: 194px;
+  width: 228px;
+}
+
+.fieldDepartment {
+  left: 308px;
+  top: 194px;
+  width: 288px;
+}
+
+.fieldPosition {
+  left: 616px;
+  top: 194px;
+  width: 288px;
+}
+
+.checkboxRow {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin: 22px 60px 0;
+  font-family: Rubik, sans-serif;
+  font-size: 15px;
+  line-height: 18px;
+  color: #211500;
+}
+
+.checkboxRow input {
+  width: 19px;
+  height: 19px;
+  margin: 0;
+  accent-color: #211500;
+}
+
+.modalActions {
+  position: absolute;
+  right: 60px;
+  bottom: 49px;
+  display: flex;
+  gap: 20px;
+}
+
+.modalCancelButton {
+  min-width: 134px;
+  border: 1px solid #6f685d;
+  background: #f8f8f8;
+  color: #211500;
+}
+
+.modalSubmitButton {
+  min-width: 300px;
+  border: none;
+  background: #211500;
+  color: #ffffff;
+}
+
+.modalSubmitButton:disabled {
+  background: #6f685d;
+  color: #ffffff;
+}
+
+.modalDangerButton {
+  min-width: 382px;
+  border: 1px solid #e20b0b;
+  background: rgba(226, 11, 11, 0.05);
+  color: #e20b0b;
+}
+
+.modalError,
+.modalSuccess {
+  margin: 14px 60px 0;
+  border-radius: 14px;
+  padding: 12px 16px;
+  font-family: Rubik, sans-serif;
+  font-size: 15px;
+  line-height: 1.4;
+}
+
+.modalError {
+  background: rgba(226, 11, 11, 0.08);
+  color: #e20b0b;
+}
+
+.modalSuccess {
+  background: #e5e881;
+  color: #211500;
+}
+
+.modalSuccess span {
+  font-weight: 700;
+}
+
+.blockForm {
+  position: relative;
+  height: 211px;
+  margin-top: 30px;
+}
+
+.blockReasonField {
+  position: absolute;
+  left: 60px;
+  top: 0;
+  width: 536px;
+}
+
+.blockPeriod {
+  position: absolute;
+  left: 616px;
+  top: 0;
+  width: 536px;
+  display: grid;
+  gap: 20px;
+}
+
+.quickActions {
+  display: flex;
+  gap: 13px;
+}
+
+.quickButton,
+.quickButtonActive {
+  min-width: 124px;
+  height: 45px;
+  padding: 10px 30px;
+  border: 1px solid #6f685d;
+  background: #ffffff;
+  color: #211500;
+  white-space: nowrap;
+}
+
+.quickButton:hover,
+.quickButtonActive:hover {
+  box-shadow: 0 0 0 3px rgba(255, 162, 50, 0.35);
+}
+
+.quickButtonActive {
+  border-color: #ffa232;
+  background: #ffa232;
+}
+
+.blockUntilField {
+  position: absolute;
+  left: 60px;
+  top: 97px;
+  width: 382px;
+}
+
+.blockForeverValue {
+  width: 100%;
+  height: 48px;
+  box-sizing: border-box;
+  border: 1px solid #c7c2ba;
+  border-radius: 10px;
+  background: #f8f8f8;
+  padding: 0 20px;
+  display: flex;
+  align-items: center;
+  font-family: Rubik, sans-serif;
+  font-size: 15px;
+  line-height: 18px;
+  color: #211500;
+}
+
+@media (max-width: 1200px) {
+  .grid {
+    grid-template-columns: 1fr;
+  }
+
+  .card {
+    min-height: auto;
+  }
+
+  .cardActions {
+    position: static;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    margin-top: 22px;
+  }
+
+  .modal {
+    min-height: auto;
+    padding-bottom: 120px;
+  }
+
+  .modalForm,
+  .blockForm {
+    height: auto;
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 18px 20px;
+    margin: 30px 60px 0;
+  }
+
+  .fieldEmail,
+  .fieldFirstName,
+  .fieldLastName,
+  .fieldMiddleName,
+  .fieldPhone,
+  .fieldDepartment,
+  .fieldBirthDate,
+  .blockReasonField,
+  .blockPeriod,
+  .blockUntilField {
+    position: static;
+    width: auto;
+  }
+
+  .modalActions {
+    right: 60px;
+    bottom: 40px;
+  }
+}
+
+@media (max-width: 760px) {
+  .root {
+    width: min(100% - 32px, 1520px);
+    padding-top: 20px;
+  }
+
+  .pageHeader {
+    align-items: stretch;
+    flex-direction: column;
+  }
+
+  .title,
+  .modalTitle {
+    font-size: 32px;
+  }
+
+  .addButton {
+    width: 100%;
+  }
+
+  .cardEmail,
+  .statusActive,
+  .statusBlocked,
+  .statusPasswordLock {
+    position: static;
+    width: fit-content;
+    margin-top: 12px;
+    text-align: left;
+  }
+
+  .cardTitle {
+    width: auto;
+  }
+
+  .cardInfo {
+    grid-template-columns: 1fr;
+  }
+
+  .cardActions {
+    grid-template-columns: 1fr;
+  }
+
+  .overlay {
+    padding: 40px 16px;
+  }
+
+  .modalTitle {
+    padding: 48px 56px 0 24px;
+  }
+
+  .closeButton {
+    top: 48px;
+    right: 24px;
+  }
+
+  .modalForm,
+  .blockForm {
+    grid-template-columns: 1fr;
+    margin: 24px;
+  }
+
+  .checkboxRow,
+  .modalError,
+  .modalSuccess {
+    margin-left: 24px;
+    margin-right: 24px;
+  }
+
+  .modalActions {
+    position: static;
+    flex-direction: column-reverse;
+    margin: 24px;
+  }
+
+  .modalCancelButton,
+  .modalSubmitButton,
+  .modalDangerButton {
+    width: 100%;
+  }
+
+  .pagination {
+    grid-template-columns: 44px 1fr 44px;
+  }
+
+  .quickActions {
+    flex-wrap: wrap;
+  }
+}

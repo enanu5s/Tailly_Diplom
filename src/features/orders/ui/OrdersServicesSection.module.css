@@ -1,0 +1,673 @@
+/* src/features/orders/ui/OrdersServicesSection.module.css */
+.section {
+  width: 100%;
+}
+
+.sectionSpecialistOrders .filtersBlock {
+  margin-top: 0;
+}
+
+.paginationWrap {
+  padding-top: 8px;
+}
+
+.filtersBlock {
+  margin-bottom: 20px;
+}
+
+.filtersLabel {
+  margin: 0 0 15px;
+  font-family: 'Raleway', sans-serif;
+  font-size: 16px;
+  font-weight: 700;
+  line-height: 19px;
+  font-feature-settings: 'pnum' on, 'lnum' on;
+  color: #211500;
+}
+
+.header {
+  margin-bottom: 20px;
+}
+
+.title {
+  margin: 0;
+  font-family: 'Igra Sans', sans-serif;
+  font-size: 24px;
+  font-weight: 400;
+  line-height: 1.2;
+  color: #211500;
+}
+
+.subtitle {
+  display: none;
+}
+
+.filters {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+}
+
+@media (min-width: 1500px) {
+  .filters {
+    flex-wrap: nowrap;
+  }
+
+  .filterButton,
+  .filterButtonActive {
+    white-space: nowrap;
+  }
+}
+
+.filterButton,
+.filterButtonActive {
+  min-height: 38px;
+  padding: 8px 30px;
+  border-radius: 23px;
+  font-family: 'Raleway', sans-serif;
+  font-size: 16px;
+  font-weight: 600;
+  line-height: 19px;
+  cursor: pointer;
+}
+
+.filterButton {
+  border: 1px solid #6f685d;
+  background: #ffffff;
+  color: #6f685d;
+}
+
+.filterButtonActive {
+  border: 1px solid #ccd308;
+  background: #ccd308;
+  color: #211500;
+}
+
+.loadingBox,
+.emptyState,
+.errorBox,
+.successBox {
+  padding: 14px 16px;
+  border-radius: 14px;
+  font-family: 'Rubik', sans-serif;
+  font-size: 15px;
+}
+
+.loadingBox,
+.emptyState {
+  background: #f2eee8;
+  color: #6f685d;
+}
+
+.errorBox {
+  background: rgba(226, 11, 11, 0.05);
+  color: #e20b0b;
+}
+
+.successBox {
+  background: rgba(204, 211, 8, 0.25);
+  color: #211500;
+}
+
+.listPlain {
+  width: 100%;
+}
+
+.listScroll {
+  max-height: 778px;
+  overflow-y: auto;
+  padding: 20px 30px 20px 20px;
+  background: #ffffff;
+  border-radius: 20px;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+}
+
+.listScroll::-webkit-scrollbar {
+  width: 14px;
+}
+
+.listScroll::-webkit-scrollbar-track {
+  background: #f2eee8;
+  border-radius: 4px;
+}
+
+.listScroll::-webkit-scrollbar-thumb {
+  background: #c7c2ba;
+  border: 4px solid #f2eee8;
+  border-radius: 8px;
+}
+
+.list {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.listGrid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 750px));
+  gap: 20px;
+  align-items: start;
+  justify-content: start;
+}
+
+.card,
+.cardFresh {
+  position: relative;
+  box-sizing: border-box;
+  min-height: 378px;
+  padding: 30px;
+  background: #ffffff;
+  border: 0;
+  border-radius: 20px;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+}
+
+.cardFresh {
+  box-shadow:
+    0 4px 20px rgba(0, 0, 0, 0.1),
+    0 0 0 2px #ccd308;
+}
+
+.cardHeader,
+.cardHeaderMain {
+  display: flex;
+  flex-direction: column;
+}
+
+.orderTitleRow {
+  display: block;
+  margin: 0;
+}
+
+.orderTitle {
+  position: absolute;
+  left: 30px;
+  top: 78px;
+  margin: 0;
+  font-family: 'Igra Sans', sans-serif;
+  font-size: 24px;
+  font-weight: 400;
+  line-height: 1.2;
+  color: #211500;
+}
+
+.statusBadge {
+  position: absolute;
+  left: 30px;
+  top: 30px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 28px;
+  padding: 5px 18px;
+  border-radius: 24px;
+  font-family: 'Rubik', sans-serif;
+  font-size: 15px;
+  font-weight: 400;
+  line-height: 18px;
+  color: #211500;
+  white-space: nowrap;
+}
+
+.createdBadge {
+  position: absolute;
+  top: 30px;
+  right: 30px;
+  display: inline-flex;
+  min-width: 149px;
+  min-height: 28px;
+  align-items: center;
+  justify-content: center;
+  padding: 5px 14px;
+  border-radius: 24px;
+  background: #fff3cd;
+  font-family: 'Rubik', sans-serif;
+  font-size: 15px;
+  font-weight: 400;
+  line-height: 18px;
+  color: #211500;
+  white-space: nowrap;
+}
+
+.statusNeutral,
+.statusPending {
+  background: #ffe4c3;
+}
+
+.statusConfirmed {
+  background: #e5e881;
+}
+
+.statusActive {
+  background: #fff3cd;
+}
+
+.statusCompleted {
+  background: #211500;
+  color: #ffffff;
+}
+
+.statusCanceled {
+  background: rgba(226, 11, 11, 0.6);
+  color: #ffffff;
+}
+
+.metaGrid {
+  display: block;
+  margin-top: 0;
+}
+
+.metaItem {
+  position: absolute;
+  display: flex;
+  flex-direction: row;
+  gap: 8px;
+  align-items: flex-start;
+  min-width: 0;
+}
+
+.metaPerson {
+  left: 30px;
+  top: 115px;
+}
+
+.metaOrderNumber {
+  display: none;
+}
+
+.metaPet {
+  left: 30px;
+  top: 140px;
+}
+
+.metaPrice {
+  left: 30px;
+  top: 165px;
+}
+
+.metaStart {
+  left: 432px;
+  top: 115px;
+  width: 360px;
+}
+
+.metaEnd {
+  left: 432px;
+  top: 142px;
+  width: 360px;
+}
+
+.metaEndAfterWrappedStart {
+  top: 161px;
+}
+
+.metaFormat {
+  display: none;
+}
+
+.metaLabel {
+  flex: 0 0 auto;
+  font-family: 'Raleway', sans-serif;
+  font-size: 16px;
+  font-weight: 700;
+  line-height: 19px;
+  color: #6f685d;
+}
+
+.metaValue {
+  min-width: 0;
+  font-family: 'Raleway', sans-serif;
+  font-size: 16px;
+  font-weight: 700;
+  line-height: 19px;
+  color: #211500;
+  white-space: normal;
+  overflow-wrap: anywhere;
+}
+
+.inlineLinkButton {
+  width: fit-content;
+  padding: 0;
+  border: 0;
+  background: transparent;
+  font-family: 'Raleway', sans-serif;
+  font-size: 16px;
+  font-weight: 700;
+  line-height: 19px;
+  color: #211500;
+  text-decoration: underline;
+  cursor: pointer;
+}
+
+a.inlineLinkButton:visited {
+  color: #211500;
+}
+
+.commentBox {
+  position: absolute;
+  left: 30px;
+  right: 30px;
+  top: 208px;
+  margin: 0;
+  padding: 0;
+  background: transparent;
+}
+
+.commentText {
+  margin: 8px 0 0;
+  font-family: 'Raleway', sans-serif;
+  font-size: 16px;
+  font-weight: 700;
+  line-height: 19px;
+  color: #211500;
+}
+
+.timeline {
+  display: none;
+}
+
+.actions {
+  position: absolute;
+  left: 30px;
+  right: 30px;
+  bottom: 30px;
+  margin: 0;
+  display: flex;
+  gap: 20px;
+  flex-wrap: wrap;
+}
+
+.sectionSpecialistOrders .actions.actionsSpecialistLayoutTerminal {
+  justify-content: flex-end;
+}
+
+.sectionSpecialistOrders .actions.actionsSpecialistLayoutActive {
+  justify-content: space-between;
+}
+
+.sectionSpecialistOrders .actions.actionsSpecialistLayoutPreActive {
+  justify-content: space-between;
+}
+
+.actionsSpecialistRightCluster {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 20px;
+  align-items: center;
+  justify-content: flex-end;
+}
+
+.primaryButton,
+.secondaryButton,
+.uploadButton,
+.removePhotoButton {
+  min-height: 45px;
+  padding: 10px 30px;
+  border-radius: 23px;
+  font-family: 'Raleway', sans-serif;
+  font-size: 16px;
+  font-weight: 600;
+  line-height: 19px;
+  cursor: pointer;
+}
+
+.primaryButton {
+  border: 0;
+  background: #211500;
+  color: #ffffff;
+}
+
+.secondaryButton {
+  border: 1px solid #6f685d;
+  background: #ffffff;
+  color: #211500;
+}
+
+.dangerButton {
+  border-color: #e20b0b;
+  background: rgba(226, 11, 11, 0.05);
+  color: #e20b0b;
+}
+
+.primaryButton:disabled,
+.secondaryButton:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.freshBanner {
+  margin-bottom: 16px;
+  padding: 10px 14px;
+  border-radius: 12px;
+  background: rgba(204, 211, 8, 0.25);
+  color: #211500;
+  font-family: 'Rubik', sans-serif;
+  font-size: 14px;
+}
+
+.reviewBox,
+.reviewView {
+  margin-top: 20px;
+  padding: 18px;
+  border-radius: 18px;
+  background: #f2eee8;
+}
+
+.reviewTitle,
+.reviewViewTitle {
+  font-family: 'Raleway', sans-serif;
+  font-size: 16px;
+  font-weight: 700;
+  color: #211500;
+}
+
+.reviewControls,
+.reviewActions,
+.reviewViewHeader {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+}
+
+.reviewLabel,
+.reviewTextLabel {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  font-family: 'Raleway', sans-serif;
+  font-weight: 700;
+  color: #211500;
+}
+
+.select,
+.textarea {
+  border: 1px solid #c7c2ba;
+  border-radius: 12px;
+  background: #ffffff;
+  font-family: 'Rubik', sans-serif;
+  color: #211500;
+}
+
+.select {
+  height: 44px;
+  padding: 0 14px;
+}
+
+.textarea {
+  width: 100%;
+  min-height: 110px;
+  padding: 12px 14px;
+  resize: vertical;
+}
+
+.reviewPhotosBlock,
+.replyBody {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.uploadButton {
+  width: fit-content;
+  border: 1px solid #6f685d;
+  background: #ffffff;
+  color: #211500;
+}
+
+.hiddenInput {
+  display: none;
+}
+
+.reviewHint,
+.reviewViewDate,
+.replyDate {
+  font-family: 'Rubik', sans-serif;
+  font-size: 13px;
+  color: #6f685d;
+}
+
+.reviewDraftPhotosGrid,
+.reviewPhotosGrid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(110px, 1fr));
+  gap: 12px;
+}
+
+.reviewDraftPhotoCard {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.reviewDraftPhoto,
+.reviewPhoto {
+  width: 100%;
+  aspect-ratio: 1 / 1;
+  object-fit: cover;
+  border-radius: 14px;
+}
+
+.removePhotoButton {
+  min-height: 36px;
+  border: 1px solid #e20b0b;
+  background: rgba(226, 11, 11, 0.05);
+  color: #e20b0b;
+}
+
+.reviewViewRating {
+  color: #211500;
+  font-weight: 700;
+}
+
+.reviewViewComment,
+.replyComment {
+  color: #211500;
+  white-space: pre-wrap;
+  line-height: 1.5;
+}
+
+.replyDetails {
+  margin-top: 12px;
+  border-radius: 14px;
+  background: #ffffff;
+  overflow: hidden;
+}
+
+.replySummary {
+  cursor: pointer;
+  padding: 14px 16px;
+  font-weight: 700;
+  color: #211500;
+  list-style: none;
+}
+
+.replySummary::-webkit-details-marker {
+  display: none;
+}
+
+.replyBody {
+  padding: 0 16px 16px;
+}
+
+@media (max-width: 1540px) {
+  .listGrid {
+    grid-template-columns: minmax(0, 1fr);
+  }
+}
+
+@media (max-width: 980px) {
+  .listScroll {
+    max-height: none;
+  }
+
+  .orderTitleRow {
+    display: grid;
+    gap: 12px;
+  }
+
+  .orderTitle,
+  .statusBadge,
+  .createdBadge,
+  .metaItem,
+  .commentBox,
+  .actions {
+    position: static;
+  }
+
+  .createdBadge,
+  .statusBadge {
+    width: fit-content;
+  }
+
+  .metaGrid {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 8px;
+    margin-top: 16px;
+  }
+
+  .card,
+  .cardFresh {
+    min-height: auto;
+  }
+
+  .commentBox,
+  .actions {
+    margin-top: 20px;
+  }
+}
+
+@media (max-width: 720px) {
+  .filters {
+    gap: 8px;
+  }
+
+  .filterButton,
+  .filterButtonActive {
+    padding: 8px 18px;
+    font-size: 14px;
+  }
+
+  .listScroll {
+    padding: 16px;
+  }
+
+  .card,
+  .cardFresh {
+    padding: 20px;
+  }
+
+  .orderTitleRow {
+    grid-template-columns: 1fr;
+  }
+
+  .actions {
+    flex-direction: column;
+  }
+
+  .primaryButton,
+  .secondaryButton {
+    width: 100%;
+  }
+}

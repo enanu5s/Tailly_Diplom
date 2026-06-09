@@ -1,0 +1,314 @@
+/* src/shared/ui/header/Header.module.css */
+
+:root {
+  --header-height: 100px;
+  --header-shadow: 0 8px 20px rgba(0, 0, 0, 0.05);
+  --transition: all 0.25s ease;
+}
+
+.header {
+  position: sticky;
+  top: 0;
+  z-index: 100;
+  background: white;
+  box-shadow: var(--header-shadow);
+}
+
+.container {
+  max-width: 1520px;
+  margin: 0 auto;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 24px;
+  height: var(--header-height);
+}
+
+.logo {
+  display: inline-flex;
+  align-items: center;
+  text-decoration: none;
+  width: 112px;
+}
+
+/* Десктопное меню скрыто по умолчанию */
+.navDesktop {
+  display: none;
+}
+
+@media (min-width: 1024px) {
+  .navDesktop {
+    display: block;
+  }
+
+  .navList {
+    display: flex;
+    gap: 56px;
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    align-items: center;
+  }
+
+  .navItem {
+    position: relative;
+  }
+
+  .navLink {
+    display: inline-flex;
+    align-items: center;
+    padding: 13px 0;
+    color: #211500;
+    text-decoration: none;
+    font-family: 'Raleway', system-ui, -apple-system, sans-serif;
+    font-size: 16px;
+    line-height: 1;
+    font-weight: 700;
+    transition: var(--transition);
+  }
+
+  .navLink:hover,
+  .navLink.active {
+    color: #211500;
+    opacity: 0.75;
+  }
+}
+
+.rightDesktop {
+  display: none;
+}
+
+@media (min-width: 1024px) {
+  .rightDesktop {
+    display: flex;
+    align-items: center;
+  }
+}
+
+.userBox {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+}
+
+.messagesLink {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 34px;
+  height: 34px;
+  border-radius: 999px;
+  text-decoration: none;
+  transition: var(--transition);
+}
+
+.messagesLink:hover {
+  background: #fff8ef;
+}
+
+.messagesIcon {
+  width: 40px;
+  height: 40px;
+  object-fit: contain;
+}
+
+.messagesBadge {
+  position: absolute;
+  top: -4px;
+  right: -4px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 18px;
+  height: 18px;
+  padding: 0 5px;
+  border-radius: 999px;
+  background: #211500;
+  color: #ffffff;
+  font-size: 11px;
+  line-height: 1;
+  font-weight: 700;
+}
+
+.userName {
+  color: #211500;
+  text-decoration: none;
+  font-family: 'Raleway', system-ui, -apple-system, sans-serif;
+  font-size: 16px;
+  line-height: 1;
+  font-weight: 700;
+}
+
+.userName:hover {
+  opacity: 0.75;
+}
+
+.logoutBtn,
+.loginBtn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 45px;
+  padding: 0 43px;
+  border-radius: 23px;
+  font: inherit;
+  font-family: 'Raleway', system-ui, -apple-system, sans-serif;
+  font-size: 16px;
+  line-height: 1;
+  font-weight: 600;
+  text-decoration: none;
+  cursor: pointer;
+  transition: var(--transition);
+}
+
+.logoutBtn {
+  border: 1px solid rgba(33, 21, 0, 0.24);
+  background: #ffffff;
+  color: #211500;
+}
+
+.logoutBtn:hover {
+  border-color: rgba(33, 21, 0, 0.34);
+  background: #fff8ef;
+}
+
+.loginBtn {
+  border: none;
+  background: #211500;
+  color: #f8f8f8;
+}
+
+.loginBtn:hover {
+  background: #3a2419;
+}
+
+/* Бургер-иконка видна только на мобильных */
+.burger {
+  display: block;
+  background: none;
+  border: none;
+  cursor: pointer;
+  padding: 8px;
+}
+
+@media (min-width: 1024px) {
+  .burger {
+    display: none;
+  }
+}
+
+/* Мобильное меню */
+.mobileMenu {
+  position: absolute;
+  top: var(--header-height);
+  left: 0;
+  right: 0;
+  background: white;
+  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.05);
+  padding: 16px 20px;
+  max-height: calc(100vh - var(--header-height));
+  overflow-y: auto;
+}
+
+@media (min-width: 1024px) {
+  .mobileMenu {
+    display: none;
+  }
+}
+
+/* Дополнительно — стили для мобильного списка */
+.mobileNavList {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+.mobileLink {
+  display: inline-flex;
+  align-items: center;
+  padding: 14px 0;
+  font-family: 'Raleway', system-ui, -apple-system, sans-serif;
+  font-size: 1rem;
+  line-height: 1;
+  font-weight: 700;
+  color: #211500;
+  text-decoration: none;
+}
+
+.mobileLink:hover,
+.mobileLink.active {
+  opacity: 0.75;
+}
+
+.mobileAuthBox {
+  margin-top: 16px;
+  padding-top: 14px;
+  border-top: 1px solid rgba(33, 21, 0, 0.14);
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.mobileProfileLink {
+  color: #211500;
+  text-decoration: none;
+  font-family: 'Raleway', system-ui, -apple-system, sans-serif;
+  font-size: 15px;
+  line-height: 1.3;
+  font-weight: 700;
+}
+
+.mobileProfileLink:hover {
+  opacity: 0.75;
+}
+
+.mobileAuthButton {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 42px;
+  padding: 0 16px;
+  border-radius: 22px;
+  border: 1px solid rgba(33, 21, 0, 0.24);
+  background: #ffffff;
+  color: #211500;
+  text-decoration: none;
+  font-family: 'Raleway', system-ui, -apple-system, sans-serif;
+  font-size: 15px;
+  line-height: 1;
+  font-weight: 600;
+  cursor: pointer;
+  transition: var(--transition);
+}
+
+.mobileAuthButton:hover {
+  border-color: rgba(33, 21, 0, 0.34);
+  background: #fff8ef;
+}
+
+.navBadge {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 18px;
+  height: 18px;
+  margin-left: 8px;
+  padding: 0 6px;
+  border-radius: 999px;
+  background: #211500;
+  color: #ffffff;
+  font-size: 11px;
+  line-height: 1;
+  font-weight: 700;
+}
+
+@media (max-width: 1023px) {
+  :root {
+    --header-height: 78px;
+  }
+
+  .container {
+    padding: 0 16px;
+  }
+}

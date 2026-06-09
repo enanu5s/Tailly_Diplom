@@ -1,0 +1,383 @@
+/* src/features/posts/ui/PostsList.module.css */
+.root {
+  display: flex;
+  flex-direction: column;
+  gap: 30px;
+}
+
+.controls {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 288px 134px;
+  gap: 20px;
+}
+
+.search,
+.select {
+  width: 100%;
+  height: 48px;
+  box-sizing: border-box;
+  border: 1px solid #c7c2ba;
+  border-radius: 10px;
+  background: #ffffff;
+  color: #211500;
+  font-family: Rubik, sans-serif;
+  font-size: 15px;
+  line-height: 18px;
+  outline: none;
+}
+
+.search {
+  padding: 0 20px;
+}
+
+.search::placeholder {
+  color: #6f685d;
+}
+
+.select {
+  padding: 0 44px 0 20px;
+  appearance: none;
+  cursor: pointer;
+  background-image:
+    linear-gradient(45deg, transparent 50%, #211500 50%),
+    linear-gradient(135deg, #211500 50%, transparent 50%);
+  background-position:
+    calc(100% - 25px) 21px,
+    calc(100% - 17px) 21px;
+  background-size: 8px 8px;
+  background-repeat: no-repeat;
+}
+
+.searchBtn {
+  height: 48px;
+  border: none;
+  border-radius: 10px;
+  background: #ccd308;
+  color: #211500;
+  font-family: Raleway, sans-serif;
+  font-size: 16px;
+  font-weight: 600;
+  line-height: 19px;
+  cursor: pointer;
+}
+
+.searchBtn:disabled {
+  cursor: not-allowed;
+  opacity: 0.6;
+}
+
+.tagsSection {
+  display: flex;
+  flex-direction: column;
+  gap: 15px;
+}
+
+.tagsHeader {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+}
+
+.tagsTitle {
+  color: #211500;
+  font-family: Raleway, sans-serif;
+  font-size: 16px;
+  font-weight: 700;
+  line-height: 19px;
+}
+
+.clearFiltersButton {
+  min-height: 34px;
+  padding: 0 18px;
+  border: 1px solid #6f685d;
+  border-radius: 23px;
+  background: transparent;
+  color: #6f685d;
+  font-family: Raleway, sans-serif;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.tagsList {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 14px;
+}
+
+.tagButton {
+  min-height: 38px;
+  padding: 0 23px;
+  border: 1px solid #6f685d;
+  border-radius: 23px;
+  background: #f8f8f8;
+  color: #6f685d;
+  font-family: Raleway, sans-serif;
+  font-size: 16px;
+  font-weight: 600;
+  line-height: 19px;
+  cursor: pointer;
+}
+
+.tagButtonActive {
+  border-color: #e5e881;
+  background: #e5e881;
+  color: #211500;
+}
+
+.error,
+.emptyState {
+  padding: 18px 22px;
+  border-radius: 16px;
+  font-family: Rubik, sans-serif;
+  font-size: 15px;
+  line-height: 18px;
+}
+
+.error {
+  background: rgba(239, 68, 68, 0.08);
+  color: #b91c1c;
+}
+
+.emptyState {
+  background: #ffffff;
+  color: #6f685d;
+}
+
+.grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 20px;
+}
+
+.card {
+  min-height: 471px;
+  padding: 30px;
+  display: flex;
+  flex-direction: column;
+  border: none;
+  border-radius: 20px;
+  background: #ffffff;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+  color: #211500;
+  text-align: left;
+  cursor: pointer;
+  transition:
+    transform 160ms ease,
+    box-shadow 160ms ease;
+}
+
+.card:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 20px rgba(255, 199, 33, 0.6);
+}
+
+.imageWrap,
+.imagePlaceholder {
+  position: relative;
+  height: 212px;
+  border-radius: 10px;
+  overflow: hidden;
+  background: #c5bbaa;
+}
+
+.image {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.extraBadge {
+  position: absolute;
+  right: 20px;
+  bottom: 20px;
+  min-width: 54px;
+  height: 42px;
+  padding: 0 12px;
+  box-sizing: border-box;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 10px;
+  background: #f8f8f8;
+  color: #6f685d;
+  font-family: Rubik, sans-serif;
+  font-size: 15px;
+  font-weight: 500;
+  line-height: 18px;
+}
+
+.cardTags {
+  margin-top: 20px;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+}
+
+.cardTag {
+  min-height: 30px;
+  padding: 0 30px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 23px;
+  background: #e5e881;
+  color: #211500;
+  font-family: Rubik, sans-serif;
+  font-size: 15px;
+  font-weight: 400;
+  line-height: 18px;
+}
+
+.cardTitle {
+  margin: 17px 0 0;
+  color: #211500;
+  font-family: Raleway, sans-serif;
+  font-size: 16px;
+  font-weight: 700;
+  line-height: 19px;
+}
+
+.cardTextWrap {
+  position: relative;
+  margin-top: 8px;
+  max-height: 54px;
+  overflow: hidden;
+}
+
+.cardText {
+  margin: 0;
+  color: #211500;
+  font-family: Rubik, sans-serif;
+  font-size: 15px;
+  font-weight: 400;
+  line-height: 18px;
+  display: -webkit-box;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 3;
+  line-clamp: 3;
+  overflow: hidden;
+}
+
+.fade {
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  height: 15px;
+  background: linear-gradient(
+    180deg,
+    rgba(255, 255, 255, 0) 0%,
+    rgba(255, 255, 255, 0.9) 100%
+  );
+  pointer-events: none;
+}
+
+.cardDate {
+  width: fit-content;
+  min-height: 28px;
+  margin-top: auto;
+  padding: 5px 13px;
+  box-sizing: border-box;
+  display: inline-flex;
+  align-items: center;
+  border-radius: 24px;
+  background: #fff3cd;
+  color: #211500;
+  font-family: Rubik, sans-serif;
+  font-size: 15px;
+  font-weight: 400;
+  line-height: 18px;
+}
+
+.pagination {
+  margin-top: 10px;
+  display: grid;
+  grid-template-columns: 64px 1fr 64px;
+  align-items: center;
+  gap: 20px;
+}
+
+.pageBtn {
+  width: 64px;
+  height: 42px;
+  padding: 0;
+  border: none;
+  background: transparent;
+  color: #211500;
+  font-size: 44px;
+  line-height: 1;
+  cursor: pointer;
+}
+
+.pageBtn:disabled {
+  color: #c7c2ba;
+  cursor: not-allowed;
+}
+
+.pageBtnPrev {
+  justify-self: start;
+}
+
+.pageBtnNext {
+  justify-self: end;
+}
+
+.pageInfo {
+  justify-self: center;
+  color: #211500;
+  font-family: Rubik, sans-serif;
+  font-size: 15px;
+  font-weight: 400;
+  line-height: 18px;
+}
+
+.skeleton {
+  min-height: 471px;
+  border-radius: 20px;
+  background: rgba(33, 21, 0, 0.08);
+}
+
+@media (max-width: 1100px) {
+  .controls {
+    grid-template-columns: 1fr;
+  }
+
+  .grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+@media (max-width: 767px) {
+  .root {
+    gap: 24px;
+  }
+
+  .card {
+    min-height: 0;
+    padding: 18px;
+    border-radius: 18px;
+  }
+
+  .imageWrap,
+  .imagePlaceholder {
+    height: 190px;
+  }
+
+  .cardTag,
+  .tagButton {
+    padding: 0 18px;
+    font-size: 14px;
+  }
+
+  .pagination {
+    grid-template-columns: 48px 1fr 48px;
+  }
+
+  .pageBtn {
+    width: 48px;
+    font-size: 36px;
+  }
+}

@@ -1,0 +1,530 @@
+/* src/features/admin-users-management/ui/AdminUsersManagementSection.module.css */
+
+.root {
+  width: min(1520px, calc(100vw - 124px));
+  margin: 0 auto;
+  padding: 12px 0 80px;
+  display: grid;
+  gap: 32px;
+  background: #f8f8f8;
+}
+
+.hero {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  grid-template-rows: auto auto;
+  column-gap: 40px;
+  row-gap: 14px;
+}
+
+.heroContent {
+  display: grid;
+  grid-column: 1;
+  grid-row: 1;
+}
+
+.badge,
+.subtitle {
+  display: none;
+}
+
+.title {
+  margin: 0;
+  font-family: 'Igra Sans', serif;
+  font-weight: 400;
+  font-size: 40px;
+  line-height: 120%;
+  color: #211500;
+}
+
+.stats {
+  display: flex;
+  gap: 15px;
+  grid-column: 2;
+  grid-row: 1 / span 2;
+  align-self: center;
+}
+
+.statCard {
+  width: 95px;
+  height: 88px;
+  border-radius: 8px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  background: #fff3cd;
+}
+
+.statCard:nth-child(2) {
+  background: #ffcf96;
+}
+
+.statLabel {
+  order: 0;
+  font-family: 'Raleway', sans-serif;
+  font-weight: 700;
+  font-size: 13px;
+  line-height: 120%;
+  color: #211500;
+}
+
+.statValue {
+  order: 1;
+  font-family: 'Igra Sans', serif;
+  font-weight: 400;
+  font-size: 32px;
+  line-height: 120%;
+  color: #211500;
+}
+
+.filtersCard {
+  padding: 0;
+  background: transparent;
+  box-shadow: none;
+  grid-column: 1;
+  grid-row: 2;
+}
+
+.filtersGrid {
+  display: flex;
+  gap: 14px;
+}
+
+.field,
+.fieldWide {
+  display: grid;
+  gap: 8px;
+}
+
+.fieldLabel {
+  display: none;
+}
+
+.input,
+.select {
+  height: 34px;
+  border: 1px solid #c7c2ba;
+  border-radius: 7px;
+  background: #ffffff;
+  padding: 0 14px;
+  font-family: 'Rubik', sans-serif;
+  font-size: 13px;
+  color: #211500;
+  outline: none;
+}
+
+.input::placeholder {
+  color: #6f685d;
+}
+
+.input:focus,
+.select:focus {
+  border-color: #211500;
+}
+
+.filtersGrid .field:first-child .input {
+  width: 310px;
+}
+
+.filtersGrid .field:nth-child(2) .select {
+  width: 202px;
+}
+
+.grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 16px;
+}
+
+.pagination {
+  width: 100%;
+  margin-top: 12px;
+  display: grid;
+  grid-template-columns: 64px 1fr 64px;
+  align-items: center;
+  color: #211500;
+  font-family: 'Rubik', sans-serif;
+  font-size: 15px;
+  line-height: 18px;
+}
+
+.pagination span {
+  text-align: center;
+}
+
+.pagination button {
+  border: 0;
+  background: transparent;
+  color: #211500;
+  font-size: 34px;
+  cursor: pointer;
+}
+
+.pagination button:disabled {
+  color: #c7c2ba;
+  cursor: not-allowed;
+}
+
+.card,
+.stateCard,
+.emptyCard {
+  background: #ffffff;
+  border-radius: 14px;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+}
+
+.card {
+  min-height: 250px;
+  padding: 22px;
+  display: grid;
+  grid-template-rows: auto 1fr auto;
+  gap: 18px;
+}
+
+.stateCard,
+.emptyCard {
+  padding: 22px;
+  font-family: 'Raleway', sans-serif;
+  font-weight: 700;
+  color: #211500;
+}
+
+.cardTop {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  align-items: flex-start;
+  gap: 18px;
+}
+
+.cardEmail {
+  max-width: 220px;
+  font-family: 'Raleway', sans-serif;
+  font-weight: 700;
+  font-size: 13px;
+  line-height: 120%;
+  color: #211500;
+  word-break: normal;
+  overflow-wrap: anywhere;
+}
+
+.cardTitle {
+  margin-top: 12px;
+  font-family: 'Igra Sans', serif;
+  font-weight: 400;
+  font-size: 24px;
+  line-height: 120%;
+  color: #211500;
+}
+
+.badges {
+  min-width: 134px;
+  display: flex;
+  gap: 12px;
+  justify-content: flex-end;
+}
+
+.roleClient,
+.roleSpecialist,
+.statusActive,
+.statusBlocked,
+.statusDeletionPending {
+  min-width: 82px;
+  min-height: 21px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 23px;
+  padding: 0 14px;
+  font-family: 'Rubik', sans-serif;
+  font-weight: 400;
+  font-size: 13px;
+  line-height: 120%;
+  color: #211500;
+  white-space: nowrap;
+}
+
+.roleClient {
+  background: #fff3cd;
+}
+
+.roleSpecialist {
+  background: #ffcf96;
+}
+
+.statusActive {
+  background: #e5e881;
+}
+
+.statusBlocked {
+  background: rgba(226, 11, 11, 0.08);
+  color: #e20b0b;
+}
+
+.statusDeletionPending {
+  background: #ffcf96;
+}
+
+.metaGrid {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(260px, 1.2fr);
+  column-gap: 34px;
+  row-gap: 8px;
+  align-content: start;
+}
+
+.metaItem {
+  display: flex;
+  align-items: baseline;
+  gap: 7px;
+  min-width: 0;
+}
+
+.metaLabel,
+.metaValue {
+  font-family: 'Raleway', sans-serif;
+  font-weight: 700;
+  font-size: 13px;
+  line-height: 140%;
+  font-feature-settings: 'pnum' on, 'lnum' on;
+}
+
+.metaLabel {
+  flex: 0 0 auto;
+  color: #6f685d;
+}
+
+.metaValue {
+  color: #211500;
+  white-space: nowrap;
+  word-break: normal;
+}
+
+.cardActions {
+  display: grid;
+  grid-template-columns: 180px 180px;
+  justify-content: space-between;
+  gap: 16px;
+}
+
+.cardActionsRisk {
+  display: contents;
+}
+
+.secondaryButton,
+.dangerButton,
+.editButton,
+.primaryButton,
+.modalClose,
+.quickButton {
+  min-height: 32px;
+  border-radius: 23px;
+  padding: 0 22px;
+  font-family: 'Raleway', sans-serif;
+  font-weight: 600;
+  font-size: 13px;
+  line-height: 120%;
+  cursor: pointer;
+}
+
+.secondaryButton,
+.editButton,
+.modalClose,
+.quickButton {
+  border: 1px solid #6f685d;
+  background: #ffffff;
+  color: #211500;
+}
+
+.primaryButton {
+  border: 1px solid #211500;
+  background: #211500;
+  color: #ffffff;
+}
+
+.dangerButton {
+  border: 1px solid #e20b0b;
+  background: rgba(226, 11, 11, 0.05);
+  color: #e20b0b;
+}
+
+.secondaryButton:disabled,
+.dangerButton:disabled,
+.editButton:disabled,
+.primaryButton:disabled,
+.modalClose:disabled,
+.quickButton:disabled {
+  cursor: not-allowed;
+  opacity: 0.65;
+}
+
+.errorBanner,
+.successBanner {
+  border-radius: 14px;
+  padding: 14px 18px;
+  font-family: 'Rubik', sans-serif;
+  font-size: 13px;
+}
+
+.errorBanner {
+  background: rgba(226, 11, 11, 0.08);
+  color: #e20b0b;
+}
+
+.successBanner {
+  background: rgba(229, 232, 129, 0.45);
+  color: #211500;
+}
+
+.overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 100;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 24px;
+  background: rgba(33, 21, 0, 0.45);
+}
+
+.modal {
+  width: 100%;
+  max-width: 760px;
+  max-height: calc(100vh - 48px);
+  overflow: auto;
+  display: grid;
+  gap: 24px;
+  border-radius: 20px;
+  background: #ffffff;
+  padding: 30px;
+  box-shadow: 0 24px 70px rgba(33, 21, 0, 0.22);
+}
+
+.modalHeader {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 20px;
+}
+
+.modalTitle {
+  margin: 0 0 8px;
+  font-family: 'Igra Sans', serif;
+  font-weight: 400;
+  font-size: 32px;
+  line-height: 120%;
+  color: #211500;
+}
+
+.modalSubtitle,
+.modalHint,
+.fieldHelp {
+  margin: 0;
+  font-family: 'Rubik', sans-serif;
+  font-size: 15px;
+  line-height: 1.5;
+  color: #6f685d;
+}
+
+.modalHint {
+  margin-top: 8px;
+}
+
+.formGrid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 16px;
+}
+
+.formGrid .fieldLabel,
+.formGrid .fieldWide .fieldLabel {
+  display: block;
+  font-family: 'Raleway', sans-serif;
+  font-weight: 700;
+  font-size: 16px;
+  color: #6f685d;
+}
+
+.formGrid .input {
+  width: auto;
+}
+
+.formGrid .fieldWide {
+  grid-column: 1 / -1;
+}
+
+.modalActions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 12px;
+}
+
+.quickActions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+
+.checkboxRow {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  min-height: 48px;
+  font-family: 'Raleway', sans-serif;
+  font-weight: 700;
+  color: #211500;
+}
+
+@media (max-width: 1100px) {
+  .root {
+    width: calc(100vw - 32px);
+    padding-bottom: 60px;
+  }
+
+  .hero {
+    grid-template-columns: 1fr;
+    row-gap: 18px;
+  }
+
+  .filtersGrid,
+  .stats {
+    flex-wrap: wrap;
+  }
+
+  .heroContent,
+  .filtersCard,
+  .stats {
+    grid-column: 1;
+    grid-row: auto;
+  }
+
+  .filtersGrid .field,
+  .filtersGrid .field:first-child .input,
+  .filtersGrid .field:nth-child(2) .select {
+    width: 100%;
+  }
+
+  .grid {
+    grid-template-columns: 1fr;
+  }
+
+  .cardTop,
+  .metaGrid,
+  .cardActions,
+  .formGrid {
+    grid-template-columns: 1fr;
+  }
+
+  .badges {
+    justify-content: flex-start;
+  }
+
+  .metaValue {
+    white-space: normal;
+  }
+
+  .pagination {
+    grid-template-columns: 44px 1fr 44px;
+  }
+}

@@ -1,0 +1,156 @@
+/* src/pages/shop/ui/ShopCartPage.module.css */
+.page {
+  min-height: calc(100vh - 160px);
+  padding: 32px 20px 80px;
+  background: #f8f8f8;
+}
+
+.container {
+  max-width: 1280px;
+  margin: 0 auto;
+}
+
+.topBar {
+  margin-bottom: 28px;
+}
+
+.header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 24px;
+  margin-bottom: 28px;
+}
+
+.title {
+  margin: 0;
+  color: #211500;
+  font-size: 36px;
+  line-height: 1.1;
+  font-weight: 800;
+}
+
+.headerActions {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+}
+
+.clearButton,
+.secondaryLink {
+  min-height: 44px;
+  min-width: 178px;
+  padding: 0 22px;
+  border: none;
+  border-radius: 8px;
+  font-size: 14px;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.clearButton {
+  background: #c7c2ba;
+  color: #211500;
+}
+
+.secondaryLink {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  background: #d6df00;
+  color: #211500;
+  text-decoration: none;
+}
+
+.layout {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 340px;
+  gap: 18px;
+  align-items: start;
+}
+
+.items {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.summary {
+  position: sticky;
+  top: 96px;
+}
+
+.stateCard {
+  padding: 32px;
+  border: 1px solid #ede8e2;
+  border-radius: 20px;
+  background: #ffffff;
+  box-shadow: 0 8px 24px rgba(33, 21, 0, 0.08);
+}
+
+.stateTitle {
+  margin: 0 0 10px;
+  color: #211500;
+  font-size: 24px;
+}
+
+.stateText {
+  margin: 0;
+  color: rgba(33, 21, 0, 0.7);
+  font-size: 15px;
+  line-height: 1.6;
+}
+
+.retryButton,
+.catalogButton {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  margin-top: 18px;
+  min-height: 44px;
+  padding: 0 20px;
+  border: none;
+  border-radius: 999px;
+  background: #211500;
+  color: #ffffff;
+  font-size: 14px;
+  font-weight: 700;
+  text-decoration: none;
+  cursor: pointer;
+}
+
+@media (max-width: 1024px) {
+  .layout {
+    grid-template-columns: 1fr;
+  }
+
+  .summary {
+    position: static;
+  }
+}
+
+@media (max-width: 720px) {
+  .page {
+    padding: 24px 16px 64px;
+  }
+
+  .header {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .headerActions {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .clearButton,
+  .secondaryLink {
+    width: 100%;
+  }
+
+  .title {
+    font-size: 32px;
+  }
+}

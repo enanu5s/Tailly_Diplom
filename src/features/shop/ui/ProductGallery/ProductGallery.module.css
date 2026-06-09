@@ -1,0 +1,138 @@
+/* src/features/shop/ui/ProductGallery/ProductGallery.module.css */
+.gallery {
+  display: grid;
+  grid-template-columns: 88px minmax(0, 1fr);
+  gap: 16px;
+  height: 100%;
+}
+
+.gallery:has(.thumbsPlaceholder) {
+  grid-template-columns: 1fr;
+}
+
+.thumbs,
+.thumbsPlaceholder {
+  width: 88px;
+}
+
+.thumbs {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.thumbsPlaceholder {
+  display: none;
+}
+
+.thumbButton {
+  width: 88px;
+  height: 88px;
+}
+
+.thumbButtonActive {
+  border-color: #211500;
+}
+
+.thumbImage {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.mainImageWrap {
+  height: 100%;
+  min-height: 398px;
+  border-radius: 14px;
+  background: #f4f1ec;
+  overflow: hidden;
+}
+
+.mainImage {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.emptyState {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 14px;
+  width: 100%;
+  height: 100%;
+  color: #8a5b17;
+  font-size: 22px;
+  text-align: center;
+}
+
+.emptyIcon {
+  position: relative;
+  width: 380px;
+  max-width: 74%;
+  height: 230px;
+  border: 6px solid #d8c9ad;
+  border-radius: 28px;
+}
+
+.emptySun {
+  position: absolute;
+  top: 48px;
+  left: 88px;
+  width: 42px;
+  height: 42px;
+  border: 6px solid #d8c9ad;
+  border-radius: 50%;
+}
+
+.emptyLineOne,
+.emptyLineTwo {
+  position: absolute;
+  bottom: 54px;
+  height: 6px;
+  border-radius: 999px;
+  background: #d8c9ad;
+  transform-origin: left center;
+}
+
+.emptyLineOne {
+  left: 58px;
+  width: 150px;
+  transform: rotate(-47deg);
+}
+
+.emptyLineTwo {
+  left: 190px;
+  width: 132px;
+  transform: rotate(50deg);
+}
+
+@media (max-width: 640px) {
+  .gallery {
+    grid-template-columns: 1fr;
+  }
+
+  .thumbs,
+  .thumbsPlaceholder {
+    width: 100%;
+  }
+
+  .thumbs {
+    order: 2;
+    flex-direction: row;
+    overflow-x: auto;
+  }
+
+  .thumbButton {
+    width: 88px;
+    height: 88px;
+    flex: 0 0 88px;
+  }
+
+  .mainImageWrap {
+    height: 320px;
+  }
+}

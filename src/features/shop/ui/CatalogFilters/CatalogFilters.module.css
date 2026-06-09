@@ -1,0 +1,200 @@
+/* src/features/shop/ui/CatalogFilters/CatalogFilters.module.css */
+.sidebar {
+  width: 288px;
+  flex: 0 0 288px;
+  box-sizing: border-box;
+
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+  padding: 30px 20px;
+  border: 1px solid #e9e4de;
+  border-radius: 20px;
+  background: #ffffff;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+}
+
+.section {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.label {
+  color: #211500;
+  font-family: 'Raleway', sans-serif;
+  font-size: 14px;
+  font-weight: 700;
+  line-height: 1.2;
+}
+
+.customSelect {
+  position: relative;
+}
+
+.customSelectTrigger {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  width: 100%;
+  height: 34px;
+  padding: 0 12px;
+  border: 1px solid #d8d2ca;
+  border-radius: 10px;
+  background: #ffffff;
+  color: #211500;
+  font-family: 'Rubik', sans-serif;
+  font-size: 13px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.customSelectTrigger:hover {
+  border-color: #cfc7be;
+}
+
+.customSelectOpen .customSelectTrigger {
+  border-color: #e5ddd3;
+  box-shadow: 0 6px 18px rgba(33, 21, 0, 0.08);
+}
+
+.customSelectValue {
+  min-width: 0;
+}
+
+.customSelectArrow {
+  font-size: 10px;
+  color: #8f877b;
+  transition: transform 0.2s ease;
+}
+
+.customSelectOpen .customSelectArrow {
+  transform: rotate(180deg);
+}
+
+.customSelectMenu {
+  position: absolute;
+  top: calc(100% + 6px);
+  left: 0;
+  z-index: 20;
+  width: 100%;
+  padding: 6px 0;
+  border-radius: 12px;
+  background: #ffffff;
+  box-shadow: 0 16px 32px rgba(33, 21, 0, 0.18);
+  overflow: hidden;
+}
+
+.customSelectOption {
+  display: flex;
+  align-items: center;
+  width: 100%;
+  height: 42px;
+  padding: 0 14px;
+  border: none;
+  background: transparent;
+  color: #211500;
+  font-family: 'Rubik', sans-serif;
+  font-size: 13px;
+  cursor: pointer;
+  transition: background 0.15s ease;
+}
+
+.customSelectOption:hover {
+  background: #F0EDE2;
+}
+
+.customSelectOptionActive {
+  background: #FFF3CD;
+  font-weight: 500;
+}
+
+.checkboxList {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.checkboxItem {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  color: #6f685d;
+  font-family: 'Rubik', sans-serif;
+  font-size: 13px;
+  line-height: 1.2;
+}
+
+.checkboxItem input[type='checkbox'] {
+  width: 12px;
+  height: 12px;
+  accent-color: #211500;
+}
+
+.priceGrid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 12px;
+}
+
+.input {
+  width: 100%;
+  min-width: 0;
+  height: 48px;
+  padding: 0 20px;
+  box-sizing: border-box;
+  border: 1px solid #c7c2ba;
+  border-radius: 10px;
+  background: #ffffff;
+  color: #211500;
+  font-family: 'Rubik', sans-serif;
+  font-size: 15px;
+  line-height: 18px;
+  outline: none;
+  transition:
+    border-color 0.2s ease,
+    box-shadow 0.2s ease;
+}
+
+.input::placeholder {
+  color: #6f685d;
+}
+
+.input:focus {
+  border-color: #211500;
+  box-shadow: 0 0 0 2px rgba(33, 21, 0, 0.08);
+}
+
+.resetButton {
+  width: 100%;
+  height: 45px;
+  border: 1px solid #9f9384;
+  border-radius: 999px;
+  background: #ffffff;
+  color: #211500;
+  font-family: 'Raleway', sans-serif;
+  font-size: 17px;
+  font-weight: 700;
+  cursor: pointer;
+  transition:
+    background 0.2s ease,
+    transform 0.2s ease;
+}
+
+.resetButton:hover {
+  background: #fbfaf8;
+  transform: translateY(-1px);
+}
+
+
+@media (max-width: 1023px) {
+  .sidebar {
+    width: 100%;
+    flex-basis: auto;
+  }
+
+  .priceGrid {
+    grid-template-columns: 1fr;
+  }
+}

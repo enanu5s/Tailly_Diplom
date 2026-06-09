@@ -1,0 +1,12 @@
+/* src/pages/admin-posts/ui/AdminPostsPage.module.css */
+.page {
+  width: 100%;
+  max-width: none;
+  margin: 0 auto;
+  padding: 0 0 56px;
+  box-sizing: border-box;
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+  background: #f8f8f8;
+}

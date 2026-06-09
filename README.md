@@ -1,73 +1,83 @@
-# React + TypeScript + Vite
+# Tailly
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+Frontend дипломного проекта: платформа поиска петситтеров и специалистов по уходу за животными. SPA на React с разделением по ролям, feature-based структурой и переключением mock / реального API.
 
-Currently, two official plugins are available:
+## Стек
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Babel](https://babeljs.io/) (or [oxc](https://oxc.rs) when used in [rolldown-vite](https://vite.dev/guide/rolldown)) for Fast Refresh
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/) for Fast Refresh
+- React 19, TypeScript (strict), Vite 7
+- React Router 7, MobX
+- CSS Modules, Recharts, 2GIS MapGL
+- Zod — валидация ответов критичных эндпоинтов и тела ошибок API
+- ESLint, Prettier
+- Vitest + Testing Library — unit/component-тесты
+- E2E: Playwright через pytest (`tests/e2e`)
 
-## React Compiler
+## Структура `src/`
 
-The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
+| Каталог     | Назначение                                           |
+| ----------- | ---------------------------------------------------- |
+| `app/`      | layout, роутинг, guards                              |
+| `pages/`    | страницы (композиция features)                       |
+| `features/` | доменная логика: `api/`, `model/`, `service/`, `ui/` |
+| `shared/`   | UI-kit, `api/`, `config/`, `lib/`, mock-db           |
 
-## Expanding the ESLint configuration
+Переменные окружения и флаг mock читаются централизованно из `src/shared/config/env.ts` (`isMockApiMode`, `resolveApiBaseUrl`, `get2GisApiKey`, и т.д.).
 
-If you are developing a production application, we recommend updating the configuration to enable type-aware lint rules:
+## Роли
 
-```js
-export default defineConfig([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
+Гость, клиент, специалист, администратор, super-admin. Доступ к маршрутам ограничен guard-компонентами; окончательная авторизация должна дублироваться на backend.
 
-      // Remove tseslint.configs.recommended and replace with this
-      tseslint.configs.recommendedTypeChecked,
-      // Alternatively, use this for stricter rules
-      tseslint.configs.strictTypeChecked,
-      // Optionally, add this for stylistic rules
-      tseslint.configs.stylisticTypeChecked,
+## Скрипты
 
-      // Other configs...
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
+```bash
+npm install          # зависимости
+npm run dev          # dev-сервер (Vite)
+npm run build        # production-сборка
+npm run preview      # предпросмотр сборки
+npm run lint         # ESLint
+npm run lint:fix
+npm run format       # Prettier — запись
+npm run format:check # Prettier — проверка
+npm run typecheck    # tsc -b
+npm run test         # Vitest (unit/component)
+npm run test:watch
+npm run check        # lint + format + typecheck + test + build (используется в CI)
 ```
 
-You can also install [eslint-plugin-react-x](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-x) and [eslint-plugin-react-dom](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-dom) for React-specific lint rules:
+E2E (нужен запущенный `npm run dev`):
 
-```js
-// eslint.config.js
-import reactX from 'eslint-plugin-react-x'
-import reactDom from 'eslint-plugin-react-dom'
-
-export default defineConfig([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
-      // Enable lint rules for React
-      reactX.configs['recommended-typescript'],
-      // Enable lint rules for React DOM
-      reactDom.configs.recommended,
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
+```bash
+pip install -r tests/e2e/requirements.txt
+npm run test:e2e
 ```
+
+## Переменные окружения
+
+Скопируйте `.env.example` в `.env` и при необходимости измените значения.
+
+| Переменная           | Описание                                                                                                          |
+| -------------------- | ----------------------------------------------------------------------------------------------------------------- |
+| `VITE_API_BASE_URL`  | URL API без `/` в конце. В dev при отсутствии используется `http://localhost:3000`. В production **обязательна**. |
+| `VITE_USE_MOCK_API`  | `true` (по умолчанию) — mock; `false` — HTTP к backend.                                                           |
+| `VITE_2GIS_API_KEY`  | Ключ для карты и геоподсказок (попадает в бандл).                                                                 |
+| `VITE_SUPPORT_EMAIL` | Email поддержки в UI; если не задан — используется значение по умолчанию в коде.                                  |
+
+## HTTP-слой и ошибки
+
+- Клиент: `src/shared/api/http.ts` — таймауты, `AbortSignal`, `Authorization`, реакция на 401.
+- Ожидаемый JSON при ошибке от сервера (парсится через Zod): поля `message`, `code`, `errors` (объект строк) — см. `src/shared/api/schemas/apiErrorBodySchema.ts`.
+- Несоответствие ответа схеме после успешного HTTP даёт `ApiValidationError` (`src/shared/api/apiValidationError.ts`).
+- Для **логина клиента/специалиста**, **логина админа** и **профиля** (`/me/profile`, контакты, основные данные) ответы проверяются Zod при `VITE_USE_MOCK_API=false`.
+
+## CI
+
+Workflow GitHub Actions: `.github/workflows/ci.yml` — на push/PR выполняется `npm ci` и `npm run check`.
+
+## Качество кода
+
+- TypeScript: `strict`, unused locals/parameters.
+- Тесты лежат рядом с кодом: `*.test.ts`, `*.test.tsx` (в основной сборке `tsc` они исключены, см. `tsconfig.app.json`).
+
+## Лицензия / статус
+
+Проект учебный (диплом). Состояние репозитория: проходят `npm run check` и production build.
