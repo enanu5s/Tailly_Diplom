@@ -12,7 +12,7 @@ SPECIALIST_EMAIL = "specialist@tailly.local"
 ADMIN_EMAIL = "admin@tailly.local"
 SUPERADMIN_EMAIL = "superadmin@tailly.local"
 # Совпадает с DEMO_CLIENT_SPECIALIST_PASSWORD в mock-db
-DEMO_PASSWORD = "123456"
+DEMO_PASSWORD = "12345678"
 # Совпадает с DEMO_ADMIN_PANEL_PASSWORD / DEMO_SUPER_ADMIN_PANEL_PASSWORD (demoDataset.seed)
 ADMIN_PASSWORD = "Admin123!"
 SUPERADMIN_PASSWORD = "SuperAdmin123!"

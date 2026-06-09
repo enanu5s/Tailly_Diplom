@@ -54,9 +54,9 @@ export function readProductOrdersFromShop(): ProductOrder[] {
   const mapped = shopOrders.map(mapShopOrderToProductOrder);
 
   ensureMockDatabaseLoaded();
-  const legacy = cloneDeep(unsafeMutableMockDb().legacyProductOrders);
+  const fromDb = cloneDeep(unsafeMutableMockDb().orders.product);
 
-  const base = mapped.length > 0 ? mapped : legacy;
+  const base = mapped.length > 0 ? mapped : fromDb;
   const seed = mapShopOrderToProductOrder(getSeedReceivedShopOrder());
 
   if (base.some((order) => order.id === seed.id)) {

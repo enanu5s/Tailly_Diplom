@@ -29,13 +29,32 @@ function firstDayOfMonthIso(ref: Date): string {
  * Окна доступности на ближайшие дни (завтра и далее), чтобы `buildSlotsFromWindowsForService`
  * не отбрасывал все слоты как прошедшие.
  */
-export function buildRollingDemoCalendar(now: Date = new Date()): SpecialistCalendar {
-  const d1 = toIsoLocal(addDays(now, 1));
-  const d2 = toIsoLocal(addDays(now, 2));
-  const d3 = toIsoLocal(addDays(now, 3));
-  const d4 = toIsoLocal(addDays(now, 4));
-  const dayOff = toIsoLocal(addDays(now, 7));
-  const fullyBooked = toIsoLocal(addDays(now, 10));
+/**
+ * @param specialistIndex 1…10 — смещает окна и брони, чтобы у специалистов были разные свободные дни
+ */
+export function buildRollingDemoCalendar(
+  specialistIndex = 1,
+  now: Date = new Date(),
+): SpecialistCalendar {
+  const shift = (specialistIndex - 1) * 2;
+  const d1 = toIsoLocal(addDays(now, 1 + shift));
+  const d2 = toIsoLocal(addDays(now, 2 + shift));
+  const d3 = toIsoLocal(addDays(now, 3 + (shift % 3)));
+  const d4 = toIsoLocal(addDays(now, 5 + (shift % 4)));
+  const d5 = toIsoLocal(addDays(now, 6 + shift));
+  const dayOff = toIsoLocal(addDays(now, 8 + (specialistIndex % 5)));
+  const fullyBooked = toIsoLocal(addDays(now, 11 + (specialistIndex % 4)));
+  const morningOnly = toIsoLocal(addDays(now, 4 + shift));
+
+  const walkStart = `${String(9 + (specialistIndex % 3)).padStart(2, '0')}:00`;
+  const walkEnd = `${String(18 + (specialistIndex % 2)).padStart(2, '0')}:00`;
+  const weekdaySet =
+    specialistIndex % 3 === 0
+      ? [1, 3, 5]
+      : specialistIndex % 3 === 1
+        ? [2, 4, 6]
+        : [1, 2, 4, 5];
+  const weekendSet = specialistIndex % 2 === 0 ? [0, 6] : [6];
 
   return {
     timezone: 'Europe/Moscow',
@@ -45,63 +64,73 @@ export function buildRollingDemoCalendar(now: Date = new Date()): SpecialistCale
     ],
     bookedSlots: [
       {
-        id: 'booked-1',
+        id: `booked-sp${specialistIndex}-1`,
         date: d1,
-        startTime: '10:00',
-        endTime: '11:00',
+        startTime: `${String(10 + (specialistIndex % 2)).padStart(2, '0')}:00`,
+        endTime: `${String(11 + (specialistIndex % 2)).padStart(2, '0')}:00`,
         serviceIds: ['walking'],
-        orderId: 'seed-booking-1',
+        orderId: `seed-booking-sp${specialistIndex}-1`,
         bufferAfterMinutes: 15,
       },
+      ...(specialistIndex % 2 === 0
+        ? [
+            {
+              id: `booked-sp${specialistIndex}-2`,
+              date: d2,
+              startTime: '14:00',
+              endTime: '16:00',
+              serviceIds: ['grooming'],
+              orderId: `seed-booking-sp${specialistIndex}-2`,
+            },
+          ]
+        : []),
       {
-        id: 'booked-2',
-        date: d1,
-        startTime: '14:00',
-        endTime: '15:30',
-        serviceIds: ['photoshoot'],
-        orderId: 'seed-booking-2',
-        bufferBeforeMinutes: 15,
-        bufferAfterMinutes: 30,
-      },
-      {
-        id: 'booked-3',
+        id: `booked-sp${specialistIndex}-3`,
         date: d3,
         startTime: '13:00',
         endTime: '23:59',
         serviceIds: ['boarding'],
-        orderId: 'seed-booking-3',
+        orderId: `seed-booking-sp${specialistIndex}-3`,
       },
       {
-        id: 'booked-4',
+        id: `booked-sp${specialistIndex}-4`,
         date: d4,
         startTime: '00:00',
         endTime: '11:00',
         serviceIds: ['boarding'],
-        orderId: 'seed-booking-3',
+        orderId: `seed-booking-sp${specialistIndex}-3`,
       },
     ],
     availabilityWindows: [
       {
-        id: 'window-1',
+        id: `window-sp${specialistIndex}-1`,
         date: d1,
-        startTime: '09:00',
-        endTime: '21:00',
+        startTime: walkStart,
+        endTime: walkEnd,
         serviceIds: ['walking', 'photoshoot', 'grooming'],
         comment: 'Основное дневное окно',
       },
       {
-        id: 'window-2',
+        id: `window-sp${specialistIndex}-2`,
         date: d2,
         startTime: '10:00',
-        endTime: '19:00',
-        serviceIds: ['walking', 'photoshoot', 'grooming'],
+        endTime: specialistIndex % 2 === 0 ? '17:00' : '20:00',
+        serviceIds: ['walking', 'training'],
       },
       {
-        id: 'window-3',
-        date: d3,
-        startTime: '10:00',
-        endTime: '20:00',
-        serviceIds: ['boarding', 'training'],
+        id: `window-sp${specialistIndex}-3`,
+        date: d5,
+        startTime: '09:30',
+        endTime: '18:30',
+        serviceIds: ['boarding', 'training', 'photoshoot'],
+      },
+      {
+        id: `window-sp${specialistIndex}-4`,
+        date: morningOnly,
+        startTime: '08:00',
+        endTime: '12:00',
+        serviceIds: ['walking'],
+        comment: 'Только утро',
       },
     ],
     bookingSettings: {
@@ -112,21 +141,21 @@ export function buildRollingDemoCalendar(now: Date = new Date()): SpecialistCale
     },
     availabilityRules: [
       {
-        id: 'rule-walk-weekdays',
+        id: `rule-walk-sp${specialistIndex}`,
         title: 'Выгул',
         serviceIds: ['walking'],
         startDate: firstDayOfMonthIso(now),
-        startTime: '09:00',
-        endTime: '20:00',
+        startTime: walkStart,
+        endTime: walkEnd,
         recurrence: {
           frequency: 'weekly',
-          interval: 1,
-          weekDays: [1, 2, 3, 4, 5],
+          interval: specialistIndex % 2 === 0 ? 1 : 2,
+          weekDays: weekdaySet,
         },
         isEnabled: true,
       },
       {
-        id: 'rule-photo-weekend',
+        id: `rule-photo-sp${specialistIndex}`,
         title: 'Фотосессия',
         serviceIds: ['photoshoot'],
         startDate: firstDayOfMonthIso(now),
@@ -135,30 +164,30 @@ export function buildRollingDemoCalendar(now: Date = new Date()): SpecialistCale
         recurrence: {
           frequency: 'weekly',
           interval: 1,
-          weekDays: [0, 6],
+          weekDays: weekendSet,
         },
-        isEnabled: true,
+        isEnabled: specialistIndex % 4 !== 0,
       },
       {
-        id: 'rule-boarding-daily',
+        id: `rule-boarding-sp${specialistIndex}`,
         title: 'Передержка',
         serviceIds: ['boarding'],
         startDate: firstDayOfMonthIso(now),
         startTime: '09:00',
         endTime: '21:00',
         recurrence: {
-          frequency: 'daily',
-          interval: 1,
+          frequency: specialistIndex % 3 === 0 ? 'every_n_days' : 'daily',
+          interval: specialistIndex % 3 === 0 ? 2 : 1,
         },
         isEnabled: true,
       },
     ],
     availabilityOverrides: [
       {
-        id: 'override-1',
+        id: `override-sp${specialistIndex}-1`,
         targetDate: d2,
         editScope: 'single',
-        sourceRuleId: 'rule-walk-weekdays',
+        sourceRuleId: `rule-walk-sp${specialistIndex}`,
         startTime: '13:00',
         endTime: '19:00',
         serviceIds: ['walking'],

@@ -21,11 +21,14 @@
   },
   "dependencies": {
     "@2gis/mapgl": "^1.70.1",
+    "classnames": "^2.5.1",
     "clsx": "^2.1.1",
+    "i18next": "^26.3.1",
     "mobx": "^6.15.0",
     "mobx-react-lite": "^4.1.1",
     "react": "^19.2.0",
     "react-dom": "^19.2.0",
+    "react-i18next": "^17.0.8",
     "react-router-dom": "^7.13.0",
     "recharts": "^3.8.0",
     "zod": "^4.3.6"

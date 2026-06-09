@@ -5,9 +5,9 @@ import { mockCancelOrder } from '@/features/shop/api/shopOrderApi.mock';
 import { readStoredOrders, writeStoredOrders } from '@/features/shop/data/mockShopOrders';
 import type { Order as ShopOrder } from '@/features/shop/model/types';
 import {
-  MOCK_SPECIALIST_PROFILES,
-  cloneProfile,
   findProfileIndexBySlug,
+  getProfileAtIndex,
+  patchProfileAtIndex,
 } from '@/features/specialist-profile/data/mockSpecialistProfiles';
 import { computeSpecialistStats } from '@/features/specialist-profile/lib/computeSpecialistStats';
 import type {
@@ -15,10 +15,6 @@ import type {
   SpecialistReview,
   SpecialistService,
 } from '@/features/specialist-profile/model/types';
-import {
-  syncMockSpecialistCalendarSlotsFromProfile,
-  syncMockSpecialistListingStatsFromProfile,
-} from '@/features/specialists-search/data/mockSpecialists';
 import { isClientBlockedFromBookingOwnSpecialist } from '@/shared/lib/auth/roleAccess';
 import {
   notifyServiceOrderCreated,
@@ -218,9 +214,14 @@ function getSpecialistProfileOrThrow(slug: string) {
     throw new Error('Специалист не найден.');
   }
 
+  const profile = getProfileAtIndex(profileIndex);
+  if (!profile) {
+    throw new Error('Специалист не найден.');
+  }
+
   return {
     profileIndex,
-    profile: MOCK_SPECIALIST_PROFILES[profileIndex],
+    profile,
   };
 }
 
@@ -763,27 +764,28 @@ function syncBookedSlotsForOrder(order: ServiceOrder): void {
     return a.endTime.localeCompare(b.endTime);
   });
 
-  MOCK_SPECIALIST_PROFILES[profileIndex].calendar.bookedSlots = clone(nextSlots);
-
-  syncSearchCalendarSlotsForSpecialist(order.specialistSlug);
+  patchProfileAtIndex(profileIndex, (profile) => ({
+    ...profile,
+    calendar: {
+      ...profile.calendar,
+      bookedSlots: clone(nextSlots),
+    },
+  }));
 }
 
 function removeBookedSlotsForOrder(order: ServiceOrder): void {
   const { profileIndex, profile } = getSpecialistProfileOrThrow(order.specialistSlug);
 
-  MOCK_SPECIALIST_PROFILES[profileIndex].calendar.bookedSlots =
-    profile.calendar.bookedSlots.filter((slot) => slot.orderId !== order.id);
-
-  syncSearchCalendarSlotsForSpecialist(order.specialistSlug);
+  patchProfileAtIndex(profileIndex, (p) => ({
+    ...p,
+    calendar: {
+      ...p.calendar,
+      bookedSlots: profile.calendar.bookedSlots.filter((slot) => slot.orderId !== order.id),
+    },
+  }));
 }
 
-/** Карточки поиска (`MOCK_SPECIALISTS.calendarSlots`) читают занятость из того же календаря. */
-function syncSearchCalendarSlotsForSpecialist(specialistSlug: string): void {
-  const { profile } = getSpecialistProfileOrThrow(specialistSlug);
-  syncMockSpecialistCalendarSlotsFromProfile(cloneProfile(profile));
-}
-
-/** Снимок stats в профиле + рейтинг/число отзывов в списке поиска. */
+/** Снимок stats в профиле (список поиска пересчитывается при чтении). */
 function syncSpecialistProfileStoredStats(specialistSlug: string): void {
   const { profileIndex, profile } = getSpecialistProfileOrThrow(specialistSlug);
   const nextStats = computeSpecialistStats({
@@ -793,12 +795,10 @@ function syncSpecialistProfileStoredStats(specialistSlug: string): void {
     reviews: profile.reviews,
   });
 
-  MOCK_SPECIALIST_PROFILES[profileIndex] = {
-    ...profile,
+  patchProfileAtIndex(profileIndex, (p) => ({
+    ...p,
     stats: nextStats,
-  };
-
-  syncMockSpecialistListingStatsFromProfile(MOCK_SPECIALIST_PROFILES[profileIndex]);
+  }));
 }
 
 function appendLifecycleStatus(
@@ -864,8 +864,7 @@ function addReviewToSpecialist(order: ServiceOrder, review: ServiceOrderReview):
     }),
   };
 
-  MOCK_SPECIALIST_PROFILES[profileIndex] = nextProfile;
-  syncMockSpecialistListingStatsFromProfile(nextProfile);
+  patchProfileAtIndex(profileIndex, () => nextProfile);
 }
 
 function isShopOrderVisibleToCurrentViewer(order: ShopOrder): boolean {

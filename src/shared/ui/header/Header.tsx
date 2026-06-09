@@ -92,7 +92,7 @@ export const Header = observer(() => {
           <Logo size="large" variant="dark" />
         </Link>
 
-        <nav className={styles.navDesktop}>
+        <nav className={styles.navDesktop} aria-label="Основное меню">
           <ul className={styles.navList}>
             {navItems.map((item) => (
               <li key={item.to} className={styles.navItem}>
@@ -122,7 +122,15 @@ export const Header = observer(() => {
         <div className={styles.rightDesktop}>
           {isAuth ? (
             <div className={styles.userBox}>
-              <Link to="/messages" className={styles.messagesLink} aria-label="Открыть сообщения">
+              <Link
+                to="/messages"
+                className={styles.messagesLink}
+                aria-label={
+                  messagesBadgeCount > 0
+                    ? `Открыть сообщения, непрочитанных: ${messagesBadgeCount}`
+                    : 'Открыть сообщения'
+                }
+              >
                 <img
                   className={styles.messagesIcon}
                   src="/icons/tabler_message.svg"

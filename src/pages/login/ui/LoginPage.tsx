@@ -1,19 +1,12 @@
 // src/pages/login/ui/LoginPage.tsx
 
 import { observer } from 'mobx-react-lite';
-import { useEffect, useMemo, useState, useSyncExternalStore } from 'react';
+import { useEffect, useMemo, useSyncExternalStore } from 'react';
 import { Link, useLocation, useSearchParams, type Location } from 'react-router-dom';
 
 import { authStore, loginStore } from '@/features/auth';
-import { isMockApiMode } from '@/shared/config/env';
-import {
-  getMockUnifiedLoginDemoRows,
-  type MockDemoCredentialRow,
-} from '@/shared/config/mockDemoCredentials';
 import { getDefaultAuthorizedRoute } from '@/shared/lib/auth';
 import { useAppNavigate } from '@/shared/lib/navigation/useAppNavigate';
-import { subscribeMockDatabase } from '@/shared/mock-db/store';
-
 import styles from './LoginPage.module.css';
 
 import type { FormEvent, ReactElement } from 'react';
@@ -82,16 +75,6 @@ export const LoginPage = observer((): ReactElement => {
   const location = useLocation();
   const [searchParams] = useSearchParams();
   const authState = useSyncExternalStore(authStore.subscribe, authStore.getState);
-
-  const [mockDemoRows, setMockDemoRows] = useState<MockDemoCredentialRow[]>(() =>
-    getMockUnifiedLoginDemoRows(),
-  );
-
-  useEffect(() => {
-    return subscribeMockDatabase(() => {
-      setMockDemoRows(getMockUnifiedLoginDemoRows());
-    });
-  }, []);
 
   const accountFlowNotice = useMemo(() => {
     if (searchParams.get('accountDeletion') === 'scheduled') {

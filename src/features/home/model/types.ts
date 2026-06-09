@@ -24,6 +24,7 @@ export type HomeReview = {
   sitterName: string;
   serviceTitle: string;
   photoUrls: string[];
+  city?: string;
 };
 
 export type HomeService = ServiceConfig;

@@ -7,9 +7,9 @@ import type {
   ProductCharacteristics,
   ProductReview,
   ProductSort,
-} from '../model/types';
+} from '@/features/shop/model/types';
 
-export const SHOP_CATEGORIES_MOCK: ProductCategory[] = [
+export const SEED_SHOP_CATEGORIES: ProductCategory[] = [
   {
     id: '1',
     slug: 'food',
@@ -197,7 +197,7 @@ function detectMaterial(input: ProductMockInput): string {
   }
 }
 
-export const SHOP_PRODUCTS_MOCK: Product[] = [
+export const SEED_SHOP_PRODUCTS: Product[] = [
   createProduct({
     id: 'product-1',
     slug: 'cat-food-premium-salmon',
@@ -788,5 +788,5 @@ export function buildCatalogMetaForLists(
 }
 
 export function buildCatalogMetaMock(): CatalogMetaResponse {
-  return buildCatalogMetaForLists(SHOP_PRODUCTS_MOCK, SHOP_CATEGORIES_MOCK);
+  return buildCatalogMetaForLists(SEED_SHOP_PRODUCTS, SEED_SHOP_CATEGORIES);
 }

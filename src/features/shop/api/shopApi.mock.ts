@@ -1,6 +1,10 @@
 // src/features/shop/api/shopApi.mock.ts
 
-import { applyFilters, applySort, buildCatalogMetaForLists } from '../data/mockShop';
+import {
+  applyFilters,
+  applySort,
+  buildCatalogMetaForLists,
+} from '@/shared/mock-db/seed/shop.seed';
 import {
   getShopCategoriesSnapshot,
   getShopProductsSnapshot,

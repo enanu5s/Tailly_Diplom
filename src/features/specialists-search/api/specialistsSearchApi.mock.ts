@@ -1,6 +1,6 @@
 // src/features/specialists-search/api/specialistsSearchApi.mock.ts
 
-import { cloneSpecialists } from '../data/mockSpecialists';
+import { cloneSpecialistListing } from '@/shared/mock-db/accessors';
 
 import type { SearchFilters, Specialist } from '../model/types';
 
@@ -88,7 +88,7 @@ function matchesPrice(
 export async function mockGetSpecialists(
   filters?: Partial<SearchFilters>,
 ): Promise<Specialist[]> {
-  const specialists = cloneSpecialists();
+  const specialists = cloneSpecialistListing();
 
   return specialists.filter((specialist) => {
     if (!includesQuery(specialist.city, filters?.cityQuery)) {
