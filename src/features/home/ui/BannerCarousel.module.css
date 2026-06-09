@@ -5,7 +5,6 @@
   gap: 14px;
   align-items: center;
   isolation: isolate;
-  overflow-x: clip;
 }
 
 .root::before {
@@ -15,7 +14,7 @@
   bottom: -90px;
   width: 300px;
   height: 300px;
-  background: url('/images/home/banner-blur-orange.png') center / contain no-repeat;
+  background: url('/images/home/banner-blur-yellow.png') center / contain no-repeat;
   pointer-events: none;
   z-index: 0;
 }
@@ -29,7 +28,7 @@
   height: 250px;
   background: url('/images/home/banner-blur-green.png') center / contain no-repeat;
   pointer-events: none;
-  z-index: 3;
+  z-index: -1;
 }
 
 .bannerBtn {
@@ -50,8 +49,8 @@
 
 .banner {
   position: relative;
-  min-height: clamp(240px, 32vw, 380px);
-  border-radius: clamp(22px, 2.4vw, 32px);
+  min-height: clamp(240px, 32vw, 440px);
+  border-radius: clamp(22px, 2.4vw, 20px);
   background-repeat: no-repeat;
   background-size: cover;
   background-position: center;
@@ -77,13 +76,13 @@
 .overlay {
   position: relative;
   z-index: 1;
-  min-height: clamp(240px, 32vw, 380px);
+  min-height: clamp(240px, 32vw, 440px);
   display: flex;
   flex-direction: column;
-  justify-content: flex-start;
+  justify-content: flex-end;
   align-items: flex-start;
-  gap: clamp(10px, 1.6vw, 14px);
-  padding: clamp(4.5rem, 11vw, 7.375rem) clamp(1.25rem, 4.2vw, 3.875rem) clamp(1.25rem, 3vw, 2.5rem);
+  gap: clamp(10px, 1.6vw, 33px);
+  padding: clamp(4.5rem, 11vw, 80px) clamp(1.25rem, 8vw, 149px) clamp(1.25rem, 4.2vw, 75px);
   max-width: 100%;
   width: 100%;
   box-sizing: border-box;
@@ -104,16 +103,14 @@
   z-index: 0;
   pointer-events: none;
   border-radius: inherit;
-  background: linear-gradient(
-    105deg,
-    rgba(255, 252, 247, 0.88) 0%,
-    rgba(255, 252, 247, 0.45) 42%,
-    rgba(255, 252, 247, 0) 68%
-  );
+  background: linear-gradient(105deg,
+      rgba(255, 252, 247, 0.88) 0%,
+      rgba(255, 252, 247, 0.45) 42%,
+      rgba(255, 252, 247, 0) 68%);
 }
 
-.overlay > .title,
-.overlay > .subtitle {
+.overlay>.title,
+.overlay>.subtitle {
   position: relative;
   z-index: 1;
 }
@@ -122,7 +119,7 @@
   margin: 0;
   max-width: min(750px, 100%);
   color: #1f140f;
-  font-family: 'Montserrat', system-ui, -apple-system, sans-serif;
+  font-family: 'Igra Sans', system-ui, sans-serif;
   font-size: clamp(1.375rem, 1.1rem + 2.1vw, 2.5rem);
   line-height: 1.12;
   font-weight: 700;
@@ -134,9 +131,9 @@
   margin: 0;
   max-width: min(750px, 100%);
   color: #3f332c;
-  font-family: 'Montserrat', system-ui, -apple-system, sans-serif;
-  font-size: clamp(0.9rem, 0.82rem + 0.35vw, 1rem);
-  line-height: 1.45;
+  font-family: 'Rubik', system-ui, sans-serif;
+  font-size: 15px;
+  line-height: 1.2;
   font-weight: 500;
 }
 
@@ -184,12 +181,10 @@
   }
 
   .overlayOnImage::after {
-    background: linear-gradient(
-      105deg,
-      rgba(255, 252, 247, 0.92) 0%,
-      rgba(255, 252, 247, 0.55) 48%,
-      rgba(255, 252, 247, 0.08) 78%
-    );
+    background: linear-gradient(105deg,
+        rgba(255, 252, 247, 0.92) 0%,
+        rgba(255, 252, 247, 0.55) 48%,
+        rgba(255, 252, 247, 0.08) 78%);
   }
 }
 
@@ -252,12 +247,10 @@
   }
 
   .overlayOnImage::after {
-    background: linear-gradient(
-      180deg,
-      rgba(255, 252, 247, 0.12) 0%,
-      rgba(255, 252, 247, 0.88) 38%,
-      rgba(255, 252, 247, 0.95) 100%
-    );
+    background: linear-gradient(180deg,
+        rgba(255, 252, 247, 0.12) 0%,
+        rgba(255, 252, 247, 0.88) 38%,
+        rgba(255, 252, 247, 0.95) 100%);
   }
 
   .title {

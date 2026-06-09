@@ -257,23 +257,7 @@ export const LoginPage = observer((): ReactElement => {
                 </button>
               </form>
 
-              {isMockApiMode ? (
-                <details className={styles.demoDisclosure}>
-                  <summary className={styles.demoSummary}>Тестовые аккаунты</summary>
-                  <div className={styles.demoBlock}>
-                    <div className={styles.demoList}>
-                      {mockDemoRows.map((row) => (
-                        <div key={row.email} className={styles.demoItem}>
-                          <span className={styles.demoCaption}>{row.caption}:</span>
-                          <code className={styles.demoCode}>{row.email}</code>
-                          <span className={styles.demoDivider}>/</span>
-                          <code className={styles.demoCode}>{row.password}</code>
-                        </div>
-                      ))}
-                    </div>
-                  </div>
-                </details>
-              ) : null}
+              
             </div>
           </div>
 

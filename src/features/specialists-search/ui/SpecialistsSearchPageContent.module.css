@@ -34,17 +34,18 @@
 
 @media (min-width: 1200px) {
   .left {
-    padding-bottom: 64px;
+    padding: 0 25px 0 25px;
   }
 }
 
 .pageTitle {
   margin: 0 0 20px;
-  font-family: 'Igra Sans', sans-serif;
-  font-size: clamp(26px, 5vw, 40px);
-  font-weight: 400;
-  line-height: 1.2;
-  color: #211500;
+  color: #23150d;
+  font-family: 'Igra Sans', system-ui, sans-serif;
+  font-size: 24px;
+  line-height: 1.18;
+  font-weight: 500;
+  letter-spacing: -0.02em;
   text-wrap: balance;
 }
 

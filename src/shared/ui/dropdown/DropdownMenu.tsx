@@ -113,7 +113,12 @@ export const DropdownMenu: FC<DropdownMenuProps> = ({
         aria-haspopup="true"
       >
         {label}
-        <span className={styles.arrow} />
+        <img
+          className={styles.arrow}
+          src="/icons/chevron.svg"
+          alt=""
+          aria-hidden="true"
+        />
       </button>
 
       {isOpen && (

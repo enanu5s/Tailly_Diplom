@@ -52,12 +52,12 @@ export const SHOP_PRODUCTS_MOCK: Product[] = [
     images: [
       {
         id: 'product-1-image-1',
-        url: '/images/shop/product-cat-food-1.jpg',
+        url: '/images/shop/1.jpg',
         alt: 'Премиум-корм для кошек с лососем',
       },
       {
         id: 'product-1-image-2',
-        url: '/images/shop/product-cat-food-2.jpg',
+        url: '/images/shop/1.jpg',
         alt: 'Упаковка корма для кошек',
       },
     ],
@@ -95,7 +95,7 @@ export const SHOP_PRODUCTS_MOCK: Product[] = [
     images: [
       {
         id: 'product-2-image-1',
-        url: '/images/shop/product-dog-toy-1.jpg',
+        url: '/images/shop/2.jpg',
         alt: 'Игрушка для собак: канат с мячом',
       },
     ],

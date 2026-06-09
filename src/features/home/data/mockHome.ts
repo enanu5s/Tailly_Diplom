@@ -16,8 +16,8 @@ const MOCK_REVIEWS_SEED: HomeReviewSeed[] = [
     petName: 'Ричи',
     ownerName: 'Иван Петров',
     sitterId: 'specialist-1',
-    serviceTitle: 'Выгул',
-    photoUrls: ['/images/reviews/r-1.png', '/images/reviews/r-2.png'],
+    serviceTitle: 'Выгул,\nКазань',
+    photoUrls: ['/images/reviews/r-1-1.png', '/images/reviews/r-1-2.png'],
   },
   {
     id: 'rv-2',
@@ -28,7 +28,7 @@ const MOCK_REVIEWS_SEED: HomeReviewSeed[] = [
     petName: 'Мия',
     ownerName: 'Мария К.',
     sitterId: 'specialist-2',
-    serviceTitle: 'Передержка',
+    serviceTitle: 'Передержка,\nMосква',
     photoUrls: [],
   },
   {
@@ -40,8 +40,8 @@ const MOCK_REVIEWS_SEED: HomeReviewSeed[] = [
     petName: 'Барсик',
     ownerName: 'Елена Смирнова',
     sitterId: 'specialist-3',
-    serviceTitle: 'Груминг',
-    photoUrls: ['/images/reviews/r-3.png'],
+    serviceTitle: 'Груминг,\nМосква',
+    photoUrls: ['/images/reviews/r-2-1.png', '/images/reviews/r-2-2.png', '/images/reviews/r-2-3.png'],
   },
   {
     id: 'rv-4',
@@ -52,7 +52,7 @@ const MOCK_REVIEWS_SEED: HomeReviewSeed[] = [
     petName: 'Том',
     ownerName: 'Антон В.',
     sitterId: 'specialist-1',
-    serviceTitle: 'Выгул',
+    serviceTitle: 'Выгул,\nНижний Новгород',
     photoUrls: ['/images/reviews/r-4.png'],
   },
   {
@@ -64,8 +64,8 @@ const MOCK_REVIEWS_SEED: HomeReviewSeed[] = [
     petName: 'Снежок',
     ownerName: 'Дмитрий Н.',
     sitterId: 'specialist-4',
-    serviceTitle: 'Передержка',
-    photoUrls: ['/images/reviews/r-5.png', '/images/reviews/r-5b.png'],
+    serviceTitle: 'Передержка,\nНижний Новгород',
+    photoUrls: ['/images/reviews/r-3-1.png'],
   },
   {
     id: 'rv-6',
@@ -75,7 +75,7 @@ const MOCK_REVIEWS_SEED: HomeReviewSeed[] = [
     petName: 'Жучка',
     ownerName: 'Павел',
     sitterId: 'specialist-2',
-    serviceTitle: 'Тренировки',
+    serviceTitle: 'Тренировки,\nНижний Новгород',
     photoUrls: ['/images/reviews/r-6.png'],
   },
   {
@@ -87,8 +87,8 @@ const MOCK_REVIEWS_SEED: HomeReviewSeed[] = [
     petName: 'Рекс',
     ownerName: 'Светлана П.',
     sitterId: 'specialist-5',
-    serviceTitle: 'Фотосессия',
-    photoUrls: ['/images/reviews/r-7.png'],
+    serviceTitle: 'Фотосессия\nМосква',
+    photoUrls: ['/images/reviews/r-4-1.png'],
   },
 ];
 

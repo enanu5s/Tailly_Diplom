@@ -1,23 +1,23 @@
 .root {
   display: flex;
   flex-direction: column;
-  gap: 24px;
+  gap: 35px;
 }
 
 .title {
   margin: 0;
   color: #23150d;
-  font-family: 'Montserrat', system-ui, -apple-system, sans-serif;
-  font-size: clamp(2rem, 2.2vw, 2.9rem);
+  font-family: 'Igra Sans', system-ui, sans-serif;
+  font-size: clamp(1.375rem, 1.1rem + 2.1vw, 2.5rem);
   line-height: 1.08;
   font-weight: 700;
-  letter-spacing: -0.03em;
+  letter-spacing: -0.02em;;
 }
 
 .cardsGrid {
   display: grid;
   grid-template-columns: repeat(2, minmax(0, 1fr));
-  gap: 22px;
+  gap: 20px;
   align-items: stretch;
 }
 
@@ -35,15 +35,12 @@
   display: flex;
   justify-content: space-between;
   align-items: center;
-  gap: 16px;
-  padding: 0 4px;
 }
 
 .arrow {
   border: none;
   background: transparent;
   cursor: pointer;
-  padding: 6px;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -55,16 +52,41 @@
 .arrow img {
   width: 64px;
   height: 42px;
-  opacity: 0.65;
   transition: opacity 0.2s ease;
 }
 
 .arrow:hover img {
-  opacity: 1;
+  opacity: 0.5;
 }
 
 .arrow:disabled img {
   opacity: 0.3;
+}
+
+@keyframes slideInLeft {
+  from {
+    transform: translateX(40px);
+  }
+  to {
+    transform: translateX(0);
+  }
+}
+
+@keyframes slideInRight {
+  from {
+    transform: translateX(-40px);
+  }
+  to {
+    transform: translateX(0);
+  }
+}
+
+.slideLeft {
+  animation: slideInLeft 0.25s ease both;
+}
+
+.slideRight {
+  animation: slideInRight 0.25s ease both;
 }
 
 @media (max-width: 1023px) {

@@ -56,7 +56,7 @@ export const Footer = () => {
             </p>
           </div>
 
-          <nav className={styles.linksColumn} aria-label="Основная навигация">
+          <nav className={`${styles.linksColumn} ${styles.linksColumnNav}`} aria-label="Основная навигация">
             <ul className={styles.linksList}>
               {navigationItems.map((item) => (
                 <li key={item.to}>
@@ -68,7 +68,7 @@ export const Footer = () => {
             </ul>
           </nav>
 
-          <nav className={styles.linksColumn} aria-label="Документы">
+          <nav className={`${styles.linksColumn} ${styles.linksColumnDocs}`} aria-label="Документы">
             <ul className={styles.linksList}>
               {documentItems.map((item) => (
                 <li key={item.to}>

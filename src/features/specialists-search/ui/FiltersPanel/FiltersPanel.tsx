@@ -504,9 +504,11 @@ export const FiltersPanel = observer(({ store }: Props) => {
           <span className={styles.moreBtnLabel}>
             {expanded ? 'Дополнительные фильтры' : 'Дополнительные фильтры'}
           </span>
-          <span
+          <img
             className={clsx(styles.moreBtnChevron, expanded && styles.moreBtnChevronOpen)}
-            aria-hidden
+            src="/icons/chevron.svg"
+            alt=""
+            aria-hidden="true"
           />
         </button>
 

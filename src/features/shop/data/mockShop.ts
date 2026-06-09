@@ -99,9 +99,9 @@ export function enrichMockProductData(product: Product): Product {
     if (!trimmed) return imagePool[fallbackIndex % imagePool.length]!;
 
     // Legacy mock paths under /images/shop/* no longer exist in public assets.
-    if (trimmed.startsWith('/images/shop/')) {
+    /* if (trimmed.startsWith('/images/shop/')) {
       return imagePool[fallbackIndex % imagePool.length]!;
-    }
+    } */
 
     return trimmed;
   };
@@ -232,12 +232,12 @@ export const SHOP_PRODUCTS_MOCK: Product[] = [
     images: [
       {
         id: 'product-1-image-1',
-        url: '/images/shop/product-cat-food-1.jpg',
+        url: '/images/shop/1.jpg',
         alt: 'Премиум-корм для кошек с лососем',
       },
       {
         id: 'product-1-image-2',
-        url: '/images/shop/product-cat-food-2.jpg',
+        url: '/images/shop/1.jpg',
         alt: 'Упаковка корма для кошек',
       },
     ],
@@ -345,7 +345,7 @@ export const SHOP_PRODUCTS_MOCK: Product[] = [
     images: [
       {
         id: 'product-2-image-1',
-        url: '/images/shop/product-dog-toy-1.jpg',
+        url: '/images/shop/2.jpg',
         alt: 'Игрушка для собак: канат с мячом',
       },
     ],
@@ -423,7 +423,7 @@ export const SHOP_PRODUCTS_MOCK: Product[] = [
     images: [
       {
         id: 'product-3-image-1',
-        url: '/images/shop/product-cat-litter-1.jpg',
+        url: '/images/shop/3.jpg',
         alt: 'Наполнитель для кошачьего туалета',
       },
     ],
@@ -497,7 +497,7 @@ export const SHOP_PRODUCTS_MOCK: Product[] = [
     images: [
       {
         id: 'product-4-image-1',
-        url: '/images/shop/product-bowl-1.jpg',
+        url: '/images/shop/5.jpg',
         alt: 'Керамическая миска для питомца',
       },
     ],
@@ -562,7 +562,7 @@ export const SHOP_PRODUCTS_MOCK: Product[] = [
     images: [
       {
         id: 'product-5-image-1',
-        url: '/images/shop/product-vitamins-1.jpg',
+        url: '/images/shop/4.jpg',
         alt: 'Витаминный комплекс для питомцев',
       },
     ],

@@ -22,7 +22,7 @@ export const SHOP_DEMO_EXTRA_PRODUCTS = [
     oldPrice: 1090,
     isAvailable: true,
     stockQuantity: 40,
-    images: [IMG('img-demo-01', '/images/shop/product-1.jpg', 'Поводок')],
+    images: [IMG('img-demo-01', '/images/shop/6.jpg', 'Поводок')],
     reviews: [
       {
         id: 'r-demo-01',
@@ -52,7 +52,7 @@ export const SHOP_DEMO_EXTRA_PRODUCTS = [
     oldPrice: null,
     isAvailable: true,
     stockQuantity: 12,
-    images: [IMG('img-demo-02', '/images/shop/product-2.jpg', 'Когтеточка')],
+    images: [IMG('img-demo-02', '/images/shop/11.jpg', 'Когтеточка')],
     reviews: [],
     createdAt: '2026-02-18T10:00:00.000Z',
     updatedAt: '2026-03-02T10:00:00.000Z',
@@ -74,7 +74,7 @@ export const SHOP_DEMO_EXTRA_PRODUCTS = [
     oldPrice: null,
     isAvailable: true,
     stockQuantity: 60,
-    images: [IMG('img-demo-03', '/images/shop/product-3.jpg', 'Пелёнки')],
+    images: [IMG('img-demo-03', '/images/shop/7.jpg', 'Пелёнки')],
     reviews: [
       {
         id: 'r-d3',
@@ -126,7 +126,7 @@ export const SHOP_DEMO_EXTRA_PRODUCTS = [
     oldPrice: null,
     isAvailable: true,
     stockQuantity: 33,
-    images: [IMG('img-demo-05', '/images/shop/product-2.jpg', 'Колесо')],
+    images: [IMG('img-demo-05', '/images/shop/8.jpg', 'Колесо')],
     reviews: [
       {
         id: 'r-d5',
@@ -178,7 +178,7 @@ export const SHOP_DEMO_EXTRA_PRODUCTS = [
     oldPrice: null,
     isAvailable: true,
     stockQuantity: 44,
-    images: [IMG('img-demo-07', '/images/shop/product-1.jpg', 'Шампунь')],
+    images: [IMG('img-demo-07', '/images/shop/9.jpg', 'Шампунь')],
     reviews: [
       {
         id: 'r-d7',
@@ -252,7 +252,7 @@ export const SHOP_DEMO_EXTRA_PRODUCTS = [
     oldPrice: null,
     isAvailable: true,
     stockQuantity: 70,
-    images: [IMG('img-demo-10', '/images/shop/product-1.jpg', 'Канат')],
+    images: [IMG('img-demo-10', '/images/shop/2.jpg', 'Канат')],
     reviews: [
       {
         id: 'r-d10',
@@ -304,7 +304,7 @@ export const SHOP_DEMO_EXTRA_PRODUCTS = [
     oldPrice: null,
     isAvailable: true,
     stockQuantity: 9,
-    images: [IMG('img-demo-12', '/images/shop/product-3.jpg', 'Лоток')],
+    images: [IMG('img-demo-12', '/images/shop/10.jpg', 'Лоток')],
     reviews: [
       {
         id: 'r-d12',

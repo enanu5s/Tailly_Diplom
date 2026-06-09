@@ -3,7 +3,7 @@
   margin: 0;
   padding: 0;
   min-height: 0;
-  font-family: 'Montserrat', system-ui, -apple-system, sans-serif;
+  font-family: 'Igra Sans', system-ui, sans-serif;
   background: transparent;
   display: block;
 }
@@ -15,18 +15,18 @@
   padding: clamp(2.25rem, 5vw, 3.75rem) clamp(1rem, 2.8vw, 1.5rem) 0;
   display: flex;
   flex-direction: column;
-  gap: clamp(3.5rem, 8vw, 6.875rem);
+  gap: clamp(3.5rem, 8vw, 120px);
 }
 
 .block {
   display: flex;
   flex-direction: column;
-  gap: 20px;
+  gap: 40px;
 }
 
 .sectionTitle {
   margin: 0;
-  font-size: clamp(1.65rem, 1.35rem + 1.6vw, 3rem);
+  font-size: clamp(1.65rem, 1.35rem + 1.6vw, 40px);
   line-height: 1.06;
   font-weight: 700;
   color: #23150d;

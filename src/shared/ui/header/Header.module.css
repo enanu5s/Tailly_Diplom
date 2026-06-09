@@ -20,7 +20,7 @@
   display: flex;
   align-items: center;
   justify-content: space-between;
-  padding: 0 20px;
+  padding: 0 24px;
   height: var(--header-height);
 }
 
@@ -57,7 +57,7 @@
   .navLink {
     display: inline-flex;
     align-items: center;
-    padding: 10px 0;
+    padding: 13px 0;
     color: #211500;
     text-decoration: none;
     font-family: 'Raleway', system-ui, -apple-system, sans-serif;
@@ -108,8 +108,8 @@
 }
 
 .messagesIcon {
-  width: 22px;
-  height: 22px;
+  width: 40px;
+  height: 40px;
   object-fit: contain;
 }
 
@@ -150,7 +150,7 @@
   align-items: center;
   justify-content: center;
   min-height: 45px;
-  padding: 0 30px;
+  padding: 0 43px;
   border-radius: 23px;
   font: inherit;
   font-family: 'Raleway', system-ui, -apple-system, sans-serif;

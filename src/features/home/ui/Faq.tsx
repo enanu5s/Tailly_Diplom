@@ -48,10 +48,19 @@ export function Faq() {
                   aria-expanded={isOpen}
                 >
                   <span className={styles.q}>{it.q}</span>
-                  <span className={styles.chev}>{isOpen ? '▾' : '▸'}</span>
+                  <img
+                    className={clsx(styles.chev, isOpen && styles.chevOpen)}
+                    src="/icons/chevron.svg"
+                    alt=""
+                    aria-hidden="true"
+                  />
                 </button>
 
-                {isOpen ? <div className={styles.a}>{it.a}</div> : null}
+                <div className={clsx(styles.aWrap, isOpen && styles.aWrapOpen)}>
+                  <div className={clsx(styles.a, isOpen && styles.aOpen)}>
+                    {it.a}
+                  </div>
+                </div>
               </div>
             );
           })}

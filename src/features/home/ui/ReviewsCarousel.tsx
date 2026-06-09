@@ -12,6 +12,8 @@ import type { HomeReview } from '../model/types';
 export function ReviewsCarousel(props: { items: HomeReview[] }) {
   const items = useMemo(() => props.items.slice(0, 5), [props.items]);
   const [idx, setIdx] = useState(0);
+  const [dir, setDir] = useState<'left' | 'right'>('right');
+  const [animKey, setAnimKey] = useState(0);
 
   if (items.length === 0) return null;
 
@@ -22,10 +24,14 @@ export function ReviewsCarousel(props: { items: HomeReview[] }) {
   const reviewB: Review = mapHomeReviewToReview(items[secondIdx]);
 
   const handlePrev = (): void => {
+    setDir('right');
+    setAnimKey((k) => k + 1);
     setIdx((v) => (v === 0 ? items.length - 1 : v - 1));
   };
 
   const handleNext = (): void => {
+    setDir('left');
+    setAnimKey((k) => k + 1);
     setIdx((v) => (v === items.length - 1 ? 0 : v + 1));
   };
 
@@ -33,40 +39,22 @@ export function ReviewsCarousel(props: { items: HomeReview[] }) {
     <div className={styles.root}>
       <h2 className={styles.title}>Реальные отзывы клиентов</h2>
 
-      <div className={items.length >= 2 ? styles.cardsGrid : styles.cardsGridSingle}>
-        <ReviewCard
-          review={reviewA}
-          fixedLayout
-          variant="landing"
-          ctaLabel="Перейти к специалисту"
-        />
+      <div
+        key={animKey}
+        className={`${items.length >= 2 ? styles.cardsGrid : styles.cardsGridSingle} ${dir === 'left' ? styles.slideLeft : styles.slideRight}`}
+      >
+        <ReviewCard review={reviewA} fixedLayout variant="landing" ctaLabel="Перейти к специалисту" />
         {items.length >= 2 ? (
-          <ReviewCard
-            review={reviewB}
-            fixedLayout
-            variant="landing"
-            ctaLabel="Перейти к специалисту"
-          />
+          <ReviewCard review={reviewB} fixedLayout variant="landing" ctaLabel="Перейти к специалисту" />
         ) : null}
       </div>
 
       {canNav && (
         <div className={styles.controls}>
-          <button
-            type="button"
-            className={styles.arrow}
-            onClick={handlePrev}
-            aria-label="Предыдущие отзывы"
-          >
+          <button type="button" className={styles.arrow} onClick={handlePrev} aria-label="Предыдущие отзывы">
             <img src="/icons/arrow-left.svg" alt="" />
           </button>
-
-          <button
-            type="button"
-            className={styles.arrow}
-            onClick={handleNext}
-            aria-label="Следующие отзывы"
-          >
+          <button type="button" className={styles.arrow} onClick={handleNext} aria-label="Следующие отзывы">
             <img src="/icons/arrow-right.svg" alt="" />
           </button>
         </div>

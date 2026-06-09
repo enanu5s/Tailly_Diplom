@@ -252,10 +252,11 @@
   width: 101px;
   height: 154px;
   left: 0;
-  top: 229px;
+  top: 323px;
   z-index: 0;
   pointer-events: none;
   user-select: none;
+  border-radius: 20px;
 }
 
 .submitButton {
@@ -291,12 +292,12 @@
   margin-top: 2px;
 }
 
-.demoSummary {
+/* .demoSummary {
   color: #6f685d;
   font-size: 13px;
   cursor: pointer;
   user-select: none;
-}
+} */
 
 .demoBlock {
   display: grid;

@@ -2,7 +2,7 @@
   position: relative;
   display: flex;
   flex-direction: column;
-  gap: 28px;
+  gap: 38px;
   isolation: isolate;
 }
 
@@ -10,8 +10,8 @@
   content: '';
   position: absolute;
 
-  top: -60px;
-  left: 540px;
+  top: -50px;
+  left: 600px;
   width: 250px;
   height: 250px;
 
@@ -24,18 +24,18 @@
 .title {
   margin: 0;
   color: #23150d;
-  font-family: 'Montserrat', system-ui, -apple-system, sans-serif;
-  font-size: clamp(2rem, 2.2vw, 2.9rem);
+  font-family: 'Igra Sans', system-ui, sans-serif;
+  font-size: clamp(1.375rem, 1.1rem + 2.1vw, 2.5rem);
   line-height: 1.08;
   font-weight: 700;
-  letter-spacing: -0.03em;
+  letter-spacing: -0.02em;
 }
 
 .layout {
   display: grid;
   position: relative;
-  grid-template-columns: minmax(0, 0.95fr) minmax(320px, 0.85fr);
-  gap: 32px;
+  grid-template-columns: minmax(0, 728px) minmax(320px, 725px);
+  gap: 20px;
   align-items: end;
   z-index: 1;
 }
@@ -43,14 +43,13 @@
 .list {
   display: flex;
   flex-direction: column;
-  gap: 14px;
+  gap: 10px;
 }
 
 .item {
   position: relative;
   background: #ffffff;
-  border-radius: 22px;
-  border: 1px solid rgba(35, 21, 13, 0.08);
+  border-radius: 20px;
   box-shadow: 0 10px 28px rgba(62, 47, 38, 0.06);
   overflow: visible;
   transition:
@@ -82,35 +81,57 @@
   border: none;
   background: transparent;
   cursor: pointer;
-  padding: 22px 22px;
+  padding: 25px 25px;
   display: flex;
   justify-content: space-between;
-  gap: 14px;
   align-items: center;
   text-align: left;
 }
 
 .q {
   color: #23150d;
-  font-family: 'Montserrat', system-ui, -apple-system, sans-serif;
-  font-size: 1.02rem;
+  font-family: 'Igra Sans', system-ui, sans-serif;
+  font-size: 22px;
   line-height: 1.32;
-  font-weight: 700;
+  font-weight: 500;
 }
 
 .chev {
-  color: #4b392e;
-  font-size: 1rem;
-  line-height: 1;
+  width: 22px;
+  height: 22px;
   flex-shrink: 0;
+  transition: transform 0.5s ease;
+}
+
+.chevOpen {
+  transform: rotate(-180deg);
+}
+
+.aWrap {
+  display: grid;
+  grid-template-rows: 0fr;
+  transition: grid-template-rows 0.35s ease;
+}
+
+.aWrapOpen {
+  grid-template-rows: 1fr;
 }
 
 .a {
-  padding: 0 22px 20px;
+  overflow: hidden;
+  padding: 0 25px;
   color: #665952;
-  font-family: 'Montserrat', system-ui, -apple-system, sans-serif;
-  font-size: 0.92rem;
-  line-height: 1.55;
+  font-family: 'Rubik', system-ui, sans-serif;
+  font-size: 15px;
+  font-weight: 500;
+  line-height: 1.2;
+  transition: padding 0.5s ease, opacity 0.45s ease;
+  opacity: 0
+}
+
+.aOpen {
+  padding: 0 25px 30px;
+  opacity: 1;
 }
 
 .artCol {
@@ -121,7 +142,7 @@
 
 .artImage {
   width: 100%;
-  max-width: 520px;
+  max-width: 739px;
   height: auto;
   display: block;
   object-fit: contain;
