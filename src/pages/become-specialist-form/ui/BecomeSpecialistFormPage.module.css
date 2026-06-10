@@ -14,7 +14,7 @@
   padding: 0 clamp(16px, calc((100% - 1212px) / 2), 200px);
   display: flex;
   flex-direction: column;
-  gap: 20px;
+  gap: 30px;
 }
 
 .backButton {
@@ -50,18 +50,17 @@
   height: 20px;
   flex-shrink: 0;
   background: #6f685d;
-  mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Cpath fill='black' d='M15.41 7.41L14 6l-6 6 6 6 1.41-1.41L10.83 12z'/%3E%3C/svg%3E")
-    center / contain no-repeat;
+  mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Cpath fill='black' d='M15.41 7.41L14 6l-6 6 6 6 1.41-1.41L10.83 12z'/%3E%3C/svg%3E") center / contain no-repeat;
   transform: rotate(0deg);
 }
 
 .title {
-  margin: 0;
+  margin: 0 116px;
   max-width: 1212px;
-  font-family: 'Igra Sans', sans-serif;
-  font-weight: 400;
-  font-size: 40px;
-  line-height: 120%;
+  font-family: 'Igra Sans', system-ui, -apple-system, sans-serif;
+  font-size: clamp(1.375rem, 1.1rem + 2.1vw, 2.5rem);
+  font-weight: 750px;
+  line-height: 1.04;
   color: #211500;
 }
 
@@ -196,6 +195,7 @@
 }
 
 @media (max-width: 560px) {
+
   .gridBasic,
   .gridContact {
     grid-template-columns: 1fr;

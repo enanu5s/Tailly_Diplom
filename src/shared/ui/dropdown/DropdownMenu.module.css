@@ -25,6 +25,9 @@
 .trigger.active {
   color: #211500;
   opacity: 0.75;
+  text-decoration: underline;
+  text-underline-offset: 10px;
+  text-decoration-thickness: 2px;
 }
 
 .arrow {

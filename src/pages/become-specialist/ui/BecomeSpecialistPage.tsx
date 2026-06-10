@@ -17,7 +17,7 @@ export const BecomeSpecialistPage = (): ReactElement => {
           <div className={styles.grid}>
             <div className={styles.left}>
               <h1 className={styles.title}>
-                Стань частью нашей команды — дари заботу и получай радость от работы с
+                Стань частью нашей команды — дари заботу и получай радость от{'\u00A0'}работы с
                 животными!
               </h1>
 

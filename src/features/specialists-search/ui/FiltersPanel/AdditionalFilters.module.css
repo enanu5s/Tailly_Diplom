@@ -425,9 +425,9 @@
 .petAgeCheckbox:checked::after {
   content: '';
   position: absolute;
-  left: 5px;
-  top: 2px;
-  width: 4px;
+  left: 6px;
+  top: 3px;
+  width: 5px;
   height: 8px;
   border: solid #fff;
   border-width: 0 2px 2px 0;
