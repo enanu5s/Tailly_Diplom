@@ -90,9 +90,12 @@ export const CatalogFilters = observer(() => {
             }}
           >
             <span className={styles.customSelectValue}>{selectedSortLabel}</span>
-            <span className={styles.customSelectArrow} aria-hidden="true">
-              ▾
-            </span>
+            <img
+              className={styles.customSelectArrow}
+              src="/icons/chevron.svg"
+              alt=""
+              aria-hidden="true"
+            />
           </button>
 
           {isSortOpen ? (
@@ -106,9 +109,8 @@ export const CatalogFilters = observer(() => {
                     type="button"
                     role="option"
                     aria-selected={isActive}
-                    className={`${styles.customSelectOption} ${
-                      isActive ? styles.customSelectOptionActive : ''
-                    }`}
+                    className={`${styles.customSelectOption} ${isActive ? styles.customSelectOptionActive : ''
+                      }`}
                     onClick={() => {
                       shopCatalogStore.setSort(sort);
                       setIsSortOpen(false);

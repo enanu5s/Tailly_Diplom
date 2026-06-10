@@ -2,7 +2,7 @@
   position: relative;
   overflow: hidden;
   min-height: calc(100vh - 160px);
-  padding: 20px 24px 84px;
+  padding-top: 50px;
   background: #f8f8f8;
 }
 
@@ -17,7 +17,6 @@
   z-index: 1;
   width: min(100%, 1520px);
   margin: 0 auto;
-  padding-top: 18px;
 }
 
 .backButton {
@@ -63,14 +62,14 @@
   width: min(100%, 1120px);
   margin: 64px auto 0;
   display: grid;
-  gap: 32px;
+  gap: 40px;
 }
 
 .title {
   margin: 0;
   color: #211500;
   font-family: 'Igra Sans', system-ui, -apple-system, sans-serif;
-  font-weight: 400;
+  font-weight: 700;
   font-size: 40px;
   line-height: 120%;
   text-align: center;

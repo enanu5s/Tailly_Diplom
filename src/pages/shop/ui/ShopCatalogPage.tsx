@@ -183,7 +183,7 @@ export const ShopCatalogPage = observer(() => {
                   </Link>
 
                   <Link to="/shop/cart" state={cartLinkState} className={styles.quickActionButton}>
-                    <span className={styles.quickActionIcon}>🛒</span>
+                    <img src="/icons/bag.svg" alt="" aria-hidden="true" className={styles.quickActionIcon} />
                     <span>Корзина</span>
                     {shopCartStore.totalItems > 0 ? (
                       <span className={styles.quickActionCounter}>{shopCartStore.totalItems}</span>

@@ -32,7 +32,6 @@ const docs: DocItem[] = [
     title: 'Условия возврата',
     icon: documentsIcon3Url,
     activeIcon: documentsIcon2Url,
-    isActive: true,
   },
   {
     to: '/agency-contract',

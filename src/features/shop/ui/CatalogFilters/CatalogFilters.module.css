@@ -38,14 +38,14 @@
   justify-content: space-between;
   gap: 8px;
   width: 100%;
-  height: 34px;
-  padding: 0 12px;
+  height: 48px;
+  padding: 0 20px;
   border: 1px solid #d8d2ca;
   border-radius: 10px;
   background: #ffffff;
   color: #211500;
   font-family: 'Rubik', sans-serif;
-  font-size: 13px;
+  font-size: 15px;
   cursor: pointer;
   transition: all 0.2s ease;
 }
@@ -96,7 +96,7 @@
   background: transparent;
   color: #211500;
   font-family: 'Rubik', sans-serif;
-  font-size: 13px;
+  font-size: 15px;
   cursor: pointer;
   transition: background 0.15s ease;
 }
@@ -122,13 +122,13 @@
   gap: 8px;
   color: #6f685d;
   font-family: 'Rubik', sans-serif;
-  font-size: 13px;
+  font-size: 15px;
   line-height: 1.2;
 }
 
 .checkboxItem input[type='checkbox'] {
-  width: 12px;
-  height: 12px;
+  width: 16px;
+  height: 16px;
   accent-color: #211500;
 }
 
