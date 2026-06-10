@@ -7,16 +7,20 @@
 }
 
 .container {
-  max-width: 1280px;
+  width: 100%;
+  max-width: 1520px;
   margin: 0 auto;
+  padding: 0 clamp(1rem, 2.8vw, 1.5rem) 0;
+  display: flex;
+  flex-direction: column;
 }
 
 .title {
   margin: 0 0 30px;
   color: #211500;
   font-family: 'Igra Sans', serif;
-  font-size: 34px;
-  font-weight: 400;
+  font-size: 40px;
+  font-weight: 700;
   line-height: 1.12;
   letter-spacing: -0.01em;
 }
@@ -37,9 +41,9 @@
 .filterTitle {
   margin: 0 0 15px;
   color: #211500;
-  font-family: 'Raleway', sans-serif;
-  font-size: 18px;
-  font-weight: 700;
+  font-family: 'Igra Sans', serif;
+  font-size: 24px;
+  font-weight: 500;
   line-height: 1.2;
 }
 
@@ -67,7 +71,7 @@
   background: #ffffff;
   color: #211500;
   font-family: 'Rubik', sans-serif;
-  font-size: 13px;
+  font-size: 15px;
   line-height: 1;
   outline: none;
   transition:
@@ -118,25 +122,27 @@
 .quickActionButton:first-child {
   background: #ccd308;
   color: #211500;
+  font-size: 16px;
 }
 
 .quickActionButton:last-child {
   background: #211500;
   color: #ffffff;
+  font-size: 16px;
 }
 
 .quickActionIcon {
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  font-size: 14px;
+  font-size: 22px;
   line-height: 1;
 }
 
 .quickActionFavoriteIcon {
   display: block;
-  width: 20px;
-  height: 18px;
+  width: 22px;
+  height: 22px;
   object-fit: contain;
 }
 
@@ -169,7 +175,7 @@
 .results {
   color: #211500;
   font-family: 'Raleway', sans-serif;
-  font-size: 14px;
+  font-size: 16px;
   font-weight: 700;
   line-height: 1.3;
 }

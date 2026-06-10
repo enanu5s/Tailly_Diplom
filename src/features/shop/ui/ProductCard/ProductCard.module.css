@@ -4,7 +4,7 @@
   display: flex;
   flex-direction: column;
   min-height: 100%;
-  padding: 12px;
+  padding: 20px;
   border: 1px solid #ede8e2;
   border-radius: 20px;
   background: #ffffff;
@@ -24,15 +24,15 @@
 
 .favoriteButton {
   position: absolute;
-  top: 18px;
-  right: 18px;
+  top: 30px;
+  right: 30px;
   z-index: 2;
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  width: 28px;
-  height: 28px;
-  border: 1px solid #d9d2c8;
+  width: 36px;
+  height: 36px;
+  border: 0;
   border-radius: 999px;
   background: rgba(255, 255, 255, 0.96);
   color: #6f685d;
@@ -47,8 +47,8 @@
 
 .favoriteIcon {
   display: block;
-  width: 16px;
-  height: 14px;
+  width: 22px;
+  height: 18px;
   object-fit: contain;
   pointer-events: none;
 }
@@ -94,7 +94,7 @@
   flex: 1;
   flex-direction: column;
   gap: 8px;
-  padding: 10px 2px 2px;
+  padding: 10px 0 0;
 }
 
 .meta {
@@ -108,12 +108,13 @@
   display: inline-flex;
   align-items: center;
   min-height: 20px;
-  padding: 0 9px;
+  padding: 5px 15px;
+  margin-bottom: 12px;
   border-radius: 999px;
   background: #f6dcc2;
   color: #6f4b16;
   font-family: 'Rubik', sans-serif;
-  font-size: 11px;
+  font-size: 15px;
   font-weight: 400;
   line-height: 1;
 }
@@ -121,11 +122,12 @@
 .rating {
   display: inline-flex;
   align-items: center;
+  margin-bottom: 12px;
   gap: 4px;
   color: #6f685d;
   font-family: 'Rubik', sans-serif;
-  font-size: 12px;
-  font-weight: 500;
+  font-size: 15px;
+  font-weight: 300;
   line-height: 1;
 }
 
@@ -151,7 +153,7 @@
   margin: 0;
   color: #7f776d;
   font-family: 'Rubik', sans-serif;
-  font-size: 12px;
+  font-size: 15px;
   line-height: 1.35;
 }
 
@@ -172,15 +174,16 @@
 .price {
   color: #211500;
   font-family: 'Igra Sans', serif;
-  font-size: 18px;
+  font-size: 24px;
   font-weight: 500;
   line-height: 1;
+  margin-top: 12px;
 }
 
 .oldPrice {
   color: #a69b8d;
   font-family: 'Rubik', sans-serif;
-  font-size: 13px;
+  font-size: 15px;
   text-decoration: line-through;
 }
 
@@ -189,9 +192,9 @@
 }
 
 .unavailable {
-  color: #c13d2b;
+  color: #E20B0B;
   font-family: 'Rubik', sans-serif;
-  font-size: 12px;
+  font-size: 15px;
   font-weight: 500;
   line-height: 1.2;
 }
@@ -205,13 +208,14 @@
 .cartButton {
   width: 100%;
   min-height: 45px;
+  margin-top: 2px;
   border: none;
   border-radius: 999px;
   background: #211500;
   color: #ffffff;
   font-family: 'Raleway', sans-serif;
-  font-size: 13px;
-  font-weight: 700;
+  font-size: 16px;
+  font-weight: 600;
   line-height: 1;
   cursor: pointer;
   transition:

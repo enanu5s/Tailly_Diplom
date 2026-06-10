@@ -51,28 +51,26 @@
 }
 
 .backButton {
+  align-self: flex-start;
+  width: fit-content;
+  min-width: 134px;
+  min-height: 45px;
+  padding: 10px 18px 10px 14px;
+  box-sizing: border-box;
   display: inline-flex;
   align-items: center;
-  flex-wrap: wrap;
-  gap: 10px;
-  width: fit-content;
-  min-height: 40px;
-  padding: 0 22px;
-  border: 1px solid #d4cec7;
-  border-radius: 999px;
-  background: rgba(255, 255, 255, 0.9);
-  color: #6d665f;
-  font-size: 16px;
-  font-weight: 500;
+  justify-content: center;
+  gap: 8px;
+  border: 1px solid #c7c2ba;
+  border-radius: 23px;
+  background: #ffffff;
   cursor: pointer;
-  transition:
-    background-color 0.2s ease,
-    border-color 0.2s ease,
-    transform 0.2s ease;
-  position: absolute;
-  top: 30px;
-  left: max(20px, calc((100vw - 1520px) / 2 + 20px));
-  z-index: 2;
+  font-family: 'Raleway', sans-serif;
+  font-weight: 600;
+  font-size: 16px;
+  line-height: 19px;
+  color: #6f685d;
+  font-feature-settings: 'pnum' on, 'lnum' on;
 }
 
 .backButton:hover {
@@ -109,7 +107,7 @@
   position: relative;
   width: 100%;
   max-width: 596px;
-  height: 477px;
+  height: 420px;
   padding: 40px 60px 40px;
   display: grid;
   gap: 16px;
@@ -123,6 +121,7 @@
 
 .header {
   display: grid;
+  height: 48px;
   gap: 8px;
   justify-items: center;
 }
@@ -131,10 +130,11 @@
   margin: 0;
   width: 344px;
   max-width: 100%;
+  padding: 0 0 24px 0;
   color: #211500;
   font-family: 'Igra Sans', system-ui, -apple-system, sans-serif;
   font-style: normal;
-  font-weight: 400;
+  font-weight: 700;
   font-size: 40px;
   line-height: 120%;
   text-align: center;
@@ -151,7 +151,7 @@
 
 .input {
   width: 100%;
-  min-height: 48px;
+  min-height: 40px;
   border: 1px solid #c7c2ba;
   border-radius: 10px;
   background: #ffffff;
@@ -192,8 +192,8 @@
 }
 
 .checkbox {
-  width: 16px;
-  height: 16px;
+  width: 18px;
+  height: 18px;
   margin: 0;
   accent-color: #2f1a00;
   cursor: pointer;
@@ -249,10 +249,10 @@
 
 .frame305Decor {
   position: absolute;
-  width: 101px;
-  height: 154px;
+  width: 117px;
+  height: 160px;
   left: 0;
-  top: 323px;
+  top: 260px;
   z-index: 0;
   pointer-events: none;
   user-select: none;
@@ -260,10 +260,12 @@
 }
 
 .submitButton {
-  width: 300px;
+  width: 288px;
   justify-self: center;
-  min-height: 45px;
+  height: 45px;
   border: none;
+  margin-top: 44px;
+  padding: 0;
   border-radius: 23px;
   background: #211500;
   color: #ffffff;
@@ -344,10 +346,10 @@
   background: #ffffff;
   border-radius: 20px;
   box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
-  padding: 14px 32px 16px;
+  padding: 30px 0;
   display: grid;
   justify-items: center;
-  gap: 10px;
+  gap: 11px;
 }
 
 .registerText {
@@ -362,7 +364,7 @@
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  min-width: 240px;
+  min-width: 288px;
   min-height: 45px;
   padding: 0 24px;
   border: 1px solid #6f685d;

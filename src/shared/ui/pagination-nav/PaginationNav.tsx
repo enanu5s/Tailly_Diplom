@@ -26,13 +26,11 @@ export const PaginationNav = ({
       <button
         className={styles.navButton}
         type="button"
-        onClick={() => {
-          onPageChange(page - 1);
-        }}
+        onClick={() => onPageChange(page - 1)}
         disabled={page <= 1}
         aria-label="Предыдущая страница"
       >
-        ←
+        <img src="/icons/arrow-left.svg" alt="" aria-hidden="true" />
       </button>
 
       <div className={styles.pageText}>
@@ -42,13 +40,11 @@ export const PaginationNav = ({
       <button
         className={styles.navButton}
         type="button"
-        onClick={() => {
-          onPageChange(page + 1);
-        }}
+        onClick={() => onPageChange(page + 1)}
         disabled={page >= totalPages}
         aria-label="Следующая страница"
       >
-        →
+        <img src="/icons/arrow-right.svg" alt="" aria-hidden="true" />
       </button>
     </nav>
   );

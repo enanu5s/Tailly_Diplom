@@ -270,14 +270,16 @@ export const BecomeSpecialistFormPage = (): ReactElement => {
   if (storedSubmissionEmail) {
     return (
       <section className={styles.page}>
-        <div className={styles.shell}>
+        <div className={styles.backButtonWrap}>
           <BackButton className={styles.backButton} fallbackTo="/become-specialist">
             <>
               <span className={styles.backArrow} aria-hidden />
               Назад
             </>
           </BackButton>
+        </div>
 
+        <div className={styles.shell}>
           <h1 className={styles.title}>Анкета специалиста</h1>
 
           <div className={styles.submittedCard} role="status">
@@ -363,14 +365,16 @@ export const BecomeSpecialistFormPage = (): ReactElement => {
 
   return (
     <section className={styles.page}>
-      <div className={styles.shell}>
+      <div className={styles.backButtonWrap}>
         <BackButton className={styles.backButton} fallbackTo="/become-specialist">
           <>
             <span className={styles.backArrow} aria-hidden />
             Назад
           </>
         </BackButton>
+      </div>
 
+      <div className={styles.shell}>
         <h1 className={styles.title}>Анкета специалиста</h1>
 
         <form className={styles.form} onSubmit={handleSubmit}>

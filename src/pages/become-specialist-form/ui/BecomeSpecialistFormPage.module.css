@@ -7,6 +7,14 @@
   padding: 30px 0 80px;
 }
 
+.backButtonWrap {
+  width: 100%;
+  max-width: 1520px;
+  margin: 0 auto 20px;
+  padding: 0 24px;
+  box-sizing: border-box;
+}
+
 .shell {
   width: 100%;
   max-width: 1920px;
@@ -18,6 +26,7 @@
 }
 
 .backButton {
+  align-self: flex-start;
   width: fit-content;
   min-width: 134px;
   min-height: 45px;
@@ -55,11 +64,12 @@
 }
 
 .title {
-  margin: 0 116px;
+  margin: 0 auto;
   max-width: 1212px;
+  width: 100%;
+  text-align: left;
   font-family: 'Igra Sans', system-ui, -apple-system, sans-serif;
   font-size: clamp(1.375rem, 1.1rem + 2.1vw, 2.5rem);
-  font-weight: 750px;
   line-height: 1.04;
   color: #211500;
 }

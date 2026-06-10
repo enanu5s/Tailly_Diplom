@@ -4,7 +4,7 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  gap: 32px;
+  gap: 450px;
   flex-wrap: wrap;
 }
 
@@ -24,7 +24,7 @@
 .pageText {
   color: #211500;
   font-family: 'Rubik', sans-serif;
-  font-size: 13px;
+  font-size: 15px;
   font-weight: 400;
 }
 

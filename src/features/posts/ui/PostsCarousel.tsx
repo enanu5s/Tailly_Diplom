@@ -122,65 +122,64 @@ export const PostsCarousel = observer(() => {
         )}
 
         <div
-          className={`${styles.carousel} ${hasOverflow ? styles.hasOverflow : ''} ${
-            isAtStart ? styles.atStart : ''
-          } ${
-            isAtEnd ? styles.atEnd : ''
-          }`}
+          className={`${styles.carousel} ${hasOverflow ? styles.hasOverflow : ''} ${isAtStart ? styles.atStart : ''
+            } ${isAtEnd ? styles.atEnd : ''}`}
         >
           <div className={styles.scroller} ref={scrollerRef} onScroll={updateScrollState}>
             {postsStore.latest.loading && items.length === 0
               ? Array.from({ length: 3 }).map((_, index) => (
-                  <div key={index} className={styles.skeletonCard} />
-                ))
+                <div key={index} className={styles.skeletonCard} />
+              ))
               : items.map((post) => (
-                  <button
-                    key={post.id}
-                    type="button"
-                    className={styles.card}
-                    onClick={() => openPost(post.id)}
-                  >
-                    <div className={styles.imageWrap}>
-                      <PostCardImage post={post} />
-                    </div>
+                <button
+                  key={post.id}
+                  type="button"
+                  className={styles.card}
+                  onClick={() => openPost(post.id)}
+                >
+                  <div className={styles.imageWrap}>
+                    <PostCardImage post={post} />
+                  </div>
 
-                    <PostTags post={post} />
+                  <PostTags post={post} />
 
-                    <h3 className={styles.cardTitle}>{post.title}</h3>
+                  <h3 className={styles.cardTitle}>{post.title}</h3>
 
-                    <div className={styles.previewWrap}>
-                      <p className={styles.previewText}>{post.content.trim()}</p>
-                      <span className={styles.fade} aria-hidden="true" />
-                    </div>
+                  <div className={styles.previewWrap}>
+                    <p className={styles.previewText}>{post.content.trim()}</p>
+                    <span className={styles.fade} aria-hidden="true" />
+                  </div>
 
-                    <span className={styles.date}>{formatDate(post.publishedAt)}</span>
-                  </button>
-                ))}
+                  <span className={styles.date}>{formatDate(post.publishedAt)}</span>
+                </button>
+              ))}
           </div>
 
           <div className={styles.bottomControls}>
             <button
-              className={`${styles.arrow} ${styles.arrowLeft}`}
+              className={styles.arrow}
               type="button"
               onClick={() => scrollByCard(-1)}
               disabled={!canScroll || postsStore.latest.loading}
               aria-label="Листать влево"
             >
-              ←
+              <img src="/icons/arrow-left.svg" alt="" aria-hidden="true" />
             </button>
 
-            <button className={styles.allButton} type="button" onClick={goToAllPosts}>
-              Смотреть все посты и новости
-            </button>
+            <div className={styles.footerRow}>
+              <button className={styles.allButton} type="button" onClick={goToAllPosts}>
+                Смотреть все посты
+              </button>
+            </div>
 
             <button
-              className={`${styles.arrow} ${styles.arrowRight}`}
+              className={styles.arrow}
               type="button"
               onClick={() => scrollByCard(1)}
               disabled={!canScroll || postsStore.latest.loading}
               aria-label="Листать вправо"
             >
-              →
+              <img src="/icons/arrow-right.svg" alt="" aria-hidden="true" />
             </button>
           </div>
         </div>
