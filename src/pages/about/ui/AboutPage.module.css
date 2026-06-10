@@ -9,7 +9,7 @@
 }
 
 .hero {
-  padding: 60px 0 55px;
+  padding: 60px 0 60px;
 }
 
 .heroGrid {
@@ -29,7 +29,7 @@
   font-family: 'Igra Sans', Raleway, Arial, sans-serif;
   font-size: 40px;
   line-height: 1.2;
-  font-weight: 400;
+  font-weight: 700;
   letter-spacing: -0.02em;
   color: #211500;
 }
@@ -42,10 +42,9 @@
 
 .heroDescription p {
   margin: 0;
-  font-family: Rubik, Arial, sans-serif;
+  font-family: 'Rubik', system-ui, sans-serif;
   font-size: 15px;
-  line-height: 18px;
-  font-weight: 400;
+  font-weight: 500;
   color: #211500;
 }
 

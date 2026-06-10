@@ -31,7 +31,6 @@
   width: 112px;
 }
 
-/* Десктопное меню скрыто по умолчанию */
 .navDesktop {
   display: none;
 }
@@ -70,7 +69,10 @@
   .navLink:hover,
   .navLink.active {
     color: #211500;
-    opacity: 0.75;
+    opacity: 1;
+    text-decoration: underline;
+    text-underline-offset: 10px;
+    text-decoration-thickness: 2px;
   }
 }
 
@@ -183,7 +185,6 @@
   background: #3a2419;
 }
 
-/* Бургер-иконка видна только на мобильных */
 .burger {
   display: block;
   background: none;
@@ -198,7 +199,6 @@
   }
 }
 
-/* Мобильное меню */
 .mobileMenu {
   position: absolute;
   top: var(--header-height);
@@ -217,7 +217,6 @@
   }
 }
 
-/* Дополнительно — стили для мобильного списка */
 .mobileNavList {
   list-style: none;
   margin: 0;
@@ -238,7 +237,10 @@
 
 .mobileLink:hover,
 .mobileLink.active {
-  opacity: 0.75;
+  opacity: 1;
+  text-decoration: underline;
+  text-underline-offset: 10px;
+  text-decoration-thickness: 2px;
 }
 
 .mobileAuthBox {
