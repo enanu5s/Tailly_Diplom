@@ -1,6 +1,6 @@
 .page {
   min-height: calc(100vh - 100px);
-  padding: 72px 20px 96px;
+  padding: 60px 0 120px;
   background: #f8f8f8;
   position: relative;
 }
@@ -21,12 +21,13 @@
   position: relative;
   z-index: 1;
   width: 100%;
+  padding: 0 24px;
   max-width: 1520px;
   margin: 0 auto;
 }
 
 .title {
-  margin: 0 0 36px;
+  margin: 0 0 30px;
   font-family: 'Igra Sans', sans-serif;
   font-size: 40px;
   font-weight: 400;

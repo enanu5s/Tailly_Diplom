@@ -62,7 +62,7 @@
 .filterButton,
 .filterButtonActive {
   min-height: 38px;
-  padding: 8px 30px;
+  padding: 9px 25px;
   border-radius: 23px;
   font-family: 'Raleway', sans-serif;
   font-size: 16px;
@@ -73,7 +73,7 @@
 
 .filterButton {
   border: 1px solid #6f685d;
-  background: #ffffff;
+  background-color: rgba(206, 203, 202, 0);
   color: #6f685d;
 }
 

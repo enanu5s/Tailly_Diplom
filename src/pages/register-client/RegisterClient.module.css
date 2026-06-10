@@ -28,7 +28,7 @@
   width: min(100%, 596px);
   margin: 0 auto;
   display: grid;
-  gap: 12px;
+  gap: 16px;
 }
 
 .backButton {
@@ -117,9 +117,9 @@
 .cardInner {
   position: relative;
   width: 100%;
-  padding: 28px 30px 28px;
+  padding: 40px 60px;
   display: grid;
-  gap: 20px;
+  gap: 16px;
 }
 
 .cardWithPets .cardInner {
@@ -128,7 +128,7 @@
 
 .header {
   display: grid;
-  gap: 12px;
+  gap: 19px;
   justify-items: center;
 }
 
@@ -137,7 +137,7 @@
   color: #211500;
   font-family: 'Igra Sans', system-ui, -apple-system, sans-serif;
   font-size: 40px;
-  font-weight: 400;
+  font-weight: 700;
   line-height: 1.18;
   text-align: center;
 }
@@ -154,7 +154,7 @@
 
 .form {
   display: grid;
-  gap: 12px;
+  gap: 16px;
 }
 
 .field {
@@ -166,7 +166,7 @@
 .fieldLabel {
   color: #211500;
   font-family: 'Rubik', system-ui, -apple-system, sans-serif;
-  font-size: 14px;
+  font-size: 15px;
   line-height: 1.2;
   margin-left: 10px;
 }
@@ -174,13 +174,13 @@
 .input,
 .select {
   width: 100%;
-  min-height: 42px;
+  min-height: 48px;
   border: 1px solid #c7c2ba;
   border-radius: 8px;
   background: #ffffff;
-  padding: 0 14px;
+  padding: 0 20px;
   font-family: 'Rubik', system-ui, -apple-system, sans-serif;
-  font-size: 14px;
+  font-size: 15px;
   color: #211500;
   outline: none;
   transition: border-color 0.2s ease, box-shadow 0.2s ease, background-color 0.2s ease;
@@ -221,13 +221,11 @@
   display: flex;
   gap: 10px;
   align-items: flex-start;
-  margin-top: 2px;
 }
 
 .checkbox {
-  width: 14px;
-  height: 14px;
-  margin: 2px 0 0;
+  width: 16px;
+  height: 16px;
   accent-color: #211500;
   cursor: pointer;
   flex: 0 0 auto;
@@ -238,6 +236,7 @@
   font-family: 'Rubik', system-ui, -apple-system, sans-serif;
   font-size: 14px;
   line-height: 1.35;
+  margin-top: 3px;
 }
 
 .consentLink {
@@ -251,9 +250,10 @@
 }
 
 .submitButton {
-  width: 280px;
+  width: 288px;
   justify-self: center;
   min-height: 45px;
+  margin-top: 24px;
   border: none;
   border-radius: 999px;
   background: #211500;
@@ -322,18 +322,17 @@
 }
 
 .loginCard {
-  margin-top: 10px;
   background: #ffffff;
   border-radius: 18px;
   box-shadow: 0 8px 30px rgba(25, 18, 10, 0.09);
-  padding: 12px 22px;
+  padding: 16px 130px;
 }
 
 .loginCardInner {
   display: flex;
   align-items: center;
   justify-content: center;
-  gap: 18px;
+  gap: 15px;
   flex-wrap: wrap;
 }
 
@@ -341,7 +340,7 @@
   margin: 0;
   color: #211500;
   font-family: 'Rubik', system-ui, -apple-system, sans-serif;
-  font-size: 14px;
+  font-size: 16px;
   line-height: 1.2;
 }
 
@@ -349,16 +348,16 @@
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  min-width: 88px;
-  min-height: 30px;
-  padding: 0 20px;
+  min-width: 134px;
+  min-height: 45px;
   border: 1px solid #8f8172;
   border-radius: 999px;
   background: #ffffff;
   color: #211500;
   text-decoration: none;
-  font-family: 'Rubik', system-ui, -apple-system, sans-serif;
-  font-size: 14px;
+  font-family: 'Raleway', system-ui, -apple-system, sans-serif;
+  font-size: 16px;
+  font-weight: 600;
   line-height: 1;
   transition: background-color 0.2s ease, border-color 0.2s ease, transform 0.2s ease;
 }

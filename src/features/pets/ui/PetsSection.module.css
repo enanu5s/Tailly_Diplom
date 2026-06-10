@@ -19,6 +19,7 @@
 
 .addBtn {
   height: 45px;
+  width: 165px;
   padding: 0 20px;
   border-radius: 44px;
   border: none;
@@ -26,6 +27,7 @@
   color: #ffffff;
   display: flex;
   align-items: center;
+  justify-content: center;
   gap: 8px;
   cursor: pointer;
   font-family: 'Raleway', sans-serif;
@@ -411,11 +413,11 @@
   display: block;
 }
 
-.cardEditing .mainCol > .field:first-child .label {
+.cardEditing .mainCol>.field:first-child .label {
   display: none;
 }
 
-.cardEditing .mainCol > .field:first-child .input {
+.cardEditing .mainCol>.field:first-child .input {
   position: absolute;
   left: 154px;
   top: 30px;
@@ -426,13 +428,13 @@
   line-height: 29px;
 }
 
-.cardEditing .row2 > .field:first-child .label {
+.cardEditing .row2>.field:first-child .label {
   position: absolute;
   left: 154px;
   top: 102px;
 }
 
-.cardEditing .row2 > .field:first-child .select {
+.cardEditing .row2>.field:first-child .select {
   position: absolute;
   left: 202px;
   top: 88px;
@@ -440,7 +442,7 @@
   height: 48px;
 }
 
-.cardEditing .row2 > .field:nth-child(2) > .label {
+.cardEditing .row2>.field:nth-child(2)>.label {
   position: absolute;
   left: 65px;
   top: 220px;
@@ -464,13 +466,13 @@
   height: 48px;
 }
 
-.cardEditing .row3 > .field:first-child .label {
+.cardEditing .row3>.field:first-child .label {
   position: absolute;
   left: 65px;
   top: 276px;
 }
 
-.cardEditing .row3 > .field:first-child .select {
+.cardEditing .row3>.field:first-child .select {
   position: absolute;
   left: 154px;
   top: 262px;
@@ -478,13 +480,13 @@
   height: 48px;
 }
 
-.cardEditing .row3 > .field:nth-child(2) .label {
+.cardEditing .row3>.field:nth-child(2) .label {
   position: absolute;
   left: 65px;
   top: 335px;
 }
 
-.cardEditing .row3 > .field:nth-child(2) .select {
+.cardEditing .row3>.field:nth-child(2) .select {
   position: absolute;
   left: 154px;
   top: 320px;
@@ -500,13 +502,13 @@
   text-align: center;
 }
 
-.cardEditing .extraGrid > .field:first-child .label {
+.cardEditing .extraGrid>.field:first-child .label {
   position: absolute;
   left: 65px;
   top: 442px;
 }
 
-.cardEditing .extraGrid > .field:first-child .select {
+.cardEditing .extraGrid>.field:first-child .select {
   position: absolute;
   left: 154px;
   top: 427px;
@@ -514,13 +516,13 @@
   height: 48px;
 }
 
-.cardEditing .extraGrid > .field:nth-child(2) .label {
+.cardEditing .extraGrid>.field:nth-child(2) .label {
   position: absolute;
   left: 65px;
   top: 495px;
 }
 
-.cardEditing .extraGrid > .field:nth-child(2) .select {
+.cardEditing .extraGrid>.field:nth-child(2) .select {
   position: absolute;
   left: 65px;
   top: 524px;
@@ -528,13 +530,13 @@
   height: 48px;
 }
 
-.cardEditing .extraGrid > .field:nth-child(3) .label {
+.cardEditing .extraGrid>.field:nth-child(3) .label {
   position: absolute;
   left: 65px;
   top: 592px;
 }
 
-.cardEditing .extraGrid > .field:nth-child(3) .select {
+.cardEditing .extraGrid>.field:nth-child(3) .select {
   position: absolute;
   left: 65px;
   top: 621px;
@@ -542,13 +544,13 @@
   height: 48px;
 }
 
-.cardEditing .extraGrid > .field:nth-child(4) .label {
+.cardEditing .extraGrid>.field:nth-child(4) .label {
   position: absolute;
   left: 65px;
   top: 689px;
 }
 
-.cardEditing .extraGrid > .field:nth-child(4) .select {
+.cardEditing .extraGrid>.field:nth-child(4) .select {
   position: absolute;
   left: 65px;
   top: 718px;
@@ -556,13 +558,13 @@
   height: 48px;
 }
 
-.cardEditing .extraGrid > .field:nth-child(5) .label {
+.cardEditing .extraGrid>.field:nth-child(5) .label {
   position: absolute;
   left: 65px;
   top: 786px;
 }
 
-.cardEditing .extraGrid > .field:nth-child(5) .select {
+.cardEditing .extraGrid>.field:nth-child(5) .select {
   position: absolute;
   left: 65px;
   top: 815px;
