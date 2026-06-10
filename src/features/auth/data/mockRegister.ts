@@ -14,6 +14,16 @@ export function wait(delay = 400): Promise<void> {
   });
 }
 
+/** Подсказка с кодом только в DevTools — не показывать в UI. */
+export function logMockRegistrationCode(context: string): void {
+  if (!import.meta.env.DEV) {
+    return;
+  }
+
+  const { lastCode } = getMockRegisterState();
+  console.info(`[Tailly mock] ${context}. Код подтверждения: ${lastCode}`);
+}
+
 export function getMockRegisterState(): {
   lastCode: string;
   registrationId: string;

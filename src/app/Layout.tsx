@@ -8,17 +8,17 @@ import { MockDataBadge } from '@/shared/ui/mock-data-badge/MockDataBadge';
 
 export function Layout() {
   return (
-    <div>
+    <>
       <RouteViewportManager />
       <Header />
 
-      <main>
+      <main id="main-content" tabIndex={-1}>
         <Outlet />
       </main>
 
       <Footer />
       <ShopCartMergePrompt />
       <MockDataBadge />
-    </div>
+    </>
   );
 }

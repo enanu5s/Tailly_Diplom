@@ -3,7 +3,8 @@ import type { AdminManagedBanner } from '@/features/admin-posts-banners-manageme
 import { SERVICES } from '@/shared/config/services';
 import type { ServiceConfig } from '@/shared/config/services';
 
-import { deepCopy, MOCK_REVIEWS } from '../data/mockHome';
+import { cloneHomeReviews } from '@/shared/mock-db/accessors';
+
 import { getHomeFeaturedReviewsForCurrentDay } from '../lib/homeFeaturedReviewsDayCache';
 import { selectHomeFeaturedReviews } from '../lib/selectHomeFeaturedReviews';
 
@@ -37,8 +38,12 @@ export async function mockGetServices(): Promise<ServiceConfig[]> {
   return deepCopy(SERVICES);
 }
 
+function deepCopy<T>(value: T): T {
+  return JSON.parse(JSON.stringify(value)) as T;
+}
+
 export async function mockGetTopReviews(): Promise<HomeReview[]> {
   return getHomeFeaturedReviewsForCurrentDay(() =>
-    selectHomeFeaturedReviews(MOCK_REVIEWS, 5),
+    selectHomeFeaturedReviews(cloneHomeReviews(), 5),
   );
 }

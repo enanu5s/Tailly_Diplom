@@ -10,7 +10,9 @@ import type {
   MockAuthAccount,
   MockAttemptState,
 } from '@/features/auth/data/mockAuthAccounts';
+import type { SpecialistProfileResponse } from '@/features/specialist-profile/model/types';
 import type { ProductOrder, ServiceOrder } from '@/features/orders/model/types';
+import type { StoredCartItem } from '@/features/shop/model/shopCartStore';
 import type { Breed, Pet } from '@/features/pets/model/types';
 import type { UserProfile } from '@/features/profile/model/types';
 import type { Review, ReviewContext } from '@/features/reviews/model/types';
@@ -55,6 +57,7 @@ export type MockDbSnapshot = {
   };
   specialists: {
     managed: ManagedSpecialistMockAccount[];
+    profiles: SpecialistProfileResponse[];
   };
   accountDeletion: {
     softDeleteByUserId: Record<string, AccountSoftDeleteRecord>;
@@ -63,12 +66,15 @@ export type MockDbSnapshot = {
   };
   orders: {
     service: ServiceOrder[];
+    product: ProductOrder[];
   };
   shop: {
     categories: ProductCategory[];
     products: Product[];
     orders: Order[];
     pickupPoints: PickupPoint[];
+    cartByKey: Record<string, StoredCartItem[]>;
+    favoritesByKey: Record<string, string[]>;
   };
   client: {
     defaultUserId: string;
@@ -90,8 +96,6 @@ export type MockDbSnapshot = {
     requests: MockAdminPasswordRecoveryRequest[];
   };
   register: MockRegisterSlice;
-  /** Статические товарные заказы (легаси-виджеты); синхронизируются с заказами магазина по смыслу */
-  legacyProductOrders: ProductOrder[];
   /** Посты и баннеры админки (раньше — отдельные LS/IDB) */
   cms: {
     posts: AdminManagedPost[];

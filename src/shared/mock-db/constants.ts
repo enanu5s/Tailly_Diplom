@@ -1,7 +1,7 @@
 // src/shared/mock-db/constants.ts
 
 export const MOCK_DB_STORAGE_KEY = 'tailly_mock_db_v1';
-export const MOCK_DB_VERSION = 2 as const;
+export const MOCK_DB_VERSION = 4 as const;
 
 /** Префикс старых ключей localStorage до объединения */
 export const LEGACY_KEYS = {

@@ -1,26 +1,47 @@
 # Справочник демо-аккаунтов (mock)
 
-Все учётные данные для локальной демо-сборки задаются в коде сидов. Удобнее всего смотреть **первоисточники** ниже; пароли повторяются по ролям.
+Единый источник: [`seed/accounts.seed.ts`](seed/accounts.seed.ts)
 
-## Где в коде заданы логины и пароли
+## Пароли
 
-| Роль                                                                    | Файл                                                | Что смотреть                                                                                                                                                          |
-| ----------------------------------------------------------------------- | --------------------------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| Клиенты, специалисты, админы и суперадмин для входа через **`/login`**  | `src/shared/mock-db/seed/authBaseAccounts.seed.ts`  | массив `CORE_AUTH_ACCOUNTS` + `SEED_AUTH_BASE_ACCOUNTS` (доп. клиенты/специалисты/админы из `demoDataset.seed.ts`)                                                    |
-| Доп. шаблоны email и паролей для массовых клиентов/специалистов/админов | `src/shared/mock-db/seed/demoDataset.seed.ts`       | `DEMO_CLIENT_SPECIALIST_PASSWORD`, `DEMO_ADMIN_PANEL_PASSWORD`, функции `buildExtraClientAccounts`, `buildExtraSpecialistAuthAccounts`, `buildExtraAdminAuthAccounts` |
-| Вход в **админ-панель** (отдельная форма админа)                        | `src/features/admin-auth/data/mockAdminAccounts.ts` | `MOCK_ADMIN_ACCOUNTS` + `buildExtraMockAdminPanelAccounts()` из `demoDataset.seed.ts`                                                                                 |
-| Список администраторов для **суперадмина**                              | `src/shared/mock-db/seed/superAdminAdmins.seed.ts`  | `SEED_SUPER_ADMIN_ADMINS`                                                                                                                                             |
+| Роль | Пароль | Константа |
+|------|--------|-----------|
+| Клиенты | `12345678` | `DEMO_CLIENT_PASSWORD` |
+| Специалисты | `12345678` | `DEMO_SPECIALIST_PASSWORD` |
+| Администраторы | `Admin123!` | `DEMO_ADMIN_PASSWORD` |
+| Главный администратор | `SuperAdmin123!` | `DEMO_SUPER_ADMIN_PASSWORD` |
 
-## Пароли (кратко)
+## Клиенты (8)
 
-- **Обычный вход (`/login`)** для клиентов, специалистов и админов из mock: пароль **`123456`** (константа `DEMO_CLIENT_SPECIALIST_PASSWORD` в `demoDataset.seed.ts`).
-- **Админ-панель** (`mockAdminAccounts`): основной админ — **`Admin123!`**, суперадмин — **`SuperAdmin123!`**; дополнительные админы `admin02@tailly.local` … — **`Admin123!`** (`DEMO_ADMIN_PANEL_PASSWORD`).
+| Email | ID | Заказы |
+|-------|-----|--------|
+| client@tailly.local | client-1 | много |
+| client02@tailly.local | client-2 | много |
+| client03@tailly.local | client-3 | много |
+| client04@tailly.local | client-4 | много |
+| client05@tailly.local | client-5 | много |
+| client06@tailly.local | client-6 | много |
+| client07@tailly.local | client-7 | **0** |
+| client08@tailly.local | client-8 | **1** |
 
-## Примеры логинов
+Пароль для всех: `12345678`
 
-- Клиенты: `client@tailly.local`, `client02@tailly.local` … `client20@tailly.local` — пароль **`123456`** (`/login`).
-- Специалисты: `specialist@tailly.local`, `specialist02@tailly.local` … `specialist14@tailly.local` — пароль **`123456`** (`/login`).
-- Администраторы (общий логин): `admin@tailly.local`, `admin02@tailly.local` … `admin12@tailly.local` — **`123456`** на `/login`; для страницы админ-панели у `admin@tailly.local` — **`Admin123!`**, у остальных `adminNN@` — **`Admin123!`**.
-- Суперадмин: `superadmin@tailly.local` — **`123456`** на `/login`, **`SuperAdmin123!`** в админ-панели.
+## Специалисты (10)
 
-После смены сидов обновляйте этот файл при необходимости или ориентируйтесь на файлы из таблицы выше.
+| Email | ID | Dual client+specialist |
+|-------|-----|------------------------|
+| specialist@tailly.local | specialist-1 | да |
+| specialist02@tailly.local | specialist-2 | да |
+| specialist03@ … specialist10@ | specialist-3 … specialist-10 | нет |
+
+Пароль: `12345678`
+
+## Администраторы (6 + суперадмин)
+
+| Email | Роль |
+|-------|------|
+| admin@tailly.local | admin |
+| admin02@ … admin06@tailly.local | admin |
+| superadmin@tailly.local | super_admin |
+
+Пароли: `Admin123!` (админы), `SuperAdmin123!` (суперадмин)

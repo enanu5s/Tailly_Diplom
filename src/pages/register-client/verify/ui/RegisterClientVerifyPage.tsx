@@ -1,6 +1,7 @@
 //src/pages/register-client/verify/ui/RegisterClientVerifyPage.tsx
 import { useEffect, useState, type FormEvent, type ReactElement } from 'react';
 
+import { logMockRegistrationCode } from '@/features/auth/data/mockRegister';
 import { registerService } from '@/features/auth/model/registerService';
 import { useRegisterFlow } from '@/features/auth/model/useRegisterFlow';
 import { useAppNavigate } from '@/shared/lib/navigation/useAppNavigate';
@@ -47,7 +48,8 @@ export const RegisterClientVerifyPage = (): ReactElement => {
   };
 
   const handleResend = (): void => {
-    setError('Код отправлен повторно (мок). Код: 123456');
+    setError(null);
+    logMockRegistrationCode('Код отправлен повторно (регистрация)');
   };
 
   return (

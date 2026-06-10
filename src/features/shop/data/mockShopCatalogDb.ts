@@ -2,7 +2,7 @@
 
 import { cloneDeep } from '@/shared/mock-db/cloneDeep';
 import { ensureMockDatabaseLoaded, unsafeMutableMockDb } from '@/shared/mock-db/store';
-import { enrichMockProductData } from './mockShop';
+import { enrichMockProductData } from '@/shared/mock-db/seed/shop.seed';
 
 import type { Product, ProductCategory } from '../model/types';
 

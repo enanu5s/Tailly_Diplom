@@ -1,7 +1,7 @@
 import { getMockAuthAccounts } from '@/features/auth/data/mockAuthAccounts';
 import {
-  MOCK_SPECIALIST_PROFILES,
   findProfileIndexBySlug,
+  getProfileAtIndex,
 } from '@/features/specialist-profile/data/mockSpecialistProfiles';
 import { readManagedSpecialistAccounts } from '@/shared/lib/mock/specialistAccountsStorage';
 
@@ -23,7 +23,7 @@ export function resolveSpecialistEmailBySlug(slug: string): string | null {
 
   const index = findProfileIndexBySlug(normalized);
   if (index !== -1) {
-    const fromProfile = MOCK_SPECIALIST_PROFILES[index].main.email?.trim().toLowerCase();
+    const fromProfile = getProfileAtIndex(index)?.main.email?.trim().toLowerCase();
     if (fromProfile && fromProfile.includes('@')) {
       return fromProfile;
     }

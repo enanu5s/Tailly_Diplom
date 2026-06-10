@@ -8,7 +8,12 @@ import {
 } from '@/features/auth/data/mockAuthAccounts';
 import { patchMockDatabase, persistMockDatabase } from '@/shared/mock-db/store';
 
-import { cloneCities, getMockRegisterState, wait } from '../data/mockRegister';
+import {
+  cloneCities,
+  getMockRegisterState,
+  logMockRegistrationCode,
+  wait,
+} from '../data/mockRegister';
 
 import type { UserProfile } from '@/features/profile/model/types';
 import type {
@@ -47,6 +52,8 @@ export async function mockStartRegister(
   state.verificationToken = '';
   persistMockDatabase();
 
+  logMockRegistrationCode('Код отправлен на email (регистрация)');
+
   return {
     registrationId: state.registrationId,
   };
@@ -64,7 +71,8 @@ export async function mockVerifyCode(
   }
 
   if (dto.code !== state.lastCode) {
-    throw new Error('Неверный код (мок).\nПопробуй 123456');
+    logMockRegistrationCode('Неверный код при подтверждении почты');
+    throw new Error('Неверный код. Проверьте введённые цифры и попробуйте снова.');
   }
 
   const verificationToken = newId('verif');

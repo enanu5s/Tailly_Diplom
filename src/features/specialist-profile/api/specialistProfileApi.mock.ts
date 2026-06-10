@@ -4,17 +4,15 @@ import {
   getMockServiceOrderById,
   updateMockServiceOrder,
 } from '@/features/orders/data/mockOrders';
-import {
-  syncMockSpecialistCalendarSlotsFromProfile,
-  syncMockSpecialistListingStatsFromProfile,
-} from '@/features/specialists-search/data/mockSpecialists';
 import { notifySpecialistServicesChanged } from '@/shared/lib/emailNotifications';
 
 import {
   delay,
   cloneProfile,
   findProfileIndexBySlug,
-  MOCK_SPECIALIST_PROFILES,
+  getProfileAtIndex,
+  patchProfileBySlug,
+  readSpecialistProfiles,
 } from '../data/mockSpecialistProfiles';
 import { computeSpecialistStats } from '../lib/computeSpecialistStats';
 import { SpecialistEmailChangeError } from '../model/types';
@@ -129,8 +127,6 @@ function withComputedStats(profile: SpecialistProfileResponse): SpecialistProfil
     stats,
   };
 
-  syncMockSpecialistListingStatsFromProfile(merged);
-
   return merged;
 }
 
@@ -145,7 +141,12 @@ export async function mockGetSpecialistProfileBySlug(
     throw new Error('Профиль специалиста не найден.');
   }
 
-  return withComputedStats(cloneProfile(MOCK_SPECIALIST_PROFILES[profileIndex]));
+  const profile = getProfileAtIndex(profileIndex);
+  if (!profile) {
+    throw new Error('Профиль специалиста не найден.');
+  }
+
+  return withComputedStats(cloneProfile(profile));
 }
 
 export async function mockGetSpecialistProfileById(
@@ -153,7 +154,7 @@ export async function mockGetSpecialistProfileById(
 ): Promise<SpecialistProfileResponse> {
   await delay(350);
 
-  const profile = MOCK_SPECIALIST_PROFILES.find((item) => item.id === id);
+  const profile = readSpecialistProfiles().find((item) => item.id === id);
 
   if (!profile) {
     throw new Error('Профиль специалиста не найден.');
@@ -173,7 +174,10 @@ export async function mockGetSpecialistProfileEditOptions(
     throw new Error('Профиль специалиста не найден.');
   }
 
-  const profile = MOCK_SPECIALIST_PROFILES[profileIndex];
+  const profile = getProfileAtIndex(profileIndex);
+  if (!profile) {
+    throw new Error('Профиль специалиста не найден.');
+  }
 
   return {
     serviceCatalog: profile.services.map((service) => ({
@@ -196,9 +200,7 @@ export async function mockUpdateMainInfo(
     throw new Error('Профиль специалиста не найден.');
   }
 
-  const currentProfile = MOCK_SPECIALIST_PROFILES[profileIndex];
-
-  Object.assign(currentProfile, {
+  const updated = patchProfileBySlug(slug, (currentProfile) => ({
     ...currentProfile,
     main: {
       avatarUrl: payload.avatarUrl?.trim() || undefined,
@@ -210,9 +212,13 @@ export async function mockUpdateMainInfo(
       phone: payload.phone.trim(),
       email: currentProfile.main.email,
     },
-  });
+  }));
 
-  return withComputedStats(cloneProfile(currentProfile));
+  if (!updated) {
+    throw new Error('Профиль специалиста не найден.');
+  }
+
+  return withComputedStats(cloneProfile(updated));
 }
 
 export async function mockSendEmailChangeCode(
@@ -316,12 +322,18 @@ export async function mockVerifyEmailChangeCode(
     });
   }
 
-  const profile = MOCK_SPECIALIST_PROFILES[profileIndex];
-  profile.main.email = session.nextEmail;
+  const updated = patchProfileBySlug(slug, (profile) => ({
+    ...profile,
+    main: { ...profile.main, email: session.nextEmail },
+  }));
   emailChangeSessionsBySpecialistSlug.delete(slug);
 
+  if (!updated) {
+    throw new Error('Профиль специалиста не найден.');
+  }
+
   return {
-    profile: withComputedStats(cloneProfile(profile)),
+    profile: withComputedStats(cloneProfile(updated)),
     attemptsLeft: EMAIL_CHANGE_MAX_ATTEMPTS,
     lockUntil: null,
   };
@@ -339,9 +351,7 @@ export async function mockUpdateDetails(
     throw new Error('Профиль специалиста не найден.');
   }
 
-  const currentProfile = MOCK_SPECIALIST_PROFILES[profileIndex];
-
-  Object.assign(currentProfile, {
+  const updated = patchProfileBySlug(slug, (currentProfile) => ({
     ...currentProfile,
     specialistGallery: (payload.specialistGallery ?? []).map((item, index) => ({
       id: item.id || `specialist-gallery-${Date.now()}-${index}`,
@@ -365,9 +375,13 @@ export async function mockUpdateDetails(
         .filter((item) => item.title.length > 0),
       about: payload.about.trim(),
     },
-  });
+  }));
 
-  return withComputedStats(cloneProfile(currentProfile));
+  if (!updated) {
+    throw new Error('Профиль специалиста не найден.');
+  }
+
+  return withComputedStats(cloneProfile(updated));
 }
 
 export async function mockCreateService(
@@ -382,7 +396,6 @@ export async function mockCreateService(
     throw new Error('Профиль специалиста не найден.');
   }
 
-  const currentProfile = MOCK_SPECIALIST_PROFILES[profileIndex];
   const service: SpecialistService = {
     id: `service-${Date.now()}-${Math.random().toString(36).slice(2, 8)}`,
     name: payload.name.trim(),
@@ -393,12 +406,20 @@ export async function mockCreateService(
     bookingPolicy: payload.bookingPolicy,
   };
 
-  currentProfile.services = [...currentProfile.services, service];
-  notifyServicesChanged(currentProfile, [
+  const updated = patchProfileBySlug(slug, (currentProfile) => ({
+    ...currentProfile,
+    services: [...currentProfile.services, service],
+  }));
+
+  if (!updated) {
+    throw new Error('Профиль специалиста не найден.');
+  }
+
+  notifyServicesChanged(updated, [
     `Добавлена услуга «${service.name}» — ${service.price} ₽ (${service.locationLabel}).`,
   ]);
 
-  return withComputedStats(cloneProfile(currentProfile));
+  return withComputedStats(cloneProfile(updated));
 }
 
 export async function mockUpdateService(
@@ -414,15 +435,6 @@ export async function mockUpdateService(
     throw new Error('Профиль специалиста не найден.');
   }
 
-  const currentProfile = MOCK_SPECIALIST_PROFILES[profileIndex];
-  const serviceIndex = currentProfile.services.findIndex(
-    (service) => service.id === serviceId,
-  );
-
-  if (serviceIndex === -1) {
-    throw new Error('Услуга не найдена.');
-  }
-
   const service: SpecialistService = {
     id: serviceId,
     name: payload.name.trim(),
@@ -433,12 +445,27 @@ export async function mockUpdateService(
     bookingPolicy: payload.bookingPolicy,
   };
 
-  currentProfile.services[serviceIndex] = service;
-  notifyServicesChanged(currentProfile, [
+  const updated = patchProfileBySlug(slug, (currentProfile) => {
+    const serviceIndex = currentProfile.services.findIndex((s) => s.id === serviceId);
+    if (serviceIndex === -1) {
+      throw new Error('Услуга не найдена.');
+    }
+
+    const services = [...currentProfile.services];
+    services[serviceIndex] = service;
+
+    return { ...currentProfile, services };
+  });
+
+  if (!updated) {
+    throw new Error('Профиль специалиста не найден.');
+  }
+
+  notifyServicesChanged(updated, [
     `Обновлена услуга «${service.name}» (изменились название, цена, локация или правила бронирования).`,
   ]);
 
-  return withComputedStats(cloneProfile(currentProfile));
+  return withComputedStats(cloneProfile(updated));
 }
 
 export async function mockDeleteService(
@@ -453,19 +480,25 @@ export async function mockDeleteService(
     throw new Error('Профиль специалиста не найден.');
   }
 
-  const currentProfile = MOCK_SPECIALIST_PROFILES[profileIndex];
-  const service = currentProfile.services.find((item) => item.id === serviceId);
+  const currentProfile = getProfileAtIndex(profileIndex);
+  const service = currentProfile?.services.find((item) => item.id === serviceId);
 
   if (!service) {
     throw new Error('Услуга не найдена.');
   }
 
-  currentProfile.services = currentProfile.services.filter((item) => item.id !== serviceId);
-  notifyServicesChanged(currentProfile, [
-    `Услуга «${service.name}» удалена из профиля.`,
-  ]);
+  const updated = patchProfileBySlug(slug, (profile) => ({
+    ...profile,
+    services: profile.services.filter((item) => item.id !== serviceId),
+  }));
 
-  return withComputedStats(cloneProfile(currentProfile));
+  if (!updated) {
+    throw new Error('Профиль специалиста не найден.');
+  }
+
+  notifyServicesChanged(updated, [`Услуга «${service.name}» удалена из профиля.`]);
+
+  return withComputedStats(cloneProfile(updated));
 }
 
 export async function mockUpdateCalendar(
@@ -480,7 +513,10 @@ export async function mockUpdateCalendar(
     throw new Error('Профиль специалиста не найден.');
   }
 
-  const currentProfile = MOCK_SPECIALIST_PROFILES[profileIndex];
+  const currentProfile = getProfileAtIndex(profileIndex);
+  if (!currentProfile) {
+    throw new Error('Профиль специалиста не найден.');
+  }
 
   const nextCalendar = {
     ...currentProfile.calendar,
@@ -542,14 +578,16 @@ export async function mockUpdateCalendar(
     );
   }
 
-  Object.assign(currentProfile, {
-    ...currentProfile,
+  const updated = patchProfileBySlug(slug, (profile) => ({
+    ...profile,
     calendar: nextCalendar,
-  });
+  }));
 
-  syncMockSpecialistCalendarSlotsFromProfile(currentProfile);
+  if (!updated) {
+    throw new Error('Профиль специалиста не найден.');
+  }
 
-  return withComputedStats(cloneProfile(currentProfile));
+  return withComputedStats(cloneProfile(updated));
 }
 
 export async function mockUpsertReviewReply(
@@ -564,16 +602,6 @@ export async function mockUpsertReviewReply(
     throw new Error('Профиль специалиста не найден.');
   }
 
-  const currentProfile = MOCK_SPECIALIST_PROFILES[profileIndex];
-
-  const reviewIndex = currentProfile.reviews.findIndex(
-    (review) => review.id === payload.reviewId,
-  );
-
-  if (reviewIndex === -1) {
-    throw new Error('Отзыв не найден.');
-  }
-
   const now = new Date();
   const createdAt = [
     now.getFullYear(),
@@ -584,15 +612,32 @@ export async function mockUpsertReviewReply(
   const createdAtIso = now.toISOString();
   const trimmedReply = payload.text.trim();
 
-  currentProfile.reviews[reviewIndex] = {
-    ...currentProfile.reviews[reviewIndex],
-    specialistReply: {
-      text: trimmedReply,
-      createdAt,
-    },
-  };
+  const updated = patchProfileBySlug(slug, (currentProfile) => {
+    const reviewIndex = currentProfile.reviews.findIndex(
+      (review) => review.id === payload.reviewId,
+    );
 
-  const linkedOrderId = currentProfile.reviews[reviewIndex].orderId;
+    if (reviewIndex === -1) {
+      throw new Error('Отзыв не найден.');
+    }
+
+    const reviews = [...currentProfile.reviews];
+    reviews[reviewIndex] = {
+      ...reviews[reviewIndex]!,
+      specialistReply: {
+        text: trimmedReply,
+        createdAt,
+      },
+    };
+
+    return { ...currentProfile, reviews };
+  });
+
+  if (!updated) {
+    throw new Error('Профиль специалиста не найден.');
+  }
+
+  const linkedOrderId = updated.reviews.find((r) => r.id === payload.reviewId)?.orderId;
 
   if (linkedOrderId) {
     const order = getMockServiceOrderById(linkedOrderId);
@@ -610,5 +655,5 @@ export async function mockUpsertReviewReply(
     }
   }
 
-  return withComputedStats(cloneProfile(currentProfile));
+  return withComputedStats(cloneProfile(updated));
 }

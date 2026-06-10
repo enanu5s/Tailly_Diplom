@@ -4,6 +4,11 @@ import { makeAutoObservable } from 'mobx';
 import { authStore } from '@/features/auth';
 import type { AuthUser } from '@/features/auth/model/authStore';
 import { isMockApiMode } from '@/shared/config/env';
+import {
+  GUEST_CART_KEY,
+  readCartItems,
+  writeCartItems,
+} from '@/shared/mock-db/accessors/cartFavorites';
 import { hasUsableAccessToken } from '@/shared/lib/auth/hasUsableAccessToken';
 import { canOrderShopProducts } from '@/shared/lib/auth/roleAccess';
 
@@ -326,9 +331,27 @@ export class ShopCartStore {
     debugCartStorage();
   }
 
+  private storageKeyToDbKey(storageKey: string): string {
+    if (storageKey === GUEST_STORAGE_KEY) {
+      return GUEST_CART_KEY;
+    }
+
+    const prefix = `${STORAGE_KEY_PREFIX}_user_`;
+
+    if (storageKey.startsWith(prefix)) {
+      return storageKey.slice(prefix.length);
+    }
+
+    return GUEST_CART_KEY;
+  }
+
   private readItemsByStorageKey(storageKey: string): StoredCartItem[] {
     if (typeof window === 'undefined') {
       return [];
+    }
+
+    if (isMockApiMode) {
+      return readCartItems(this.storageKeyToDbKey(storageKey));
     }
 
     return parseStoredItems(window.localStorage.getItem(storageKey));
@@ -339,16 +362,28 @@ export class ShopCartStore {
       return;
     }
 
+    const normalized = normalizeItems(items);
+
+    if (isMockApiMode) {
+      writeCartItems(this.storageKeyToDbKey(storageKey), normalized);
+      return;
+    }
+
     window.localStorage.setItem(
       storageKey,
       JSON.stringify({
-        items: normalizeItems(items),
+        items: normalized,
       } satisfies CartStoragePayload),
     );
   }
 
   private clearStorageKey(storageKey: string): void {
     if (typeof window === 'undefined') {
+      return;
+    }
+
+    if (isMockApiMode) {
+      writeCartItems(this.storageKeyToDbKey(storageKey), []);
       return;
     }
 

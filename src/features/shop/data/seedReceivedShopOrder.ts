@@ -4,7 +4,7 @@ import { SEED_AUTH_BASE_ACCOUNTS } from '@/shared/mock-db/seed/authBaseAccounts.
 import { cloneDeep } from '@/shared/mock-db/cloneDeep';
 
 import type { Order } from '../model/types';
-import { SHOP_PRODUCTS_MOCK } from './mockShop';
+import { SEED_SHOP_PRODUCTS } from '@/shared/mock-db/seed/shop.seed';
 
 /** Стабильный id демо-заказа «Получен» (shop: completed → product order: delivered). */
 export const SEED_RECEIVED_SHOP_ORDER_ID = 'order-seed-received-1';
@@ -22,8 +22,8 @@ function getElenaSmirnovaDemoAccount() {
 
 export function getSeedReceivedShopOrder(): Order {
   const owner = getElenaSmirnovaDemoAccount();
-  const product1 = SHOP_PRODUCTS_MOCK.find((p) => p.id === 'product-1');
-  const product2 = SHOP_PRODUCTS_MOCK.find((p) => p.id === 'product-2');
+  const product1 = SEED_SHOP_PRODUCTS.find((p) => p.id === 'product-1');
+  const product2 = SEED_SHOP_PRODUCTS.find((p) => p.id === 'product-2');
 
   if (!product1 || !product2) {
     throw new Error('seedReceivedShopOrder: catalog products product-1 / product-2 missing');

@@ -4,6 +4,11 @@ import { makeAutoObservable } from 'mobx';
 
 import { authStore } from '@/features/auth/model/authStore';
 import { isMockApiMode } from '@/shared/config/env';
+import {
+  readFavoriteProductIds,
+  resolveCartFavoritesKey,
+  writeFavoriteProductIds,
+} from '@/shared/mock-db/accessors/cartFavorites';
 import { hasUsableAccessToken } from '@/shared/lib/auth/hasUsableAccessToken';
 import { canOrderShopProducts } from '@/shared/lib/auth/roleAccess';
 
@@ -31,12 +36,27 @@ export class ShopFavoritesStore {
     }
   }
 
+  private favoritesDbKey(): string {
+    const user = authStore.getState().user;
+    return resolveCartFavoritesKey(user?.id ?? null);
+  }
+
   private persist(): void {
-    localStorage.setItem(STORAGE_KEY, JSON.stringify(this.productIds));
+    if (isMockApiMode) {
+      writeFavoriteProductIds(this.favoritesDbKey(), this.productIds);
+    } else {
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(this.productIds));
+    }
+
     this.scheduleServerSync();
   }
 
   private restore(): void {
+    if (isMockApiMode) {
+      this.productIds = readFavoriteProductIds(this.favoritesDbKey());
+      return;
+    }
+
     const raw = localStorage.getItem(STORAGE_KEY);
 
     if (!raw) {
@@ -188,7 +208,13 @@ export class ShopFavoritesStore {
     try {
       const serverProductIds = await shopFavoritesApi.getFavorites();
       this.productIds = serverProductIds;
-      localStorage.setItem(STORAGE_KEY, JSON.stringify(this.productIds));
+
+      if (isMockApiMode) {
+        writeFavoriteProductIds(this.favoritesDbKey(), this.productIds);
+      } else {
+        localStorage.setItem(STORAGE_KEY, JSON.stringify(this.productIds));
+      }
+
       this.lastSyncedSnapshot = this.buildSnapshotSignature(serverProductIds);
     } catch (error) {
       console.warn('[favorites] hydrate from server failed', { error });

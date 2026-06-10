@@ -1,11 +1,5 @@
 // src/shared/mock-db/buildInitialSnapshot.ts
 
-import { MOCK_PRODUCT_ORDERS_SEED } from '@/features/orders/data/mockProductOrdersSeed';
-import { MOCK_BREEDS } from '@/features/pets/data/mockPets';
-import type { Pet } from '@/features/pets/model/types';
-import type { UserProfile } from '@/features/profile/model/types';
-import { SHOP_CATEGORIES_MOCK, SHOP_PRODUCTS_MOCK } from '@/features/shop/data/mockShop';
-import { SHOP_DEMO_EXTRA_PRODUCTS } from '@/features/shop/data/mockShopExtraProducts';
 import {
   cloneApplications,
   INITIAL_APPLICATIONS,
@@ -13,82 +7,30 @@ import {
 
 import { cloneDeep } from './cloneDeep';
 import { MOCK_DB_VERSION } from './constants';
-import { SEED_AUTH_BASE_ACCOUNTS } from './seed/authBaseAccounts.seed';
-import { buildExtraClientProfilesAndPets } from './seed/demoDataset.seed';
-import { SEED_MANAGED_SPECIALISTS } from './seed/managedSpecialists.seed';
-import { SEED_PICKUP_POINTS } from './seed/pickupPoints.seed';
+import { SEED_ACCOUNTS } from './seed/accounts.seed';
+import { SEED_SUPER_ADMIN_ADMINS } from './seed/admins.seed';
+import { SEED_BREEDS } from './seed/breeds.seed';
+import {
+  buildSeedClientPets,
+  buildSeedClientProfiles,
+  SEED_DEFAULT_CLIENT_ID,
+} from './seed/clients.seed';
 import { SEED_CMS_BANNERS, SEED_CMS_DATA_REVISION, SEED_CMS_POSTS } from './seed/cms.seed';
-import { SEED_SUPER_ADMIN_ADMINS } from './seed/superAdminAdmins.seed';
+import { SEED_MESSAGE_THREADS, SEED_MESSAGES } from './seed/messages.seed';
+import { buildSeedServiceOrders } from './seed/orders.seed';
+import { SEED_PICKUP_POINTS } from './seed/pickupPoints.seed';
+import { buildSeedReviewsFromOrders } from './seed/reviews.seed';
+import { buildExtraShopProducts } from './seed/shopExtraProducts.seed';
+import { SEED_SHOP_CATEGORIES, SEED_SHOP_PRODUCTS } from './seed/shop.seed';
+import { buildSeedProductOrders } from './seed/shopOrders.seed';
+import { SEED_MANAGED_SPECIALISTS, SEED_SPECIALIST_PROFILES } from './seed/specialists.seed';
 
 import type { MockDbSnapshot } from './types';
 
-const DEFAULT_CLIENT_ID = 'client-1';
-
-const SEED_CLIENT_PROFILE: UserProfile = {
-  id: DEFAULT_CLIENT_ID,
-  firstName: 'Елена',
-  lastName: 'Смирнова',
-  middleName: 'Игоревна',
-  city: 'Москва',
-  phone: '+7 (900) 000-00-10',
-  email: 'client@tailly.local',
-  avatarUrl: '/images/profile-avatar.png',
-};
-
-const EXTRA_CLIENT = buildExtraClientProfilesAndPets();
-
-const SEED_CLIENT_PETS: Pet[] = [
-  {
-    id: 'pet-1',
-    name: 'Марта',
-    type: 'dog',
-    breedId: 'b-dog-1',
-    ageYears: 4,
-    ageMonths: 0,
-    size: '2_5kg',
-    gender: 'female',
-    toOtherPets: 'friendly',
-    toKidsUnder10: 'friendly',
-    staysHomeAlone: 'ok',
-    vaccinated: 'yes',
-    notes: 'Активная, любит длительные прогулки.',
-    photoUrl: '/images/pet-dog.png',
-  },
-  {
-    id: 'pet-2',
-    name: 'Пушок',
-    type: 'cat',
-    breedId: 'b-cat-1',
-    ageYears: 2,
-    ageMonths: 3,
-    size: 'up_to_2kg',
-    gender: 'male',
-    toOtherPets: 'neutral',
-    toKidsUnder10: 'neutral',
-    staysHomeAlone: 'ok',
-    vaccinated: 'yes',
-    notes: 'Нужен спокойный темп знакомства.',
-    photoUrl: '',
-  },
-  {
-    id: 'pet-3',
-    name: 'Снежок',
-    type: 'cat',
-    breedId: 'b-cat-2',
-    ageYears: 6,
-    ageMonths: 0,
-    size: '2_5kg',
-    gender: 'male',
-    toOtherPets: 'friendly',
-    toKidsUnder10: 'friendly',
-    staysHomeAlone: 'ok',
-    vaccinated: 'yes',
-    notes: 'Передержка: отдельная зона и привычный корм.',
-    photoUrl: '',
-  },
-];
-
 export function buildInitialSnapshot(): MockDbSnapshot {
+  const serviceOrders = buildSeedServiceOrders();
+  const reviewsSeed = buildSeedReviewsFromOrders(serviceOrders);
+
   return {
     version: MOCK_DB_VERSION,
     meta: {
@@ -96,11 +38,12 @@ export function buildInitialSnapshot(): MockDbSnapshot {
       cmsDataRevision: SEED_CMS_DATA_REVISION,
     },
     auth: {
-      baseAccounts: cloneDeep(SEED_AUTH_BASE_ACCOUNTS),
+      baseAccounts: cloneDeep(SEED_ACCOUNTS),
       adminAttempts: {},
     },
     specialists: {
       managed: cloneDeep(SEED_MANAGED_SPECIALISTS),
+      profiles: cloneDeep(SEED_SPECIALIST_PROFILES),
     },
     accountDeletion: {
       softDeleteByUserId: {},
@@ -108,30 +51,26 @@ export function buildInitialSnapshot(): MockDbSnapshot {
       deletionEmailOutbox: [],
     },
     orders: {
-      service: [],
+      service: cloneDeep(serviceOrders),
+      product: cloneDeep(buildSeedProductOrders()),
     },
     shop: {
-      categories: cloneDeep(SHOP_CATEGORIES_MOCK),
-      products: cloneDeep([...SHOP_PRODUCTS_MOCK, ...SHOP_DEMO_EXTRA_PRODUCTS]),
+      categories: cloneDeep(SEED_SHOP_CATEGORIES),
+      products: cloneDeep([...SEED_SHOP_PRODUCTS, ...buildExtraShopProducts()]),
       orders: [],
       pickupPoints: cloneDeep(SEED_PICKUP_POINTS),
+      cartByKey: {},
+      favoritesByKey: {},
     },
     client: {
-      defaultUserId: DEFAULT_CLIENT_ID,
-      profiles: {
-        [DEFAULT_CLIENT_ID]: cloneDeep(SEED_CLIENT_PROFILE),
-        ...cloneDeep(EXTRA_CLIENT.profiles),
-      },
-      petsByUserId: {
-        [DEFAULT_CLIENT_ID]: cloneDeep(SEED_CLIENT_PETS),
-        ...cloneDeep(EXTRA_CLIENT.petsByUserId),
-      },
-      breeds: cloneDeep(MOCK_BREEDS),
+      defaultUserId: SEED_DEFAULT_CLIENT_ID,
+      profiles: cloneDeep(buildSeedClientProfiles()),
+      petsByUserId: cloneDeep(buildSeedClientPets()),
+      breeds: cloneDeep(SEED_BREEDS),
     },
-    /** Контексты отзывов по orderId синхронизируются из списка услуг в `features/orders/data/mockOrders.ts`. */
     reviews: {
-      contexts: {},
-      list: [],
+      contexts: cloneDeep(reviewsSeed.contexts),
+      list: cloneDeep(reviewsSeed.list),
     },
     applications: {
       specialist: cloneApplications(INITIAL_APPLICATIONS),
@@ -155,14 +94,13 @@ export function buildInitialSnapshot(): MockDbSnapshot {
         { id: 'ekb', name: 'Екатеринбург' },
       ],
     },
-    legacyProductOrders: cloneDeep(MOCK_PRODUCT_ORDERS_SEED),
     cms: {
       posts: cloneDeep(SEED_CMS_POSTS),
       banners: cloneDeep(SEED_CMS_BANNERS),
     },
     messages: {
-      threads: [],
-      items: [],
+      threads: cloneDeep(SEED_MESSAGE_THREADS),
+      items: cloneDeep(SEED_MESSAGES),
     },
   };
 }

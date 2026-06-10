@@ -7,6 +7,7 @@ export type UserProfile = {
   middleName?: string;
   avatarUrl?: string;
   city: string;
+  district?: string;
   phone: string;
   email: string;
 };
