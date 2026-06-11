@@ -505,13 +505,13 @@ export const SpecialistProfileView = observer(
       : profile.details.petTypes;
     const currentServices = currentDetails
       ? currentDetails.services.map((service) => ({
-          id: service.id,
-          name: service.name.trim(),
-          locationLabel: service.locationLabel.trim(),
-          description: service.description.trim(),
-          price: Number(service.price),
-          priceUnit: service.priceUnit,
-        }))
+        id: service.id,
+        name: service.name.trim(),
+        locationLabel: service.locationLabel.trim(),
+        description: service.description.trim(),
+        price: Number(service.price),
+        priceUnit: service.priceUnit,
+      }))
       : profile.services;
     const hasHiddenServices = !isEditingDetails && currentServices.length > 3;
     const visibleServices =
@@ -676,6 +676,7 @@ export const SpecialistProfileView = observer(
 
     return (
       <div className={styles.pageContainer}>
+        <h1 className={styles.pageTitle}>Профиль</h1>
         <div className={styles.layout}>
           <div className={styles.leftColumn}>
             <section className={styles.mainCard}>
@@ -688,7 +689,9 @@ export const SpecialistProfileView = observer(
                     className={styles.editIconButton}
                     aria-label="Редактировать основные данные"
                     onClick={onStartMainEditing}
-                  />
+                  >
+                    <img src="/icons/Edit.svg" alt="" aria-hidden="true" />
+                  </button>
                 ) : null}
               </div>
 
@@ -715,15 +718,6 @@ export const SpecialistProfileView = observer(
 
                   {isEditingMain ? (
                     <div className={styles.inlineAvatarEditor}>
-                      <input
-                        className={styles.input}
-                        value={mainForm?.avatarUrl ?? ''}
-                        onChange={(event) =>
-                          onSetMainField('avatarUrl', event.target.value)
-                        }
-                        placeholder="Ссылка на фото"
-                      />
-
                       <label className={styles.uploadButton}>
                         <span>Загрузить</span>
                         <input
@@ -994,9 +988,8 @@ export const SpecialistProfileView = observer(
               }
             >
               <div
-                className={`${styles.detailsTop} ${
-                  hasFewGalleryPhotos ? styles.detailsTopFewPhotos : ''
-                }`}
+                className={`${styles.detailsTop} ${hasFewGalleryPhotos ? styles.detailsTopFewPhotos : ''
+                  }`}
               >
                 <div className={styles.galleryBlock}>
                   <h2 className={styles.cardTitle}>Фотографии специалиста</h2>
@@ -1129,7 +1122,9 @@ export const SpecialistProfileView = observer(
                         className={styles.editIconButton}
                         aria-label="Редактировать детали"
                         onClick={onStartDetailsEditing}
-                      />
+                      >
+                        <img src="/icons/Edit.svg" alt="" aria-hidden="true" />
+                      </button>
                     ) : null}
                   </div>
 
@@ -1176,8 +1171,8 @@ export const SpecialistProfileView = observer(
                           {currentPetSizes.length === PET_SIZE_OPTIONS.length
                             ? 'Любой'
                             : currentPetSizes
-                                .map((size) => SPECIALIST_PET_SIZE_LABELS[size])
-                                .join(', ') || '—'}
+                              .map((size) => SPECIALIST_PET_SIZE_LABELS[size])
+                              .join(', ') || '—'}
                         </strong>
                       )}
                     </div>
@@ -1200,8 +1195,8 @@ export const SpecialistProfileView = observer(
                           {currentPetAges.length === PET_AGE_OPTIONS.length
                             ? 'Любой'
                             : currentPetAges
-                                .map((age) => SPECIALIST_PET_AGE_LABELS[age])
-                                .join(', ') || '—'}
+                              .map((age) => SPECIALIST_PET_AGE_LABELS[age])
+                              .join(', ') || '—'}
                         </strong>
                       )}
                     </div>
@@ -1303,9 +1298,9 @@ export const SpecialistProfileView = observer(
                                   {(serviceCatalogOptions.length > 0
                                     ? serviceCatalogOptions
                                     : detailsForm.services.map((service) => ({
-                                        id: service.id,
-                                        name: service.name,
-                                      }))
+                                      id: service.id,
+                                      name: service.name,
+                                    }))
                                   ).map((option, optionIndex) => (
                                     <option
                                       key={`${option.id}-${optionIndex}`}
@@ -1409,7 +1404,7 @@ export const SpecialistProfileView = observer(
                                   <div className={styles.servicePriceUnit}>
                                     {
                                       SPECIALIST_SERVICE_PRICE_UNIT_LABELS[
-                                        service.priceUnit
+                                      service.priceUnit
                                       ]
                                     }
                                   </div>
@@ -1577,11 +1572,10 @@ export const SpecialistProfileView = observer(
                         return (
                           <article
                             key={review.id}
-                            className={`${styles.reviewCard} ${
-                              reviewImageUrl
-                                ? styles.reviewCardHasMedia
-                                : styles.reviewCardNoMedia
-                            }`}
+                            className={`${styles.reviewCard} ${reviewImageUrl
+                              ? styles.reviewCardHasMedia
+                              : styles.reviewCardNoMedia
+                              }`}
                           >
                             <div className={styles.reviewCardBody}>
                               {reviewImageUrl ? (

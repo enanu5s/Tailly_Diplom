@@ -121,8 +121,14 @@
   outline: none;
 }
 
-.searchField input,
+.searchField input {
+  width: 442px;
+  height: 48px;
+  padding: 0 20px;
+}
+
 .sortSelect {
+  width: 288px;
   height: 48px;
   padding: 0 20px;
 }
@@ -160,7 +166,7 @@
 }
 
 .bannerCard {
-  min-height: 570px;
+  min-height: 370px;
 }
 
 .postCard:hover,
@@ -198,12 +204,15 @@
 .cardTags span,
 .dateBadge {
   min-height: 28px;
+  width: 258px;
   box-sizing: border-box;
   border-radius: 24px;
+  margin-top: 20px;
   padding: 5px 12px;
   background: #fff3cd;
   color: #211500;
   font-size: 15px;
+  text-align: center;
   line-height: 18px;
 }
 
@@ -278,8 +287,8 @@
 }
 
 .cardActions {
-  margin-top: auto;
-  padding-top: 34px;
+  margin-top: 0;
+  padding-top: 30px;
   display: grid;
   grid-template-columns: 258px 288px;
   gap: 20px;
@@ -370,6 +379,7 @@
     opacity: 0;
     transform: translate(-50%, 8px);
   }
+
   to {
     opacity: 1;
     transform: translate(-50%, 0);
@@ -474,7 +484,7 @@
   line-height: 19px;
 }
 
-.modalTitle + .modalField {
+.modalTitle+.modalField {
   margin-top: 30px;
 }
 
@@ -685,7 +695,7 @@
 .bannerFieldsRow {
   margin-top: 16px;
   display: grid;
-  grid-template-columns: minmax(0, 596px) 228px 228px;
+  grid-template-columns: minmax(0, 442px) 228px 228px;
   gap: 20px;
   align-items: end;
 }

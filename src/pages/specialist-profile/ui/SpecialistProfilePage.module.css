@@ -3,7 +3,7 @@
 .page {
   min-height: calc(100vh - 160px);
   background: #f9fafb;
-  padding: 32px 20px 80px;
+  padding: 60px 24px 120px;
 }
 
 .container {

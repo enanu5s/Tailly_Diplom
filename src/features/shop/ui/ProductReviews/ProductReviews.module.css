@@ -2,8 +2,8 @@
 .section {
   display: flex;
   flex-direction: column;
-  gap: 18px;
-  padding: 24px;
+  gap: 20px;
+  padding: 30px;
   border-radius: 14px;
   background: #ffffff;
   box-shadow: 0 14px 34px rgba(33, 21, 0, 0.08);
@@ -18,8 +18,10 @@
 .title {
   margin: 0;
   color: #211500;
-  font-size: 24px;
+  font-family: 'Igra Sans', serif;
   font-weight: 500;
+  line-height: 1.2;
+  font-size: 24px;
 }
 
 .count {
@@ -40,7 +42,7 @@
 }
 
 .card {
-  padding: 18px;
+  padding: 20px;
   border: 1px solid #e4ded6;
   border-radius: 14px;
   background: #ffffff;
@@ -55,8 +57,11 @@
 
 .author {
   color: #211500;
-  font-size: 14px;
-  font-weight: 700;
+  font-family: 'Rubik', system-ui, sans-serif;
+  font-size: 15px;
+  line-height: 1.2;
+  font-weight: 500;
+  margin-bottom: 8px;
 }
 
 .date {
@@ -67,13 +72,15 @@
   border-radius: 999px;
   background: #fff1c7;
   color: #5c3a00;
-  font-size: 12px;
-  font-weight: 600;
+  font-family: 'Rubik', system-ui, sans-serif;
+  font-size: 14px;
+  line-height: 1.2;
+  font-weight: 500;
 }
 
 .rating {
   color: #ffb800;
-  font-size: 22px;
+  font-size: 30px;
   letter-spacing: 3px;
   white-space: nowrap;
 }
@@ -81,8 +88,10 @@
 .text {
   margin: 8px 0 0;
   color: #211500;
-  font-size: 14px;
-  line-height: 1.4;
+  font-family: 'Rubik', sans-serif;
+  font-size: 15px;
+  line-height: 1.35;
+  font-variant-numeric: tabular-nums lining-nums;
 }
 
 .reply {
@@ -102,8 +111,10 @@
 
 .replyAuthor {
   color: #211500;
-  font-size: 14px;
-  font-weight: 700;
+  font-family: 'Rubik', system-ui, sans-serif;
+  font-size: 15px;
+  line-height: 1.2;
+  font-weight: 500;
 }
 
 .replyDate {
@@ -112,13 +123,17 @@
   border-radius: 999px;
   background: #fff1c7;
   color: #5c3a00;
-  font-size: 12px;
-  font-weight: 600;
+  font-family: 'Rubik', system-ui, sans-serif;
+  font-size: 14px;
+  line-height: 1.2;
+  font-weight: 500;
 }
 
 .replyText {
   margin: 10px 0 0;
   color: #211500;
-  font-size: 14px;
-  line-height: 1.45;
+  font-family: 'Rubik', sans-serif;
+  font-size: 15px;
+  line-height: 1.35;
+  font-variant-numeric: tabular-nums lining-nums;
 }

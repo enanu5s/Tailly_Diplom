@@ -324,6 +324,7 @@
   color: #211500;
   white-space: normal;
   overflow-wrap: anywhere;
+  font-variant-numeric: tabular-nums lining-nums;
 }
 
 .inlineLinkButton {

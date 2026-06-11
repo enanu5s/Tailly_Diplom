@@ -84,7 +84,9 @@ export function SpecialistMiniCalendar({
             className={styles.editButton}
             aria-label="Редактировать календарь"
             onClick={handleEditCalendarClick}
-          />
+          >
+            <img src="/icons/Edit.svg" alt="" aria-hidden="true" />
+          </button>
         ) : null}
       </div>
 

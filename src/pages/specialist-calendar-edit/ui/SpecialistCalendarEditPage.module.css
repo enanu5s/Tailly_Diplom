@@ -17,7 +17,6 @@
   align-items: flex-start;
   gap: 24px;
   flex-wrap: wrap;
-  margin-top: 10px;
 }
 
 .figmaTitleSaveRow .pageIntroText {
@@ -177,7 +176,6 @@
   font-family: 'Raleway', system-ui, sans-serif;
   font-weight: 600;
   font-size: 16px;
-  line-height: 19px;
   font-feature-settings: 'pnum' on, 'lnum' on;
 }
 
@@ -235,7 +233,7 @@
   color: #211500;
 }
 
-.asideCard > .asideCardTitle:first-child {
+.asideCard>.asideCardTitle:first-child {
   margin-bottom: 0;
 }
 
@@ -248,11 +246,11 @@
 }
 
 .asideSectionHeading {
-  margin: 20px 0 0;
-  font-family: 'Rubik', system-ui, sans-serif;
-  font-size: 15px;
-  font-weight: 600;
-  line-height: 1.35;
+  margin: 60px 0 0;
+  font-family: 'Igra Sans', system-ui, sans-serif;
+  font-size: 24px;
+  font-weight: 400;
+  line-height: 1.2;
   color: #211500;
 }
 
@@ -266,18 +264,18 @@
 .statusPillGrid {
   display: grid;
   grid-template-columns: repeat(2, minmax(0, 1fr));
-  gap: 14px 20px;
-  margin-top: 4px;
+  gap: 15px 20px;
+  margin-top: 20px;
 }
 
 .statusPill {
   box-sizing: border-box;
   display: flex;
   align-items: center;
-  justify-content: flex-start;
+  justify-content: center;
   gap: 12px;
   min-height: 45px;
-  padding: 10px 16px 10px 14px;
+  padding: 10px 16px 10px 16px;
   border-radius: 44px;
   border: 1px solid #6f685d;
   background: #ffffff;
@@ -344,7 +342,7 @@
 
 .addServiceButton {
   width: 100%;
-  margin-top: 8px;
+  margin-top: 30px;
 }
 
 .advancedBulkDetails {
@@ -383,7 +381,7 @@
 }
 
 .topNavRow {
-  margin-bottom: 16px;
+  margin-bottom: 30px;
 }
 
 .backPill {
@@ -397,7 +395,7 @@
   padding: 10px 22px 10px 18px;
   border-radius: 23px;
   border: 1px solid #c7c2ba;
-  background: #ffffff;
+  background: #f8f8f8;
   color: #6f685d;
   font-family: 'Raleway', system-ui, sans-serif;
   font-size: 16px;
@@ -485,9 +483,7 @@
   box-shadow: none;
 }
 
-.tabPanel {
-  margin-top: 4px;
-}
+.tabPanel {}
 
 .calendarLayout {
   display: grid;
@@ -564,10 +560,10 @@
 }
 
 .title {
-  margin: 0 0 12px;
+  margin: 0 0 28px;
   font-family: 'Igra Sans', system-ui, sans-serif;
   font-size: clamp(28px, 4vw, 40px);
-  font-weight: 400;
+  font-weight: 700;
   line-height: 1.2;
   color: #211500;
 }
@@ -642,6 +638,9 @@
   margin-bottom: 16px;
   padding: 14px 16px;
   border-radius: 14px;
+  font-family: 'Raleway', system-ui, sans-serif;
+  font-weight: 600;
+  font-size: 16px;
 }
 
 .warningBanner {
@@ -654,12 +653,16 @@
   background: rgba(239, 68, 68, 0.08);
   color: #b91c1c;
   border-radius: 12px;
+  margin-top: 20px;
   padding: 12px 14px;
+  font-family: 'Raleway', system-ui, sans-serif;
+  font-weight: 600;
+  font-size: 16px;
 }
 
 .successBanner {
-  background: rgba(16, 185, 129, 0.1);
-  color: #065f46;
+  background: rgba(176, 185, 16, 0.263);
+  color: #4c5f06;
 }
 
 .monthHeader {
@@ -1186,7 +1189,7 @@ select.input {
   flex-direction: row;
   align-items: center;
   min-height: 69px;
-  padding: 0 20px;
+  padding: 15px 20px;
   gap: 20px;
 }
 
@@ -1259,7 +1262,7 @@ select.input {
 }
 
 .windowComment {
-  padding: 0 20px 14px;
+  padding: 10px 72px 14px;
   margin-top: -4px;
   font-family: 'Rubik', system-ui, sans-serif;
   font-size: 14px;

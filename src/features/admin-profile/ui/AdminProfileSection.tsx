@@ -97,8 +97,14 @@ export const AdminProfileSection = observer((): ReactElement => {
                 <span className={styles.email}>{profile.email}</span>
               </div>
 
-              <h2 className={styles.name}>{fullName}</h2>
-
+              <h2 className={styles.name}>
+                {[profile.lastName, profile.firstName, profile.middleName]
+                  .filter(Boolean)
+                  .map((part, i) => (
+                    <span key={i} style={{ display: 'block' }}>{part}</span>
+                  ))}
+              </h2>
+              
               <div className={styles.meta}>
                 <p>
                   <span>Телефон:</span> <strong>{profile.phone || '—'}</strong>

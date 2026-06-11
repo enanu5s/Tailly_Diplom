@@ -126,11 +126,12 @@
   height: 18px;
   padding: 0 5px;
   border-radius: 999px;
-  background: #211500;
+  background: #FFA232;
   color: #ffffff;
+  font-family: Rubik, sans-serif;
   font-size: 11px;
   line-height: 1;
-  font-weight: 700;
+  font-weight: 500;
 }
 
 .userName {
@@ -296,11 +297,11 @@
   min-width: 18px;
   height: 18px;
   margin-left: 8px;
-  padding: 0 6px;
+  padding: 2px 6px;
   border-radius: 999px;
-  background: #211500;
-  color: #ffffff;
-  font-size: 11px;
+  background: #FFA232;
+  color: #211500;
+  font-size: 14px;
   line-height: 1;
   font-weight: 700;
 }

@@ -25,9 +25,10 @@
 .title {
   margin: 0;
   color: #211500;
-  font-size: 36px;
-  line-height: 1.1;
-  font-weight: 800;
+  font-family: 'Igra Sans', serif;
+  font-size: 40px;
+  font-weight: 700;
+  line-height: 1.12;
 }
 
 .headerActions {
@@ -38,14 +39,18 @@
 
 .clearButton,
 .secondaryLink {
-  min-height: 44px;
-  min-width: 178px;
-  padding: 0 22px;
-  border: none;
-  border-radius: 8px;
-  font-size: 14px;
-  font-weight: 700;
-  cursor: pointer;
+      height: 48px;
+    width: 212px;
+    padding: 0 20px;
+    border: none;
+    border-radius: 8px;
+    font-size: 14px;
+    font-weight: 700;
+    cursor: pointer;
+    font-family: 'Raleway', system-ui, -apple-system, sans-serif;
+    font-size: 16px;
+    line-height: 1;
+    font-weight: 600;
 }
 
 .clearButton {
@@ -66,7 +71,7 @@
 .layout {
   display: grid;
   grid-template-columns: minmax(0, 1fr) 340px;
-  gap: 18px;
+  gap: 20px;
   align-items: start;
 }
 
