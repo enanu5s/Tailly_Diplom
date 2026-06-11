@@ -25,9 +25,10 @@
 .title {
   margin: 0;
   color: #211500;
-  font-size: 36px;
-  line-height: 1.1;
-  font-weight: 800;
+  font-family: 'Igra Sans', serif;
+  font-size: 40px;
+  font-weight: 700;
+  line-height: 1.12;
 }
 
 .headerActions {
@@ -46,11 +47,15 @@
   font-size: 14px;
   font-weight: 700;
   cursor: pointer;
+  font-family: 'Raleway', system-ui, -apple-system, sans-serif;
+  font-size: 16px;
+  line-height: 1;
+  font-weight: 600;
 }
 
 .clearButton {
-  background: #c8c1b7;
-  color: #ffffff;
+  background: #c7c7c7;
+  color: #0f0f0f;
 }
 
 .cartLink {
@@ -73,11 +78,11 @@
   justify-content: center;
   min-width: 18px;
   height: 18px;
-  padding: 0 5px;
+  padding: 2px 6px;
   border-radius: 999px;
   background: #ff9f2f;
   color: #211500;
-  font-size: 11px;
+  font-size: 14px;
   font-weight: 800;
 }
 

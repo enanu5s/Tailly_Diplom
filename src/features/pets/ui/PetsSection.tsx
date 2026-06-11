@@ -182,33 +182,33 @@ const PetCard = observer(
                 <div className={styles.field}>
                   <div className={styles.label}>Возраст</div>
                   <div className={styles.ageRow}>
-                      <label className={styles.ageField}>
-                        <span>Годы</span>
-                        <input
-                          className={styles.input}
-                          type="number"
-                          min={0}
-                          value={String(view.ageYears)}
-                          onChange={(e) =>
-                            petsStore.setDraft('ageYears', Number(e.target.value || 0))
-                          }
-                          placeholder="годы"
-                        />
-                      </label>
-                      <label className={styles.ageField}>
-                        <span>Месяцы</span>
-                        <input
-                          className={styles.input}
-                          type="number"
-                          min={0}
-                          max={11}
-                          value={String(view.ageMonths)}
-                          onChange={(e) =>
-                            petsStore.setDraft('ageMonths', Number(e.target.value || 0))
-                          }
-                          placeholder="мес"
-                        />
-                      </label>
+                    <label className={styles.ageField}>
+                      <span>Годы</span>
+                      <input
+                        className={styles.input}
+                        type="number"
+                        min={0}
+                        value={String(view.ageYears)}
+                        onChange={(e) =>
+                          petsStore.setDraft('ageYears', Number(e.target.value || 0))
+                        }
+                        placeholder="годы"
+                      />
+                    </label>
+                    <label className={styles.ageField}>
+                      <span>Месяцы</span>
+                      <input
+                        className={styles.input}
+                        type="number"
+                        min={0}
+                        max={11}
+                        value={String(view.ageMonths)}
+                        onChange={(e) =>
+                          petsStore.setDraft('ageMonths', Number(e.target.value || 0))
+                        }
+                        placeholder="мес"
+                      />
+                    </label>
                   </div>
                 </div>
               </div>
@@ -247,7 +247,13 @@ const PetCard = observer(
                 type="button"
                 onClick={() => petsStore.toggleExpand(expandId)}
               >
-                Подробная информация {isExpanded ? '▴' : '▾'}
+                Подробная информация
+                <img
+                  className={`${styles.chevron} ${isExpanded ? styles.chevronOpen : ''}`}
+                  src="/icons/chevron.svg"
+                  alt=""
+                  aria-hidden="true"
+                />
               </button>
 
               {isExpanded ? (
@@ -398,19 +404,7 @@ const PetCard = observer(
               aria-label="Редактировать питомца"
               onClick={() => petsStore.startEdit(id!)}
             >
-              <svg
-                width="28"
-                height="28"
-                viewBox="0 0 28 28"
-                fill="none"
-                xmlns="http://www.w3.org/2000/svg"
-                aria-hidden="true"
-              >
-                <path
-                  d="M24.7089 8.18027L19.8209 3.2923C19.6788 3.15009 19.5099 3.03729 19.3242 2.96032C19.1384 2.88336 18.9392 2.84375 18.7381 2.84375C18.537 2.84375 18.3379 2.88336 18.1521 2.96032C17.9663 3.03729 17.7975 3.15009 17.6553 3.2923L4.16719 16.7793C4.02471 16.9213 3.91174 17.0901 3.83477 17.2759C3.75781 17.4618 3.71838 17.661 3.71875 17.8621V22.7501C3.71875 23.1562 3.88008 23.5457 4.16725 23.8329C4.45441 24.12 4.84389 24.2814 5.25 24.2814H23.625C23.7991 24.2814 23.966 24.2122 24.089 24.0891C24.2121 23.9661 24.2813 23.7992 24.2813 23.6251C24.2813 23.4511 24.2121 23.2841 24.089 23.1611C23.966 23.038 23.7991 22.9689 23.625 22.9689H12.0848L24.7089 10.3459C24.8511 10.2037 24.9639 10.0349 25.0409 9.8491C25.1178 9.66331 25.1575 9.46418 25.1575 9.26308C25.1575 9.06198 25.1178 8.86285 25.0409 8.67706C24.9639 8.49127 24.8511 8.32246 24.7089 8.18027Z"
-                  fill="#6F685D"
-                />
-              </svg>
+              <img src="/icons/Edit.svg" alt="" aria-hidden="true" width={28} height={28} />
             </button>
 
             <div className={styles.compactTitle}>{view.name || '—'}</div>
@@ -435,7 +429,13 @@ const PetCard = observer(
               type="button"
               onClick={() => petsStore.toggleExpand(expandId)}
             >
-              Подробная информация {isExpanded ? '▴' : '▾'}
+              Подробная информация
+              <img
+                className={`${styles.chevron} ${isExpanded ? styles.chevronOpen : ''}`}
+                src="/icons/chevron.svg"
+                alt=""
+                aria-hidden="true"
+              />
             </button>
 
             {isExpanded ? (

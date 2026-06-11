@@ -4,6 +4,9 @@
   flex-direction: column;
   gap: 18px;
   padding: 20px;
+  font-family: 'Igra Sans', serif;
+  font-weight: 500;
+  line-height: 1.2;
   border-radius: 16px;
   background: #ffffff;
   box-shadow: 0 8px 24px rgba(33, 21, 0, 0.08);
@@ -62,7 +65,9 @@
   border-radius: 999px;
   background: #211500;
   color: #ffffff;
-  font-size: 14px;
-  font-weight: 700;
+  font-family: 'Raleway', system-ui, -apple-system, sans-serif;
+  font-size: 16px;
+  line-height: 1;
+  font-weight: 600;
   text-decoration: none;
 }

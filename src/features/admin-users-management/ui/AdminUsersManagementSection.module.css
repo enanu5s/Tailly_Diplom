@@ -14,7 +14,7 @@
   grid-template-columns: minmax(0, 1fr) auto;
   grid-template-rows: auto auto;
   column-gap: 40px;
-  row-gap: 14px;
+  row-gap: 30px;
 }
 
 .heroContent {
@@ -31,7 +31,7 @@
 .title {
   margin: 0;
   font-family: 'Igra Sans', serif;
-  font-weight: 400;
+  font-weight: 700;
   font-size: 40px;
   line-height: 120%;
   color: #211500;
@@ -46,8 +46,8 @@
 }
 
 .statCard {
-  width: 95px;
-  height: 88px;
+  width: 134px;
+  height: 126px;
   border-radius: 8px;
   display: flex;
   flex-direction: column;
@@ -65,7 +65,7 @@
   order: 0;
   font-family: 'Raleway', sans-serif;
   font-weight: 700;
-  font-size: 13px;
+  font-size: 15px;
   line-height: 120%;
   color: #211500;
 }
@@ -102,15 +102,27 @@
   display: none;
 }
 
-.input,
-.select {
-  height: 34px;
+.input {
+  height: 48px;
   border: 1px solid #c7c2ba;
-  border-radius: 7px;
+  border-radius: 10px;
   background: #ffffff;
-  padding: 0 14px;
+  padding: 0 20px;
   font-family: 'Rubik', sans-serif;
-  font-size: 13px;
+  font-size: 15px;
+  color: #211500;
+  outline: none;
+}
+
+.select {
+  height: 48px;
+  min-width: 298px;
+  border: 1px solid #c7c2ba;
+  border-radius: 10px;
+  background: #ffffff;
+  padding: 0 20px;
+  font-family: 'Rubik', sans-serif;
+  font-size: 15px;
   color: #211500;
   outline: none;
 }
@@ -202,10 +214,11 @@
   max-width: 220px;
   font-family: 'Raleway', sans-serif;
   font-weight: 700;
-  font-size: 13px;
+  font-size: 15px;
   line-height: 120%;
   color: #211500;
   word-break: normal;
+  font-variant-numeric: tabular-nums lining-nums;
   overflow-wrap: anywhere;
 }
 
@@ -230,8 +243,8 @@
 .statusActive,
 .statusBlocked,
 .statusDeletionPending {
-  min-width: 82px;
-  min-height: 21px;
+  min-width: 124px;
+  min-height: 30px;
   display: inline-flex;
   align-items: center;
   justify-content: center;
@@ -239,7 +252,7 @@
   padding: 0 14px;
   font-family: 'Rubik', sans-serif;
   font-weight: 400;
-  font-size: 13px;
+  font-size: 15px;
   line-height: 120%;
   color: #211500;
   white-space: nowrap;
@@ -285,7 +298,7 @@
 .metaValue {
   font-family: 'Raleway', sans-serif;
   font-weight: 700;
-  font-size: 13px;
+  font-size: 15px;
   line-height: 140%;
   font-feature-settings: 'pnum' on, 'lnum' on;
 }
@@ -303,7 +316,7 @@
 
 .cardActions {
   display: grid;
-  grid-template-columns: 180px 180px;
+  grid-template-columns: 258px 258px;
   justify-content: space-between;
   gap: 16px;
 }
@@ -316,14 +329,28 @@
 .dangerButton,
 .editButton,
 .primaryButton,
-.modalClose,
 .quickButton {
   min-height: 32px;
+  width: 258px;
   border-radius: 23px;
-  padding: 0 22px;
-  font-family: 'Raleway', sans-serif;
+  padding: 10px 0px;
+  font-family: 'Raleway', system-ui, -apple-system, sans-serif;
+  font-size: 16px;
+  line-height: 1;
   font-weight: 600;
-  font-size: 13px;
+  line-height: 120%;
+  cursor: pointer;
+}
+
+.modalClose{
+  min-height: 32px;
+  width: 160px;
+  border-radius: 23px;
+  padding: 10px 0px;
+  font-family: 'Raleway', system-ui, -apple-system, sans-serif;
+  font-size: 16px;
+  line-height: 1;
+  font-weight: 600;
   line-height: 120%;
   cursor: pointer;
 }

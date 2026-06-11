@@ -86,6 +86,7 @@
   font-size: 16px;
   font-weight: 700;
   line-height: 19px;
+  font-variant-numeric: tabular-nums lining-nums;
   color: #6f685d;
 }
 
@@ -95,7 +96,7 @@
 
 .name {
   width: 220px;
-  margin: 30px 0 18px;
+  margin: 30px 0 20px;
   font-family: 'Igra Sans', serif;
   font-size: 24px;
   font-weight: 400;
@@ -281,10 +282,11 @@
   min-height: 45px;
   border: 1px solid #c7c2ba;
   border-radius: 10px;
-  padding: 0 18px;
+  padding: 0 20px;
   background: #ffffff;
-  font-family: Rubik, sans-serif;
-  font-size: 15px;
+  font-family: 'Igra Sans', serif;
+  font-size: 20px;
+  font-weight: 400;
   color: #211500;
   outline: none;
 }

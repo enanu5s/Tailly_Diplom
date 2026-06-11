@@ -96,7 +96,7 @@ export const OrdersProductsSection = observer(() => {
 
                 <div className={styles.price}>{formatPrice(order.price)} ₽</div>
 
-                <div className={styles.number}>Заказ № {order.number}</div>
+                <div className={styles.number}>Заказ {order.number}</div>
 
                 <div className={styles.meta}>
                   Количество товаров: {formatItemsQuantity(order.itemsCount)}

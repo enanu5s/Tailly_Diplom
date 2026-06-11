@@ -711,13 +711,7 @@ export const SpecialistCalendarEditPage = observer(() => {
 
                           const bufferParts: string[] = [];
 
-                          if (item.bufferBeforeMinutes) {
-                            bufferParts.push(`буфер до: ${item.bufferBeforeMinutes} мин`);
-                          }
-
-                          if (item.bufferAfterMinutes) {
-                            bufferParts.push(`буфер после: ${item.bufferAfterMinutes} мин`);
-                          }
+                          
 
                           return (
                             <div key={item.id} className={styles.windowCard}>

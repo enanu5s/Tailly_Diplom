@@ -12,7 +12,7 @@
   position: absolute;
   width: 119px;
   height: 119px;
-  left: 8.33%;
+  left: 300px;
   top: 100px;
   border-radius: 999px;
   background: #ffc721;
@@ -44,7 +44,7 @@
   color: #211500;
   font-family: 'Igra Sans', serif;
   font-size: 40px;
-  font-weight: 400;
+  font-weight: 700;
   line-height: 120%;
 }
 
@@ -250,7 +250,7 @@
 .timelineDotActive,
 .timelineDotInactive {
   position: absolute;
-  top: -14px;
+  top: -16px;
   left: 0;
   z-index: 2;
   width: 8px;

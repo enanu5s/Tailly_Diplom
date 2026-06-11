@@ -743,7 +743,7 @@ export const AdminPostsBannersManagementSection = observer((): ReactElement => {
                         }}
                         disabled={store.deletingPostId === post.id}
                       >
-                        {store.deletingPostId === post.id ? 'Удаление...' : 'Удалить'}
+                        {store.deletingPostId === post.id ? 'Удаление...' : 'Удалить пост'}
                       </button>
 
                       <button
@@ -801,7 +801,7 @@ export const AdminPostsBannersManagementSection = observer((): ReactElement => {
                       }}
                       disabled={store.deletingBannerId === banner.id}
                     >
-                      {store.deletingBannerId === banner.id ? 'Удаление...' : 'Удалить'}
+                      {store.deletingBannerId === banner.id ? 'Удаление...' : 'Удалить баннер'}
                     </button>
 
                     <button

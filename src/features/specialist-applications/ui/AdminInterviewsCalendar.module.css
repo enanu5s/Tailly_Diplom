@@ -2,7 +2,7 @@
   box-sizing: border-box;
   position: relative;
   width: 100%;
-  min-height: 564px;
+  min-height: 486px;
   padding: 30px;
   border-radius: 20px;
   background: #ffffff;
@@ -10,7 +10,7 @@
 }
 
 .rootEmptyWeek {
-  min-height: 390px;
+  min-height: 314px;
 }
 
 .head {
@@ -53,10 +53,11 @@
   align-items: center;
   justify-content: center;
   cursor: pointer;
+  transform: rotate(180deg)
 }
 
 .navButtonPrev {
-  transform: rotate(180deg);
+  transform: rotate(0deg)
 }
 
 .toolbarCenter {
@@ -223,7 +224,7 @@
 .emptyWeek {
   position: absolute;
   left: 30px;
-  top: 334px;
+  top: 270px;
   margin: 0;
   font-family: 'Rubik', sans-serif;
   font-size: 15px;

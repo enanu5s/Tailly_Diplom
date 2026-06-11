@@ -2,9 +2,9 @@
 .card {
   display: grid;
   grid-template-columns: 100px minmax(0, 1fr);
-  gap: 18px;
+  gap: 20px;
   min-height: 135px;
-  padding: 18px;
+  padding: 20px;
   border-radius: 16px;
   background: #ffffff;
   box-shadow: 0 8px 24px rgba(33, 21, 0, 0.08);
@@ -42,7 +42,6 @@
   display: flex;
   flex-direction: column;
   min-width: 0;
-  padding-right: 92px;
 }
 
 .topRow {
@@ -56,14 +55,16 @@
 .category {
   display: inline-flex;
   align-items: center;
-  min-height: 22px;
-  padding: 0 14px;
-  margin-bottom: 14px;
+  min-height: 20px;
+  padding: 5px 15px;
+  margin-bottom: 12px;
   border-radius: 999px;
   background: #f6dcc2;
   color: #6f4b16;
-  font-size: 13px;
-  font-weight: 500;
+  font-family: 'Rubik', sans-serif;
+  font-size: 15px;
+  font-weight: 400;
+  line-height: 1;
 }
 
 .titleLink {
@@ -72,27 +73,30 @@
 }
 
 .title {
-  margin: 0 0 14px;
+  margin: 0;
   color: #211500;
-  font-size: 22px;
-  line-height: 1.2;
-  font-weight: 500;
+  font-family: 'Raleway', sans-serif;
+  font-size: 15px;
+  font-weight: 700;
+  line-height: 1.25;
+  margin-bottom: 10px;
 }
 
 .description {
   margin: 0;
-  color: #211500;
-  font-size: 14px;
-  line-height: 1.4;
+  color: #7f776d;
+  font-family: 'Rubik', sans-serif;
+  font-size: 15px;
+  line-height: 1.35;
 }
 
 .price {
-  display: block;
-  margin-top: 22px;
   color: #211500;
+  font-family: 'Igra Sans', serif;
   font-size: 24px;
-  line-height: 1;
   font-weight: 500;
+  line-height: 1;
+  margin-top: 12px;
 }
 
 .topActions {
@@ -164,7 +168,7 @@
   align-items: center;
   gap: 8px;
   width: 220px;
-  min-height: 34px;
+  min-height: 45px;
   padding: 2px 4px;
   border: 1px solid #d9d0c5;
   border-radius: 999px;
@@ -197,8 +201,10 @@
 
 .quantityValue {
   color: #211500;
-  font-size: 14px;
-  font-weight: 700;
+  font-size: 13px;
+  font-family: 'Raleway', sans-serif;
+  font-size: 20px;
+  font-weight: 600;
   text-align: center;
 }
 

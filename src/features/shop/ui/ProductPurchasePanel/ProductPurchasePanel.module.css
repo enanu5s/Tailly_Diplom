@@ -35,29 +35,35 @@
   border: none;
   background: transparent;
   color: #211500;
-  font-size: 13px;
-  font-weight: 600;
+  font-family: 'Raleway', sans-serif;
+  font-size: 15px;
+  font-weight: 700;
+  line-height: 1.25;
+  font-variant-numeric: tabular-nums lining-nums;
   cursor: pointer;
 }
 
 .star {
   color: #ffb800;
-  font-size: 15px;
+  font-size: 20px;
 }
 
 .title {
   margin: 20px 0 14px;
   color: #211500;
-  font-size: 34px;
+  font-family: 'Igra Sans', serif;
   font-weight: 500;
-  line-height: 1.12;
+  line-height: 1.2;
+  font-size: 34px;
 }
 
 .shortDescription {
   margin: 0;
   color: #211500;
-  font-size: 14px;
+  font-family: 'Rubik', sans-serif;
+  font-size: 15px;
   line-height: 1.35;
+  font-variant-numeric: tabular-nums lining-nums;
 }
 
 .characteristics {
@@ -90,16 +96,23 @@
 
 .characteristicLabel {
   flex: 0 0 auto;
-  font-weight: 600;
+  font-family: 'Rubik', system-ui, sans-serif;
+  font-size: 15px;
+  line-height: 1.2;
+  font-weight: 500;
 }
 
 .characteristicValue {
   color: rgba(33, 21, 0, 0.62);
+  font-family: 'Rubik', system-ui, sans-serif;
+  font-size: 15px;
+  line-height: 1.2;
+  font-weight: 500;
 }
 
 .priceBlock {
   margin-top: auto;
-  padding-top: 34px;
+  padding-top: 60px;
 }
 
 .prices {
@@ -110,9 +123,11 @@
 
 .price {
   color: #211500;
-  font-size: 34px;
+  font-family: 'Igra Sans', serif;
+  font-size: 24px;
   font-weight: 500;
-  line-height: 1;
+  line-height: 1.2;
+  font-size: 34px;
 }
 
 .oldPrice {
@@ -133,6 +148,10 @@
 
 .available {
   color: rgba(33, 21, 0, 0.62);
+  font-family: 'Rubik', system-ui, sans-serif;
+  font-size: 15px;
+  line-height: 1.2;
+  font-weight: 500;
 }
 
 .unavailable {
@@ -142,15 +161,17 @@
 .actions {
   display: grid;
   grid-template-columns: 1fr 1fr;
-  gap: 14px;
-  margin-top: 18px;
+  gap: 20px;
+  margin-top: 30px;
 }
 
 .favoriteButton,
 .cartButton {
-  min-height: 42px;
+  min-height: 45px;
   border-radius: 999px;
-  font-size: 14px;
+  font-family: 'Raleway', system-ui, -apple-system, sans-serif;
+  font-size: 16px;
+  line-height: 1;
   font-weight: 600;
   cursor: pointer;
 }
@@ -159,26 +180,34 @@
   display: inline-flex;
   align-items: center;
   justify-content: center;
+  background: #ffffff;
+  border: 1px solid rgba(33, 21, 0, 0.24);
   gap: 10px;
 }
 
 .favoriteIcon {
-  width: 18px;
-  height: 18px;
+  width: 20px;
+  height: 20px;
   flex-shrink: 0;
 }
 
 .favoriteButtonActive {
-  background: #fff7ed;
+  background: #f7f7f7;
 }
 
 .cartButton {
   border: none;
   background: #211500;
   color: #ffffff;
+  font-family: 'Raleway', system-ui, -apple-system, sans-serif;
+  font-size: 16px;
+  line-height: 1;
+  font-weight: 600;
 }
 
 .cartButton::before {
+  width: 20px;
+  height: 20px;
   content: '🛒';
   margin-right: 10px;
 }
