@@ -13,6 +13,13 @@
   min-height: 314px;
 }
 
+.rootHasList {
+  min-height: calc(
+    304px + 30px + 34px + var(--calendar-list-rows) * var(--calendar-list-item-height, 88px) +
+      (var(--calendar-list-rows) - 1) * 20px + 30px
+  );
+}
+
 .head {
   display: block;
 }
@@ -166,23 +173,68 @@
   font-feature-settings: 'pnum' on, 'lnum' on;
 }
 
+.listViewport {
+  --list-item-height: 88px;
+  --list-viewport-rows: 2;
+  display: flex;
+  align-items: stretch;
+  gap: 15px;
+  min-width: 0;
+  min-height: calc(
+    var(--list-viewport-rows) * var(--list-item-height) +
+      (var(--list-viewport-rows) - 1) * 20px
+  );
+}
+
+.listNavButton {
+  box-sizing: border-box;
+  flex-shrink: 0;
+  align-self: center;
+  width: 47px;
+  height: 44px;
+  border: 1px solid #c7c2ba;
+  border-radius: 10px;
+  background: #ffffff;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transform: rotate(180deg);
+}
+
+.listNavButtonPrev {
+  transform: rotate(0deg);
+}
+
+.listNavButton:disabled {
+  opacity: 0.35;
+  cursor: not-allowed;
+}
+
 .list {
   margin: 0;
   padding: 0;
   list-style: none;
+  flex: 1;
+  min-width: 0;
   display: grid;
   grid-template-columns: repeat(2, minmax(0, 1fr));
+  grid-auto-rows: var(--list-item-height);
   gap: 20px;
+  align-content: start;
 }
 
 .listItem {
   box-sizing: border-box;
-  min-height: 88px;
+  min-width: 0;
+  height: var(--list-item-height);
+  overflow: hidden;
   border-radius: 10px;
   background: #f8f8f8;
   padding: 20px;
   display: grid;
   grid-template-columns: minmax(0, 1fr) auto;
+  grid-template-rows: auto auto;
   gap: 10px 20px;
   align-content: start;
 }
@@ -195,29 +247,37 @@
   font-weight: 700;
   line-height: 19px;
   color: #6f685d;
+  white-space: nowrap;
   font-feature-settings: 'pnum' on, 'lnum' on;
 }
 
 .listName {
   grid-column: 1;
   grid-row: 1;
+  min-width: 0;
   font-family: 'Raleway', sans-serif;
   font-size: 16px;
   font-weight: 700;
   line-height: 19px;
   color: #211500;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
   font-feature-settings: 'pnum' on, 'lnum' on;
 }
 
 .listMeta {
   grid-column: 1;
   grid-row: 2;
+  min-width: 0;
   font-family: 'Raleway', sans-serif;
   font-size: 16px;
   font-weight: 700;
   line-height: 19px;
   color: #6f685d;
-  overflow-wrap: anywhere;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
   font-feature-settings: 'pnum' on, 'lnum' on;
 }
 
@@ -233,7 +293,8 @@
 }
 
 @media (max-width: 1024px) {
-  .root {
+  .root,
+  .rootHasList {
     min-height: auto;
     padding: 24px;
   }
@@ -265,6 +326,15 @@
 
   .grid {
     gap: 8px;
+  }
+
+  .listViewport {
+    gap: 12px;
+  }
+
+  .listNavButton {
+    width: 44px;
+    height: 42px;
   }
 
   .list {
@@ -330,8 +400,15 @@
     padding-top: 20px;
   }
 
+  .listViewport {
+    --list-item-height: 104px;
+    --list-viewport-rows: 4;
+    gap: 10px;
+  }
+
   .listItem {
     grid-template-columns: 1fr;
+    grid-template-rows: auto auto auto;
     gap: 8px;
     padding: 16px;
   }

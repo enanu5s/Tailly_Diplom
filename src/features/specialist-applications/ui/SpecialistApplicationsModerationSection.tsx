@@ -1,6 +1,6 @@
 // /src/features/specialist-applications/ui/SpecialistApplicationsModerationSection.tsx
 import { observer } from 'mobx-react-lite';
-import { Fragment, useEffect, useSyncExternalStore } from 'react';
+import { Fragment, useEffect, useRef, useSyncExternalStore } from 'react';
 
 import { adminSpecialistsManagementStore } from '@/features/admin-specialists-management/model/adminSpecialistsManagementStore';
 import { CreateSpecialistAccountModal } from '@/features/admin-specialists-management/ui/CreateSpecialistAccountModal';
@@ -10,6 +10,7 @@ import { AdminInterviewsCalendar } from './AdminInterviewsCalendar';
 import styles from './SpecialistApplicationsModerationSection.module.css';
 import { specialistApplicationsModerationStore } from '../model/specialistApplicationsModerationStore';
 import {
+  formatInterviewDateTimeLocalForDisplay,
   getMaxInterviewDateTimeLocalString,
   getMinInterviewDateTimeLocalString,
 } from '../model/specialistApplicationsModerationValidation';
@@ -104,6 +105,221 @@ function formatExperienceYears(value: number): string {
   return `${value} ${value === 1 ? 'год' : value < 5 ? 'года' : 'лет'}`;
 }
 
+const CALENDAR_ICON = (
+  <svg width="24" height="24" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+    <path
+      d="M12 12H17V17H12V12ZM19 3H18V1H16V3H8V1H6V3H5C3.9 3 3 3.9 3 5V19C3 20.1 3.9 21 5 21H19C20.1 21 21 20.1 21 19V5C21 3.9 20.1 3 19 3ZM19 5V7H5V5H19ZM5 19V9H19V19H5Z"
+      fill="#211500"
+      stroke="white"
+      strokeWidth="0.3"
+    />
+  </svg>
+);
+
+type InterviewDateTimeFieldProps = {
+  value: string;
+  onChange: (value: string) => void;
+};
+
+function InterviewDateTimeField({
+  value,
+  onChange,
+}: InterviewDateTimeFieldProps): ReactElement {
+  const inputRef = useRef<HTMLInputElement>(null);
+
+  const openPicker = (): void => {
+    const input = inputRef.current;
+
+    if (!input) {
+      return;
+    }
+
+    input.focus();
+
+    if ('showPicker' in input && typeof input.showPicker === 'function') {
+      try {
+        input.showPicker();
+        return;
+      } catch {
+        // showPicker may throw if not triggered by user gesture in some browsers.
+      }
+    }
+
+    input.click();
+  };
+
+  const displayValue = formatInterviewDateTimeLocalForDisplay(value);
+
+  return (
+    <div className={styles.dateTimeField}>
+      <input
+        ref={inputRef}
+        className={styles.dateTimeInputNative}
+        type="datetime-local"
+        lang="ru"
+        min={getMinInterviewDateTimeLocalString()}
+        max={getMaxInterviewDateTimeLocalString()}
+        value={value}
+        tabIndex={-1}
+        aria-hidden="true"
+        onChange={(event) => onChange(event.target.value)}
+      />
+      <input
+        className={`${styles.input} ${styles.dateTimeDisplay}`}
+        type="text"
+        lang="ru"
+        readOnly
+        value={displayValue}
+        placeholder="дд.мм.гггг, чч:мм"
+        aria-label="Дата и время собеседования"
+        onClick={openPicker}
+        onKeyDown={(event) => {
+          if (event.key === 'Enter' || event.key === ' ') {
+            event.preventDefault();
+            openPicker();
+          }
+        }}
+      />
+      <button
+        type="button"
+        className={styles.calendarButton}
+        onClick={openPicker}
+        aria-label="Открыть календарь"
+      >
+        {CALENDAR_ICON}
+      </button>
+    </div>
+  );
+}
+
+type ApplicationInfoSectionsProps = {
+  selected: SpecialistApplication;
+  questionnaire: SpecialistApplicationQuestionnaire;
+};
+
+function ApplicationInfoSections({
+  selected,
+  questionnaire,
+}: ApplicationInfoSectionsProps): ReactElement {
+  return (
+    <div className={styles.infoSections}>
+      <section className={styles.infoSection}>
+        <h3 className={styles.infoSectionTitle}>Заявка</h3>
+        <div className={styles.infoGrid}>
+          <div className={styles.infoItem}>
+            <span className={styles.infoLabel}>Город</span>
+            <span className={styles.infoValue}>{selected.city}</span>
+          </div>
+          <div className={styles.infoItem}>
+            <span className={styles.infoLabel}>Дата отправки</span>
+            <span className={styles.infoValue}>{formatDate(selected.createdAt)}</span>
+          </div>
+          <div className={styles.infoItem}>
+            <span className={styles.infoLabel}>Собеседование</span>
+            <span className={styles.infoValue}>
+              {selected.interviewDate ? formatDate(selected.interviewDate) : '—'}
+            </span>
+          </div>
+          <div className={styles.infoItem}>
+            <span className={styles.infoLabel}>Проверил</span>
+            <span className={styles.infoValue}>{selected.reviewedBy || '—'}</span>
+          </div>
+        </div>
+      </section>
+
+      <section className={styles.infoSection}>
+        <h3 className={styles.infoSectionTitle}>Аккаунт специалиста</h3>
+        <div className={styles.infoGrid}>
+          <div className={styles.infoItem}>
+            <span className={styles.infoLabel}>Кабинет специалиста</span>
+            <span className={styles.infoValue}>
+              {selected.specialistAccountCreatedAt
+                ? `Создан ${formatDate(selected.specialistAccountCreatedAt)}`
+                : 'Ещё не создан'}
+            </span>
+          </div>
+          <div className={styles.infoItem}>
+            <span className={styles.infoLabel}>Specialist ID</span>
+            <span className={styles.infoValue}>{selected.createdSpecialistId || '—'}</span>
+          </div>
+        </div>
+      </section>
+
+      <section className={styles.infoSection}>
+        <h3 className={styles.infoSectionTitle}>Профиль</h3>
+        <div className={styles.infoGrid}>
+          <div className={styles.infoItem}>
+            <span className={styles.infoLabel}>Опыт</span>
+            <span className={styles.infoValue}>
+              {formatExperienceYears(questionnaire.experienceYears)}
+            </span>
+          </div>
+          <div className={styles.infoItem}>
+            <span className={styles.infoLabel}>Животные</span>
+            <span className={styles.infoValue}>{formatList(questionnaire.animalTypes)}</span>
+          </div>
+          <div className={styles.infoItem}>
+            <span className={styles.infoLabel}>Форматы услуг</span>
+            <span className={styles.infoValue}>{formatList(questionnaire.serviceFormats)}</span>
+          </div>
+          <div className={styles.infoItem}>
+            <span className={styles.infoLabel}>Портфолио</span>
+            <span className={styles.infoValue}>
+              {questionnaire.portfolioUrl ? (
+                <a href={questionnaire.portfolioUrl} target="_blank" rel="noreferrer">
+                  Открыть ссылку
+                </a>
+              ) : (
+                '—'
+              )}
+            </span>
+          </div>
+          <div className={`${styles.infoItem} ${styles.infoItemWide}`}>
+            <span className={styles.infoLabel}>География выезда</span>
+            <span className={styles.infoValue}>
+              {questionnaire.districtPreferences || '—'}
+            </span>
+          </div>
+        </div>
+      </section>
+
+      <section className={styles.infoSection}>
+        <h3 className={styles.infoSectionTitle}>Компетенции</h3>
+        <div className={`${styles.infoGrid} ${styles.infoGridCompact}`}>
+          <div className={styles.infoItem}>
+            <span className={styles.infoLabel}>Готов давать лекарства</span>
+            <span className={styles.infoValue}>
+              {formatBoolean(questionnaire.canGiveMedication)}
+            </span>
+          </div>
+          <div className={styles.infoItem}>
+            <span className={styles.infoLabel}>Сложное поведение</span>
+            <span className={styles.infoValue}>
+              {formatBoolean(questionnaire.canHandleDifficultBehavior)}
+            </span>
+          </div>
+          <div className={styles.infoItem}>
+            <span className={styles.infoLabel}>Ночные заказы</span>
+            <span className={styles.infoValue}>
+              {formatBoolean(questionnaire.canTakeOvernightOrders)}
+            </span>
+          </div>
+          <div className={styles.infoItem}>
+            <span className={styles.infoLabel}>Свои питомцы</span>
+            <span className={styles.infoValue}>{formatBoolean(questionnaire.hasOwnPets)}</span>
+          </div>
+          <div className={styles.infoItem}>
+            <span className={styles.infoLabel}>База первой помощи</span>
+            <span className={styles.infoValue}>
+              {formatBoolean(questionnaire.hasPetFirstAidBasics)}
+            </span>
+          </div>
+        </div>
+      </section>
+    </div>
+  );
+}
+
 type ApplicationDetailsCardProps = {
   selected: SpecialistApplication;
   questionnaire: SpecialistApplicationQuestionnaire;
@@ -138,98 +354,7 @@ function ApplicationDetailsCard({
         </span>
       </div>
 
-      <div className={styles.infoGrid}>
-        <div className={styles.infoItem}>
-          <span className={styles.infoLabel}>Город</span>
-          <span className={styles.infoValue}>{selected.city}</span>
-        </div>
-        <div className={styles.infoItem}>
-          <span className={styles.infoLabel}>Дата отправки</span>
-          <span className={styles.infoValue}>{formatDate(selected.createdAt)}</span>
-        </div>
-        <div className={styles.infoItem}>
-          <span className={styles.infoLabel}>Собеседование</span>
-          <span className={styles.infoValue}>
-            {selected.interviewDate ? formatDate(selected.interviewDate) : '—'}
-          </span>
-        </div>
-        <div className={styles.infoItem}>
-          <span className={styles.infoLabel}>Проверил</span>
-          <span className={styles.infoValue}>{selected.reviewedBy || '—'}</span>
-        </div>
-        <div className={styles.infoItem}>
-          <span className={styles.infoLabel}>Кабинет специалиста</span>
-          <span className={styles.infoValue}>
-            {selected.specialistAccountCreatedAt
-              ? `Создан ${formatDate(selected.specialistAccountCreatedAt)}`
-              : 'Ещё не создан'}
-          </span>
-        </div>
-        <div className={styles.infoItem}>
-          <span className={styles.infoLabel}>Specialist ID</span>
-          <span className={styles.infoValue}>{selected.createdSpecialistId || '—'}</span>
-        </div>
-        <div className={styles.infoItem}>
-          <span className={styles.infoLabel}>Опыт</span>
-          <span className={styles.infoValue}>
-            {formatExperienceYears(questionnaire.experienceYears)}
-          </span>
-        </div>
-        <div className={styles.infoItem}>
-          <span className={styles.infoLabel}>Животные</span>
-          <span className={styles.infoValue}>{formatList(questionnaire.animalTypes)}</span>
-        </div>
-        <div className={styles.infoItem}>
-          <span className={styles.infoLabel}>Форматы услуг</span>
-          <span className={styles.infoValue}>{formatList(questionnaire.serviceFormats)}</span>
-        </div>
-        <div className={styles.infoItem}>
-          <span className={styles.infoLabel}>Портфолио</span>
-          <span className={styles.infoValue}>
-            {questionnaire.portfolioUrl ? (
-              <a href={questionnaire.portfolioUrl} target="_blank" rel="noreferrer">
-                Открыть ссылку
-              </a>
-            ) : (
-              '—'
-            )}
-          </span>
-        </div>
-        <div className={styles.infoItem}>
-          <span className={styles.infoLabel}>Готов давать лекарства</span>
-          <span className={styles.infoValue}>
-            {formatBoolean(questionnaire.canGiveMedication)}
-          </span>
-        </div>
-        <div className={styles.infoItem}>
-          <span className={styles.infoLabel}>Сложное поведение</span>
-          <span className={styles.infoValue}>
-            {formatBoolean(questionnaire.canHandleDifficultBehavior)}
-          </span>
-        </div>
-        <div className={styles.infoItem}>
-          <span className={styles.infoLabel}>Ночные заказы</span>
-          <span className={styles.infoValue}>
-            {formatBoolean(questionnaire.canTakeOvernightOrders)}
-          </span>
-        </div>
-        <div className={styles.infoItem}>
-          <span className={styles.infoLabel}>Свои питомцы</span>
-          <span className={styles.infoValue}>{formatBoolean(questionnaire.hasOwnPets)}</span>
-        </div>
-        <div className={styles.infoItem}>
-          <span className={styles.infoLabel}>База первой помощи</span>
-          <span className={styles.infoValue}>
-            {formatBoolean(questionnaire.hasPetFirstAidBasics)}
-          </span>
-        </div>
-        <div className={styles.infoItem}>
-          <span className={styles.infoLabel}>География выезда</span>
-          <span className={styles.infoValue}>
-            {questionnaire.districtPreferences || '—'}
-          </span>
-        </div>
-      </div>
+      <ApplicationInfoSections selected={selected} questionnaire={questionnaire} />
 
       <div className={styles.aboutBlock}>
         <h3 className={styles.blockTitle}>О себе</h3>
@@ -263,14 +388,10 @@ function ApplicationDetailsCard({
         <div className={styles.formGrid}>
           <label className={styles.field}>
             <span className={styles.fieldLabel}>Дата и время собеседования</span>
-            <input
-              className={styles.input}
-              type="datetime-local"
-              min={getMinInterviewDateTimeLocalString()}
-              max={getMaxInterviewDateTimeLocalString()}
+            <InterviewDateTimeField
               value={store.draft.interviewDate}
-              onChange={(event) => {
-                store.setDraftField('interviewDate', event.target.value);
+              onChange={(nextValue) => {
+                store.setDraftField('interviewDate', nextValue);
               }}
             />
           </label>
@@ -381,7 +502,7 @@ export const SpecialistApplicationsModerationSection = observer((): ReactElement
         </div>
       </section>
 
-      {!store.isLoading && !store.loadError && myScheduledInterviews.length > 0 ? (
+      {!store.isLoading && !store.loadError ? (
         <div className={styles.calendarSection}>
           <AdminInterviewsCalendar interviews={myScheduledInterviews} />
         </div>
@@ -512,127 +633,10 @@ export const SpecialistApplicationsModerationSection = observer((): ReactElement
                 </span>
               </div>
 
-              <div className={styles.infoGrid}>
-                <div className={styles.infoItem}>
-                  <span className={styles.infoLabel}>Город</span>
-                  <span className={styles.infoValue}>{selected.city}</span>
-                </div>
-
-                <div className={styles.infoItem}>
-                  <span className={styles.infoLabel}>Дата отправки</span>
-                  <span className={styles.infoValue}>
-                    {formatDate(selected.createdAt)}
-                  </span>
-                </div>
-
-                <div className={styles.infoItem}>
-                  <span className={styles.infoLabel}>Собеседование</span>
-                  <span className={styles.infoValue}>
-                    {selected.interviewDate ? formatDate(selected.interviewDate) : '—'}
-                  </span>
-                </div>
-
-                <div className={styles.infoItem}>
-                  <span className={styles.infoLabel}>Проверил</span>
-                  <span className={styles.infoValue}>{selected.reviewedBy || '—'}</span>
-                </div>
-
-                <div className={styles.infoItem}>
-                  <span className={styles.infoLabel}>Кабинет специалиста</span>
-                  <span className={styles.infoValue}>
-                    {selected.specialistAccountCreatedAt
-                      ? `Создан ${formatDate(selected.specialistAccountCreatedAt)}`
-                      : 'Ещё не создан'}
-                  </span>
-                </div>
-
-                <div className={styles.infoItem}>
-                  <span className={styles.infoLabel}>Specialist ID</span>
-                  <span className={styles.infoValue}>
-                    {selected.createdSpecialistId || '—'}
-                  </span>
-                </div>
-
-                <div className={styles.infoItem}>
-                  <span className={styles.infoLabel}>Опыт</span>
-                  <span className={styles.infoValue}>
-                    {formatExperienceYears(questionnaire.experienceYears)}
-                  </span>
-                </div>
-
-                <div className={styles.infoItem}>
-                  <span className={styles.infoLabel}>Животные</span>
-                  <span className={styles.infoValue}>
-                    {formatList(questionnaire.animalTypes)}
-                  </span>
-                </div>
-
-                <div className={styles.infoItem}>
-                  <span className={styles.infoLabel}>Форматы услуг</span>
-                  <span className={styles.infoValue}>
-                    {formatList(questionnaire.serviceFormats)}
-                  </span>
-                </div>
-
-                <div className={styles.infoItem}>
-                  <span className={styles.infoLabel}>Портфолио</span>
-                  <span className={styles.infoValue}>
-                    {questionnaire.portfolioUrl ? (
-                      <a
-                        href={questionnaire.portfolioUrl}
-                        target="_blank"
-                        rel="noreferrer"
-                      >
-                        Открыть ссылку
-                      </a>
-                    ) : (
-                      '—'
-                    )}
-                  </span>
-                </div>
-
-                <div className={styles.infoItem}>
-                  <span className={styles.infoLabel}>Готов давать лекарства</span>
-                  <span className={styles.infoValue}>
-                    {formatBoolean(questionnaire.canGiveMedication)}
-                  </span>
-                </div>
-
-                <div className={styles.infoItem}>
-                  <span className={styles.infoLabel}>Сложное поведение</span>
-                  <span className={styles.infoValue}>
-                    {formatBoolean(questionnaire.canHandleDifficultBehavior)}
-                  </span>
-                </div>
-
-                <div className={styles.infoItem}>
-                  <span className={styles.infoLabel}>Ночные заказы</span>
-                  <span className={styles.infoValue}>
-                    {formatBoolean(questionnaire.canTakeOvernightOrders)}
-                  </span>
-                </div>
-
-                <div className={styles.infoItem}>
-                  <span className={styles.infoLabel}>Свои питомцы</span>
-                  <span className={styles.infoValue}>
-                    {formatBoolean(questionnaire.hasOwnPets)}
-                  </span>
-                </div>
-
-                <div className={styles.infoItem}>
-                  <span className={styles.infoLabel}>База первой помощи</span>
-                  <span className={styles.infoValue}>
-                    {formatBoolean(questionnaire.hasPetFirstAidBasics)}
-                  </span>
-                </div>
-
-                <div className={styles.infoItem}>
-                  <span className={styles.infoLabel}>География выезда</span>
-                  <span className={styles.infoValue}>
-                    {questionnaire.districtPreferences || '—'}
-                  </span>
-                </div>
-              </div>
+              <ApplicationInfoSections
+                selected={selected}
+                questionnaire={questionnaire}
+              />
 
               <div className={styles.aboutBlock}>
                 <h3 className={styles.blockTitle}>О себе</h3>
@@ -673,32 +677,12 @@ export const SpecialistApplicationsModerationSection = observer((): ReactElement
                 <div className={styles.formGrid}>
                   <label className={styles.field}>
                     <span className={styles.fieldLabel}>Дата и время собеседования</span>
-                    <input
-                      className={styles.input}
-                      type="datetime-local"
-                      min={getMinInterviewDateTimeLocalString()}
-                      max={getMaxInterviewDateTimeLocalString()}
+                    <InterviewDateTimeField
                       value={store.draft.interviewDate}
-                      onChange={(event) => {
-                        store.setDraftField('interviewDate', event.target.value);
+                      onChange={(nextValue) => {
+                        store.setDraftField('interviewDate', nextValue);
                       }}
                     />
-                    <span className={styles.calendarIcon} aria-hidden="true">
-                      <svg
-                        width="24"
-                        height="24"
-                        viewBox="0 0 24 24"
-                        fill="none"
-                        xmlns="http://www.w3.org/2000/svg"
-                      >
-                        <path
-                          d="M12 12H17V17H12V12ZM19 3H18V1H16V3H8V1H6V3H5C3.9 3 3 3.9 3 5V19C3 20.1 3.9 21 5 21H19C20.1 21 21 20.1 21 19V5C21 3.9 20.1 3 19 3ZM19 5V7H5V5H19ZM5 19V9H19V19H5Z"
-                          fill="#211500"
-                          stroke="white"
-                          strokeWidth="0.3"
-                        />
-                      </svg>
-                    </span>
                   </label>
 
                   <label className={styles.fieldWide}>

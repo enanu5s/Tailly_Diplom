@@ -404,6 +404,100 @@ function readFileAsDataUrl(file: File): Promise<string> {
   });
 }
 
+const GALLERY_IMAGE_MAX_SIDE = 1280;
+const GALLERY_IMAGE_JPEG_QUALITY = 0.82;
+
+function revokeBlobUrlIfNeeded(url: string): void {
+  if (url.startsWith('blob:')) {
+    URL.revokeObjectURL(url);
+  }
+}
+
+async function compressImageBlob(blob: Blob): Promise<string> {
+  const bitmap = await createImageBitmap(blob);
+
+  try {
+    const longestSide = Math.max(bitmap.width, bitmap.height);
+    const scale =
+      longestSide > GALLERY_IMAGE_MAX_SIDE ? GALLERY_IMAGE_MAX_SIDE / longestSide : 1;
+    const width = Math.max(1, Math.round(bitmap.width * scale));
+    const height = Math.max(1, Math.round(bitmap.height * scale));
+    const canvas = document.createElement('canvas');
+
+    canvas.width = width;
+    canvas.height = height;
+
+    const context = canvas.getContext('2d');
+
+    if (!context) {
+      throw new Error('Не удалось обработать изображение.');
+    }
+
+    context.drawImage(bitmap, 0, 0, width, height);
+
+    return canvas.toDataURL('image/jpeg', GALLERY_IMAGE_JPEG_QUALITY);
+  } finally {
+    bitmap.close();
+  }
+}
+
+async function compressImageFile(file: File): Promise<string> {
+  return compressImageBlob(file);
+}
+
+async function resolveGalleryImageForPersist(
+  item: EditableGalleryItem,
+  pendingFiles: Map<string, File>,
+): Promise<string> {
+  const pendingFile = pendingFiles.get(item.id);
+
+  if (pendingFile) {
+    return compressImageFile(pendingFile);
+  }
+
+  const imageUrl = item.imageUrl.trim();
+
+  if (imageUrl.startsWith('blob:')) {
+    const response = await fetch(imageUrl);
+    const blob = await response.blob();
+
+    return compressImageBlob(blob);
+  }
+
+  if (imageUrl.startsWith('data:image/')) {
+    const response = await fetch(imageUrl);
+    const blob = await response.blob();
+
+    return compressImageBlob(blob);
+  }
+
+  return imageUrl;
+}
+
+async function prepareSpecialistGalleryForPersist(
+  items: EditableGalleryItem[],
+  pendingFiles: Map<string, File>,
+): Promise<EditableGalleryItem[]> {
+  return Promise.all(
+    items.map(async (item, index) => ({
+      ...item,
+      imageUrl: await resolveGalleryImageForPersist(item, pendingFiles),
+      alt: item.alt.trim() || createGalleryAlt(index + 1),
+    })),
+  );
+}
+
+function releasePendingGalleryResources(
+  items: EditableGalleryItem[],
+  pendingFiles: Map<string, File>,
+): void {
+  for (const item of items) {
+    revokeBlobUrlIfNeeded(item.imageUrl);
+  }
+
+  pendingFiles.clear();
+}
+
 function createGalleryAlt(index: number): string {
   return `Фото специалиста ${index}`;
 }
@@ -547,11 +641,12 @@ export class SpecialistProfileStore {
   detailsSaveError: string | null = null;
   detailsForm: DetailsForm | null = null;
   detailsFormErrors: DetailsFormErrors = {};
+  private pendingGalleryFiles = new Map<string, File>();
   serviceCatalogOptions: SpecialistServiceCatalogItem[] = [];
   petTypeAliasOptions: SpecialistPetTypeAliasOption[] = [];
 
   constructor() {
-    makeAutoObservable(this, {}, { autoBind: true });
+    makeAutoObservable(this, { pendingGalleryFiles: false }, { autoBind: true });
   }
 
   get filteredReviews(): SpecialistReview[] {
@@ -985,6 +1080,7 @@ export class SpecialistProfileStore {
       return;
     }
 
+    this.pendingGalleryFiles.clear();
     this.detailsForm = createDetailsForm(
       this.profile.details,
       this.profile.services,
@@ -996,6 +1092,13 @@ export class SpecialistProfileStore {
   }
 
   cancelDetailsEditing(): void {
+    if (this.detailsForm) {
+      releasePendingGalleryResources(
+        this.detailsForm.specialistGallery,
+        this.pendingGalleryFiles,
+      );
+    }
+
     this.isEditingDetails = false;
     this.detailsForm = null;
     this.detailsFormErrors = {};
@@ -1375,13 +1478,17 @@ export class SpecialistProfileStore {
     try {
       const baseIndex = this.detailsForm.specialistGallery.length;
 
-      const uploadedItems = await Promise.all(
-        Array.from(files).map(async (file, index) => ({
-          id: createLocalId('specialist-photo'),
-          imageUrl: await readFileAsDataUrl(file),
+      const uploadedItems = Array.from(files).map((file, index) => {
+        const id = createLocalId('specialist-photo');
+
+        this.pendingGalleryFiles.set(id, file);
+
+        return {
+          id,
+          imageUrl: URL.createObjectURL(file),
           alt: createGalleryAlt(baseIndex + index + 1),
-        })),
-      );
+        };
+      });
 
       runInAction(() => {
         if (!this.detailsForm) {
@@ -1405,6 +1512,13 @@ export class SpecialistProfileStore {
   removeSpecialistGalleryImage(index: number): void {
     if (!this.detailsForm) {
       return;
+    }
+
+    const removedItem = this.detailsForm.specialistGallery[index];
+
+    if (removedItem) {
+      revokeBlobUrlIfNeeded(removedItem.imageUrl);
+      this.pendingGalleryFiles.delete(removedItem.id);
     }
 
     this.detailsForm.specialistGallery = this.detailsForm.specialistGallery.filter(
@@ -1513,24 +1627,35 @@ export class SpecialistProfileStore {
     this.isSavingDetails = true;
     this.detailsSaveError = null;
 
-    const slug = this.profile.slug;
-    const originalDetailsForm = createDetailsForm(
-      this.profile.details,
-      this.profile.services,
-      this.profile.specialistGallery ?? [],
-    );
-    const originalDetailsPayload = buildDetailsPayload(originalDetailsForm);
-    const detailsPayload = buildDetailsPayload(this.detailsForm);
-    const originalServicesById = new Map(
-      this.profile.services.map((service) => [
-        service.id,
-        buildServicePayload(mapServiceToForm(service)),
-      ]),
-    );
-    const nextServices = this.detailsForm.services.map(buildServicePayload);
-    const nextServiceIds = new Set(nextServices.map((service) => service.id));
-
     try {
+      const slug = this.profile.slug;
+      const originalDetailsForm = createDetailsForm(
+        this.profile.details,
+        this.profile.services,
+        this.profile.specialistGallery ?? [],
+      );
+      const originalDetailsPayload = buildDetailsPayload(originalDetailsForm);
+      const persistedGallery = await prepareSpecialistGalleryForPersist(
+        this.detailsForm.specialistGallery,
+        this.pendingGalleryFiles,
+      );
+      const detailsPayload = {
+        ...buildDetailsPayload(this.detailsForm),
+        specialistGallery: persistedGallery.map((item, index) => ({
+          id: item.id,
+          imageUrl: item.imageUrl.trim(),
+          alt: item.alt.trim() || createGalleryAlt(index + 1),
+        })),
+      };
+      const originalServicesById = new Map(
+        this.profile.services.map((service) => [
+          service.id,
+          buildServicePayload(mapServiceToForm(service)),
+        ]),
+      );
+      const nextServices = this.detailsForm.services.map(buildServicePayload);
+      const nextServiceIds = new Set(nextServices.map((service) => service.id));
+
       let updatedProfile = this.profile;
 
       if (!arePayloadsEqual(detailsPayload, originalDetailsPayload)) {
@@ -1559,6 +1684,13 @@ export class SpecialistProfileStore {
       }
 
       runInAction(() => {
+        if (this.detailsForm) {
+          releasePendingGalleryResources(
+            this.detailsForm.specialistGallery,
+            this.pendingGalleryFiles,
+          );
+        }
+
         this.profile = updatedProfile;
         this.isEditingDetails = false;
         this.detailsForm = null;
@@ -1566,6 +1698,16 @@ export class SpecialistProfileStore {
       });
     } catch (error) {
       runInAction(() => {
+        if (
+          error instanceof DOMException &&
+          (error.name === 'QuotaExceededError' ||
+            error.message.includes('лимит размера mock-базы'))
+        ) {
+          this.detailsSaveError =
+            'Недостаточно места в браузере для сохранения фотографий. Удалите лишние снимки или очистите данные сайта.';
+          return;
+        }
+
         this.detailsSaveError =
           error instanceof Error ? error.message : 'Не удалось сохранить детали.';
       });
@@ -1606,6 +1748,7 @@ export class SpecialistProfileStore {
     this.detailsSaveError = null;
     this.detailsForm = null;
     this.detailsFormErrors = {};
+    this.pendingGalleryFiles.clear();
     this.serviceCatalogOptions = [];
     this.petTypeAliasOptions = [];
   }

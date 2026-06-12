@@ -304,10 +304,34 @@
   font-feature-settings: 'pnum' on, 'lnum' on;
 }
 
+.infoSections {
+  display: grid;
+  gap: 20px;
+}
+
+.infoSection {
+  display: grid;
+  gap: 12px;
+}
+
+.infoSectionTitle {
+  margin: 0;
+  font-family: 'Raleway', sans-serif;
+  font-size: 16px;
+  font-weight: 700;
+  line-height: 19px;
+  color: #211500;
+  font-feature-settings: 'pnum' on, 'lnum' on;
+}
+
 .infoGrid {
   display: grid;
-  grid-template-columns: repeat(6, minmax(0, 1fr));
-  gap: 12px 20px;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 12px;
+}
+
+.infoGridCompact {
+  grid-template-columns: repeat(3, minmax(0, 1fr));
 }
 
 .infoItem {
@@ -320,26 +344,8 @@
   gap: 6px;
 }
 
-.infoItem:nth-child(1),
-.infoItem:nth-child(7),
-.infoItem:nth-child(11),
-.infoItem:nth-child(12),
-.infoItem:nth-child(13),
-.infoItem:nth-child(14),
-.infoItem:nth-child(15) {
-  grid-column: span 2;
-}
-
-.infoItem:nth-child(2),
-.infoItem:nth-child(3),
-.infoItem:nth-child(4),
-.infoItem:nth-child(5),
-.infoItem:nth-child(6),
-.infoItem:nth-child(8),
-.infoItem:nth-child(9),
-.infoItem:nth-child(10),
-.infoItem:nth-child(16) {
-  grid-column: span 3;
+.infoItemWide {
+  grid-column: 1 / -1;
 }
 
 .infoLabel {
@@ -458,14 +464,58 @@
   padding: 0 52px 0 20px;
 }
 
-.calendarIcon {
+.dateTimeField {
+  position: relative;
+  width: 100%;
+  min-width: 0;
+}
+
+.dateTimeField .input,
+.dateTimeField .dateTimeDisplay {
+  width: 100%;
+}
+
+.dateTimeInputNative {
   position: absolute;
-  top: 43px;
-  right: 20px;
+  inset: 0;
+  width: 100%;
+  height: 48px;
+  margin: 0;
+  padding: 0;
+  border: 0;
+  opacity: 0;
+  pointer-events: none;
+}
+
+.dateTimeDisplay {
+  cursor: pointer;
+}
+
+.calendarButton {
+  position: absolute;
+  top: 50%;
+  right: 8px;
+  width: 40px;
+  height: 40px;
+  margin: 0;
+  padding: 0;
+  border: none;
+  border-radius: 8px;
+  background: transparent;
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  pointer-events: none;
+  transform: translateY(-50%);
+  cursor: pointer;
+}
+
+.calendarButton:hover {
+  background: rgba(33, 21, 0, 0.06);
+}
+
+.calendarButton:focus-visible {
+  outline: 2px solid #ccd308;
+  outline-offset: 2px;
 }
 
 .textarea {
@@ -602,6 +652,10 @@
     width: 100%;
     margin: 0 0 8px;
   }
+
+  .detailsCardInline .infoGridCompact {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
 }
 
 @media (max-width: 1300px) {
@@ -651,18 +705,18 @@
     grid-template-columns: repeat(2, minmax(0, 1fr));
   }
 
-  .infoItem,
-  .infoItem:nth-child(n) {
-    grid-column: auto;
+  .infoGridCompact {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .infoItemWide {
+    grid-column: 1 / -1;
   }
 
   .formGrid {
     grid-template-columns: 1fr;
   }
 
-  .calendarIcon {
-    right: 20px;
-  }
 }
 
 /* Tablet: 769px – 1024px */
@@ -809,8 +863,13 @@
     line-height: 22px;
   }
 
-  .infoGrid {
+  .infoGrid,
+  .infoGridCompact {
     grid-template-columns: 1fr;
+  }
+
+  .infoItemWide {
+    grid-column: auto;
   }
 
   .actions {
@@ -844,9 +903,14 @@
     padding-right: 48px;
   }
 
-  .calendarIcon {
-    top: 41px;
-    right: 16px;
+  .dateTimeInputNative {
+    height: 44px;
+  }
+
+  .calendarButton {
+    right: 6px;
+    width: 36px;
+    height: 36px;
   }
 
   .textarea {
@@ -899,12 +963,13 @@
     padding-right: 44px;
   }
 
-  .calendarIcon {
-    top: 41px;
-    right: 14px;
+  .calendarButton {
+    right: 4px;
+    width: 34px;
+    height: 34px;
   }
 
-  .calendarIcon svg {
+  .calendarButton svg {
     width: 20px;
     height: 20px;
   }
@@ -917,6 +982,7 @@
   .filterHint,
   .fieldLabel,
   .blockTitle,
+  .infoSectionTitle,
   .aboutText {
     font-size: 14px;
     line-height: 18px;

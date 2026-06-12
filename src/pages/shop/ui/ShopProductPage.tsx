@@ -29,6 +29,8 @@ export const ShopProductPage = observer(() => {
   const location = useLocation();
   const { isSpecialist, user } = useAuth();
   const reviewsAnchorRef = useRef<HTMLDivElement | null>(null);
+  const heroRef = useRef<HTMLElement | null>(null);
+  const purchasePanelColRef = useRef<HTMLDivElement | null>(null);
 
   useEffect(() => {
     window.scrollTo({
@@ -57,6 +59,29 @@ export const ShopProductPage = observer(() => {
   };
 
   const { product, isLoading, error } = shopProductStore;
+
+  useEffect(() => {
+    const hero = heroRef.current;
+    const purchasePanelCol = purchasePanelColRef.current;
+
+    if (!hero || !purchasePanelCol || !product) {
+      return;
+    }
+
+    const syncPurchasePanelHeight = (): void => {
+      hero.style.setProperty('--purchase-panel-height', `${purchasePanelCol.offsetHeight}px`);
+    };
+
+    syncPurchasePanelHeight();
+
+    const resizeObserver = new ResizeObserver(syncPurchasePanelHeight);
+    resizeObserver.observe(purchasePanelCol);
+
+    return () => {
+      resizeObserver.disconnect();
+      hero.style.removeProperty('--purchase-panel-height');
+    };
+  }, [product]);
   const state = (location.state ?? null) as ShopProductPageLocationState | null;
   const from = state?.from;
 
@@ -110,12 +135,12 @@ export const ShopProductPage = observer(() => {
 
         {!isLoading && !error && product ? (
           <div className={styles.content}>
-            <section className={styles.hero}>
+            <section className={styles.hero} ref={heroRef}>
               <div className={styles.galleryCol}>
                 <ProductGallery images={product.images} productTitle={product.title} />
               </div>
 
-              <div className={styles.infoCol}>
+              <div className={styles.infoCol} ref={purchasePanelColRef}>
                 <ProductPurchasePanel
                   product={product}
                   onReviewsClick={handleScrollToReviews}

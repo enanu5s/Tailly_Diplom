@@ -27,6 +27,29 @@ export function getMaxInterviewDateTimeLocalString(): string {
   return formatDateTimeLocalValue(new Date(Date.now() + MAX_INTERVIEW_LEAD_MS));
 }
 
+/** Отображение значения datetime-local в русском формате для поля ввода. */
+export function formatInterviewDateTimeLocalForDisplay(value: string): string {
+  const trimmed = value.trim();
+
+  if (!trimmed) {
+    return '';
+  }
+
+  const date = new Date(trimmed);
+
+  if (Number.isNaN(date.getTime())) {
+    return trimmed;
+  }
+
+  return new Intl.DateTimeFormat('ru-RU', {
+    day: '2-digit',
+    month: '2-digit',
+    year: 'numeric',
+    hour: '2-digit',
+    minute: '2-digit',
+  }).format(date);
+}
+
 function normalizeReviewer(value: string): string {
   return value.trim().toLowerCase();
 }

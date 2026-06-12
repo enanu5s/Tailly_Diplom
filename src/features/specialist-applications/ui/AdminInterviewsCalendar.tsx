@@ -1,6 +1,6 @@
 // src/features/specialist-applications/ui/AdminInterviewsCalendar.tsx
 
-import { useMemo, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 
 import styles from './AdminInterviewsCalendar.module.css';
 
@@ -8,6 +8,7 @@ import type { SpecialistApplication } from '../model/types';
 import type { ReactElement } from 'react';
 
 const WEEKDAYS = ['Пн', 'Вт', 'Ср', 'Чт', 'Пт', 'Сб', 'Вс'];
+const INTERVIEWS_PER_PAGE = 4;
 
 function dayKeyFromDate(d: Date): string {
   return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
@@ -64,6 +65,12 @@ function formatWeekRangeLabel(weekStartMonday: Date): string {
   return `${startPart} — ${endPart}`;
 }
 
+function isUpcomingInterview(iso: string, nowMs: number): boolean {
+  const t = new Date(iso).getTime();
+
+  return !Number.isNaN(t) && t >= nowMs;
+}
+
 function formatListTime(iso: string): string {
   const d = new Date(iso);
 
@@ -83,8 +90,9 @@ type Props = {
   interviews: SpecialistApplication[];
 };
 
-export function AdminInterviewsCalendar({ interviews }: Props): ReactElement | null {
+export function AdminInterviewsCalendar({ interviews }: Props): ReactElement {
   const [weekStart, setWeekStart] = useState(() => startOfWeekMonday(new Date()));
+  const [listPage, setListPage] = useState(0);
 
   const byDayKey = useMemo(() => {
     const map = new Map<string, SpecialistApplication[]>();
@@ -136,6 +144,8 @@ export function AdminInterviewsCalendar({ interviews }: Props): ReactElement | n
     return t.getTime();
   }, [weekStart]);
 
+  const nowMs = Date.now();
+
   const interviewsThisWeek = useMemo(() => {
     const startMs = weekStart.getTime();
 
@@ -151,10 +161,28 @@ export function AdminInterviewsCalendar({ interviews }: Props): ReactElement | n
           return false;
         }
 
-        return t >= startMs && t < weekEndExclusive;
+        return t >= startMs && t < weekEndExclusive && isUpcomingInterview(app.interviewDate, nowMs);
       })
       .sort((a, b) => new Date(a.interviewDate!).getTime() - new Date(b.interviewDate!).getTime());
-  }, [interviews, weekStart, weekEndExclusive]);
+  }, [interviews, weekStart, weekEndExclusive, nowMs]);
+
+  const listPageCount = Math.max(1, Math.ceil(interviewsThisWeek.length / INTERVIEWS_PER_PAGE));
+  const visibleInterviews = interviewsThisWeek.slice(
+    listPage * INTERVIEWS_PER_PAGE,
+    listPage * INTERVIEWS_PER_PAGE + INTERVIEWS_PER_PAGE,
+  );
+  const canGoPrevList = listPage > 0;
+  const canGoNextList = listPage < listPageCount - 1;
+
+  useEffect(() => {
+    setListPage(0);
+  }, [weekStart]);
+
+  useEffect(() => {
+    if (listPage > listPageCount - 1) {
+      setListPage(Math.max(0, listPageCount - 1));
+    }
+  }, [listPage, listPageCount]);
 
   const goPrevWeek = (): void => {
     setWeekStart((prev) => {
@@ -180,16 +208,23 @@ export function AdminInterviewsCalendar({ interviews }: Props): ReactElement | n
 
   const rangeLabel = formatWeekRangeLabel(weekStart);
   const now = new Date();
-
-  if (interviews.length === 0) {
-    return null;
-  }
+  const listRowCount =
+    interviewsThisWeek.length > 0
+      ? interviewsThisWeek.length > 2
+        ? 2
+        : 1
+      : 0;
 
   return (
     <section
       className={`${styles.root} ${
-        interviewsThisWeek.length === 0 ? styles.rootEmptyWeek : ''
+        interviewsThisWeek.length === 0 ? styles.rootEmptyWeek : styles.rootHasList
       }`}
+      style={
+        listRowCount > 0
+          ? ({ '--calendar-list-rows': listRowCount } as React.CSSProperties)
+          : undefined
+      }
       aria-label="Календарь собеседований на неделю"
     >
       <div className={styles.head}>
@@ -232,7 +267,9 @@ export function AdminInterviewsCalendar({ interviews }: Props): ReactElement | n
       <div className={styles.grid}>
         {weekDays.map((dayDate) => {
           const key = dayKeyFromDate(dayDate);
-          const dayInterviews = byDayKey.get(key);
+          const dayInterviews = byDayKey
+            .get(key)
+            ?.filter((app) => isUpcomingInterview(app.interviewDate!, nowMs));
           const has = Boolean(dayInterviews?.length);
           const isToday = isSameCalendarDay(dayDate, now);
 
@@ -265,15 +302,39 @@ export function AdminInterviewsCalendar({ interviews }: Props): ReactElement | n
       {interviewsThisWeek.length > 0 ? (
         <div className={styles.listBlock}>
           <h3 className={styles.listTitle}>На этой неделе</h3>
-          <ul className={styles.list}>
-            {interviewsThisWeek.map((app) => (
-              <li key={app.id} className={styles.listItem}>
-                <span className={styles.listTime}>{formatListTime(app.interviewDate!)}</span>
-                <span className={styles.listName}>{app.fullName}</span>
-                <span className={styles.listMeta}>{app.email}</span>
-              </li>
-            ))}
-          </ul>
+          <div className={styles.listViewport}>
+            {listPageCount > 1 ? (
+              <button
+                className={`${styles.listNavButton} ${styles.listNavButtonPrev}`}
+                type="button"
+                onClick={() => setListPage((p) => p - 1)}
+                disabled={!canGoPrevList}
+                aria-label="Предыдущие собеседования"
+              >
+                <ArrowIcon />
+              </button>
+            ) : null}
+            <ul className={styles.list}>
+              {visibleInterviews.map((app) => (
+                <li key={app.id} className={styles.listItem}>
+                  <span className={styles.listTime}>{formatListTime(app.interviewDate!)}</span>
+                  <span className={styles.listName}>{app.fullName}</span>
+                  <span className={styles.listMeta}>{app.email}</span>
+                </li>
+              ))}
+            </ul>
+            {listPageCount > 1 ? (
+              <button
+                className={styles.listNavButton}
+                type="button"
+                onClick={() => setListPage((p) => p + 1)}
+                disabled={!canGoNextList}
+                aria-label="Следующие собеседования"
+              >
+                <ArrowIcon />
+              </button>
+            ) : null}
+          </div>
         </div>
       ) : (
         <p className={styles.emptyWeek}>На выбранной неделе собеседований нет.</p>

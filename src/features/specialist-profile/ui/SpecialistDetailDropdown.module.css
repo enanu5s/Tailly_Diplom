@@ -5,6 +5,7 @@
   position: relative;
   width: 100%;
   max-width: 258px;
+  min-width: 0;
   font-family: 'Rubik', sans-serif;
 }
 
@@ -26,6 +27,7 @@
   display: flex;
   align-items: center;
   position: relative;
+  overflow: hidden;
 }
 
 .trigger:focus-visible {

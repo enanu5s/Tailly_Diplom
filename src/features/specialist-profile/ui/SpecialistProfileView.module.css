@@ -486,9 +486,7 @@
 .galleryBlock {
   max-width: 566px;
   overflow: hidden;
-  /* добавь */
   min-width: 0;
-  /* уже есть, но убедись */
 }
 
 .detailsTop {
@@ -499,8 +497,18 @@
 }
 
 .detailsTopFewPhotos {
-  grid-template-columns: minmax(0, 489px) minmax(0, 1fr);
+  grid-template-columns: minmax(0, 412px) minmax(0, 1fr);
   gap: 20px;
+}
+
+.detailsTopFewPhotos .galleryBlock {
+  max-width: 412px;
+  width: fit-content;
+}
+
+.detailsTopFewPhotos .galleryPreviewGrid {
+  grid-template-columns: 258px 134px;
+  width: fit-content;
 }
 
 .detailsInfoBlock {
@@ -918,7 +926,7 @@
   flex-wrap: wrap;
 }
 
-.detailsCompactRow span {
+.detailsCompactRow > span {
   flex-shrink: 0;
   color: #211500;
 }
@@ -1479,8 +1487,27 @@
   margin-bottom: 60px;
 }
 
+.detailsCardEditing .detailsTopFewPhotos {
+  grid-template-columns: 412px minmax(0, 1fr);
+}
+
 .detailsCardEditing .galleryBlock {
   max-width: 566px;
+}
+
+.detailsCardEditing .detailsTopFewPhotos .galleryBlock {
+  max-width: 412px;
+  width: fit-content;
+}
+
+.detailsCardEditing .detailsTopFewPhotos .galleryPreviewGrid {
+  grid-template-columns: 258px 134px;
+  width: fit-content;
+}
+
+.detailsCardEditing .detailsTopFewPhotos .galleryActions {
+  width: 100%;
+  max-width: 412px;
 }
 
 .detailsCardEditing .detailsInfoBlock {
@@ -1711,18 +1738,22 @@
 }
 
 @media (max-width: 1500px) and (min-width: 1201px) {
-  .detailsCardEditing .detailsTop {
+  .detailsCardEditing .detailsTopFewPhotos {
     grid-template-columns: 412px minmax(0, 1fr);
   }
 
-  .detailsCardEditing .galleryBlock {
+  .detailsCardEditing .detailsTopFewPhotos .galleryBlock {
     width: 412px;
     max-width: 412px;
   }
 
-  .detailsCardEditing .galleryPreviewGrid {
+  .detailsCardEditing .detailsTopFewPhotos .galleryPreviewGrid {
     grid-template-columns: 258px 134px;
     width: 412px;
+  }
+
+  .detailsCardEditing .detailsTopFewPhotos .galleryActions {
+    max-width: 412px;
   }
 }
 
