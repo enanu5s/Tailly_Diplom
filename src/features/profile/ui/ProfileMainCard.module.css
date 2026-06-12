@@ -15,8 +15,7 @@
 }
 
 .cardEdit {
-  height: 580px;
-  min-height: 580px;
+  min-height: 0;
 }
 
 .headerRow {
@@ -131,19 +130,21 @@
   display: flex;
   flex-direction: column;
   gap: 20px;
+  min-width: 0;
 }
 
 .editTopRow {
-  display: block;
+  display: grid;
+  grid-template-columns: 104px minmax(0, 1fr);
+  gap: 20px;
+  align-items: start;
 }
 
 .avatarBlock {
-  position: absolute;
-  left: 30px;
-  top: 79px;
   display: flex;
   flex-direction: column;
   gap: 8px;
+  min-width: 0;
 }
 
 .uploadBtn {
@@ -168,17 +169,15 @@
 }
 
 .nameFields {
-  position: absolute;
-  left: 155px;
-  top: 79px;
   display: grid;
-  width: 257px;
+  width: 100%;
+  min-width: 0;
   gap: 8px;
 }
 
 .nameInput {
   box-sizing: border-box;
-  width: 257px;
+  width: 100%;
   height: 48px;
   border: 1px solid #c7c2ba;
   border-radius: 10px;
@@ -200,35 +199,20 @@
 }
 
 .editFields {
-  display: block;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
 }
 
 .editFieldRow {
-  position: absolute;
-  left: 30px;
-  right: 30px;
   display: grid;
-  grid-template-columns: 73px minmax(0, 1fr);
-  gap: 0;
+  grid-template-columns: 93px minmax(0, 1fr);
+  gap: 8px;
   align-items: center;
 }
 
-.editFieldRow:nth-child(1) {
-  top: 259px;
-}
-
-.editFieldRow:nth-child(2) {
-  top: 315px;
-}
-
-.editFieldRow:nth-child(3) {
-  top: 371px;
-  grid-template-columns: 93px minmax(0, 1fr);
-}
-
-.editFieldRow:nth-child(4) {
-  top: 427px;
-  grid-template-columns: 93px minmax(0, 1fr);
+.editFieldRow:first-child {
+  grid-template-columns: 73px minmax(0, 1fr);
 }
 
 .editLabel {
@@ -268,10 +252,6 @@
 }
 
 .actions {
-  position: absolute;
-  left: 30px;
-  right: 30px;
-  top: 505px;
   display: grid;
   grid-template-columns: 1fr 1fr;
   gap: 20px;
@@ -340,30 +320,21 @@
   box-sizing: border-box;
   position: relative;
   width: 100%;
-  height: 190px;
   margin-top: -40px;
+  padding: 30px;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
   background: #ffffff;
   border-radius: 20px;
   box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
 }
 
-.securityCard::before {
-  content: '';
-  position: absolute;
-  left: 20px;
-  right: 20px;
-  top: 95px;
-  height: 1px;
-  background: #c7c2ba;
-}
-
 .securityButton,
 .deleteAccountButton {
   box-sizing: border-box;
-  position: absolute;
-  left: 30px;
-  right: 30px;
-  height: 45px;
+  width: 100%;
+  min-height: 45px;
   display: inline-flex;
   align-items: center;
   justify-content: center;
@@ -379,14 +350,12 @@
 }
 
 .securityButton {
-  top: 30px;
   border: 1px solid #6f685d;
   background: #ffffff;
   color: #211500;
 }
 
 .deleteAccountButton {
-  top: 115px;
   border: 1px solid #e20b0b;
   background: rgba(226, 11, 11, 0.05);
   color: #e20b0b;
@@ -517,52 +486,19 @@ button.deleteAccountButton {
   font-variant-numeric: lining-nums proportional-nums;
 }
 
-@media (max-width: 640px) {
+@media (max-width: 980px) {
   .card {
-    min-height: auto;
-    padding: 20px;
+    padding: 24px;
   }
 
-  .cardEdit {
-    height: auto;
-  }
-
-  .avatarBlock,
-  .nameFields,
-  .editFieldRow,
-  .actions {
-    position: static;
-  }
-
-  .editTopRow {
-    display: grid;
-    gap: 16px;
-  }
-
-  .nameFields {
-    width: 100%;
-  }
-
-  .nameInput {
-    width: 100%;
-  }
-
-  .editFields {
-    display: flex;
-    flex-direction: column;
-    gap: 8px;
-  }
-
-  .viewContent,
-  .editTopRow,
-  .editFieldRow,
-  .actions {
-    grid-template-columns: 1fr;
+  .viewContent {
+    grid-template-columns: 104px minmax(0, 1fr);
+    gap: 20px;
   }
 
   .avatarWrap {
-    width: 96px;
-    height: 96px;
+    width: 104px;
+    height: 104px;
   }
 
   .fullName {
@@ -570,12 +506,134 @@ button.deleteAccountButton {
     font-size: 22px;
   }
 
+  .metaList {
+    margin-top: 16px;
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 12px 20px;
+  }
+
+  .editContent {
+    gap: 24px;
+  }
+
+  .editTopRow {
+    grid-template-columns: 104px minmax(0, 1fr);
+    gap: 20px;
+  }
+
+  .nameFields {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 12px;
+  }
+
+  .nameFields .nameInput:last-child {
+    grid-column: 1 / -1;
+  }
+
+  .nameInput {
+    font-size: 20px;
+    height: 44px;
+  }
+
+  .editFields {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 16px;
+  }
+
+  .editFieldRow,
+  .editFieldRow:first-child {
+    grid-template-columns: 1fr;
+    align-items: stretch;
+    gap: 8px;
+  }
+
+  .actions {
+    width: 100%;
+    max-width: none;
+  }
+
+  .securityCard {
+    margin-top: 0;
+    padding: 24px;
+  }
+}
+
+@media (max-width: 640px) {
+  .card {
+    min-height: auto;
+    padding: 20px;
+  }
+
+  .title {
+    font-size: 20px;
+  }
+
+  .viewContent,
+  .editTopRow {
+    grid-template-columns: 1fr;
+  }
+
+  .metaList {
+    grid-template-columns: 1fr;
+    gap: 8px;
+  }
+
+  .avatarBlock {
+    flex-direction: row;
+    align-items: center;
+    gap: 16px;
+  }
+
+  .avatarWrap {
+    width: 96px;
+    height: 96px;
+    flex-shrink: 0;
+  }
+
+  .uploadBtn {
+    flex: 1;
+    min-width: 0;
+  }
+
+  .nameFields {
+    grid-template-columns: 1fr;
+  }
+
+  .nameFields .nameInput:last-child {
+    grid-column: auto;
+  }
+
+  .nameInput {
+    font-size: 18px;
+    height: 44px;
+  }
+
+  .editFields {
+    grid-template-columns: 1fr;
+    gap: 12px;
+  }
+
+  .editFieldRow,
+  .editFieldRow:first-child {
+    gap: 6px;
+  }
+
+  .fullName {
+    font-size: 22px;
+  }
+
   .metaRow {
     font-size: 14px;
   }
 
+  .actions {
+    grid-template-columns: 1fr;
+    gap: 12px;
+  }
+
   .securityCard {
-    height: 180px;
-    margin-top: 0;
+    padding: 20px;
   }
 }

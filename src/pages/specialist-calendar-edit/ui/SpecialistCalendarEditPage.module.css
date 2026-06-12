@@ -1465,6 +1465,15 @@ select.input {
     flex-direction: column;
   }
 
+  .figmaTitleSaveRow .pageIntroText {
+    flex: 0 0 auto;
+    width: 100%;
+  }
+
+  .figmaTitleSaveRow .title {
+    margin-bottom: 0;
+  }
+
   .saveCalendarButton {
     width: 100%;
   }
@@ -1496,5 +1505,231 @@ select.input {
 
   .headerActions .primaryButton {
     width: 100%;
+  }
+}
+
+@media (max-width: 640px) {
+  .page {
+    padding: 24px 12px 40px;
+  }
+
+  .topNavRow {
+    margin-bottom: 16px;
+  }
+
+  .figmaPageTop {
+    margin-bottom: 4px;
+  }
+
+  .title {
+    margin-bottom: 0;
+    font-size: clamp(24px, 7vw, 32px);
+  }
+
+  .figmaTitleSaveRow {
+    gap: 16px;
+  }
+
+  .saveCalendarButton {
+    min-width: 0;
+    padding-left: 20px;
+    padding-right: 20px;
+  }
+
+  .calendarToolsRow {
+    gap: 12px;
+    margin-bottom: 16px;
+  }
+
+  .modePillPair {
+    gap: 10px;
+  }
+
+  .modePill {
+    min-height: 42px;
+    padding: 8px 14px;
+    font-size: 13px;
+    line-height: 1.25;
+    white-space: normal;
+    text-align: center;
+  }
+
+  .modePillIcon {
+    width: 18px;
+    height: 18px;
+  }
+
+  .unsavedSidebarBanner {
+    min-height: auto;
+    padding: 12px 14px;
+    font-size: 14px;
+    line-height: 1.35;
+  }
+
+  .calendarMainCard,
+  .asideCard {
+    padding: 16px;
+    border-radius: 16px;
+  }
+
+  .monthHeader {
+    grid-template-columns: 40px minmax(0, 1fr) 40px;
+    margin-bottom: 12px;
+  }
+
+  .monthTitle {
+    font-size: 20px;
+  }
+
+  .iconButton {
+    width: 40px;
+    height: 40px;
+    font-size: 18px;
+  }
+
+  .weekdays,
+  .daysGrid {
+    gap: 4px;
+  }
+
+  .daysGridFigma {
+    gap: 4px;
+  }
+
+  .weekday {
+    font-size: 12px;
+    line-height: 1.2;
+  }
+
+  .dayButton {
+    min-height: 46px;
+    border-radius: 8px;
+  }
+
+  .dayNumber,
+  .calendarMainCard .dayNumber {
+    font-size: 13px;
+    line-height: 1.2;
+  }
+
+  .dayDot {
+    bottom: 6px;
+    width: 6px;
+    height: 6px;
+  }
+
+  .legendFigma {
+    gap: 10px 16px;
+    margin-top: 14px;
+  }
+
+  .legendLabelFigma {
+    font-size: 14px;
+  }
+
+  .asideCardTitle {
+    font-size: 20px;
+    margin-bottom: 12px;
+  }
+
+  .statusPillGrid {
+    grid-template-columns: 1fr;
+    gap: 10px;
+    margin-top: 12px;
+  }
+
+  .statusPill {
+    min-height: 42px;
+    padding: 8px 14px;
+    font-size: 14px;
+    justify-content: flex-start;
+  }
+
+  .asideSectionHeading {
+    margin-top: 24px;
+    font-size: 20px;
+  }
+
+  .fieldRow {
+    gap: 10px;
+  }
+
+  .field {
+    margin-top: 12px;
+  }
+
+  .fieldLabel {
+    font-size: 14px;
+  }
+
+  .input {
+    height: 44px;
+    font-size: 14px;
+  }
+
+  .addServiceButton {
+    margin-top: 20px;
+  }
+
+  .windowsList {
+    margin-top: 12px;
+    gap: 10px;
+  }
+
+  .windowCard {
+    border-radius: 14px;
+  }
+
+  .windowCardMainRow {
+    flex-wrap: wrap;
+    align-items: flex-start;
+    min-height: auto;
+    padding: 12px 14px;
+    gap: 8px 10px;
+  }
+
+  .bookedRowSpacer {
+    display: none;
+  }
+
+  .windowServiceTitle {
+    flex: 1 1 calc(100% - 42px);
+    min-width: 0;
+    font-size: 18px;
+    line-height: 1.25;
+  }
+
+  .windowTime {
+    flex: 1 1 100%;
+    padding-left: 42px;
+    font-size: 14px;
+    white-space: normal;
+  }
+
+  .windowCardMainRow:has(.bookedRowSpacer) .windowTime {
+    padding-left: 0;
+  }
+
+  .windowComment {
+    padding: 0 14px 12px;
+    margin-top: 0;
+    font-size: 13px;
+  }
+
+  .bookedMeta {
+    padding: 0 14px 12px;
+  }
+
+  .panel,
+  .selectedDateCard,
+  .stateCard {
+    padding: 20px 16px;
+  }
+
+  .warningBanner,
+  .errorBanner,
+  .successBanner {
+    padding: 12px 14px;
+    font-size: 14px;
   }
 }

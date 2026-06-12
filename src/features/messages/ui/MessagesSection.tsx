@@ -39,6 +39,37 @@ const MOBILE_SWIPE_MIN_DISTANCE = 72;
 const MOBILE_SWIPE_MAX_VERTICAL_SHIFT = 36;
 const HIGHLIGHT_DURATION_MS = 1800;
 const DESKTOP_DOUBLE_CLICK_MAX_WIDTH = 1024;
+const MOBILE_LAYOUT_MAX_WIDTH = 760;
+
+type MessagesSectionProps = {
+  onMobileChatViewChange?: (isOpen: boolean) => void;
+};
+
+function useMobileLayout(): boolean {
+  const [isMobileLayout, setIsMobileLayout] = useState(() => {
+    if (typeof window === 'undefined') {
+      return false;
+    }
+
+    return window.matchMedia(`(max-width: ${MOBILE_LAYOUT_MAX_WIDTH}px)`).matches;
+  });
+
+  useEffect(() => {
+    const mediaQuery = window.matchMedia(`(max-width: ${MOBILE_LAYOUT_MAX_WIDTH}px)`);
+    const handleChange = (): void => {
+      setIsMobileLayout(mediaQuery.matches);
+    };
+
+    handleChange();
+    mediaQuery.addEventListener('change', handleChange);
+
+    return () => {
+      mediaQuery.removeEventListener('change', handleChange);
+    };
+  }, []);
+
+  return isMobileLayout;
+}
 
 function formatTime(value: string): string {
   const date = new Date(value);
@@ -195,11 +226,14 @@ function isMessageVisibleEnough(params: {
   return visibleHeight >= requiredVisiblePx;
 }
 
-export const MessagesSection = observer(() => {
+export const MessagesSection = observer(
+  ({ onMobileChatViewChange }: MessagesSectionProps = {}) => {
   const { user } = useAuth();
   const [searchParams] = useSearchParams();
   const navigate = useAppNavigate();
   const location = useLocation();
+  const isMobileLayout = useMobileLayout();
+  const [isMobileChatOpen, setIsMobileChatOpen] = useState(false);
 
   const messagesAreaRef = useRef<HTMLDivElement | null>(null);
   const fileInputRef = useRef<HTMLInputElement | null>(null);
@@ -352,6 +386,40 @@ export const MessagesSection = observer(() => {
         );
       });
   }, [clientIntent, location.pathname, navigate, specialistIntent, viewer]);
+
+  useEffect(() => {
+    if (!isMobileLayout) {
+      setIsMobileChatOpen(false);
+      onMobileChatViewChange?.(false);
+      return;
+    }
+
+    if (specialistIntent || clientIntent) {
+      setIsMobileChatOpen(true);
+      onMobileChatViewChange?.(true);
+    }
+  }, [clientIntent, isMobileLayout, onMobileChatViewChange, specialistIntent]);
+
+  useEffect(() => {
+    if (!isMobileLayout) {
+      return;
+    }
+
+    onMobileChatViewChange?.(isMobileChatOpen);
+  }, [isMobileChatOpen, isMobileLayout, onMobileChatViewChange]);
+
+  const handleThreadSelect = (threadId: string): void => {
+    messagesStore.setActiveThread(threadId);
+
+    if (isMobileLayout) {
+      setIsMobileChatOpen(true);
+    }
+  };
+
+  const handleMobileBack = (): void => {
+    setIsMobileChatOpen(false);
+    messagesStore.clearReplyTarget();
+  };
 
   const {
     threads,
@@ -835,9 +903,18 @@ export const MessagesSection = observer(() => {
     }
   };
 
+  const rootClassName = [
+    styles.root,
+    isMobileLayout ? styles.rootMobile : '',
+    isMobileLayout && isMobileChatOpen ? styles.rootMobileChatOpen : '',
+    isMobileLayout && !isMobileChatOpen ? styles.rootMobileList : '',
+  ]
+    .filter(Boolean)
+    .join(' ');
+
   return (
     <>
-      <section className={styles.root}>
+      <section className={rootClassName}>
         <aside className={styles.sidebar}>
           <div className={styles.sidebarHeader}>
             <h2 className={styles.sidebarTitle}>Чаты</h2>
@@ -872,7 +949,7 @@ export const MessagesSection = observer(() => {
                           : styles.thread,
                       thread.kind === 'support' ? styles.threadSupport : '',
                     ].join(' ')}
-                    onClick={() => messagesStore.setActiveThread(thread.id)}
+                    onClick={() => handleThreadSelect(thread.id)}
                   >
                     <div className={styles.threadTopRow}>
                       <span className={styles.threadTitle}>{thread.title}</span>
@@ -905,7 +982,20 @@ export const MessagesSection = observer(() => {
           {activeThread ? (
             <>
               <header className={styles.chatHeader}>
-                <div>
+                {isMobileLayout ? (
+                  <button
+                    type="button"
+                    className={styles.mobileBackButton}
+                    onClick={handleMobileBack}
+                    aria-label="Назад к списку чатов"
+                  >
+                    <span className={styles.mobileBackIcon} aria-hidden="true">
+                      ←
+                    </span>
+                  </button>
+                ) : null}
+
+                <div className={styles.chatHeaderMain}>
                   <h2 className={styles.chatTitle}>{activeThread.title}</h2>
                   <p className={styles.chatSubtitle}>
                     {activeThread.kind === 'support' ? 'Чат поддержки' : 'Личный чат'}
@@ -1260,4 +1350,5 @@ export const MessagesSection = observer(() => {
       ) : null}
     </>
   );
-});
+  },
+);

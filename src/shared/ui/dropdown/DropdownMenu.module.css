@@ -70,13 +70,48 @@
 }
 
 /* Мобильный режим — всегда клик */
+.mobileMode {
+  width: 100%;
+}
+
+.mobileMode .trigger {
+  width: 100%;
+  justify-content: space-between;
+  min-height: 48px;
+  padding: 10px 8px;
+  box-sizing: border-box;
+  border-radius: 12px;
+  font-size: 16px;
+  line-height: 1.2;
+  text-align: left;
+  transition: background-color 0.2s ease;
+}
+
+.mobileMode .trigger:hover,
+.mobileMode .trigger:active,
+.mobileMode .trigger.open {
+  opacity: 1;
+  text-decoration: none;
+  background: #fff8ef;
+}
+
+.mobileMode .trigger.active {
+  background: #fff3cd;
+}
+
 .mobileMode .menu {
   position: static;
-  background: #fff8ef;
-  border-radius: 10px;
-  margin: 8px 0;
-  padding: 0;
+  background: #f8f8f8;
+  border: 1px solid rgba(33, 21, 0, 0.08);
+  border-left: 3px solid #ccd308;
+  border-radius: 12px;
+  margin: 4px 0 10px;
+  padding: 8px;
   box-shadow: none;
+  list-style: none;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
 }
 
 .mobileMode .item {
@@ -84,19 +119,56 @@
 }
 
 .mobileMode .link {
-  display: block;
-  padding: 12px 20px;
+  display: flex;
+  align-items: center;
+  min-height: 44px;
+  padding: 10px 12px;
+  border-radius: 10px;
   color: #211500;
   text-decoration: none;
   font-family: 'Raleway', system-ui, -apple-system, sans-serif;
-  font-size: 1rem;
+  font-size: 15px;
   line-height: 1.2;
-  font-weight: 700;
+  font-weight: 600;
+  white-space: normal;
+  transition: background-color 0.2s ease;
 }
 
 .mobileMode .link:hover,
 .mobileMode .link:active {
-  background: rgba(33, 21, 0, 0.08);
+  background: #fff3cd;
+}
+
+@media (min-width: 640px) and (max-width: 1023px) {
+  .mobileMode .trigger {
+    min-height: 52px;
+    padding: 12px 10px;
+    font-size: 17px;
+  }
+
+  .mobileMode .menu {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 8px;
+    padding: 10px;
+  }
+
+  .mobileMode .link {
+    min-height: 48px;
+    font-size: 16px;
+  }
+}
+
+@media (max-width: 639px) {
+  .mobileMode .trigger {
+    min-height: 46px;
+    font-size: 15px;
+  }
+
+  .mobileMode .link {
+    min-height: 42px;
+    font-size: 14px;
+  }
 }
 
 /* Общее для пунктов */

@@ -691,4 +691,181 @@
   .card {
     width: 100%;
   }
+
+  .headRow {
+    gap: 16px;
+  }
+
+  .addBtn {
+    flex-shrink: 0;
+  }
+
+  .cardEditing {
+    height: auto;
+    min-height: 0;
+    padding: 24px;
+  }
+
+  .cardEditing .cardTop {
+    display: grid;
+    grid-template-columns: 104px minmax(0, 1fr);
+    gap: 20px;
+    align-items: start;
+  }
+
+  .cardEditing .photoCol {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    width: 104px;
+  }
+
+  .cardEditing .photoWrap,
+  .cardEditing .photoBtn,
+  .cardEditing .mainCol > .field:first-child .input,
+  .cardEditing .row2 > .field:first-child .label,
+  .cardEditing .row2 > .field:first-child .select,
+  .cardEditing .row2 > .field:nth-child(2) > .label,
+  .cardEditing .ageRow,
+  .cardEditing .row3 > .field:first-child .label,
+  .cardEditing .row3 > .field:first-child .select,
+  .cardEditing .row3 > .field:nth-child(2) .label,
+  .cardEditing .row3 > .field:nth-child(2) .select,
+  .cardEditing .editDetailsLink,
+  .cardEditing .extraGrid > .field:first-child .label,
+  .cardEditing .extraGrid > .field:first-child .select,
+  .cardEditing .extraGrid > .field:nth-child(2) .label,
+  .cardEditing .extraGrid > .field:nth-child(2) .select,
+  .cardEditing .extraGrid > .field:nth-child(3) .label,
+  .cardEditing .extraGrid > .field:nth-child(3) .select,
+  .cardEditing .extraGrid > .field:nth-child(4) .label,
+  .cardEditing .extraGrid > .field:nth-child(4) .select,
+  .cardEditing .extraGrid > .field:nth-child(5) .label,
+  .cardEditing .extraGrid > .field:nth-child(5) .select,
+  .cardEditing .notesRow .label,
+  .cardEditing .textarea,
+  .cardEditing .actions,
+  .cardEditing .dangerBtn {
+    position: static;
+    left: auto;
+    top: auto;
+    right: auto;
+  }
+
+  .cardEditing .mainCol,
+  .cardEditing .row2,
+  .cardEditing .row3,
+  .cardEditing .extra,
+  .cardEditing .extraGrid {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+  }
+
+  .cardEditing .mainCol > .field:first-child .label {
+    display: block;
+  }
+
+  .cardEditing .field {
+    display: flex;
+    flex-direction: column;
+    align-items: stretch;
+    gap: 8px;
+  }
+
+  .cardEditing .mainCol > .field:first-child .input,
+  .cardEditing .input,
+  .cardEditing .select,
+  .cardEditing .textarea {
+    width: 100%;
+    box-sizing: border-box;
+  }
+
+  .cardEditing .row2,
+  .cardEditing .row3 {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 16px;
+  }
+
+  .cardEditing .ageRow {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 12px;
+    width: 100%;
+  }
+
+  .cardEditing .extraGrid {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 16px;
+  }
+
+  .cardEditing .notesRow {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+  }
+
+  .cardEditing .textarea {
+    min-height: 96px;
+    resize: vertical;
+  }
+
+  .cardEditing .editDetailsLink {
+    width: fit-content;
+    margin-top: 4px;
+  }
+
+  .cardEditing .actions {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 12px;
+    margin-top: 8px;
+  }
+
+  .cardEditing .cancelBtn,
+  .cardEditing .saveBtn,
+  .cardEditing .dangerBtn {
+    width: 100%;
+    margin: 0;
+  }
+
+  .cardEditing .dangerBtn {
+    margin-top: 4px;
+  }
+}
+
+@media (max-width: 640px) {
+  .headRow {
+    flex-wrap: wrap;
+  }
+
+  .addBtn {
+    width: 100%;
+  }
+
+  .cardEditing {
+    padding: 18px;
+  }
+
+  .cardEditing .cardTop {
+    grid-template-columns: 1fr;
+  }
+
+  .cardEditing .photoCol {
+    width: 100%;
+    flex-direction: row;
+    align-items: center;
+  }
+
+  .cardEditing .row2,
+  .cardEditing .row3,
+  .cardEditing .extraGrid {
+    grid-template-columns: 1fr;
+  }
+
+  .cardEditing .actions {
+    grid-template-columns: 1fr;
+  }
 }

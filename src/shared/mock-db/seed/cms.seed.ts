@@ -4,7 +4,7 @@
 import type { AdminManagedBanner, AdminManagedPost } from '@/features/admin-posts-banners-management/model/types';
 
 /** Увеличивайте при изменении `SEED_CMS_POSTS` / `SEED_CMS_BANNERS`, чтобы mock-база подтянула свежий сид. */
-export const SEED_CMS_DATA_REVISION = 3 as const;
+export const SEED_CMS_DATA_REVISION = 5 as const;
 
 export const SEED_CMS_POSTS: AdminManagedPost[] = [
   {
@@ -12,8 +12,8 @@ export const SEED_CMS_POSTS: AdminManagedPost[] = [
     title: 'Как подготовить питомца к первой передержке',
     content:
       'Передержка может стать стрессом для животного, если его не подготовить заранее. Познакомьте питомца с ситтером до заселения, передайте привычные вещи, составьте понятный режим прогулок и кормления, а также заранее расскажите о реакциях питомца на чужих людей, шум и новую обстановку. Отдельно согласуйте правила кошек и собак: двери, «безопасные зоны», куда нельзя заходить, и кто убирает после прогулки. Если питомец пьёт лекарства, оставьте дозировку в письменном виде и покажите, как это обычно делается дома — так меньше риск ошибок в чужой среде. В первые сутки лучше не вводить резкие новшества: оставьте привычный корм, любимую игрушку и спокойный сценарий знакомства, а все эксперименты отложите на потом, когда питомец поймёт, что ситуация предсказуема.',
-    imageUrls: ['/images/home/54.png'],
-    coverImageUrl: '/images/home/s-boarding.png',
+    imageUrls: ['/images/home/54.jpg'],
+    coverImageUrl: '/images/home/s-boarding.jpg',
     tags: ['уход', 'передержка'],
     status: 'published',
     publishedAt: '2026-02-20T10:00:00.000Z',
@@ -130,8 +130,8 @@ export const SEED_CMS_POSTS: AdminManagedPost[] = [
     title: 'Документы и ветпаспорт перед выездом',
     content:
       'Перед поездкой или передержкой проверьте ветпаспорт и сроки прививок — многие площадки и специалисты просят актуальные данные. Сделайте копии документов: скан или фото страниц с отметками, чипом и контактами клиники. Храните копии в облаке и продублируйте в чате со специалистом, чтобы в экстренной ситуации не искать бумагу по дому. Если питомец принимает лекарства, приложите назначение врача. Уточните, нужна ли справка о здоровье для конкретной услуги — для передержки это частая просьба. За неделю до выезда проверьте, не подходит ли срок ежегодной вакцинации: переносить прививку «на после отпуска» рискованно, если питомец попадёт в стрессовую среду. Небольшая подготовка документов снимает массу организационных вопросов и помогает специалисту действовать быстрее, если что-то пойдёт не по плану.',
-    imageUrls: ['/images/home/s-photoshoot.png'],
-    coverImageUrl: '/images/home/s-photoshoot.png',
+    imageUrls: ['/images/home/43.jpg'],
+    coverImageUrl: '/images/home/43.jpg',
     tags: ['советы', 'документы'],
     status: 'published',
     publishedAt: '2026-03-20T10:20:00.000Z',
@@ -145,7 +145,7 @@ export const SEED_CMS_BANNERS: AdminManagedBanner[] = [
     id: 'banner-1',
     title: 'Найдите проверенного петситтера рядом',
     description: 'Главный баннер на главной странице с переходом в поиск специалистов.',
-    imageUrl: '/images/banner-home-hero.png',
+    imageUrl: '/images/banners/banner-01.jpg',
     linkUrl: '/services?service=boarding',
     linkTarget: 'specialists',
     placement: 'home_hero',
@@ -158,7 +158,7 @@ export const SEED_CMS_BANNERS: AdminManagedBanner[] = [
     id: 'banner-home-post-4',
     title: 'Зимние прогулки: безопасность и комфорт',
     description: 'Короткая памятка для владельцев собак в холодный сезон.',
-    imageUrl: '/images/banner-posts.png',
+    imageUrl: '/images/banners/banner-02.jpg',
     linkUrl: '/posts/admin-post-4',
     linkTarget: 'posts',
     linkedPostId: 'admin-post-4',
@@ -172,7 +172,7 @@ export const SEED_CMS_BANNERS: AdminManagedBanner[] = [
     id: 'banner-home-post-5',
     title: 'Соберите аптечку перед передержкой',
     description: 'Что положить в дорожный набор для питомца — в статье.',
-    imageUrl: '/images/banner-specialists.png',
+    imageUrl: '/images/banners/banner-03.jpg',
     linkUrl: '/posts/admin-post-5',
     linkTarget: 'posts',
     linkedPostId: 'admin-post-5',
@@ -186,7 +186,7 @@ export const SEED_CMS_BANNERS: AdminManagedBanner[] = [
     id: 'banner-2',
     title: 'Полезные статьи по уходу за питомцами',
     description: 'Баннер внутри раздела постов для повышения просмотров публикаций.',
-    imageUrl: '/images/banner-posts.png',
+    imageUrl: '/images/banners/banner-04.jpg',
     linkUrl: '/posts/admin-post-1',
     linkTarget: 'posts',
     linkedPostId: 'admin-post-1',
@@ -200,7 +200,7 @@ export const SEED_CMS_BANNERS: AdminManagedBanner[] = [
     id: 'banner-3',
     title: 'Весенний спецпроект',
     description: 'Черновой баннер для будущей кампании в каталоге специалистов.',
-    imageUrl: '/images/banner-specialists.png',
+    imageUrl: '/images/banners/banner-05.jpg',
     linkUrl: '/specialists',
     linkTarget: 'specialists',
     placement: 'specialists',

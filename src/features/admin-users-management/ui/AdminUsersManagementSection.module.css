@@ -1,12 +1,14 @@
 /* src/features/admin-users-management/ui/AdminUsersManagementSection.module.css */
 
 .root {
-  width: min(1520px, calc(100vw - 124px));
+  width: 100%;
+  min-width: 0;
   margin: 0 auto;
   padding: 12px 0 80px;
   display: grid;
   gap: 32px;
   background: #f8f8f8;
+  box-sizing: border-box;
 }
 
 .hero {
@@ -103,7 +105,9 @@
 }
 
 .input {
+  width: 100%;
   height: 48px;
+  box-sizing: border-box;
   border: 1px solid #c7c2ba;
   border-radius: 10px;
   background: #ffffff;
@@ -474,7 +478,7 @@
 }
 
 .formGrid .input {
-  width: auto;
+  width: 100%;
 }
 
 .formGrid .fieldWide {
@@ -503,20 +507,16 @@
   color: #211500;
 }
 
-@media (max-width: 1100px) {
+@media (max-width: 1024px) {
   .root {
-    width: calc(100vw - 32px);
     padding-bottom: 60px;
+    gap: 28px;
   }
 
   .hero {
     grid-template-columns: 1fr;
-    row-gap: 18px;
-  }
-
-  .filtersGrid,
-  .stats {
-    flex-wrap: wrap;
+    row-gap: 20px;
+    column-gap: 0;
   }
 
   .heroContent,
@@ -526,14 +526,43 @@
     grid-row: auto;
   }
 
+  .title {
+    font-size: 34px;
+  }
+
+  .stats {
+    width: 100%;
+    justify-content: flex-start;
+    flex-wrap: wrap;
+    gap: 12px;
+  }
+
+  .statCard {
+    flex: 0 0 auto;
+    width: 134px;
+    min-width: 134px;
+    height: 110px;
+  }
+
+  .statValue {
+    font-size: 28px;
+  }
+
+  .filtersGrid {
+    flex-direction: column;
+    gap: 12px;
+  }
+
   .filtersGrid .field,
   .filtersGrid .field:first-child .input,
-  .filtersGrid .field:nth-child(2) .select {
+  .filtersGrid .field:nth-child(2) .select,
+  .select {
     width: 100%;
+    min-width: 0;
   }
 
   .grid {
-    grid-template-columns: 1fr;
+    gap: 14px;
   }
 
   .cardTop,
@@ -545,13 +574,376 @@
 
   .badges {
     justify-content: flex-start;
+    flex-wrap: wrap;
+    min-width: 0;
   }
 
   .metaValue {
     white-space: normal;
+    overflow-wrap: anywhere;
+  }
+
+  .cardActions {
+    gap: 12px;
+  }
+
+  .secondaryButton,
+  .dangerButton,
+  .editButton {
+    width: 100%;
+    min-width: 0;
   }
 
   .pagination {
     grid-template-columns: 44px 1fr 44px;
+    margin-top: 8px;
+  }
+}
+
+@media (min-width: 769px) and (max-width: 1024px) {
+  .hero {
+    grid-template-columns: minmax(0, 1fr) 200px auto;
+    grid-template-rows: auto auto;
+    column-gap: 12px;
+    row-gap: 16px;
+    align-items: center;
+  }
+
+  .heroContent {
+    grid-column: 1 / -1;
+    grid-row: 1;
+    min-width: 0;
+  }
+
+  .title {
+    font-size: clamp(26px, 3.4vw, 34px);
+  }
+
+  .filtersCard,
+  .filtersGrid {
+    display: contents;
+  }
+
+  .filtersGrid .field:first-child {
+    grid-column: 1;
+    grid-row: 2;
+    min-width: 0;
+  }
+
+  .filtersGrid .field:nth-child(2) {
+    grid-column: 2;
+    grid-row: 2;
+    min-width: 0;
+  }
+
+  .filtersGrid .field:first-child .input,
+  .filtersGrid .field:nth-child(2) .select,
+  .input,
+  .select {
+    width: 100%;
+  }
+
+  .stats {
+    grid-column: 3;
+    grid-row: 2;
+    flex-shrink: 0;
+    width: auto;
+    flex-wrap: nowrap;
+  }
+
+  .statCard {
+    flex: 0 0 134px;
+    width: 134px;
+    min-width: 134px;
+    height: 110px;
+  }
+
+  .statLabel {
+    text-align: center;
+    white-space: nowrap;
+  }
+
+  .grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+@media (max-width: 768px) {
+  .grid {
+    grid-template-columns: 1fr;
+  }
+
+  .root {
+    padding: 0 0 48px;
+    gap: 24px;
+  }
+
+  .hero {
+    row-gap: 14px;
+  }
+
+  .title {
+    font-size: 28px;
+  }
+
+  .stats {
+    flex-direction: row;
+    flex-wrap: nowrap;
+    gap: 8px;
+  }
+
+  .statCard {
+    flex: 1 1 calc(50% - 4px);
+    width: auto;
+    height: 56px;
+    flex-direction: row;
+    align-items: center;
+    justify-content: space-between;
+    padding: 0 12px;
+    gap: 8px;
+    border-radius: 10px;
+  }
+
+  .statLabel {
+    font-size: 12px;
+    text-align: left;
+  }
+
+  .statValue {
+    font-size: 20px;
+    flex-shrink: 0;
+  }
+
+  .input,
+  .select {
+    height: 44px;
+    padding: 0 16px;
+    font-size: 14px;
+  }
+
+  .card {
+    min-height: 0;
+    padding: 18px 16px;
+    gap: 14px;
+  }
+
+  .cardTop {
+    gap: 12px;
+  }
+
+  .cardEmail {
+    max-width: none;
+    font-size: 14px;
+  }
+
+  .cardTitle {
+    margin-top: 8px;
+    font-size: 20px;
+  }
+
+  .roleClient,
+  .roleSpecialist,
+  .statusActive,
+  .statusBlocked,
+  .statusDeletionPending {
+    min-width: 0;
+    padding: 0 12px;
+    font-size: 13px;
+  }
+
+  .metaGrid {
+    row-gap: 10px;
+    column-gap: 0;
+  }
+
+  .metaItem {
+    flex-wrap: wrap;
+    gap: 4px;
+  }
+
+  .metaLabel,
+  .metaValue {
+    font-size: 14px;
+  }
+
+  .secondaryButton,
+  .dangerButton,
+  .editButton,
+  .primaryButton,
+  .quickButton {
+    min-height: 40px;
+    font-size: 15px;
+  }
+
+  .overlay {
+    padding: 0;
+    align-items: flex-end;
+  }
+
+  .modal {
+    max-height: min(92vh, 92dvh);
+    padding: 20px 16px;
+    padding-bottom: max(20px, env(safe-area-inset-bottom, 0px));
+    border-radius: 20px 20px 0 0;
+    gap: 16px;
+    -webkit-overflow-scrolling: touch;
+  }
+
+  .modalHeader {
+    flex-direction: row;
+    align-items: flex-start;
+    gap: 12px;
+  }
+
+  .modalHeader > div:first-child {
+    flex: 1;
+    min-width: 0;
+  }
+
+  .modalTitle {
+    font-size: 22px;
+    word-break: break-word;
+  }
+
+  .modalSubtitle,
+  .modalHint,
+  .fieldHelp {
+    font-size: 14px;
+    overflow-wrap: anywhere;
+  }
+
+  .modalClose {
+    width: auto;
+    min-width: 0;
+    flex-shrink: 0;
+    padding: 8px 14px;
+    font-size: 14px;
+    align-self: flex-start;
+  }
+
+  .modal .field .fieldLabel {
+    display: block;
+    font-family: 'Raleway', sans-serif;
+    font-weight: 700;
+    font-size: 14px;
+    color: #6f685d;
+  }
+
+  .modalActions {
+    position: sticky;
+    bottom: 0;
+    z-index: 1;
+    flex-direction: column-reverse;
+    align-items: stretch;
+    gap: 10px;
+    margin: 4px -16px 0;
+    padding: 14px 16px 4px;
+    background: linear-gradient(to top, #ffffff 85%, rgba(255, 255, 255, 0));
+    border-top: 1px solid #f0ebe3;
+  }
+
+  .modalActions .secondaryButton,
+  .modalActions .primaryButton,
+  .modalActions .dangerButton {
+    width: 100%;
+    min-width: 0;
+  }
+
+  .quickActions {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 8px;
+  }
+
+  .quickButton {
+    width: 100%;
+    min-width: 0;
+    padding-inline: 8px;
+    font-size: 14px;
+    white-space: normal;
+    text-align: center;
+  }
+
+  .checkboxRow {
+    min-height: auto;
+    align-items: flex-start;
+    font-size: 14px;
+    line-height: 1.4;
+  }
+
+  .pagination {
+    font-size: 14px;
+  }
+
+  .pagination button {
+    font-size: 28px;
+  }
+
+  .errorBanner,
+  .successBanner {
+    padding: 12px 14px;
+    font-size: 13px;
+  }
+}
+
+@media (max-width: 480px) {
+  .title {
+    font-size: 24px;
+  }
+
+  .stats {
+    gap: 6px;
+  }
+
+  .statCard {
+    height: 50px;
+    padding: 0 10px;
+    border-radius: 8px;
+  }
+
+  .statLabel {
+    font-size: 11px;
+  }
+
+  .statValue {
+    font-size: 18px;
+  }
+
+  .badges {
+    width: 100%;
+    gap: 8px;
+  }
+
+  .roleClient,
+  .roleSpecialist,
+  .statusActive,
+  .statusBlocked,
+  .statusDeletionPending {
+    flex: 1 1 calc(50% - 4px);
+    justify-content: center;
+  }
+
+  .quickActions {
+    grid-template-columns: 1fr;
+  }
+
+  .quickButton {
+    width: 100%;
+    min-height: 40px;
+  }
+
+  .modal {
+    gap: 14px;
+    padding: 18px 14px;
+    padding-bottom: max(18px, env(safe-area-inset-bottom, 0px));
+  }
+
+  .modalTitle {
+    font-size: 20px;
+  }
+
+  .modalActions {
+    margin-inline: -14px;
+    padding-inline: 14px;
   }
 }

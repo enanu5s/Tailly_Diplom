@@ -57,6 +57,21 @@
   line-height: 1.5;
 }
 
+@media (max-width: 768px) {
+  .card {
+    padding: 16px;
+    gap: 14px;
+  }
+
+  .title {
+    font-size: 20px;
+  }
+
+  .total {
+    font-size: 20px;
+  }
+}
+
 .checkoutButton {
   display: inline-flex;
   align-items: center;

@@ -1,7 +1,7 @@
 // src/features/orders/ui/OrdersServicesSection.tsx
 
 import { observer } from 'mobx-react-lite';
-import { useEffect, useMemo, useRef, useState } from 'react';
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { useLocation } from 'react-router-dom';
 
 import { useAuth } from '@/features/auth/model/useAuth';
@@ -34,6 +34,9 @@ type Props = {
 
 /** Как в каталоге магазина (`limit: 12`), чтобы пагинация вела себя предсказуемо. */
 const SPECIALIST_ORDERS_PAGE_SIZE = 12;
+const ORDERS_LIST_SCROLL_BREAKPOINT = 980;
+const ORDERS_LIST_CARD_GAP = 20;
+const ORDERS_LIST_NEXT_CARD_PEEK_RATIO = 0.28;
 
 const FILTERS: Array<{ value: ServicesFilter; label: string }> = [
   { value: 'all', label: 'Все' },
@@ -268,7 +271,43 @@ export const OrdersServicesSection = observer(
     const [ordersListPage, setOrdersListPage] = useState(1);
 
     const orderRefs = useRef<Record<string, HTMLElement | null>>({});
+    const listScrollRef = useRef<HTMLDivElement | null>(null);
     const serviceOrdersLength = ordersStore.serviceOrders.length;
+
+    const updateOrdersListScrollHeight = useCallback(() => {
+      const listScrollEl = listScrollRef.current;
+
+      if (!listScrollEl || isSpecialistOrdersPresentation) {
+        return;
+      }
+
+      const isCompactList = window.matchMedia(
+        `(max-width: ${ORDERS_LIST_SCROLL_BREAKPOINT}px)`,
+      ).matches;
+
+      if (!isCompactList) {
+        listScrollEl.style.removeProperty('--orders-list-max-height');
+        return;
+      }
+
+      const firstCard = listScrollEl.querySelector('article');
+
+      if (!firstCard) {
+        listScrollEl.style.removeProperty('--orders-list-max-height');
+        return;
+      }
+
+      const cardHeight = firstCard.getBoundingClientRect().height;
+      const maxHeight =
+        cardHeight +
+        ORDERS_LIST_CARD_GAP +
+        cardHeight * ORDERS_LIST_NEXT_CARD_PEEK_RATIO;
+
+      listScrollEl.style.setProperty(
+        '--orders-list-max-height',
+        `${Math.round(maxHeight)}px`,
+      );
+    }, [isSpecialistOrdersPresentation]);
 
     useEffect(() => {
       void ordersStore.loadServices();
@@ -389,6 +428,45 @@ export const OrdersServicesSection = observer(
       return serviceOrders.slice(start, start + SPECIALIST_ORDERS_PAGE_SIZE);
     }, [isSpecialistOrdersPresentation, serviceOrders, ordersPageSafe]);
 
+    useEffect(() => {
+      updateOrdersListScrollHeight();
+
+      const listScrollEl = listScrollRef.current;
+
+      if (!listScrollEl || isSpecialistOrdersPresentation) {
+        return;
+      }
+
+      const mediaQuery = window.matchMedia(
+        `(max-width: ${ORDERS_LIST_SCROLL_BREAKPOINT}px)`,
+      );
+      const handleLayoutChange = () => {
+        updateOrdersListScrollHeight();
+      };
+
+      mediaQuery.addEventListener('change', handleLayoutChange);
+      window.addEventListener('resize', handleLayoutChange);
+
+      let resizeObserver: ResizeObserver | undefined;
+
+      if (typeof ResizeObserver !== 'undefined') {
+        resizeObserver = new ResizeObserver(handleLayoutChange);
+        resizeObserver.observe(listScrollEl);
+      }
+
+      return () => {
+        mediaQuery.removeEventListener('change', handleLayoutChange);
+        window.removeEventListener('resize', handleLayoutChange);
+        resizeObserver?.disconnect();
+      };
+    }, [
+      isSpecialistOrdersPresentation,
+      ordersStore.servicesLoading,
+      ordersStore.servicesFilter,
+      updateOrdersListScrollHeight,
+      visibleServiceOrders.length,
+    ]);
+
     const handleSetFilter = (filter: ServicesFilter): void => {
       ordersStore.setServicesFilter(filter);
     };
@@ -482,6 +560,7 @@ export const OrdersServicesSection = observer(
         ) : null}
 
         <div
+          ref={listScrollRef}
           className={
             isSpecialistOrdersPresentation ? styles.listPlain : styles.listScroll
           }

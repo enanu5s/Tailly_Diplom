@@ -373,26 +373,81 @@
 
 @media (max-width: 768px) {
   .root {
-    padding: 12px 16px 32px;
+    padding: 4px 0 32px;
+  }
+
+  .backButton {
+    min-width: 0;
+    min-height: 40px;
+    padding: 8px 18px;
+    font-size: 15px;
   }
 
   .title {
-    margin: 28px 0;
-    font-size: 32px;
+    width: 100%;
+    margin: 20px 0 24px;
+    font-size: 28px;
+    text-align: center;
+  }
+
+  .profileLayout {
+    gap: 20px;
+  }
+
+  .profileColumn {
+    gap: 20px;
+    width: 100%;
   }
 
   .profileCard,
   .editCard,
   .stateCard {
+    width: 100%;
+    max-width: none;
     min-height: auto;
-    padding: 24px;
+    padding: 20px;
   }
 
   .cardTop,
-  .securityActions,
+  .editCardTop {
+    display: grid;
+    grid-template-columns: 1fr;
+    align-items: start;
+    gap: 8px;
+  }
+
+  .securityActions {
+    width: 100%;
+    max-width: none;
+    margin: 0;
+    grid-template-columns: 1fr;
+    display: grid;
+    gap: 12px;
+  }
+
   .formGrid {
     grid-template-columns: 1fr;
     display: grid;
+    gap: 12px;
+  }
+
+  .name {
+    width: 100%;
+    margin: 20px 0 16px;
+    font-size: 22px;
+  }
+
+  .meta {
+    margin-bottom: 20px;
+  }
+
+  .department,
+  .email,
+  .meta,
+  .fieldLabel,
+  .editLabel {
+    font-size: 15px;
+    line-height: 1.35;
   }
 
   .email {
@@ -400,8 +455,86 @@
   }
 
   .primaryButton,
-  .secondaryButton {
+  .secondaryButton,
+  .saveButton,
+  .cancelEditButton {
     width: 100%;
+    min-width: 0;
   }
 
+  .editNameGrid {
+    grid-template-columns: 1fr;
+    gap: 12px;
+    margin-bottom: 16px;
+  }
+
+  .nameInput {
+    font-size: 20px;
+  }
+
+  .editRow {
+    grid-template-columns: 1fr;
+    gap: 8px;
+    margin-top: 12px;
+  }
+
+  .editActions {
+    flex-direction: column;
+    gap: 12px;
+    margin-top: 24px;
+  }
+
+  .loginSecurityStack {
+    width: 100%;
+    max-width: none;
+    margin-top: 20px;
+  }
+
+  .errorBanner,
+  .warningBanner,
+  .infoBanner,
+  .mockHintBanner {
+    font-size: 14px;
+    padding: 12px 14px;
+  }
+}
+
+@media (max-width: 480px) {
+  .title {
+    margin: 16px 0 20px;
+    font-size: 24px;
+  }
+
+  .profileCard,
+  .editCard,
+  .stateCard {
+    padding: 16px;
+    border-radius: 16px;
+  }
+
+  .name {
+    font-size: 20px;
+  }
+
+  .nameInput {
+    height: 44px;
+    font-size: 18px;
+  }
+
+  .input,
+  .smallInput {
+    min-height: 44px;
+    height: 44px;
+    padding: 0 14px;
+    font-size: 15px;
+  }
+
+  .primaryButton,
+  .secondaryButton,
+  .saveButton,
+  .cancelEditButton {
+    min-height: 44px;
+    padding: 10px 20px;
+    font-size: 15px;
+  }
 }

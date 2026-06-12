@@ -6,6 +6,10 @@
   font-display: swap;
 }
 
+html {
+  overflow-x: clip;
+}
+
 html,
 body,
 #root {
@@ -14,8 +18,23 @@ body,
   width: 100%;
 }
 
+body {
+  overflow-x: clip;
+}
+
+#main-content {
+  min-width: 0;
+  overflow-x: hidden;
+  overflow-y: visible;
+}
+
 *,
 *::before,
 *::after {
   box-sizing: border-box;
+}
+
+img,
+video {
+  max-width: 100%;
 }

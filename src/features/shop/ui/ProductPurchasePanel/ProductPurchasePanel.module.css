@@ -245,20 +245,80 @@
   text-align: center;
 }
 
-@media (max-width: 640px) {
+@media (max-width: 1024px) {
   .panel {
-    padding: 22px;
+    min-height: 0;
+    padding: 24px;
   }
 
   .title {
-    font-size: 28px;
+    font-size: 30px;
+  }
+
+  .priceBlock {
+    padding-top: 32px;
+  }
+}
+
+@media (max-width: 768px) {
+  .panel {
+    padding: 20px 16px;
+    border-radius: 12px;
+  }
+
+  .header {
+    flex-wrap: wrap;
+    gap: 10px;
+  }
+
+  .title {
+    margin-top: 16px;
+    font-size: 26px;
+  }
+
+  .characteristicsTitle {
+    font-size: 20px;
   }
 
   .characteristicsGrid {
     grid-template-columns: 1fr;
+    row-gap: 10px;
+  }
+
+  .price {
+    font-size: 28px;
+  }
+
+  .priceBlock {
+    padding-top: 24px;
   }
 
   .actions {
     grid-template-columns: 1fr;
+    gap: 12px;
+    margin-top: 20px;
+  }
+
+  .favoriteButton,
+  .cartButton {
+    width: 100%;
+  }
+}
+
+@media (max-width: 480px) {
+  .panel {
+    padding: 18px 14px;
+  }
+
+  .title {
+    font-size: 22px;
+  }
+
+  .shortDescription {
+    font-size: 14px;
+  }
+
+  .price {
+    font-size: 24px;
   }
 }

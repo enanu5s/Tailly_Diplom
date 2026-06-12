@@ -119,6 +119,7 @@
 
 .a {
   overflow: hidden;
+  min-height: 0;
   padding: 0 25px;
   color: #665952;
   font-family: 'Rubik', system-ui, sans-serif;
@@ -126,7 +127,7 @@
   font-weight: 500;
   line-height: 1.2;
   transition: padding 0.5s ease, opacity 0.45s ease;
-  opacity: 0
+  opacity: 0;
 }
 
 .aOpen {
@@ -198,7 +199,11 @@
   }
 
   .qRow {
-    padding: 18px 18px;
+    padding: 18px;
+  }
+
+  .itemActive .qRow {
+    padding-bottom: 10px;
   }
 
   .q {
@@ -206,8 +211,12 @@
   }
 
   .a {
-    padding: 0 18px 18px;
+    padding: 0 18px;
     font-size: 0.88rem;
+  }
+
+  .aOpen {
+    padding: 0 18px 18px;
   }
 
   .artImage {

@@ -17,10 +17,17 @@
 @media (max-width: 768px) {
   .page {
     min-height: calc(100vh - 78px);
-    padding: 8px 0 24px;
+    padding: 8px 0 20px;
   }
 
   .container {
     padding: 0 16px;
+    min-width: 0;
+  }
+}
+
+@media (max-width: 480px) {
+  .container {
+    padding: 0 12px;
   }
 }

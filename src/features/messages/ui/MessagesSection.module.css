@@ -1312,3 +1312,144 @@
     width: 100%;
   }
 }
+
+@media (max-width: 760px) {
+  .rootMobile {
+    display: flex;
+    flex: 1;
+    flex-direction: column;
+    gap: 0;
+    height: auto;
+    min-height: 0;
+  }
+
+  .rootMobileList {
+    min-height: calc(100dvh - var(--header-height, 100px) - 88px);
+  }
+
+  .rootMobileList .sidebar {
+    display: flex;
+    flex: 1;
+    flex-direction: column;
+    max-height: none;
+    min-height: 0;
+  }
+
+  .rootMobileList .content {
+    display: none;
+  }
+
+  .rootMobileList .threadList {
+    flex: 1;
+    min-height: 0;
+  }
+
+  .rootMobileChatOpen {
+    flex: 1;
+    min-height: calc(100dvh - var(--header-height, 100px) - 32px);
+  }
+
+  .rootMobileChatOpen .sidebar {
+    display: none;
+  }
+
+  .rootMobileChatOpen .content {
+    display: grid;
+    flex: 1;
+    min-height: 0;
+    grid-template-rows: auto minmax(0, 1fr) auto;
+    border-radius: 16px;
+  }
+
+  .rootMobileChatOpen .messagesViewport {
+    min-height: 0;
+  }
+
+  .rootMobileChatOpen .messagesArea {
+    min-height: 0;
+    height: 100%;
+  }
+
+  .chatHeader {
+    display: flex;
+    align-items: flex-start;
+    gap: 12px;
+    padding: 16px;
+  }
+
+  .chatHeaderMain {
+    min-width: 0;
+    flex: 1;
+  }
+
+  .mobileBackButton {
+    box-sizing: border-box;
+    display: inline-flex;
+    flex-shrink: 0;
+    align-items: center;
+    justify-content: center;
+    width: 40px;
+    height: 40px;
+    margin-top: 2px;
+    border: 1px solid #c7c2ba;
+    border-radius: 10px;
+    background: #ffffff;
+    color: #211500;
+    cursor: pointer;
+  }
+
+  .mobileBackIcon {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 18px;
+    line-height: 1;
+  }
+
+  .chatTitle {
+    font-size: 20px;
+  }
+
+  .composer {
+    padding: 16px;
+  }
+
+  .replyComposerBar:has(+ .draftAttachments) {
+    width: 100%;
+  }
+
+  .replyComposerBar + .draftAttachments {
+    width: 100%;
+  }
+
+  .composerFooter {
+    grid-template-columns: 28px minmax(0, 1fr);
+    gap: 12px;
+  }
+
+  .sendButton {
+    grid-column: 1 / -1;
+    grid-row: 2;
+    width: 100%;
+  }
+
+  .scrollToBottomButton {
+    right: 12px;
+    bottom: 12px;
+    width: 40px;
+    height: 40px;
+    font-size: 20px;
+  }
+
+  .lightboxOverlay {
+    padding: 12px;
+  }
+
+  .lightboxNavButtonLeft {
+    left: 8px;
+  }
+
+  .lightboxNavButtonRight {
+    right: 8px;
+  }
+}

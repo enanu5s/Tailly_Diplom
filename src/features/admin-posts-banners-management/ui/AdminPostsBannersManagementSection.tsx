@@ -211,116 +211,120 @@ const PostEditorModal = observer(
     return (
       <div className={styles.modalOverlay}>
         <div className={styles.postModal} role="dialog" aria-modal="true">
-          <button
-            type="button"
-            className={styles.modalCloseButton}
-            aria-label="Закрыть"
-            onClick={() => store.closePostEditor()}
-            disabled={store.isSavingPost}
-          />
+          <div className={styles.modalHeader}>
+            <h2 className={styles.modalTitle}>
+              {store.postForm.id ? 'Редактирование поста' : 'Создание нового поста'}
+            </h2>
 
-          <h2 className={styles.modalTitle}>
-            {store.postForm.id ? 'Редактирование поста' : 'Создание нового поста'}
-          </h2>
-
-          <label className={styles.modalField}>
-            <span>Заголовок</span>
-            <input
-              value={store.postForm.title}
-              onChange={(event) => store.setPostFormField('title', event.target.value)}
-              placeholder="Введите заголовок для поста"
+            <button
+              type="button"
+              className={styles.modalCloseButton}
+              aria-label="Закрыть"
+              onClick={() => store.closePostEditor()}
+              disabled={store.isSavingPost}
             />
-          </label>
-
-          <label className={styles.modalField}>
-            <span>Текст</span>
-            <textarea
-              value={store.postForm.content}
-              onChange={(event) => store.setPostFormField('content', event.target.value)}
-              placeholder="Введите текст поста"
-            />
-          </label>
-
-          <div className={styles.modalField}>
-            <span>Тема(ы) поста</span>
-            <div className={styles.topicGrid}>
-              {store.postTagOptions.map((tag) => {
-                const isActive = selectedTags.includes(tag);
-
-                return (
-                  <button
-                    key={tag}
-                    type="button"
-                    className={isActive ? styles.topicButtonActive : styles.topicButton}
-                    onClick={() => toggleTag(tag)}
-                  >
-                    #{tag}
-                  </button>
-                );
-              })}
-            </div>
           </div>
 
-          <div className={styles.modalField}>
-            <span>Фотографии</span>
-
-            <label className={styles.coverUploader}>
+          <div className={styles.modalBody}>
+            <label className={styles.modalField}>
+              <span>Заголовок</span>
               <input
-                className={styles.fileInput}
-                type="file"
-                accept="image/*"
-                onChange={onPostFilesChange}
+                value={store.postForm.title}
+                onChange={(event) => store.setPostFormField('title', event.target.value)}
+                placeholder="Введите заголовок для поста"
               />
-
-              {store.postForm.coverImageUrl ? (
-                <img
-                  className={styles.coverPreview}
-                  src={store.postForm.coverImageUrl}
-                  alt="Обложка поста"
-                />
-              ) : (
-                <span className={styles.coverUploaderContent}>
-                  <strong>Загрузите обложку поста</strong>
-                  <small>Минимальный размер фотографии 1520х460</small>
-                  <span>Выбрать файл</span>
-                </span>
-              )}
-            </label>
-          </div>
-
-          <div className={styles.photoGrid}>
-            <label className={styles.photoUploadCard}>
-              <input
-                className={styles.fileInput}
-                type="file"
-                accept="image/*"
-                multiple
-                onChange={onPostFilesChange}
-              />
-              <strong>Загрузите фото</strong>
-              <small>Максимум 5 фото</small>
-              <span aria-hidden="true">+</span>
             </label>
 
-            {store.postForm.imageUrls.slice(0, 4).map((imageUrl) => (
-              <div key={imageUrl} className={styles.photoCard}>
-                <img src={imageUrl} alt="Фото поста" />
-                <button
-                  type="button"
-                  className={styles.photoDeleteButton}
-                  aria-label="Удалить фото"
-                  onClick={() => store.removePostImage(imageUrl)}
-                >
-                  <img src="/images/admin-posts/delete-28.svg" alt="" aria-hidden="true" />
-                </button>
+            <label className={styles.modalField}>
+              <span>Текст</span>
+              <textarea
+                value={store.postForm.content}
+                onChange={(event) => store.setPostFormField('content', event.target.value)}
+                placeholder="Введите текст поста"
+              />
+            </label>
+
+            <div className={styles.modalField}>
+              <span>Тема(ы) поста</span>
+              <div className={styles.topicGrid}>
+                {store.postTagOptions.map((tag) => {
+                  const isActive = selectedTags.includes(tag);
+
+                  return (
+                    <button
+                      key={tag}
+                      type="button"
+                      className={isActive ? styles.topicButtonActive : styles.topicButton}
+                      onClick={() => toggleTag(tag)}
+                    >
+                      #{tag}
+                    </button>
+                  );
+                })}
               </div>
-            ))}
+            </div>
 
-            {Array.from({
-              length: Math.max(0, 4 - store.postForm.imageUrls.slice(0, 4).length),
-            }).map((_, index) => (
-              <div key={index} className={styles.photoPlaceholder} />
-            ))}
+            <div className={styles.modalField}>
+              <span>Фотографии</span>
+
+              <label className={styles.coverUploader}>
+                <input
+                  className={styles.fileInput}
+                  type="file"
+                  accept="image/*"
+                  onChange={onPostFilesChange}
+                />
+
+                {store.postForm.coverImageUrl ? (
+                  <img
+                    className={styles.coverPreview}
+                    src={store.postForm.coverImageUrl}
+                    alt="Обложка поста"
+                  />
+                ) : (
+                  <span className={styles.coverUploaderContent}>
+                    <strong>Загрузите обложку поста</strong>
+                    <small>Минимальный размер фотографии 1520х460</small>
+                    <span>Выбрать файл</span>
+                  </span>
+                )}
+              </label>
+            </div>
+
+            <div className={styles.photoGrid}>
+              <label className={styles.photoUploadCard}>
+                <input
+                  className={styles.fileInput}
+                  type="file"
+                  accept="image/*"
+                  multiple
+                  onChange={onPostFilesChange}
+                />
+                <strong>Загрузите фото</strong>
+                <small>Максимум 5 фото</small>
+                <span aria-hidden="true">+</span>
+              </label>
+
+              {store.postForm.imageUrls.slice(0, 4).map((imageUrl) => (
+                <div key={imageUrl} className={styles.photoCard}>
+                  <img src={imageUrl} alt="Фото поста" />
+                  <button
+                    type="button"
+                    className={styles.photoDeleteButton}
+                    aria-label="Удалить фото"
+                    onClick={() => store.removePostImage(imageUrl)}
+                  >
+                    <img src="/images/admin-posts/delete-28.svg" alt="" aria-hidden="true" />
+                  </button>
+                </div>
+              ))}
+
+              {Array.from({
+                length: Math.max(0, 4 - store.postForm.imageUrls.slice(0, 4).length),
+              }).map((_, index) => (
+                <div key={index} className={styles.photoPlaceholder} />
+              ))}
+            </div>
           </div>
 
           <div className={styles.modalActions}>
@@ -361,168 +365,174 @@ const BannerEditorModal = observer((): ReactElement => {
   return (
     <div className={styles.modalOverlay}>
       <div className={styles.bannerModal} role="dialog" aria-modal="true">
-        <button
-          type="button"
-          className={styles.modalCloseButton}
-          aria-label="Закрыть"
-          onClick={() => store.closeBannerEditor()}
-          disabled={store.isSavingBanner}
-        />
+        <div className={styles.modalHeader}>
+          <h2 className={styles.modalTitle}>
+            {store.bannerForm.id ? 'Редактирование баннера' : 'Создание нового баннера'}
+          </h2>
 
-        <h2 className={styles.modalTitle}>
-          {store.bannerForm.id ? 'Редактирование баннера' : 'Создание нового баннера'}
-        </h2>
-
-        <label className={styles.modalField}>
-          <span>Заголовок</span>
-          <input
-            value={store.bannerForm.title}
-            onChange={(event) => store.setBannerFormField('title', event.target.value)}
-            placeholder="Введите заголовок баннера"
+          <button
+            type="button"
+            className={styles.modalCloseButton}
+            aria-label="Закрыть"
+            onClick={() => store.closeBannerEditor()}
+            disabled={store.isSavingBanner}
           />
-        </label>
+        </div>
 
-        <label className={styles.modalField}>
-          <span>Описание</span>
-          <textarea
-            className={styles.bannerDescriptionInput}
-            value={store.bannerForm.description}
-            onChange={(event) =>
-              store.setBannerFormField('description', event.target.value)
-            }
-            placeholder="Введите описание"
-          />
-        </label>
-
-        <div className={styles.modalField}>
-          <span>Баннер</span>
-
-          <label className={styles.bannerUploader}>
+        <div className={styles.modalBody}>
+          <label className={styles.modalField}>
+            <span>Заголовок</span>
             <input
-              className={styles.fileInput}
-              type="file"
-              accept="image/*"
-              onChange={() => undefined}
+              value={store.bannerForm.title}
+              onChange={(event) => store.setBannerFormField('title', event.target.value)}
+              placeholder="Введите заголовок баннера"
             />
+          </label>
 
-            {store.bannerForm.imageUrl ? (
-              <>
-                <img
-                  className={styles.bannerPreview}
-                  src={store.bannerForm.imageUrl}
-                  alt="Баннер"
+          <label className={styles.modalField}>
+            <span>Описание</span>
+            <textarea
+              className={styles.bannerDescriptionInput}
+              value={store.bannerForm.description}
+              onChange={(event) =>
+                store.setBannerFormField('description', event.target.value)
+              }
+              placeholder="Введите описание"
+            />
+          </label>
+
+          <div className={styles.modalField}>
+            <span>Баннер</span>
+
+            <label className={styles.bannerUploader}>
+              <input
+                className={styles.fileInput}
+                type="file"
+                accept="image/*"
+                onChange={() => undefined}
+              />
+
+              {store.bannerForm.imageUrl ? (
+                <>
+                  <img
+                    className={styles.bannerPreview}
+                    src={store.bannerForm.imageUrl}
+                    alt="Баннер"
+                  />
+                  <button
+                    type="button"
+                    className={styles.bannerDeleteButton}
+                    aria-label="Удалить изображение баннера"
+                    onClick={(event) => {
+                      event.preventDefault();
+                      store.setBannerFormField('imageUrl', '');
+                    }}
+                  >
+                    <img src="/images/admin-posts/delete-28.svg" alt="" aria-hidden="true" />
+                  </button>
+                </>
+              ) : (
+                <span className={styles.coverUploaderContent}>
+                  <strong>Загрузите фотографию для баннера</strong>
+                  <small>Минимальный размер фотографии 1520х460</small>
+                  <span>Выбрать файл</span>
+                </span>
+              )}
+            </label>
+          </div>
+
+          <div className={styles.bannerFieldsRow}>
+            <label className={`${styles.modalField} ${styles.bannerFieldWide}`}>
+              <span>Куда ведёт баннер (ссылка)</span>
+              <input
+                value={linkValue}
+                onChange={(event) => {
+                  store.setBannerFormField('linkTarget', 'shop');
+                  store.setBannerFormField('imageUrl', event.target.value);
+                }}
+                placeholder="Введите ссылку, например: /shop/cat-food-premium-salmon"
+              />
+            </label>
+
+            <div className={styles.bannerDateFields}>
+              <label className={styles.modalField}>
+                <span>Начало показа</span>
+                <input
+                  type="datetime-local"
+                  value={normalizeDateTimeInputValue(store.bannerForm.startsAt)}
+                  onChange={(event) =>
+                    store.setBannerFormField('startsAt', event.target.value)
+                  }
                 />
-                <button
-                  type="button"
-                  className={styles.bannerDeleteButton}
-                  aria-label="Удалить изображение баннера"
-                  onClick={(event) => {
-                    event.preventDefault();
-                    store.setBannerFormField('imageUrl', '');
-                  }}
-                >
-                  <img src="/images/admin-posts/delete-28.svg" alt="" aria-hidden="true" />
-                </button>
-              </>
-            ) : (
-              <span className={styles.coverUploaderContent}>
-                <strong>Загрузите фотографию для баннера</strong>
-                <small>Минимальный размер фотографии 1520х460</small>
-                <span>Выбрать файл</span>
-              </span>
-            )}
-          </label>
-        </div>
+              </label>
 
-        <div className={styles.bannerFieldsRow}>
-          <label className={styles.modalField}>
-            <span>Куда ведёт баннер (ссылка)</span>
-            <input
-              value={linkValue}
-              onChange={(event) => {
-                store.setBannerFormField('linkTarget', 'shop');
-                store.setBannerFormField('imageUrl', event.target.value);
-              }}
-              placeholder="Введите ссылку, например: /shop/cat-food-premium-salmon"
-            />
-          </label>
+              <label className={styles.modalField}>
+                <span>Конец показа</span>
+                <input
+                  type="datetime-local"
+                  value={normalizeDateTimeInputValue(store.bannerForm.endsAt)}
+                  onChange={(event) => store.setBannerFormField('endsAt', event.target.value)}
+                />
+              </label>
+            </div>
+          </div>
 
-          <label className={styles.modalField}>
-            <span>Начало показа</span>
-            <input
-              type="datetime-local"
-              value={normalizeDateTimeInputValue(store.bannerForm.startsAt)}
-              onChange={(event) =>
-                store.setBannerFormField('startsAt', event.target.value)
-              }
-            />
-          </label>
+          <div className={styles.hiddenBannerControls}>
+            <label>
+              <span>Размещение</span>
+              <select
+                value={store.bannerForm.placement}
+                onChange={(event) =>
+                  store.setBannerFormField(
+                    'placement',
+                    event.target.value as BannerPlacement,
+                  )
+                }
+              >
+                <option value="home_hero">Главная</option>
+                <option value="posts">Посты</option>
+                <option value="specialists">Специалисты</option>
+                <option value="shop">Магазин</option>
+              </select>
+            </label>
 
-          <label className={styles.modalField}>
-            <span>Конец показа</span>
-            <input
-              type="datetime-local"
-              value={normalizeDateTimeInputValue(store.bannerForm.endsAt)}
-              onChange={(event) => store.setBannerFormField('endsAt', event.target.value)}
-            />
-          </label>
-        </div>
+            <label>
+              <span>Статус</span>
+              <select
+                value={store.bannerForm.status}
+                onChange={(event) =>
+                  store.setBannerFormField(
+                    'status',
+                    event.target.value as AdminBannerStatus,
+                  )
+                }
+              >
+                <option value="draft">Черновик</option>
+                <option value="published">Активный</option>
+                <option value="archived">В архив</option>
+              </select>
+            </label>
 
-        <div className={styles.hiddenBannerControls}>
-          <label>
-            <span>Размещение</span>
-            <select
-              value={store.bannerForm.placement}
-              onChange={(event) =>
-                store.setBannerFormField(
-                  'placement',
-                  event.target.value as BannerPlacement,
-                )
-              }
-            >
-              <option value="home_hero">Главная</option>
-              <option value="posts">Посты</option>
-              <option value="specialists">Специалисты</option>
-              <option value="shop">Магазин</option>
-            </select>
-          </label>
-
-          <label>
-            <span>Статус</span>
-            <select
-              value={store.bannerForm.status}
-              onChange={(event) =>
-                store.setBannerFormField(
-                  'status',
-                  event.target.value as AdminBannerStatus,
-                )
-              }
-            >
-              <option value="draft">Черновик</option>
-              <option value="published">Активный</option>
-              <option value="archived">В архив</option>
-            </select>
-          </label>
-
-          <label>
-            <span>Куда ведёт</span>
-            <select
-              value={store.bannerForm.linkTarget}
-              onChange={(event) =>
-                store.setBannerFormField(
-                  'linkTarget',
-                  event.target.value as BannerLinkTarget | '',
-                )
-              }
-            >
-              <option value="">Выберите страницу</option>
-              <option value="home">Главная страница</option>
-              <option value="posts">Конкретный пост</option>
-              <option value="specialists">Каталог специалистов</option>
-              <option value="shop">Магазин</option>
-              <option value="profile">Профиль пользователя</option>
-            </select>
-          </label>
+            <label>
+              <span>Куда ведёт</span>
+              <select
+                value={store.bannerForm.linkTarget}
+                onChange={(event) =>
+                  store.setBannerFormField(
+                    'linkTarget',
+                    event.target.value as BannerLinkTarget | '',
+                  )
+                }
+              >
+                <option value="">Выберите страницу</option>
+                <option value="home">Главная страница</option>
+                <option value="posts">Конкретный пост</option>
+                <option value="specialists">Каталог специалистов</option>
+                <option value="shop">Магазин</option>
+                <option value="profile">Профиль пользователя</option>
+              </select>
+            </label>
+          </div>
         </div>
 
         <div className={styles.modalActions}>

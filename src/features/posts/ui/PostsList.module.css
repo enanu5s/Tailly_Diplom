@@ -9,6 +9,7 @@
   display: grid;
   grid-template-columns: minmax(0, 1fr) 288px 134px;
   gap: 20px;
+  align-items: center;
 }
 
 .search,
@@ -342,11 +343,41 @@
 
 @media (max-width: 1100px) {
   .controls {
-    grid-template-columns: 1fr;
+    grid-template-columns: minmax(0, 1fr) auto;
+    gap: 16px;
+  }
+
+  .search {
+    grid-column: 1 / -1;
+  }
+
+  .select {
+    min-width: 0;
+    width: 100%;
+  }
+
+  .searchBtn {
+    min-width: 134px;
+    white-space: nowrap;
   }
 
   .grid {
     grid-template-columns: 1fr;
+  }
+}
+
+@media (max-width: 640px) {
+  .controls {
+    grid-template-columns: 1fr;
+  }
+
+  .search {
+    grid-column: auto;
+  }
+
+  .searchBtn {
+    width: 100%;
+    min-width: 0;
   }
 }
 

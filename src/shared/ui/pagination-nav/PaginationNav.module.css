@@ -32,3 +32,39 @@
   opacity: 0.35;
   cursor: not-allowed;
 }
+
+@media (max-width: 1366px) {
+  .pagination {
+    gap: clamp(80px, 18vw, 280px);
+  }
+}
+
+@media (max-width: 1024px) {
+  .pagination {
+    gap: clamp(48px, 12vw, 160px);
+  }
+}
+
+@media (max-width: 768px) {
+  .pagination {
+    gap: clamp(24px, 8vw, 64px);
+  }
+
+  .navButton {
+    min-width: 36px;
+    min-height: 36px;
+    font-size: 20px;
+  }
+
+  .pageText {
+    font-size: 14px;
+  }
+}
+
+@media (max-width: 480px) {
+  .pagination {
+    gap: 16px;
+    justify-content: space-between;
+    width: 100%;
+  }
+}

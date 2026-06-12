@@ -3,10 +3,13 @@
 .section {
   position: relative;
   min-height: 100vh;
+  min-width: 0;
+  overflow-x: hidden;
   padding: 0 0 90px;
   background: #f8f8f8;
   color: #211500;
   font-family: 'Rubik', sans-serif;
+  box-sizing: border-box;
 }
 
 .backButton {
@@ -50,6 +53,12 @@
   color: #211500;
 }
 
+.modalTitle {
+  flex: 1;
+  min-width: 0;
+  word-break: break-word;
+}
+
 .tabActions {
   display: flex;
   gap: 20px;
@@ -90,6 +99,7 @@
   grid-template-columns: 288px minmax(280px, 1fr) minmax(280px, 1fr);
   align-items: center;
   gap: 20px;
+  min-width: 0;
 }
 
 .addButton {
@@ -121,16 +131,24 @@
   outline: none;
 }
 
+.searchField {
+  min-width: 0;
+}
+
 .searchField input {
-  width: 442px;
+  width: 100%;
+  max-width: 442px;
   height: 48px;
   padding: 0 20px;
 }
 
 .sortSelect {
-  width: 288px;
+  width: 100%;
+  max-width: 288px;
   height: 48px;
   padding: 0 20px;
+  appearance: auto;
+  cursor: pointer;
 }
 
 .searchField input::placeholder,
@@ -139,16 +157,11 @@
   color: #6f685d;
 }
 
-.sortSelect {
-  appearance: auto;
-  cursor: pointer;
-}
-
 .cardsGrid {
   width: min(1520px, calc(100% - 40px));
   margin: 0 auto;
   display: grid;
-  grid-template-columns: repeat(2, minmax(0, 750px));
+  grid-template-columns: repeat(2, minmax(0, 1fr));
   gap: 20px;
 }
 
@@ -204,7 +217,7 @@
 .cardTags span,
 .dateBadge {
   min-height: 28px;
-  width: 258px;
+  max-width: 100%;
   box-sizing: border-box;
   border-radius: 24px;
   margin-top: 20px;
@@ -269,8 +282,9 @@
 .cardMetaRow {
   margin-top: 20px;
   display: flex;
+  flex-wrap: wrap;
   align-items: center;
-  gap: 20px;
+  gap: 12px 20px;
   color: #6f685d;
   font-size: 15px;
   line-height: 18px;
@@ -287,10 +301,10 @@
 }
 
 .cardActions {
-  margin-top: 0;
+  margin-top: auto;
   padding-top: 30px;
   display: grid;
-  grid-template-columns: 258px 288px;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
   gap: 20px;
 }
 
@@ -418,6 +432,9 @@
   position: fixed;
   inset: 0;
   z-index: 1000;
+  display: flex;
+  align-items: center;
+  justify-content: center;
   overflow-y: auto;
   padding: 60px 20px;
   background: rgba(33, 21, 0, 0.32);
@@ -428,27 +445,42 @@
   position: relative;
   width: min(1212px, 100%);
   box-sizing: border-box;
-  margin: 0 auto;
+  margin: auto;
   padding: 60px;
   background: #ffffff;
   border-radius: 20px;
   box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+  display: flex;
+  flex-direction: column;
+  max-height: calc(100vh - 120px);
+  max-height: calc(100dvh - 120px);
+  overflow: hidden;
 }
 
-.postModal {
-  min-height: 1292px;
+.modalHeader {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 20px;
+  flex-shrink: 0;
 }
 
-.bannerModal {
-  min-height: 982px;
+.modalBody {
+  flex: 1;
+  min-height: 0;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  -webkit-overflow-scrolling: touch;
 }
 
 .modalCloseButton {
-  position: absolute;
-  top: 60px;
-  right: 60px;
+  position: relative;
+  top: auto;
+  right: auto;
+  flex-shrink: 0;
   width: 22px;
   height: 22px;
+  margin-top: 6px;
   border: 0;
   background: transparent;
   cursor: pointer;
@@ -484,7 +516,11 @@
   line-height: 19px;
 }
 
-.modalTitle+.modalField {
+.modalTitle + .modalField {
+  margin-top: 30px;
+}
+
+.modalBody > .modalField:first-child {
   margin-top: 30px;
 }
 
@@ -693,11 +729,34 @@
 }
 
 .bannerFieldsRow {
-  margin-top: 16px;
+  margin-top: 0;
   display: grid;
-  grid-template-columns: minmax(0, 442px) 228px 228px;
+  grid-template-columns: minmax(0, 1fr);
+  gap: 0;
+  align-items: start;
+}
+
+.bannerFieldWide {
+  grid-column: 1 / -1;
+}
+
+.bannerDateFields {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
   gap: 20px;
-  align-items: end;
+}
+
+.bannerFieldsRow .modalField {
+  margin-top: 18px;
+  min-width: 0;
+}
+
+.bannerFieldsRow .modalField input {
+  min-width: 0;
+}
+
+.bannerModal .bannerDescriptionInput {
+  min-height: 102px !important;
 }
 
 .hiddenBannerControls {
@@ -706,10 +765,13 @@
 }
 
 .modalActions {
-  margin-top: 30px;
+  flex-shrink: 0;
+  margin-top: 24px;
+  padding-top: 20px;
   display: flex;
   justify-content: flex-end;
   gap: 20px;
+  border-top: 1px solid #f0ebe3;
 }
 
 .modalActions .outlineButton {
@@ -720,54 +782,281 @@
   min-width: 228px;
 }
 
-@media (max-width: 1200px) {
+/* Tablet */
+@media (max-width: 1024px) {
+  .section {
+    padding-bottom: 72px;
+  }
+
   .backButton {
-    margin-left: 20px;
+    margin: 16px 20px 0;
   }
 
-  .cardsGrid {
-    grid-template-columns: 1fr;
-  }
-
-  .toolbar {
-    grid-template-columns: 1fr;
+  .pageHeader,
+  .toolbar,
+  .cardsGrid,
+  .infoBox,
+  .errorBox,
+  .emptyState,
+  .pagination {
+    width: min(1520px, calc(100% - 32px));
   }
 
   .pageHeader {
+    margin-top: 24px;
     align-items: flex-start;
     flex-direction: column;
     gap: 20px;
   }
 
+  .title {
+    font-size: 34px;
+  }
+
+  .tabActions {
+    width: 100%;
+    flex-wrap: wrap;
+  }
+
+  .tabPill {
+    flex: 1 1 140px;
+    min-width: 0;
+  }
+
+  .toolbar {
+    margin: 24px auto;
+    grid-template-columns: 1fr;
+    gap: 12px;
+  }
+
+  .searchField input,
+  .sortSelect {
+    max-width: none;
+  }
+
+  .cardsGrid {
+    gap: 16px;
+  }
+
+  .postCard,
+  .bannerCard {
+    min-height: 0;
+  }
+
   .cardActions {
     grid-template-columns: 1fr 1fr;
+    gap: 12px;
   }
 
   .photoGrid {
     grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 16px;
   }
 
   .bannerFieldsRow {
-    grid-template-columns: 1fr;
-  }
-}
-
-@media (max-width: 720px) {
-  .section {
-    padding-top: 0;
+    gap: 0;
   }
 
-  .title,
+  .bannerDateFields {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 16px;
+  }
+
+  .bannerModal .bannerUploader {
+    height: 220px;
+  }
+
+  .bannerModal .bannerDescriptionInput {
+    min-height: 96px !important;
+  }
+
+  .modalOverlay {
+    padding: 24px 16px;
+    align-items: center;
+  }
+
+  .postModal,
+  .bannerModal {
+    padding: 32px;
+    max-height: calc(100vh - 48px);
+    max-height: calc(100dvh - 48px);
+  }
+
   .modalTitle {
     font-size: 30px;
   }
 
-  .tabActions,
-  .cardActions,
+  .modalField textarea {
+    min-height: 160px;
+  }
+
+  .coverUploader,
+  .bannerUploader {
+    height: 260px;
+  }
+}
+
+@media (min-width: 769px) and (max-width: 1024px) {
+  .pageHeader {
+    flex-direction: row;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 16px 24px;
+  }
+
+  .tabActions {
+    width: auto;
+    flex-wrap: nowrap;
+  }
+
+  .tabPill {
+    flex: 0 1 auto;
+  }
+
+  .toolbar {
+    grid-template-columns: auto minmax(0, 1fr) minmax(180px, 240px);
+    align-items: center;
+  }
+
+  .addButton {
+    white-space: nowrap;
+  }
+
+  .cardsGrid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .postModal,
+  .bannerModal {
+    width: min(760px, 100%);
+  }
+
+  .bannerDateFields {
+    gap: 12px;
+  }
+
   .modalActions {
+    flex-direction: row;
+  }
+}
+
+/* Mobile */
+@media (max-width: 768px) {
+  .section {
+    padding-bottom: 64px;
+  }
+
+  .backButton {
+    width: calc(100% - 32px);
+    max-width: none;
+    margin: 12px 16px 0;
+    height: 42px;
+    font-size: 15px;
+  }
+
+  .pageHeader,
+  .toolbar,
+  .cardsGrid,
+  .infoBox,
+  .errorBox,
+  .emptyState,
+  .pagination {
+    width: calc(100% - 32px);
+  }
+
+  .pageHeader {
+    margin-top: 20px;
+    gap: 16px;
+  }
+
+  .title,
+  .modalTitle {
+    font-size: 28px;
+  }
+
+  .tabActions {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 10px;
+  }
+
+  .tabPill {
     width: 100%;
-    flex-direction: column;
-    display: flex;
+    min-width: 0;
+  }
+
+  .toolbar {
+    margin: 20px auto;
+    gap: 10px;
+  }
+
+  .addButton::before {
+    margin-right: 10px;
+  }
+
+  .searchField input,
+  .sortSelect {
+    height: 44px;
+    padding: 0 16px;
+    font-size: 14px;
+  }
+
+  .cardsGrid {
+    grid-template-columns: 1fr;
+    gap: 14px;
+  }
+
+  .postCard,
+  .bannerCard {
+    padding: 18px 16px;
+    border-radius: 16px;
+  }
+
+  .postImage,
+  .postImageFallback,
+  .bannerImage,
+  .bannerImageFallback {
+    height: 180px;
+  }
+
+  .cardTags {
+    gap: 8px;
+  }
+
+  .cardTags span {
+    font-size: 13px;
+    padding: 4px 10px;
+  }
+
+  .postTitle,
+  .bannerTitle {
+    font-size: 15px;
+  }
+
+  .bannerTitle {
+    font-size: 20px;
+  }
+
+  .postText,
+  .bannerText,
+  .bannerLink,
+  .cardMetaRow {
+    font-size: 14px;
+  }
+
+  .bannerText {
+    max-width: 100%;
+  }
+
+  .dateBadge {
+    margin-top: 0;
+    font-size: 13px;
+  }
+
+  .cardActions {
+    grid-template-columns: 1fr;
+    padding-top: 20px;
+    gap: 10px;
   }
 
   .tabPill,
@@ -776,25 +1065,285 @@
   .outlineButton,
   .dangerButton {
     width: 100%;
-  }
-
-  .postCard,
-  .bannerCard,
-  .postModal,
-  .bannerModal {
-    padding: 20px;
-  }
-
-  .modalCloseButton {
-    top: 24px;
-    right: 24px;
-  }
-
-  .photoGrid {
-    grid-template-columns: 1fr;
+    min-height: 42px;
+    font-size: 15px;
   }
 
   .pagination {
+    margin-top: 24px;
     grid-template-columns: 44px 1fr 44px;
+    font-size: 14px;
+  }
+
+  .pagination button {
+    font-size: 28px;
+  }
+
+  .infoBox,
+  .errorBox,
+  .emptyState {
+    padding: 14px 16px;
+    font-size: 14px;
+    border-radius: 16px;
+  }
+
+  .successBox {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 10px;
+    bottom: max(16px, env(safe-area-inset-bottom, 0px));
+    padding: 14px 16px;
+  }
+
+  .successUndoButton {
+    width: 100%;
+    min-height: 40px;
+  }
+
+  .modalOverlay {
+    padding: 0;
+    align-items: flex-end;
+    overflow: hidden;
+  }
+
+  .postModal,
+  .bannerModal {
+    width: 100%;
+    max-height: min(92vh, 92dvh);
+    margin: 0;
+    padding: 16px 16px 0;
+    border-radius: 20px 20px 0 0;
+    overflow: hidden;
+  }
+
+  .bannerModal {
+    max-height: min(94vh, 94dvh);
+  }
+
+  .postModal::before,
+  .bannerModal::before {
+    content: '';
+    position: absolute;
+    top: 8px;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 40px;
+    height: 4px;
+    border-radius: 999px;
+    background: #c7c2ba;
+    pointer-events: none;
+  }
+
+  .modalHeader {
+    gap: 12px;
+    padding-top: 8px;
+    padding-bottom: 4px;
+  }
+
+  .modalCloseButton {
+    margin-top: 4px;
+  }
+
+  .modalBody {
+    padding-bottom: 8px;
+  }
+
+  .modalField {
+    margin-top: 18px;
+    font-size: 14px;
+  }
+
+  .modalBody > .modalField:first-child {
+    margin-top: 16px;
+  }
+
+  .modalField input,
+  .modalField textarea,
+  .modalField select {
+    font-size: 14px;
+    padding: 12px 16px;
+  }
+
+  .modalField input,
+  .modalField select {
+    height: 44px;
+  }
+
+  .modalField textarea {
+    min-height: 120px;
+  }
+
+  .bannerDescriptionInput {
+    min-height: 72px !important;
+  }
+
+  .bannerModal .bannerDescriptionInput {
+    min-height: 72px !important;
+  }
+
+  .bannerDateFields {
+    grid-template-columns: 1fr;
+    gap: 0;
+  }
+
+  .bannerFieldsRow .modalField {
+    margin-top: 14px;
+  }
+
+  .bannerModal .bannerUploader {
+    height: 140px;
+  }
+
+  .bannerModal .coverUploaderContent {
+    padding: 0 12px;
+  }
+
+  .bannerModal .coverUploaderContent strong {
+    font-size: 13px;
+    line-height: 1.3;
+  }
+
+  .bannerModal .coverUploaderContent small {
+    font-size: 12px;
+    line-height: 1.35;
+  }
+
+  .bannerModal .coverUploaderContent span {
+    margin-top: 10px;
+    min-height: 38px;
+    font-size: 14px;
+  }
+
+  .topicGrid {
+    gap: 8px;
+    max-width: none;
+  }
+
+  .topicButton,
+  .topicButtonActive {
+    min-height: 34px;
+    padding: 6px 14px;
+    font-size: 13px;
+  }
+
+  .coverUploader,
+  .bannerUploader {
+    height: 200px;
+  }
+
+  .coverUploaderContent strong {
+    font-size: 14px;
+  }
+
+  .coverUploaderContent small {
+    font-size: 13px;
+  }
+
+  .photoGrid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 10px;
+    margin-top: 14px;
+  }
+
+  .photoUploadCard,
+  .photoCard,
+  .photoPlaceholder {
+    height: 96px;
+  }
+
+  .photoUploadCard {
+    font-size: 14px;
+  }
+
+  .photoUploadCard small {
+    font-size: 12px;
+  }
+
+  .modalActions {
+    flex-direction: column-reverse;
+    align-items: stretch;
+    gap: 10px;
+    margin: 0 -16px;
+    padding: 14px 16px max(16px, env(safe-area-inset-bottom, 0px));
+    background: #ffffff;
+    border-top: 1px solid #f0ebe3;
+    box-shadow: 0 -8px 24px rgba(33, 21, 0, 0.06);
+  }
+
+  .modalActions .outlineButton,
+  .modalActions .darkButton {
+    width: 100%;
+    min-width: 0;
+    min-height: 44px;
+  }
+
+  .bannerDeleteButton {
+    top: 12px;
+    right: 12px;
+  }
+}
+
+@media (max-width: 480px) {
+  .backButton {
+    width: calc(100% - 24px);
+    margin-inline: 12px;
+  }
+
+  .pageHeader,
+  .toolbar,
+  .cardsGrid,
+  .infoBox,
+  .errorBox,
+  .emptyState,
+  .pagination {
+    width: calc(100% - 24px);
+  }
+
+  .title,
+  .modalTitle {
+    font-size: 24px;
+  }
+
+  .modalTitle {
+    font-size: 22px;
+  }
+
+  .postImage,
+  .postImageFallback,
+  .bannerImage,
+  .bannerImageFallback {
+    height: 160px;
+  }
+
+  .coverUploader,
+  .bannerUploader {
+    height: 160px;
+  }
+
+  .bannerModal .bannerUploader {
+    height: 120px;
+  }
+
+  .bannerModal .modalTitle {
+    font-size: 20px;
+  }
+
+  .coverUploaderContent span {
+    min-width: 0;
+    width: 100%;
+    max-width: 220px;
+    min-height: 40px;
+    font-size: 14px;
+  }
+
+  .photoGrid {
+    grid-template-columns: 1fr 1fr;
+    gap: 8px;
+  }
+
+  .photoUploadCard,
+  .photoCard,
+  .photoPlaceholder {
+    height: 84px;
   }
 }

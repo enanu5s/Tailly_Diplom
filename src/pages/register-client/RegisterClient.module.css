@@ -480,6 +480,14 @@
     height: 185px;
   }
 
+  .field {
+    left: 0;
+  }
+
+  .loginCard {
+    padding: 16px 20px;
+  }
+
   .cardInner {
     padding: 24px 20px 24px;
     gap: 18px;

@@ -1,7 +1,8 @@
 /* src/features/shop/ui/CatalogFilters/CatalogFilters.module.css */
 .sidebar {
-  width: 288px;
-  flex: 0 0 288px;
+  width: 100%;
+  max-width: 260px;
+  min-width: 0;
   box-sizing: border-box;
 
   display: flex;
@@ -188,13 +189,92 @@
 }
 
 
-@media (max-width: 1023px) {
+@media (max-width: 1280px) {
   .sidebar {
-    width: 100%;
-    flex-basis: auto;
+    max-width: 220px;
+    gap: 14px;
+    padding: 20px 14px;
+    border-radius: 16px;
+  }
+
+  .label {
+    font-size: 13px;
+  }
+
+  .customSelectTrigger,
+  .input {
+    height: 42px;
+    padding: 0 14px;
+    font-size: 14px;
+  }
+
+  .checkboxItem {
+    font-size: 14px;
+  }
+
+  .resetButton {
+    height: 40px;
+    font-size: 15px;
+  }
+}
+
+@media (max-width: 1024px) {
+  .sidebar {
+    max-width: 200px;
+    gap: 12px;
+    padding: 16px 12px;
   }
 
   .priceGrid {
+    grid-template-columns: 1fr;
+    gap: 8px;
+  }
+
+  .customSelectTrigger,
+  .input {
+    height: 40px;
+    padding: 0 12px;
+    font-size: 13px;
+  }
+
+  .resetButton {
+    height: 38px;
+    font-size: 14px;
+  }
+}
+
+@media (max-width: 768px) {
+  .sidebar {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 12px 14px;
+    max-width: none;
+    padding: 16px;
+  }
+
+  .section:nth-child(3),
+  .sidebar > .resetButton {
+    grid-column: 1 / -1;
+  }
+
+  .priceGrid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .checkboxList {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 8px 12px;
+  }
+}
+
+@media (max-width: 480px) {
+  .sidebar {
+    grid-template-columns: 1fr;
+    padding: 14px;
+  }
+
+  .checkboxList {
     grid-template-columns: 1fr;
   }
 }

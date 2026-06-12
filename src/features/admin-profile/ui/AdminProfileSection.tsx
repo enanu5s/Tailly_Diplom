@@ -72,7 +72,7 @@ export const AdminProfileSection = observer((): ReactElement => {
 
   return (
     <div className={styles.root}>
-      <button className={styles.backButton} type="button" onClick={() => navigate(-1)}>
+      <button className={styles.backButton} type="button" onClick={() => navigate('/admin')}>
         <span className={styles.backIcon}>←</span>
         Назад
       </button>

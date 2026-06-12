@@ -177,13 +177,6 @@
   filter: blur(90px);
 }
 
-.clientIllustration,
-.specialistIllustration {
-  position: absolute;
-  inset: 0;
-  pointer-events: none;
-}
-
 .clientPerson {
   position: absolute;
   left: 24px;
@@ -216,6 +209,90 @@
   height: auto;
 }
 
+@media (min-width: 901px) {
+  .cardContent {
+    display: block;
+    padding: 0;
+  }
+
+  .textBlock {
+    position: absolute;
+    flex: none;
+    min-width: auto;
+  }
+
+  .clientCard .textBlock {
+    top: 60px;
+    left: 268px;
+    max-width: 248px;
+  }
+
+  .specialistCard .textBlock {
+    top: 60px;
+    left: 80px;
+    max-width: 240px;
+  }
+
+  .clientPerson {
+    position: absolute;
+    left: 24px;
+    top: 60px;
+    width: 245px;
+    max-width: none;
+    transform: none;
+  }
+
+  .clientFishbowl {
+    display: block;
+    position: absolute;
+    left: 357px;
+    right: auto;
+    top: 242px;
+    bottom: auto;
+    width: 145px;
+    max-width: none;
+    transform: none;
+  }
+
+  .specialistPerson {
+    position: absolute;
+    left: 237px;
+    right: auto;
+    top: 69px;
+    width: 300px;
+    max-width: none;
+    transform: none;
+  }
+
+  .specialistLizard {
+    display: block;
+    position: absolute;
+    left: -3px;
+    top: 247px;
+    bottom: auto;
+    width: 205px;
+    max-width: none;
+    transform: none;
+  }
+
+  .specialistBlurGreen {
+    left: 238px;
+    top: 172px;
+    transform: none;
+    width: 153px;
+    height: 153px;
+  }
+
+  .specialistBlurOrange {
+    left: 151px;
+    top: 189px;
+    right: auto;
+    transform: none;
+    width: 153px;
+    height: 153px;
+  }
+}
+
 @media (max-width: 900px) {
   .page {
     padding: 20px 16px 64px;
@@ -246,50 +323,102 @@
     min-height: 280px;
   }
 
-  .clientCard .textBlock {
-    top: 30px;
-    left: 150px;
-    max-width: 200px;
+  .cardContent {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) minmax(140px, 220px) minmax(0, 1fr);
+    align-items: center;
+    gap: 8px 12px;
+    min-height: inherit;
+    padding: 24px 16px;
   }
 
-  .specialistCard .textBlock {
-    top: 28px;
-    left: 32px;
-    max-width: 180px;
+  .textBlock {
+    position: static;
+    grid-column: 2;
+    grid-row: 1;
+    justify-self: center;
+    min-width: 0;
+    max-width: 220px;
+    text-align: center;
   }
 
   .clientPerson {
-    left: 12px;
-    width: 150px;
+    position: relative;
+    grid-column: 1;
+    grid-row: 1;
+    justify-self: end;
+    align-self: center;
+    left: auto;
+    top: auto;
+    width: clamp(100px, 28vw, 170px);
+    max-width: 170px;
+    height: auto;
+    transform: none;
   }
 
   .clientFishbowl {
-    right: 16px;
-    width: 108px;
-  }
-
-  .specialistPerson {
-    right: 10px;
-    width: 184px;
+    display: block;
+    position: relative;
+    grid-column: 3;
+    grid-row: 1;
+    justify-self: start;
+    align-self: end;
+    left: auto;
+    right: auto;
+    top: auto;
+    bottom: auto;
+    width: clamp(80px, 22vw, 108px);
+    max-width: 108px;
+    height: auto;
+    transform: none;
   }
 
   .specialistLizard {
-    left: -4px;
-    width: 148px;
-    bottom: 22px;
+    display: block;
+    position: relative;
+    grid-column: 1;
+    grid-row: 1;
+    justify-self: end;
+    align-self: end;
+    left: auto;
+    top: auto;
+    bottom: auto;
+    width: clamp(90px, 24vw, 148px);
+    max-width: 148px;
+    height: auto;
+    transform: none;
+  }
+
+  .specialistPerson {
+    position: relative;
+    grid-column: 3;
+    grid-row: 1;
+    justify-self: start;
+    align-self: center;
+    left: auto;
+    right: auto;
+    top: auto;
+    width: clamp(110px, 30vw, 184px);
+    max-width: 184px;
+    height: auto;
+    transform: none;
   }
 
   .specialistBlurGreen {
-    left: 90px;
-    width: 150px;
-    height: 150px;
+    left: 50%;
+    top: 50%;
+    transform: translate(-50%, -50%);
+    width: 120px;
+    height: 120px;
   }
 
   .specialistBlurOrange {
-    right: 0;
-    top: 64px;
-    width: 144px;
-    height: 144px;
+    left: 50%;
+    top: 50%;
+    right: auto;
+    transform: translate(-50%, -50%);
+    width: 120px;
+    height: 120px;
   }
 }
 
@@ -308,18 +437,6 @@
     min-height: 260px;
   }
 
-  .clientCard .textBlock {
-    top: 26px;
-    left: 132px;
-    max-width: 170px;
-  }
-
-  .specialistCard .textBlock {
-    top: 24px;
-    left: 24px;
-    max-width: 160px;
-  }
-
   .cardTitle {
     font-size: 22px;
   }
@@ -329,24 +446,76 @@
     line-height: 1.25;
   }
 
-  .clientPerson {
-    left: 8px;
-    width: 136px;
+  .cardContent {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 20px 12px;
   }
 
-  .clientFishbowl {
-    right: 10px;
-    width: 92px;
+  .textBlock {
+    flex: 1 1 0;
+    grid-column: auto;
+    max-width: none;
+    text-align: left;
+  }
+
+  .clientCard .textBlock {
+    order: 2;
+  }
+
+  .clientCard .clientPerson {
+    order: 1;
+  }
+
+  .clientCard .clientFishbowl {
+    display: none;
+  }
+
+  .specialistCard .textBlock {
+    order: 1;
+  }
+
+  .specialistCard .specialistPerson {
+    order: 2;
+  }
+
+  .specialistCard .specialistLizard {
+    display: none;
+  }
+
+  .clientPerson {
+    position: relative;
+    grid-column: auto;
+    grid-row: auto;
+    flex: 0 0 clamp(100px, 32vw, 140px);
+    justify-self: auto;
+    align-self: center;
+    left: auto;
+    top: auto;
+    width: 100%;
+    max-width: 136px;
+    transform: none;
   }
 
   .specialistPerson {
-    right: 4px;
-    width: 160px;
+    position: relative;
+    grid-column: auto;
+    grid-row: auto;
+    flex: 0 0 clamp(100px, 32vw, 140px);
+    justify-self: auto;
+    align-self: center;
+    left: auto;
+    right: auto;
+    top: auto;
+    width: 100%;
+    max-width: 160px;
+    transform: none;
   }
 
-  .specialistLizard {
-    left: -8px;
-    width: 128px;
-    bottom: 24px;
+  .specialistBlurGreen,
+  .specialistBlurOrange {
+    width: 96px;
+    height: 96px;
   }
 }

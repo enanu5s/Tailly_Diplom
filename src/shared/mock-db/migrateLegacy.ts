@@ -93,19 +93,24 @@ export function mergeLegacyLocalStorageIfNeeded(db: MockDbSnapshot): MockDbSnaps
     }
   }
 
-  const adminPostsRaw = localStorage.getItem(LEGACY_KEYS.adminPosts);
-  if (adminPostsRaw) {
-    const parsed = safeParse<unknown[]>(adminPostsRaw, []);
-    if (Array.isArray(parsed) && parsed.length > 0) {
-      next.cms.posts = parsed as MockDbSnapshot['cms']['posts'];
-    }
-  }
+  // CMS уже живёт в общей mock-db; старые ключи не должны перетирать актуальный сид.
+  const shouldImportLegacyCms = db.meta.cmsDataRevision == null;
 
-  const adminBannersRaw = localStorage.getItem(LEGACY_KEYS.adminBanners);
-  if (adminBannersRaw) {
-    const parsed = safeParse<unknown[]>(adminBannersRaw, []);
-    if (Array.isArray(parsed) && parsed.length > 0) {
-      next.cms.banners = parsed as MockDbSnapshot['cms']['banners'];
+  if (shouldImportLegacyCms) {
+    const adminPostsRaw = localStorage.getItem(LEGACY_KEYS.adminPosts);
+    if (adminPostsRaw) {
+      const parsed = safeParse<unknown[]>(adminPostsRaw, []);
+      if (Array.isArray(parsed) && parsed.length > 0) {
+        next.cms.posts = parsed as MockDbSnapshot['cms']['posts'];
+      }
+    }
+
+    const adminBannersRaw = localStorage.getItem(LEGACY_KEYS.adminBanners);
+    if (adminBannersRaw) {
+      const parsed = safeParse<unknown[]>(adminBannersRaw, []);
+      if (Array.isArray(parsed) && parsed.length > 0) {
+        next.cms.banners = parsed as MockDbSnapshot['cms']['banners'];
+      }
     }
   }
 

@@ -2,12 +2,45 @@
 
 .page {
   min-height: calc(100vh - 160px);
-  padding: 40px 20px 80px;
+  padding: 40px 0 80px;
   background: #f8fafc;
 }
 
 .container {
-  width: 100%;
-  max-width: 1520px;
+  width: min(1520px, 100%);
   margin: 0 auto;
+  padding: 0 20px;
+  box-sizing: border-box;
+}
+
+@media (max-width: 1024px) {
+  .page {
+    padding: 28px 0 64px;
+  }
+
+  .container {
+    padding: 0 16px;
+  }
+}
+
+@media (max-width: 768px) {
+  .page {
+    min-height: calc(100vh - 120px);
+    padding: 20px 0 48px;
+  }
+
+  .container {
+    width: 100%;
+    padding: 0 16px;
+  }
+}
+
+@media (max-width: 480px) {
+  .page {
+    padding: 16px 0 40px;
+  }
+
+  .container {
+    padding: 0 12px;
+  }
 }

@@ -65,7 +65,12 @@
   overflow-x: auto;
   overflow-y: hidden;
   scroll-snap-type: x mandatory;
-  padding: 20px 0 28px 20px;
+  scroll-behavior: smooth;
+  -webkit-overflow-scrolling: touch;
+  touch-action: pan-x;
+  overscroll-behavior-x: contain;
+  scroll-padding-inline: 20px;
+  padding: 20px 20px 28px 20px;
   margin-left: -20px;
   scrollbar-width: none;
 }
@@ -93,6 +98,7 @@
   box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
   cursor: pointer;
   scroll-snap-align: start;
+  touch-action: pan-x;
 
   transition:
     transform 160ms ease,
@@ -229,10 +235,19 @@
   display: flex;
   align-items: center;
   justify-content: space-between;
+  gap: 12px;
   margin-top: 16px;
 }
 
+.footerRow {
+  flex: 1;
+  display: flex;
+  justify-content: center;
+  min-width: 0;
+}
+
 .arrow {
+  flex-shrink: 0;
   width: 64px;
   height: 42px;
   padding: 0;
@@ -240,6 +255,15 @@
   background: transparent;
   cursor: pointer;
   z-index: 3;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.arrow img {
+  display: block;
+  width: 64px;
+  height: 42px;
 }
 
 .arrow:disabled {
@@ -306,14 +330,15 @@
   }
 
   .scroller {
-    padding-left: 0;
+    padding: 16px 16px 24px 0;
     margin-left: 0;
+    scroll-padding-inline: 0;
   }
 
   .card,
   .skeletonCard {
-    width: 320px;
-    min-width: 320px;
+    width: min(320px, calc(100vw - 64px));
+    min-width: min(320px, calc(100vw - 64px));
     height: 420px;
     padding: 18px;
   }
@@ -329,16 +354,38 @@
     font-size: 13px;
   }
 
+  .bottomControls {
+    gap: 8px;
+  }
+
   .arrow {
-    display: none;
+    width: 48px;
+    height: 36px;
+  }
+
+  .arrow img {
+    width: 48px;
+    height: 32px;
   }
 
   .allButton {
     width: 100%;
+    padding: 10px 16px;
+    font-size: 14px;
   }
 
   .carousel::before,
   .carousel::after {
-    display: none;
+    top: 12px;
+    bottom: 68px;
+    width: 48px;
+  }
+
+  .carousel::before {
+    left: 0;
+  }
+
+  .carousel::after {
+    right: 0;
   }
 }

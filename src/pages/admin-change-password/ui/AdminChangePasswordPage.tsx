@@ -64,7 +64,7 @@ export function AdminChangePasswordPage(): ReactElement {
         <button
           className={styles.backBtn}
           type="button"
-          onClick={() => navigate('/admin/profile')}
+          onClick={() => navigate('/admin/profile', { replace: true })}
         >
           <svg
             className={styles.backIcon}

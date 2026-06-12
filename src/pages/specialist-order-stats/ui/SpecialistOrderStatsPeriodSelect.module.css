@@ -96,3 +96,9 @@
 .option[data-selected='true'] {
   background: #fff3cd;
 }
+
+@media (max-width: 768px) {
+  .root {
+    max-width: none;
+  }
+}

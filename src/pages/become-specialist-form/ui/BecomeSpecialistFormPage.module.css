@@ -212,6 +212,30 @@
   }
 }
 
+@media (max-width: 768px) {
+  .page {
+    padding: 20px 0 56px;
+  }
+
+  .backButtonWrap {
+    padding: 0 16px;
+  }
+
+  .shell {
+    padding: 0 16px;
+    gap: 20px;
+  }
+
+  .card {
+    padding: 20px 16px;
+    border-radius: 16px;
+  }
+
+  .sectionTitle {
+    font-size: 20px;
+  }
+}
+
 .chipWrap {
   display: flex;
   flex-wrap: wrap;
@@ -415,10 +439,14 @@
   max-width: 1212px;
   margin: 0 auto;
   display: flex;
-  justify-content: flex-end;
+  justify-content: center;
+  align-items: center;
 }
 
 .submitButton {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
   min-height: 45px;
   padding: 10px 30px;
   background: #211500;

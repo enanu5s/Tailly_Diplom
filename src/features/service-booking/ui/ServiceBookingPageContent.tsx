@@ -6,6 +6,7 @@ import { useLocation, useSearchParams } from 'react-router-dom';
 
 import { useAuth } from '@/features/auth/model/useAuth';
 import { useAppNavigate } from '@/shared/lib/navigation/useAppNavigate';
+import { getBackTargetFromState } from '@/shared/lib/navigation/routeMemory';
 
 import { ServiceBookingCalendar } from './ServiceBookingCalendar';
 import styles from './ServiceBookingPageContent.module.css';
@@ -290,6 +291,17 @@ export const ServiceBookingPageContent = observer((): ReactElement => {
       ? `Итоговая сумма: ${formatPrice(estimatedPrice, 'RUB')}`
       : 'Итоговая сумма: —';
 
+  const handleBack = (): void => {
+    const backTarget = getBackTargetFromState(location.state);
+
+    if (backTarget) {
+      navigate(`${backTarget.pathname}${backTarget.search}${backTarget.hash}`);
+      return;
+    }
+
+    navigate(`/specialists/${specialist.slug}`);
+  };
+
   return (
     <section className={styles.page}>
       <div className={styles.pageInner}>
@@ -297,9 +309,7 @@ export const ServiceBookingPageContent = observer((): ReactElement => {
           <button
             type="button"
             className={styles.backButton}
-            onClick={() => {
-              navigate(`/specialists/${specialist.slug}`);
-            }}
+            onClick={handleBack}
           >
             <span className={styles.backIcon} aria-hidden>
               ←
@@ -739,7 +749,7 @@ export const ServiceBookingPageContent = observer((): ReactElement => {
               </div>
             ) : null}
 
-            <div className={styles.footer}>
+            <div className={styles.formFooter}>
               <p className={styles.total}>{totalLabel}</p>
 
               <div className={styles.cancelBtn}>

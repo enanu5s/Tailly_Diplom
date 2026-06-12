@@ -2,16 +2,17 @@
 
 .page {
   min-height: calc(100vh - 100px);
-  padding: 30px 20px 110px;
+  padding: 32px 0 56px;
   background: #f8f8f8;
 }
 
 .container {
-  width: 100%;
-  max-width: 1520px;
+  width: min(1520px, 100%);
   margin: 0 auto;
+  padding: 0 20px;
   display: grid;
-  gap: 30px;
+  gap: 24px;
+  box-sizing: border-box;
 }
 
 .backButton {
@@ -20,7 +21,7 @@
   height: 45px;
   border: 1px solid #c7c2ba;
   border-radius: 23px;
-  background: transparent;
+  background: #ffffff;
   color: #6f685d;
   display: inline-flex;
   align-items: center;
@@ -33,6 +34,11 @@
   line-height: 19px;
   font-feature-settings: 'pnum' on, 'lnum' on;
   cursor: pointer;
+  transition: border-color 0.2s ease;
+}
+
+.backButton:hover {
+  border-color: #b7b0a5;
 }
 
 .backIcon {
@@ -41,24 +47,44 @@
   transform: rotate(0deg);
 }
 
-@media (max-width: 900px) {
+/* Tablet */
+@media (max-width: 1024px) {
   .page {
-    padding: 28px 16px 80px;
+    padding: 28px 0 48px;
   }
 
   .container {
-    gap: 24px;
+    gap: 22px;
   }
 }
 
-@media (max-width: 560px) {
+/* Mobile */
+@media (max-width: 768px) {
   .page {
-    padding: 24px 12px 64px;
+    padding: 20px 0 40px;
+  }
+
+  .container {
+    width: 100%;
+    padding: 0 16px;
+    gap: 18px;
   }
 
   .backButton {
-    width: 124px;
+    width: 100%;
+    max-width: none;
     height: 42px;
     font-size: 15px;
+  }
+}
+
+@media (max-width: 480px) {
+  .page {
+    padding: 16px 0 32px;
+  }
+
+  .container {
+    padding: 0 12px;
+    gap: 16px;
   }
 }

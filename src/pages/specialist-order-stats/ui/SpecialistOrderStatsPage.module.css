@@ -416,3 +416,175 @@
   color: #6f685d;
   line-height: 1.5;
 }
+
+@media (max-width: 1024px) {
+  .page {
+    padding: 24px 16px 48px;
+  }
+
+  .title {
+    margin-bottom: 20px;
+  }
+
+  .periodRow {
+    margin-bottom: 24px;
+  }
+
+  .kpiRowWrap {
+    margin-bottom: 24px;
+  }
+
+  .chartsRow {
+    margin-bottom: 24px;
+  }
+}
+
+@media (max-width: 768px) {
+  .page {
+    padding: 20px 16px 40px;
+  }
+
+  .toolbar {
+    margin-bottom: 16px;
+    gap: 12px;
+  }
+
+  .kpiRowWrap {
+    gap: 16px;
+  }
+
+  .kpiRow {
+    gap: 12px;
+  }
+
+  .kpiCard {
+    min-height: auto;
+    padding: 16px 14px;
+    border-radius: 16px;
+  }
+
+  .kpiLabel {
+    margin-bottom: 10px;
+    font-size: 14px;
+    line-height: 1.3;
+  }
+
+  .kpiValue {
+    font-size: clamp(28px, 8vw, 36px);
+  }
+
+  .kpiRowArtImg {
+    width: clamp(130px, 36vw, 180px);
+    max-height: 90px;
+  }
+
+  .statusCardFallback {
+    padding: 20px 16px 18px;
+    border-radius: 16px;
+  }
+
+  .statusCardFallbackTitle {
+    font-size: 20px;
+    margin-bottom: 14px;
+  }
+
+  .statusRow {
+    font-size: 15px;
+  }
+
+  .sectionCard {
+    padding: 20px 16px;
+    border-radius: 16px;
+  }
+
+  .sectionTitle {
+    font-size: 20px;
+  }
+}
+
+@media (max-width: 640px) {
+  .page {
+    padding: 16px 12px 32px;
+  }
+
+  .backPill {
+    min-width: 0;
+    height: 40px;
+    padding: 8px 16px 8px 12px;
+    font-size: 14px;
+  }
+
+  .backArrow {
+    width: 16px;
+    height: 16px;
+  }
+
+  .title {
+    margin-bottom: 16px;
+    font-size: 26px;
+  }
+
+  .periodRow {
+    margin-bottom: 20px;
+  }
+
+  .kpiRowWrap {
+    gap: 12px;
+    margin-bottom: 20px;
+  }
+
+  .kpiRow {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 8px;
+  }
+
+  .kpiCard {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    min-height: 0;
+    padding: 10px 12px;
+    border-radius: 14px;
+    text-align: left;
+  }
+
+  .kpiLabel {
+    margin: 0 0 4px;
+    max-width: none;
+    font-size: 11px;
+    line-height: 1.25;
+  }
+
+  .kpiValue {
+    font-size: 22px;
+    line-height: 1.1;
+  }
+
+  .kpiRowArt {
+    display: none;
+  }
+
+  .sectionCard {
+    padding: 18px 14px;
+  }
+
+  .sectionTitle {
+    font-size: 18px;
+    margin-bottom: 12px;
+  }
+
+  .table th,
+  .table td {
+    padding: 8px 10px;
+    font-size: 13px;
+  }
+
+  .table th {
+    font-size: 11px;
+  }
+
+  .loadingBox {
+    padding: 32px 16px;
+    font-size: 14px;
+  }
+}

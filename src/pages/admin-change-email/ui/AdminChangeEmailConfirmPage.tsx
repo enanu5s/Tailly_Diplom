@@ -111,7 +111,7 @@ export const AdminChangeEmailConfirmPage = observer((): ReactElement => {
             onClick={async () => {
               await store.confirmSuperAdminEmailChange();
               if (!store.emailChangeError && store.emailChangePhase === 'credentials') {
-                navigate('/admin/profile');
+                navigate('/admin/profile', { replace: true });
               }
             }}
           >

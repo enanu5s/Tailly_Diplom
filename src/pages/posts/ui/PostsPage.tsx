@@ -25,14 +25,14 @@ export const PostsPage = () => {
 
   return (
     <main className={styles.page}>
-      <div className={styles.topRow}>
-        <button className={styles.back} type="button" onClick={handleBack}>
-          Назад
-        </button>
-      </div>
-
       <div className={styles.container}>
-        <h1 className={styles.h1}>Посты и новости</h1>
+        <header className={styles.pageHeader}>
+          <button className={styles.back} type="button" onClick={handleBack}>
+            Назад
+          </button>
+          <h1 className={styles.h1}>Посты и новости</h1>
+        </header>
+
         <PostsList />
       </div>
     </main>

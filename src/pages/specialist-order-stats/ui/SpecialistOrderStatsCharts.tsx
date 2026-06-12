@@ -1,6 +1,6 @@
 // src/pages/specialist-order-stats/ui/SpecialistOrderStatsCharts.tsx
 
-import { useMemo, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import { Cell, Pie, PieChart, ResponsiveContainer, Tooltip } from 'recharts';
 
 import styles from './SpecialistOrderStatsCharts.module.css';
@@ -14,6 +14,34 @@ import type { CSSProperties, ReactElement } from 'react';
 
 /** Цвета сегментов в порядке STATUS_ORDER (Figma) */
 const STATUS_SEGMENT_COLORS = ['#ffa232', '#ffc721', '#ccd308', '#211500', '#e20b0b'];
+
+function formatRubAxis(value: number, compact: boolean): string {
+  if (!compact) {
+    return new Intl.NumberFormat('ru-RU', {
+      style: 'currency',
+      currency: 'RUB',
+      maximumFractionDigits: 0,
+    }).format(value);
+  }
+
+  if (value === 0) {
+    return '0';
+  }
+
+  if (value >= 1000) {
+    const thousands = value / 1000;
+    const text = Number.isInteger(thousands)
+      ? String(thousands)
+      : thousands.toFixed(1).replace('.', ',');
+    return `${text} тыс.`;
+  }
+
+  return new Intl.NumberFormat('ru-RU', {
+    style: 'currency',
+    currency: 'RUB',
+    maximumFractionDigits: 0,
+  }).format(value);
+}
 
 function formatPercentRu(value: number | null): string {
   if (value === null) {
@@ -106,6 +134,18 @@ export function OrderServiceRevenueBarChart({
   }, [byService]);
 
   const [hoverKey, setHoverKey] = useState<string | null>(null);
+  const [compactAxis, setCompactAxis] = useState(false);
+
+  useEffect(() => {
+    const mediaQuery = window.matchMedia('(max-width: 640px)');
+    const syncCompactAxis = (): void => {
+      setCompactAxis(mediaQuery.matches);
+    };
+
+    syncCompactAxis();
+    mediaQuery.addEventListener('change', syncCompactAxis);
+    return () => mediaQuery.removeEventListener('change', syncCompactAxis);
+  }, []);
 
   if (rows.length === 0) {
     return null;
@@ -113,7 +153,10 @@ export function OrderServiceRevenueBarChart({
 
   const maxRevenue = Math.max(...rows.map((r) => r.revenue), 1);
   const axisMax = Math.max(5000, Math.ceil(maxRevenue / 1000) * 1000);
-  const ticks = [0, 1, 2, 3, 4, 5].map((i) => (axisMax / 5) * i);
+  const tickSteps = compactAxis ? 2 : 5;
+  const ticks = Array.from({ length: tickSteps + 1 }, (_, index) =>
+    (axisMax / tickSteps) * index,
+  );
 
   return (
     <div className={styles.revenuePanel}>
@@ -159,7 +202,7 @@ export function OrderServiceRevenueBarChart({
       <div className={styles.revenueTicks}>
         {ticks.map((t) => (
           <span key={t} className={styles.revenueTick}>
-            {formatRub(t)}
+            {formatRubAxis(t, compactAxis)}
           </span>
         ))}
       </div>

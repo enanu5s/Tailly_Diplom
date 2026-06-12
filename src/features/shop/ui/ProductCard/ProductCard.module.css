@@ -283,3 +283,14 @@
   font-weight: 500;
   text-align: center;
 }
+
+@media (max-width: 768px) {
+  .card {
+    padding: 16px;
+  }
+
+  .favoriteButton {
+    top: 20px;
+    right: 20px;
+  }
+}

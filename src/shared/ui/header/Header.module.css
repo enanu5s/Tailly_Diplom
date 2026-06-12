@@ -15,6 +15,7 @@
 }
 
 .container {
+  position: relative;
   max-width: 1520px;
   margin: 0 auto;
   display: flex;
@@ -205,11 +206,13 @@
   top: var(--header-height);
   left: 0;
   right: 0;
-  background: white;
-  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.05);
-  padding: 16px 20px;
-  max-height: calc(100vh - var(--header-height));
+  background: #ffffff;
+  border-top: 1px solid rgba(33, 21, 0, 0.08);
+  box-shadow: 0 16px 32px rgba(33, 21, 0, 0.1);
+  padding: 8px 16px 20px;
+  max-height: calc(100dvh - var(--header-height));
   overflow-y: auto;
+  -webkit-overflow-scrolling: touch;
 }
 
 @media (min-width: 1024px) {
@@ -222,32 +225,49 @@
   list-style: none;
   margin: 0;
   padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.mobileNavList > li {
+  border-bottom: 1px solid rgba(33, 21, 0, 0.08);
+}
+
+.mobileNavList > li:last-child {
+  border-bottom: none;
 }
 
 .mobileLink {
-  display: inline-flex;
+  display: flex;
   align-items: center;
-  padding: 14px 0;
+  width: 100%;
+  min-height: 48px;
+  padding: 10px 8px;
+  box-sizing: border-box;
+  border-radius: 12px;
   font-family: 'Raleway', system-ui, -apple-system, sans-serif;
-  font-size: 1rem;
-  line-height: 1;
+  font-size: 16px;
+  line-height: 1.2;
   font-weight: 700;
   color: #211500;
   text-decoration: none;
+  transition: background-color 0.2s ease;
 }
 
 .mobileLink:hover,
+.mobileLink:active {
+  background: #fff8ef;
+}
+
 .mobileLink.active {
-  opacity: 1;
-  text-decoration: underline;
-  text-underline-offset: 10px;
-  text-decoration-thickness: 2px;
+  background: #fff3cd;
 }
 
 .mobileAuthBox {
-  margin-top: 16px;
-  padding-top: 14px;
-  border-top: 1px solid rgba(33, 21, 0, 0.14);
+  margin-top: 12px;
+  padding-top: 16px;
+  border-top: 1px solid rgba(33, 21, 0, 0.12);
   display: flex;
   flex-direction: column;
   gap: 10px;
@@ -313,5 +333,49 @@
 
   .container {
     padding: 0 16px;
+  }
+}
+
+@media (min-width: 640px) and (max-width: 1023px) {
+  .mobileMenu {
+    padding: 12px 24px 28px;
+  }
+
+  .mobileLink {
+    min-height: 52px;
+    padding: 12px 10px;
+    font-size: 17px;
+  }
+
+  .mobileAuthBox {
+    flex-direction: row;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 12px;
+  }
+
+  .mobileProfileLink {
+    flex: 1 1 auto;
+    min-width: 0;
+  }
+
+  .mobileAuthButton {
+    flex: 0 0 auto;
+    min-width: 140px;
+  }
+}
+
+@media (max-width: 639px) {
+  .mobileMenu {
+    padding: 8px 12px calc(20px + env(safe-area-inset-bottom, 0px));
+  }
+
+  .mobileLink {
+    min-height: 46px;
+    font-size: 15px;
+  }
+
+  .mobileAuthButton {
+    width: 100%;
   }
 }

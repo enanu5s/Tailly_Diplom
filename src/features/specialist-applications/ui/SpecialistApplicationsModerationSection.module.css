@@ -1,6 +1,7 @@
 .root {
   display: grid;
   gap: 20px;
+  min-width: 0;
 }
 
 .hero {
@@ -80,6 +81,7 @@
   grid-template-columns: 596px 904px;
   gap: 20px;
   align-items: start;
+  min-width: 0;
 }
 
 .sidebar,
@@ -95,6 +97,7 @@
   box-sizing: border-box;
   width: 596px;
   min-height: 1051px;
+  min-width: 0;
   padding: 30px;
   display: grid;
   align-content: start;
@@ -173,6 +176,7 @@
   box-sizing: border-box;
   position: relative;
   width: 536px;
+  min-width: 0;
   min-height: 122px;
   border: 0;
   border-radius: 10px;
@@ -454,6 +458,16 @@
   padding: 0 52px 0 20px;
 }
 
+.calendarIcon {
+  position: absolute;
+  top: 43px;
+  right: 20px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  pointer-events: none;
+}
+
 .textarea {
   min-height: 102px;
   padding: 15px 20px;
@@ -604,6 +618,7 @@
 @media (max-width: 1024px) {
   .hero {
     grid-template-columns: 1fr;
+    gap: 20px;
   }
 
   .heroContent {
@@ -611,7 +626,7 @@
   }
 
   .subtitle {
-    max-width: 760px;
+    max-width: none;
   }
 
   .heroStats {
@@ -629,6 +644,7 @@
 
   .detailsHeader {
     display: grid;
+    gap: 12px;
   }
 
   .infoGrid {
@@ -645,18 +661,96 @@
   }
 
   .calendarIcon {
-    left: auto;
     right: 20px;
   }
 }
 
-@media (max-width: 760px) {
+/* Tablet: 769px – 1024px */
+@media (min-width: 769px) and (max-width: 1024px) {
+  .hero {
+    grid-template-columns: minmax(0, 1fr) auto;
+    align-items: center;
+    gap: 24px;
+  }
+
+  .heroStats {
+    width: auto;
+    justify-self: end;
+  }
+
+  .statCard {
+    width: 220px;
+    max-width: none;
+    height: 110px;
+  }
+
+  .statValue {
+    font-size: 32px;
+  }
+
+  .filters {
+    grid-template-columns: minmax(0, 1fr) 220px;
+    align-items: end;
+  }
+
+  .applicationList {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .sidebar,
+  .detailsCard {
+    padding: 24px;
+  }
+
+  .actions {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .createAccountButton {
+    grid-column: 1 / -1;
+  }
+}
+
+/* Mobile: up to 768px */
+@media (max-width: 768px) {
   .root {
     gap: 20px;
   }
 
   .title {
-    font-size: 32px;
+    font-size: 28px;
+  }
+
+  .subtitle {
+    font-size: 14px;
+    line-height: 18px;
+  }
+
+  .hero {
+    gap: 14px;
+  }
+
+  .statCard {
+    width: 100%;
+    max-width: none;
+    height: 56px;
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    justify-content: space-between;
+    padding: 0 16px;
+    gap: 8px;
+    border-radius: 10px;
+  }
+
+  .statLabel {
+    font-size: 13px;
+    text-align: left;
+  }
+
+  .statValue {
+    font-size: 24px;
+    flex-shrink: 0;
   }
 
   .sidebar,
@@ -667,7 +761,9 @@
   }
 
   .sidebar,
-  .detailsCard {
+  .detailsCard,
+  .stateCard,
+  .emptyCard {
     padding: 20px;
   }
 
@@ -705,12 +801,21 @@
     text-align: center;
   }
 
+  .detailsHeader {
+    gap: 10px;
+  }
+
+  .detailsSubtitle {
+    line-height: 22px;
+  }
+
   .infoGrid {
     grid-template-columns: 1fr;
   }
 
   .actions {
     grid-template-columns: 1fr;
+    gap: 12px;
   }
 
   .primaryButton,
@@ -718,34 +823,69 @@
   .dangerButton,
   .createAccountButton {
     width: 100%;
+    min-height: 42px;
+    font-size: 15px;
   }
 
   .formBlock {
     padding: 16px;
+    margin-top: 12px;
+  }
+
+  .searchInput,
+  .filterSelect,
+  .input {
+    height: 44px;
+    padding-left: 16px;
+    font-size: 14px;
+  }
+
+  .input {
+    padding-right: 48px;
+  }
+
+  .calendarIcon {
+    top: 41px;
+    right: 16px;
+  }
+
+  .textarea {
+    min-height: 96px;
+    padding: 12px 16px;
+    font-size: 14px;
   }
 }
 
-@media (max-width: 560px) {
+/* Small mobile: up to 480px */
+@media (max-width: 480px) {
   .title {
-    font-size: 28px;
-  }
-
-  .subtitle {
-    font-size: 14px;
-    line-height: 18px;
+    font-size: 24px;
   }
 
   .statCard {
-    height: 104px;
+    height: 50px;
+    padding: 0 12px;
+    border-radius: 8px;
+  }
+
+  .statLabel {
+    font-size: 12px;
   }
 
   .statValue {
-    font-size: 34px;
+    font-size: 20px;
   }
 
   .sidebar,
-  .detailsCard {
+  .detailsCard,
+  .stateCard,
+  .emptyCard {
     padding: 16px;
+  }
+
+  .sectionTitle,
+  .detailsTitle {
+    font-size: 20px;
   }
 
   .searchInput,
@@ -756,12 +896,17 @@
   }
 
   .input {
-    padding-right: 48px;
+    padding-right: 44px;
   }
 
   .calendarIcon {
     top: 41px;
     right: 14px;
+  }
+
+  .calendarIcon svg {
+    width: 20px;
+    height: 20px;
   }
 
   .detailsSubtitle,
@@ -771,8 +916,35 @@
   .applicationMeta,
   .filterHint,
   .fieldLabel,
-  .blockTitle {
-    font-size: 15px;
+  .blockTitle,
+  .aboutText {
+    font-size: 14px;
     line-height: 18px;
+  }
+
+  .applicationDate {
+    font-size: 13px;
+  }
+
+  .statusPending,
+  .statusInterview,
+  .statusApproved,
+  .statusRejected {
+    padding: 5px 14px;
+    font-size: 13px;
+  }
+
+  .infoItem {
+    padding: 10px 14px;
+    min-height: 0;
+  }
+
+  .primaryButton,
+  .secondaryButton,
+  .dangerButton,
+  .createAccountButton {
+    min-height: 40px;
+    padding: 8px 20px;
+    font-size: 14px;
   }
 }

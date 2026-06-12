@@ -24,6 +24,12 @@ export default function RegisterPage(): ReactElement {
             <Link to="/register/client" className={`${styles.card} ${styles.clientCard}`}>
               <span className={styles.specialistBlurOrange} aria-hidden="true" />
               <div className={styles.cardContent}>
+                <img
+                  className={styles.clientPerson}
+                  src="/images/register/Group.svg"
+                  alt=""
+                  aria-hidden="true"
+                />
                 <div className={styles.textBlock}>
                   <h2 className={styles.cardTitle}>Я клиент</h2>
                   <p className={styles.cardSubtitle}>
@@ -31,19 +37,12 @@ export default function RegisterPage(): ReactElement {
                     питомца
                   </p>
                 </div>
-
-                <div className={styles.clientIllustration} aria-hidden="true">
-                  <img
-                    className={styles.clientFishbowl}
-                    src="/images/register/Group2.svg"
-                    alt=""
-                  />
-                  <img
-                    className={styles.clientPerson}
-                    src="/images/register/Group.svg"
-                    alt=""
-                  />
-                </div>
+                <img
+                  className={styles.clientFishbowl}
+                  src="/images/register/Group2.svg"
+                  alt=""
+                  aria-hidden="true"
+                />
               </div>
             </Link>
 
@@ -54,25 +53,24 @@ export default function RegisterPage(): ReactElement {
               <span className={styles.specialistBlurGreen} aria-hidden="true" />
 
               <div className={styles.cardContent}>
+                <img
+                  className={styles.specialistLizard}
+                  src="/images/register/Group3.svg"
+                  alt=""
+                  aria-hidden="true"
+                />
                 <div className={styles.textBlock}>
                   <h2 className={styles.cardTitle}>Я специалист</h2>
                   <p className={styles.cardSubtitle}>
                     Присоединяйтесь к нашей команде заботливых специалистов
                   </p>
                 </div>
-
-                <div className={styles.specialistIllustration} aria-hidden="true">
-                  <img
-                    className={styles.specialistLizard}
-                    src="/images/register/Group3.svg"
-                    alt=""
-                  />
-                  <img
-                    className={styles.specialistPerson}
-                    src="/images/register/Group4.svg"
-                    alt=""
-                  />
-                </div>
+                <img
+                  className={styles.specialistPerson}
+                  src="/images/register/Group4.svg"
+                  alt=""
+                  aria-hidden="true"
+                />
               </div>
             </Link>
           </div>

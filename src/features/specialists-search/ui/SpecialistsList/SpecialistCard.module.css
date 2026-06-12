@@ -10,6 +10,7 @@
   padding: 16px;
   cursor: pointer;
   transition: box-shadow 0.15s ease, transform 0.15s ease;
+  container-type: inline-size;
 }
 
 @media (min-width: 768px) {
@@ -109,6 +110,7 @@
   flex-wrap: wrap;
   gap: 6px;
   margin-top: 8px;
+  max-width: 100%;
 }
 
 .ratingValue {
@@ -148,7 +150,16 @@
   flex-direction: column;
   align-items: flex-end;
   gap: 12px;
-  min-width: 268px;
+  min-width: 0;
+  max-width: 268px;
+}
+
+@container (min-width: 721px) {
+  .aside {
+    width: 268px;
+    min-width: 268px;
+    max-width: 268px;
+  }
 }
 
 .priceBlock {
@@ -235,6 +246,45 @@
   color: #6f685d;
 }
 
+@container (max-width: 720px) {
+  .cardInner {
+    flex-wrap: wrap;
+    align-items: flex-start;
+  }
+
+  .main {
+    flex: 1 1 calc(100% - 128px);
+    min-width: 0;
+  }
+
+  .rating {
+    flex-wrap: nowrap;
+  }
+
+  .aside {
+    flex: 1 1 100%;
+    width: 100%;
+    max-width: none;
+    min-width: 0;
+    flex-direction: row;
+    flex-wrap: wrap;
+    justify-content: space-between;
+    align-items: center;
+    gap: 12px 16px;
+  }
+
+  .priceBlock {
+    align-items: flex-start;
+  }
+
+  .cta {
+    flex: 1 1 auto;
+    max-width: none;
+    width: auto;
+    min-width: min(100%, 220px);
+  }
+}
+
 @media (max-width: 559px) {
   .avatarWrap,
   .avatar,
@@ -242,23 +292,8 @@
     width: 88px;
     height: 88px;
   }
-}
 
-@media (max-width: 719px) {
-  .cardInner {
-    flex-wrap: wrap;
-  }
-
-  .aside {
-    width: 100%;
-    flex-direction: row;
-    flex-wrap: wrap;
-    justify-content: space-between;
-    align-items: flex-end;
-  }
-
-  .cta {
-    max-width: none;
-    width: auto;
+  .main {
+    flex: 1 1 calc(100% - 102px);
   }
 }

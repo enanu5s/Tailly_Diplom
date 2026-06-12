@@ -84,6 +84,22 @@ export const PostsCarousel = observer(() => {
 
   useEffect(() => {
     updateScrollState();
+
+    const el = scrollerRef.current;
+
+    if (!el || typeof ResizeObserver === 'undefined') {
+      return;
+    }
+
+    const observer = new ResizeObserver(() => {
+      updateScrollState();
+    });
+
+    observer.observe(el);
+
+    return () => {
+      observer.disconnect();
+    };
   }, [items.length, updateScrollState]);
 
   const canScroll = useMemo(() => items.length > 0, [items.length]);
@@ -131,11 +147,18 @@ export const PostsCarousel = observer(() => {
                 <div key={index} className={styles.skeletonCard} />
               ))
               : items.map((post) => (
-                <button
+                <article
                   key={post.id}
-                  type="button"
                   className={styles.card}
+                  role="button"
+                  tabIndex={0}
                   onClick={() => openPost(post.id)}
+                  onKeyDown={(event) => {
+                    if (event.key === 'Enter' || event.key === ' ') {
+                      event.preventDefault();
+                      openPost(post.id);
+                    }
+                  }}
                 >
                   <div className={styles.imageWrap}>
                     <PostCardImage post={post} />
@@ -151,7 +174,7 @@ export const PostsCarousel = observer(() => {
                   </div>
 
                   <span className={styles.date}>{formatDate(post.publishedAt)}</span>
-                </button>
+                </article>
               ))}
           </div>
 
@@ -160,7 +183,7 @@ export const PostsCarousel = observer(() => {
               className={styles.arrow}
               type="button"
               onClick={() => scrollByCard(-1)}
-              disabled={!canScroll || postsStore.latest.loading}
+              disabled={!canScroll || !hasOverflow || isAtStart || postsStore.latest.loading}
               aria-label="Листать влево"
             >
               <img src="/icons/arrow-left.svg" alt="" aria-hidden="true" />
@@ -176,7 +199,7 @@ export const PostsCarousel = observer(() => {
               className={styles.arrow}
               type="button"
               onClick={() => scrollByCard(1)}
-              disabled={!canScroll || postsStore.latest.loading}
+              disabled={!canScroll || !hasOverflow || isAtEnd || postsStore.latest.loading}
               aria-label="Листать вправо"
             >
               <img src="/icons/arrow-right.svg" alt="" aria-hidden="true" />

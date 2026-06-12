@@ -71,6 +71,10 @@
     margin-bottom: 28px;
   }
 
+  .container {
+    padding: 0 16px;
+  }
+
   .grid {
     grid-template-columns: 1fr;
   }
@@ -78,11 +82,19 @@
   .leftColumn {
     gap: 28px;
   }
+
+  .rightColumn {
+    gap: 28px;
+  }
 }
 
 @media (max-width: 640px) {
   .page {
-    padding: 32px 16px 72px;
+    padding: 32px 0 72px;
+  }
+
+  .container {
+    padding: 0 12px;
   }
 
   .title {

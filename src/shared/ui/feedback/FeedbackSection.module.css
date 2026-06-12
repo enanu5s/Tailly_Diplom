@@ -286,7 +286,7 @@
 
 @media (max-width: 1023px) {
   .section {
-    padding: 56px 16px 0;
+    padding: 56px 16px 48px;
   }
 
   .grid {
@@ -332,7 +332,11 @@
 
 @media (max-width: 639px) {
   .section {
-    padding: 44px 16px 0;
+    padding: 44px 16px 40px;
+  }
+
+  .grid {
+    gap: 32px;
   }
 
   .left {

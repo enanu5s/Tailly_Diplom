@@ -2,9 +2,11 @@
 
 .page {
   box-sizing: border-box;
+  position: relative;
+  z-index: 0;
   width: 100%;
-  min-height: calc(100vh - 100px - 275px);
-  padding: 30px clamp(16px, 10.4vw, 200px) 48px;
+  min-height: calc(100vh - var(--header-height, 100px) - 120px);
+  padding: 30px clamp(16px, 10.4vw, 200px) 64px;
   background: #f8f8f8;
 }
 
@@ -73,10 +75,11 @@
 
 .calendarCard {
   box-sizing: border-box;
+  position: relative;
+  z-index: 0;
   flex: 0 1 442px;
   width: 100%;
   max-width: 442px;
-  min-height: 584px;
   padding: 30px;
   background: #ffffff;
   border-radius: 20px;
@@ -85,15 +88,17 @@
 
 .formCard {
   box-sizing: border-box;
+  position: relative;
+  z-index: 0;
   flex: 1 1 400px;
   min-width: 0;
-  min-height: 584px;
   padding: 30px;
   background: #ffffff;
   border-radius: 20px;
   box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
   display: flex;
   flex-direction: column;
+  overflow: visible;
 }
 
 .cardTitle {
@@ -136,7 +141,6 @@
   display: flex;
   flex-direction: column;
   gap: 20px;
-  flex: 1;
 }
 
 .row3 {
@@ -340,7 +344,7 @@
   color: #211500;
 }
 
-.footer {
+.formFooter {
   display: grid;
   grid-template-columns: 1fr auto 1fr;
   align-items: center;
@@ -435,37 +439,146 @@
   gap: 20px;
 }
 
-@media (max-width: 1200px) {
+/* Широкий экран: карточки одной высоты, футер формы прижат к низу */
+@media (min-width: 1281px) {
+  .twoColumns {
+    align-items: stretch;
+  }
+
+  .calendarCard {
+    min-height: 584px;
+  }
+
+  .formCard {
+    min-height: 584px;
+  }
+
+  .formBody {
+    flex: 1 1 auto;
+    min-height: 0;
+  }
+}
+
+/* Mini-PC: уже не хватает места для двух колонок и трёх полей в ряд */
+@media (max-width: 1280px) {
+  .page {
+    padding: 28px clamp(20px, 4vw, 80px) 44px;
+  }
+
   .twoColumns {
     flex-direction: column;
   }
 
   .calendarCard {
+    flex: 0 0 auto;
+    max-width: min(480px, 100%);
+    min-height: 0;
+    margin: 0 auto;
+    width: 100%;
+  }
+
+  .formCard {
+    flex: 0 0 auto;
+    width: 100%;
+  }
+
+  .row3 {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .row3 .field:first-child {
+    grid-column: 1 / -1;
+  }
+}
+
+/* Планшет */
+@media (max-width: 1024px) {
+  .page {
+    padding: 24px clamp(16px, 3vw, 48px) 40px;
+  }
+
+  .pageTitle {
+    font-size: 34px;
     max-width: none;
+  }
+
+  .rangeGrid3 {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .slotsGrid {
+    grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
+  }
+
+  .formFooter {
+    grid-template-columns: 1fr auto;
+    row-gap: 16px;
+  }
+
+  .total {
+    grid-column: 1 / -1;
+  }
+
+  .cancelBtn {
+    justify-self: start;
+  }
+
+  .submitBtn {
+    justify-self: end;
   }
 }
 
 @media (max-width: 900px) {
+  .pageTitle {
+    font-size: 32px;
+    margin-bottom: 22px;
+  }
+
   .row3 {
     grid-template-columns: 1fr;
+  }
+
+  .row3 .field:first-child {
+    grid-column: auto;
   }
 
   .row2dates {
     grid-template-columns: 1fr;
   }
 
-  .footer {
+  .row2wide {
     grid-template-columns: 1fr;
-    justify-items: stretch;
+  }
+
+  .timeRow {
+    grid-template-columns: 1fr;
+  }
+
+  .rangeGrid3 {
+    grid-template-columns: 1fr;
+  }
+
+  .formFooter {
+    display: flex;
+    flex-direction: column;
+    align-items: stretch;
+    gap: 12px;
   }
 
   .total {
-    justify-self: start;
+    order: 0;
+  }
+
+  .submitBtn {
+    order: 1;
+  }
+
+  .cancelBtn {
+    order: 2;
   }
 
   .cancelBtn,
   .submitBtn {
-    justify-self: stretch;
     width: 100%;
   }
 
@@ -473,8 +586,128 @@
   .submitBtn .primaryButton {
     width: 100%;
   }
+}
 
-  .rangeGrid3 {
+/* Мобилка */
+@media (max-width: 768px) {
+  .page {
+    padding: 20px 16px 80px;
+    min-height: auto;
+  }
+
+  .backRow {
+    margin-bottom: 12px;
+  }
+
+  .backButton {
+    min-width: 0;
+    height: 42px;
+    padding: 0 18px 0 14px;
+    font-size: 15px;
+  }
+
+  .calendarCard,
+  .formCard {
+    padding: 20px 16px;
+    border-radius: 16px;
+  }
+
+  .pageTitle {
+    font-size: 28px;
+    margin-bottom: 18px;
+  }
+
+  .cardTitle,
+  .specialistHeading {
+    font-size: 20px;
+    margin-bottom: 16px;
+    word-break: break-word;
+  }
+
+  .controlService {
+    font-size: 17px;
+  }
+
+  .total {
+    font-size: 20px;
+  }
+
+  .primaryButton {
+    min-width: 0;
+  }
+
+  .slotsGrid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 10px;
+  }
+
+  .slotButton,
+  .slotButtonActive {
+    height: 44px;
+    font-size: 14px;
+  }
+
+  .loadingCard,
+  .errorCard {
+    padding: 24px 20px;
+    border-radius: 16px;
+  }
+}
+
+/* Узкие экраны */
+@media (max-width: 480px) {
+  .page {
+    padding: 16px 12px 72px;
+  }
+
+  .pageTitle {
+    font-size: 24px;
+  }
+
+  .calendarCard,
+  .formCard {
+    padding: 16px 12px;
+  }
+
+  .cardTitle,
+  .specialistHeading {
+    font-size: 18px;
+  }
+
+  .label {
+    font-size: 15px;
+  }
+
+  .control,
+  .dateLike,
+  .locationReadonly {
+    height: 44px;
+    font-size: 14px;
+  }
+
+  .controlService {
+    font-size: 16px;
+  }
+
+  .textarea {
+    min-height: 72px;
+    font-size: 14px;
+  }
+
+  .slotsGrid {
     grid-template-columns: 1fr;
+  }
+
+  .rangeGrid,
+  .rangeGrid3 {
+    gap: 12px;
+  }
+
+  .formFooter {
+    margin-top: 20px;
+  }
+
+  .total {
+    font-size: 18px;
   }
 }

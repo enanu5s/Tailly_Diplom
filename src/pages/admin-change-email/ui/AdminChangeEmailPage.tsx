@@ -49,7 +49,7 @@ export const AdminChangeEmailPage = observer((): ReactElement => {
           type="button"
           onClick={() => {
             store.closeEmailChangeModal();
-            navigate('/admin/profile');
+            navigate('/admin/profile', { replace: true });
           }}
         >
           <svg

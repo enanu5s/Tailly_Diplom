@@ -194,14 +194,6 @@
   gap: 4px;
 }
 
-@media (max-width: 640px) {
-  .revenueTicks {
-    padding-left: 0;
-    flex-wrap: wrap;
-    row-gap: 6px;
-  }
-}
-
 .revenueTick {
   font-family: 'Raleway', system-ui, sans-serif;
   font-size: 16px;
@@ -212,6 +204,120 @@
   text-align: center;
   flex: 1;
   min-width: 0;
+  white-space: nowrap;
+}
+
+@media (max-width: 1024px) {
+  .statusPanel,
+  .revenuePanel {
+    min-height: auto;
+  }
+}
+
+@media (max-width: 768px) {
+  .statusPanel,
+  .revenuePanel {
+    padding: 20px 16px 18px;
+    border-radius: 16px;
+  }
+
+  .panelTitle,
+  .revenueTitle {
+    font-size: 20px;
+    margin-bottom: 16px;
+  }
+
+  .statusBody {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 20px;
+  }
+
+  .pieWrap {
+    width: min(258px, 100%);
+    margin: 0 auto;
+  }
+
+  .statusLegendColumn {
+    width: 100%;
+    min-width: 0;
+  }
+
+  .revenuePlot {
+    min-height: 180px;
+  }
+
+  .revenueRow {
+    grid-template-columns: 1fr;
+    gap: 6px;
+  }
+
+  .revenueTicks {
+    padding-left: 6px;
+  }
+
+  .revenueTooltip {
+    position: static;
+    transform: none;
+    width: 100%;
+    margin-top: 8px;
+  }
+}
+
+@media (max-width: 640px) {
+  .statusPanel,
+  .revenuePanel {
+    padding: 18px 14px 16px;
+  }
+
+  .panelTitle,
+  .revenueTitle {
+    font-size: 18px;
+    margin-bottom: 14px;
+  }
+
+  .statusLegendRow,
+  .cancelRateRow {
+    font-size: 14px;
+    gap: 10px 12px;
+  }
+
+  .revenueRows {
+    gap: 14px;
+  }
+
+  .revenueLabel {
+    font-size: 14px;
+    line-height: 1.35;
+  }
+
+  .revenueTrack {
+    height: 24px;
+  }
+
+  .revenueBar {
+    height: 24px;
+  }
+
+  .revenueTicks {
+    padding-left: 0;
+    margin-top: 8px;
+    gap: 0;
+  }
+
+  .revenueTick {
+    font-size: 12px;
+    line-height: 1.2;
+    flex: 1 1 0;
+  }
+
+  .revenueTick:first-child {
+    text-align: left;
+  }
+
+  .revenueTick:last-child {
+    text-align: right;
+  }
 }
 
 .revenueTooltip {

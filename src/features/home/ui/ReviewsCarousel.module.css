@@ -21,6 +21,10 @@
   align-items: stretch;
 }
 
+.cardsGrid > * {
+  min-width: 0;
+}
+
 .cardsGridSingle {
   display: flex;
   justify-content: center;
@@ -97,5 +101,39 @@
 
   .cardsGrid {
     grid-template-columns: 1fr;
+  }
+}
+
+@media (max-width: 767px) {
+  .root {
+    gap: 20px;
+  }
+
+  .cardsGrid {
+    gap: 0;
+  }
+
+  .cardsGrid > :nth-child(2) {
+    display: none;
+  }
+
+  .arrow img {
+    width: 48px;
+    height: 32px;
+  }
+}
+
+@media (max-width: 479px) {
+  .root {
+    gap: 16px;
+  }
+
+  .title {
+    font-size: clamp(1.35rem, 1.1rem + 2.5vw, 1.7rem);
+  }
+
+  .arrow img {
+    width: 40px;
+    height: 28px;
   }
 }

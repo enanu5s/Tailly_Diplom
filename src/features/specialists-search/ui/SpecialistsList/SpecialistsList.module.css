@@ -10,12 +10,6 @@
   }
 }
 
-@media (min-width: 900px) {
-  .list {
-    grid-template-columns: repeat(2, minmax(0, 1fr));
-  }
-}
-
 @media (min-width: 1560px) {
   .list {
     /* Две колонки по 750px + зазор 20px = 1520px, как в макете */

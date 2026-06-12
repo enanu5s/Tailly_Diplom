@@ -27,8 +27,8 @@
 
 .layout {
   display: grid;
-  grid-template-columns: 288px minmax(0, 1fr);
-  gap: 24px;
+  grid-template-columns: minmax(200px, 260px) minmax(0, 1fr);
+  gap: 20px;
   align-items: start;
 }
 
@@ -246,17 +246,48 @@
   padding-top: 8px;
 }
 
+@media (max-width: 1280px) {
+  .layout {
+    grid-template-columns: 220px minmax(0, 1fr);
+    gap: 16px;
+  }
+
+  .filterTitle {
+    font-size: 20px;
+    margin-bottom: 12px;
+  }
+
+  .grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
 @media (max-width: 1180px) {
   .container {
     max-width: 100%;
   }
+}
 
-  .grid {
-    grid-template-columns: repeat(3, minmax(0, 1fr));
+@media (max-width: 1024px) {
+  .layout {
+    grid-template-columns: 200px minmax(0, 1fr);
+    gap: 14px;
+  }
+
+  .controlsRow {
+    margin-top: 24px;
+    gap: 14px;
+  }
+
+  .quickActionButton {
+    min-width: 150px;
+    height: 44px;
+    padding: 0 14px;
+    font-size: 14px;
   }
 }
 
-@media (max-width: 980px) {
+@media (max-width: 768px) {
   .layout {
     grid-template-columns: 1fr;
   }
@@ -272,10 +303,6 @@
   .quickActions {
     justify-content: flex-start;
     flex-wrap: wrap;
-  }
-
-  .grid {
-    grid-template-columns: repeat(2, minmax(0, 1fr));
   }
 }
 

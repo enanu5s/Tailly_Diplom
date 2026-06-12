@@ -101,6 +101,7 @@
   background: #ffffff;
   border-radius: 20px;
   box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+  overflow: hidden;
 }
 
 .cardInner {
@@ -114,7 +115,7 @@
   isolation: isolate;
 }
 
-.cardInner > * {
+.cardInner > *:not(.frame305Decor) {
   position: relative;
   z-index: 1;
 }
@@ -387,6 +388,14 @@
   transform: translateY(-1px);
 }
 
+@media (max-width: 1024px) {
+  .frame305Decor {
+    top: auto;
+    bottom: 0;
+    left: 0;
+  }
+}
+
 @media (max-width: 768px) {
   .page {
     padding: 20px 16px 64px;
@@ -421,6 +430,8 @@
   }
 
   .cardInner {
+    height: auto;
+    min-height: 0;
     padding: 30px 20px 24px;
   }
 
@@ -429,21 +440,13 @@
     font-size: 32px;
   }
 
-  .optionsRow {
-    align-items: flex-start;
-    flex-direction: column;
-    gap: 10px;
-  }
-
   .submitButton {
     width: 100%;
+    margin-top: 0;
   }
 
   .frame305Decor {
-    left: 0;
-    bottom: 0;
-    width: 120px;
-    height: auto;
+    display: none;
   }
 
   .registerCard {

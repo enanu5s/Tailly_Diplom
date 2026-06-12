@@ -663,24 +663,102 @@ button:disabled {
   color: #211500;
 }
 
-@media (max-width: 1200px) {
+@media (max-width: 1024px) {
+  .root {
+    padding: 20px 0 60px;
+  }
+
+  .pageHeader {
+    gap: 16px;
+  }
+
+  .title {
+    font-size: 34px;
+  }
+
+  .addButton {
+    width: auto;
+    min-width: 280px;
+    max-width: 100%;
+    flex-shrink: 0;
+  }
+
+  .sectionTitle {
+    font-size: 22px;
+  }
+
   .grid {
     grid-template-columns: 1fr;
+    gap: 14px;
   }
 
   .card {
     min-height: auto;
+    padding: 24px;
+  }
+
+  .cardEmail,
+  .statusActive,
+  .statusBlocked,
+  .statusPasswordLock {
+    position: static;
+    width: fit-content;
+    max-width: 100%;
+    margin-top: 10px;
+    text-align: left;
+  }
+
+  .cardTitle {
+    width: auto;
+    margin-top: 12px;
+    font-size: 22px;
+  }
+
+  .cardInfo {
+    grid-template-columns: 1fr;
+    gap: 14px;
+    margin-top: 14px;
+  }
+
+  .metaLine {
+    flex-wrap: wrap;
+  }
+
+  .metaValue {
+    overflow-wrap: anywhere;
   }
 
   .cardActions {
     position: static;
     grid-template-columns: repeat(2, minmax(0, 1fr));
-    margin-top: 22px;
+    gap: 10px;
+    margin-top: 20px;
+  }
+
+  .outlineButton,
+  .dangerOutlineButton {
+    width: 100%;
+    min-width: 0;
+  }
+
+  .pagination {
+    grid-template-columns: 44px 1fr 44px;
+    margin-top: 20px;
   }
 
   .modal {
     min-height: auto;
     padding-bottom: 120px;
+  }
+
+  .modalTitle {
+    padding: 48px 72px 0 40px;
+    font-size: 34px;
+  }
+
+  .closeButton {
+    top: 46px;
+    right: 40px;
   }
 
   .modalForm,
@@ -689,7 +767,7 @@ button:disabled {
     display: grid;
     grid-template-columns: repeat(2, minmax(0, 1fr));
     gap: 18px 20px;
-    margin: 30px 60px 0;
+    margin: 30px 40px 0;
   }
 
   .fieldEmail,
@@ -706,97 +784,318 @@ button:disabled {
     width: auto;
   }
 
-  .modalActions {
-    right: 60px;
-    bottom: 40px;
-  }
-}
-
-@media (max-width: 760px) {
-  .root {
-    width: min(100% - 32px, 1520px);
-    padding-top: 20px;
-  }
-
-  .pageHeader {
-    align-items: stretch;
-    flex-direction: column;
-  }
-
-  .title,
-  .modalTitle {
-    font-size: 32px;
-  }
-
-  .addButton {
-    width: 100%;
-  }
-
-  .cardEmail,
-  .statusActive,
-  .statusBlocked,
-  .statusPasswordLock {
-    position: static;
-    width: fit-content;
-    margin-top: 12px;
-    text-align: left;
-  }
-
-  .cardTitle {
-    width: auto;
-  }
-
-  .cardInfo {
-    grid-template-columns: 1fr;
-  }
-
-  .cardActions {
-    grid-template-columns: 1fr;
-  }
-
-  .overlay {
-    padding: 40px 16px;
-  }
-
-  .modalTitle {
-    padding: 48px 56px 0 24px;
-  }
-
-  .closeButton {
-    top: 48px;
-    right: 24px;
-  }
-
-  .modalForm,
-  .blockForm {
-    grid-template-columns: 1fr;
-    margin: 24px;
+  .fieldEmail,
+  .blockReasonField,
+  .blockPeriod {
+    grid-column: 1 / -1;
   }
 
   .checkboxRow,
   .modalError,
   .modalSuccess {
-    margin-left: 24px;
-    margin-right: 24px;
+    margin-left: 40px;
+    margin-right: 40px;
   }
 
   .modalActions {
-    position: static;
+    right: 40px;
+    bottom: 40px;
+  }
+
+  .quickActions {
+    flex-wrap: wrap;
+  }
+}
+
+@media (min-width: 769px) and (max-width: 1024px) {
+  .pageHeader {
+    flex-wrap: wrap;
+    align-items: center;
+  }
+
+  .title {
+    flex: 1 1 280px;
+    min-width: 0;
+  }
+
+  .addButton {
+    flex: 1 1 320px;
+  }
+}
+
+@media (max-width: 768px) {
+  .root {
+    width: 100%;
+    padding: 0 0 48px;
+  }
+
+  .backButton {
+    width: 100%;
+    max-width: none;
+    height: 42px;
+    font-size: 15px;
+  }
+
+  .pageHeader {
+    align-items: stretch;
+    flex-direction: column;
+    margin-top: 20px;
+    gap: 14px;
+  }
+
+  .title {
+    font-size: 28px;
+  }
+
+  .sectionTitle {
+    font-size: 20px;
+    margin-bottom: 16px;
+  }
+
+  .addButton {
+    width: 100%;
+    min-width: 0;
+    height: 42px;
+    gap: 12px;
+    font-size: 15px;
+  }
+
+  .card {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    padding: 18px 16px;
+  }
+
+  .cardDepartment {
+    max-width: none;
+    font-size: 14px;
+  }
+
+  .cardTitle {
+    margin-top: 4px;
+    font-size: 20px;
+  }
+
+  .cardEmail {
+    font-size: 14px;
+    margin-top: 0;
+  }
+
+  .statusActive,
+  .statusBlocked,
+  .statusPasswordLock {
+    min-width: 0;
+    height: 28px;
+    padding: 0 12px;
+    font-size: 13px;
+    margin-top: 0;
+  }
+
+  .metaLabel,
+  .metaValue {
+    font-size: 14px;
+  }
+
+  .cardActions {
+    grid-template-columns: 1fr;
+    gap: 8px;
+    margin-top: 14px;
+  }
+
+  .outlineButton,
+  .dangerOutlineButton,
+  .modalCancelButton,
+  .modalSubmitButton,
+  .modalDangerButton,
+  .quickButton,
+  .quickButtonActive {
+    min-height: 40px;
+    font-size: 15px;
+  }
+
+  .stateCard,
+  .emptyCard {
+    padding: 20px 16px;
+    font-size: 14px;
+  }
+
+  .errorBanner,
+  .successBanner {
+    margin-top: 16px;
+    padding: 12px 14px;
+    font-size: 13px;
+  }
+
+  .successBanner {
+    bottom: 16px;
+    width: calc(100% - 24px);
+    flex-wrap: wrap;
+    gap: 10px;
+  }
+
+  .pagination {
+    font-size: 14px;
+  }
+
+  .pagination button {
+    font-size: 28px;
+  }
+
+  .overlay {
+    padding: 0;
+    align-items: flex-end;
+  }
+
+  .modal {
+    width: 100%;
+    max-height: min(92vh, 92dvh);
+    border-radius: 20px 20px 0 0;
+    overflow-y: auto;
+    padding-bottom: max(20px, env(safe-area-inset-bottom, 0px));
+    -webkit-overflow-scrolling: touch;
+  }
+
+  .modalCreate,
+  .modalEdit,
+  .modalBlock {
+    min-height: 0;
+  }
+
+  .modalTitle {
+    padding: 20px 52px 0 16px;
+    font-size: 22px;
+    word-break: break-word;
+  }
+
+  .closeButton {
+    top: 18px;
+    right: 16px;
+  }
+
+  .modalForm,
+  .blockForm {
+    grid-template-columns: 1fr;
+    gap: 14px;
+    margin: 20px 16px 0;
+  }
+
+  .input {
+    height: 44px;
+    padding: 0 16px;
+    font-size: 14px;
+  }
+
+  .fieldLabel {
+    font-size: 14px;
+  }
+
+  .checkboxRow {
+    margin: 16px 16px 0;
+    align-items: flex-start;
+    font-size: 14px;
+    line-height: 1.4;
+  }
+
+  .modalError,
+  .modalSuccess {
+    margin: 12px 16px 0;
+    font-size: 14px;
+  }
+
+  .modalActions {
+    position: sticky;
+    bottom: 0;
+    z-index: 1;
     flex-direction: column-reverse;
-    margin: 24px;
+    align-items: stretch;
+    gap: 10px;
+    margin: 16px 0 0;
+    padding: 14px 16px 4px;
+    background: linear-gradient(to top, #ffffff 85%, rgba(255, 255, 255, 0));
+    border-top: 1px solid #f0ebe3;
   }
 
   .modalCancelButton,
   .modalSubmitButton,
   .modalDangerButton {
     width: 100%;
-  }
-
-  .pagination {
-    grid-template-columns: 44px 1fr 44px;
+    min-width: 0;
   }
 
   .quickActions {
-    flex-wrap: wrap;
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 8px;
+  }
+
+  .quickButton,
+  .quickButtonActive {
+    width: 100%;
+    min-width: 0;
+    padding-inline: 10px;
+    font-size: 14px;
+    white-space: normal;
+    text-align: center;
+  }
+}
+
+@media (max-width: 480px) {
+  .title {
+    font-size: 24px;
+  }
+
+  .sectionTitle {
+    font-size: 18px;
+  }
+
+  .addButton {
+    height: 40px;
+    font-size: 14px;
+  }
+
+  .card {
+    padding: 16px 14px;
+    border-radius: 16px;
+  }
+
+  .cardTitle {
+    font-size: 18px;
+  }
+
+  .statusActive,
+  .statusBlocked,
+  .statusPasswordLock {
+    width: 100%;
+    justify-content: center;
+  }
+
+  .modalTitle {
+    font-size: 20px;
+    padding-right: 48px;
+  }
+
+  .modalForm,
+  .blockForm {
+    margin-inline: 14px;
+  }
+
+  .checkboxRow,
+  .modalError,
+  .modalSuccess {
+    margin-inline: 14px;
+  }
+
+  .modalActions {
+    padding-inline: 14px;
+  }
+
+  .quickActions {
+    grid-template-columns: 1fr;
+  }
+
+  .successBanner {
+    width: calc(100% - 16px);
+    bottom: 12px;
   }
 }
